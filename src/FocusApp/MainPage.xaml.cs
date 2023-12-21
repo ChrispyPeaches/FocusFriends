@@ -1,24 +1,46 @@
-﻿namespace FocusApp
+﻿using CommunityToolkit.Maui.Markup;
+using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+
+namespace FocusApp
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+        int count = 0; 
+        private readonly MainViewModel ViewModel = new();
+        private enum Row { TextEntry }
+        private enum Column { Description, Input }
 
         public MainPage()
         {
-            InitializeComponent();
-        }
+            Content = new Grid
+            {
+                RowDefinitions = Rows.Define(
+                    (Row.TextEntry, 36)
+                ),
+                ColumnDefinitions = Columns.Define(
+                    (Column.Description, Star),
+                    (Column.Input, Stars(2))
+                ),
 
-        private void OnCounterClicked(object sender, EventArgs e)
-        {
-            count++;
+                Children =
+                {
+                    new Label()
+                        .Text("Customer Name:")
+                        .Row(Row.TextEntry).Column(Column.Description),
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+                    new Entry()
+                    {
+                        Keyboard = Keyboard.Numeric,
+                        BackgroundColor = Colors.AliceBlue,
+                    }.Row(Row.TextEntry).Column(Column.Input)
+                        .FontSize(15)
+                        .Placeholder("Enter Name")
+                        .TextColor(Colors.Black)
+                        .Height(44)
+                        .Margin(6, 6)
+                        .Bind(Entry.TextProperty, nameof(ViewModel.Name), BindingMode.TwoWay)
+                }
+            };
         }
     }
 
