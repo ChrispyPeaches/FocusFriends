@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using FocusApp.ViewModels;
 using System.Diagnostics;
 
 namespace FocusApp
 {
-    [INotifyPropertyChanged]
-    public partial class MainViewModel
+    partial class MainViewModel : BaseViewModel
     {
         [ObservableProperty]
         private string? name;
