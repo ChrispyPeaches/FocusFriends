@@ -7,6 +7,9 @@ namespace FocusApp.Pages;
 /// </remarks>
 public abstract class BasePage : ContentPage
 {
+    /// <summary>
+    /// Add C# markup here
+    /// </summary>
     public abstract void Build();
 
     protected override void OnNavigatedTo(NavigatedToEventArgs args)

@@ -1,8 +1,8 @@
 ﻿namespace FocusApp.Pages;
 
-internal sealed class MainPage : BasePage
+internal sealed class TimerPage : BasePage
 {
-	public MainPage()
+	public TimerPage()
 	{
 	}
 
@@ -14,7 +14,7 @@ internal sealed class MainPage : BasePage
 			{
                 new Label
 				{
-                    Text = "Hello World!"
+                    Text = "Timer Page!"
                 }
             }
         };
