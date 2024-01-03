@@ -69,4 +69,8 @@
 	  <ProjectReference Include="..\FocusCore\FocusCore.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="ViewModels\" />
+	</ItemGroup>
+
 </Project>
