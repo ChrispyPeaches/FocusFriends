@@ -1,17 +1,22 @@
 ﻿namespace FocusApp.Pages;
 
-internal sealed class MainPage : BaseContentPage<MainViewModel>
+internal sealed class MainPage : BasePage
 {
-	readonly IDispatcher dispatcher;
-
-	public MainPage(IDispatcher dispatcher,
-					MainViewModel MainViewModel) : base(MainViewModel, "Top Stoes")
+	public MainPage()
 	{
-		this.dispatcher = dispatcher;
 	}
 
-	protected override void OnAppearing()
+	public override void Build()
 	{
-		base.OnAppearing();
-	}
+        Content = new StackLayout
+		{
+            Children =
+			{
+                new Label
+				{
+                    Text = "Hello World!"
+                }
+            }
+        };
+    }
 }

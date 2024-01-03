@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Markup.Sample;
-using FocusApp.Pages;
 using Microsoft.Extensions.Logging;
 
 namespace FocusApp
@@ -19,17 +17,6 @@ namespace FocusApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-
-            // App Shell
-            builder.Services.AddTransient<AppShell>();
-
-            builder.Services
-                .AddSingleton<App>();
-
-            builder.Services.AddTransient<MainPage, MainViewModel>();
-
-            // C# Hot Reload Handler
-            builder.Services.AddSingleton<ICommunityToolkitHotReloadHandler, HotReloadHandler>();
 
 #if DEBUG
             builder.Logging.AddDebug();

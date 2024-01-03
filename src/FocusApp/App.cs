@@ -9,11 +9,11 @@ namespace FocusApp
 {
     class App : Application
     {
-        public App(AppShell shell)
+        public App()
         {
             Resources = new AppStyles();
 
-            MainPage = shell;
+            MainPage = new AppShell();
         }
     }
 }
