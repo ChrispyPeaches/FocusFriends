@@ -12,7 +12,8 @@ public class AppStyles : ResourceDictionary
 							lightOrange = Color.FromArgb("FF6601"),
 							pageBackgroundColorLight = Color.FromArgb("#F6F6EF"),
 							pageBackgroundColorDark = Color.FromArgb("#1B1B1B"),
-							whiteColor = Color.FromArgb("FFFFFF");
+							whiteColor = Color.FromArgb("FFFFFF"),
+							transparent = Colors.Transparent;
 
 	public AppStyles()
 	{
@@ -58,7 +59,7 @@ public class AppStyles : ResourceDictionary
 												.AddAppThemeBinding(Shell.DisabledColorProperty, BlackColor, whiteColor)
 												.AddAppThemeBinding(Shell.UnselectedColorProperty, BlackColor, whiteColor)
 												.AddAppThemeBinding(Shell.ForegroundColorProperty, BlackColor, whiteColor)
-												.AddAppThemeBinding(Shell.BackgroundColorProperty, lightOrange, darkOrange).ApplyToDerivedTypes(true);
+												.AddAppThemeBinding(Shell.BackgroundColorProperty, transparent, transparent).ApplyToDerivedTypes(true);
 
 	public static Style ValidEntryNumericValidationBehaviorStyle { get; } = new Style<Entry>()
 																				.AddAppThemeBinding(Entry.TextColorProperty, BlackColor, pageBackgroundColorDark);

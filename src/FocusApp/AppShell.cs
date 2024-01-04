@@ -1,4 +1,4 @@
-﻿using FocusApp.Pages;
+﻿using FocusApp.Resources;
 
 namespace FocusApp;
 
@@ -7,6 +7,7 @@ class AppShell : Shell
     public AppShell()
     {
         TabBar tabBar = new TabBar();
+        tabBar.Style = AppStyles.ShellStyle;
 
         Tab tabShop = new Tab { Title = "Shop", /*Icon = "home.png"*/};
         tabShop.Items.Add(
