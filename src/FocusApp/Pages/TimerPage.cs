@@ -8,13 +8,16 @@ internal sealed class TimerPage : BasePage
 
 	public override void Build()
 	{
-        Content = new StackLayout
-		{
+        Content = new Grid
+        {
             Children =
-			{
+            {
                 new Label
-				{
-                    Text = "Timer Page!"
+                {
+                    Text = "Timer",
+                    FontSize = 40,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
                 }
             }
         };

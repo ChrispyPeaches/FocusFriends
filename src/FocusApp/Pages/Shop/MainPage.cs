@@ -8,13 +8,16 @@ internal sealed class MainPage : BasePage
 
 	public override void Build()
 	{
-        Content = new StackLayout
+        Content = new Grid
 		{
             Children =
 			{
                 new Label
 				{
-                    Text = "Shop Page!"
+                    Text = "Shop",
+                    FontSize = 40,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
                 }
             }
         };
