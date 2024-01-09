@@ -2,6 +2,8 @@
 using FocusApp.Views;
 using Sharpnado.Tabs;
 using FocusApp.Helpers;
+using FocusApp.Resources.FontAwesomeIcons;
+using FocusApp.Resources;
 
 namespace FocusApp;
 
@@ -17,37 +19,98 @@ internal class MainPage : ContentPage
 #endif
     }
 
+    public BottomTabItem GenerateShopTab()
+    {
+        
+
+
+        BottomTabItem shopTab = new BottomTabItem()
+        {
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center,  
+        }
+        .Paddings(
+            top: 5,
+            bottom: 5,
+            left: 10,
+            right: 10);
+
+        Frame frame = new Frame()
+        {
+            CornerRadius = 20,
+            WidthRequest = 100,
+            HeightRequest = 40,
+            HasShadow = false,
+            BackgroundColor = AppStyles.navigationBarButtonBackgroundColor,
+            Padding = 0,
+            Content = new Label()
+            {
+                Text = SolidIcons.BagShopping,
+                FontFamily = nameof(SolidIcons),
+                FontSize = 20,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            }
+        }.TapGesture(() =>
+        {
+            shopTab.
+        });
+
+        shopTab.Content = frame;
+
+        return shopTab;
+    }
+
+    public BottomTabItem GenerateTimerTab()
+    {
+        return new BottomTabItem()
+        {
+            Content = new Frame()
+            {
+                Content = new Label()
+                {
+                    Text = SolidIcons.Clock,
+                    FontFamily = nameof(SolidIcons),
+                    BackgroundColor = AppStyles.navigationBarButtonBackgroundColor,
+                    FontSize = 10,
+                }
+            }
+        };
+    }
+
     public void Build()
     {
         TabHostView tabHostView = new TabHostView
         {
-            WidthRequest = 250,
+            WidthRequest = 400,
             HeightRequest = 60,
-            CornerRadius = 30,
-            BackgroundColor = Color.FromArgb("#7B7B7B"),
             IsSegmented = true,
             Orientation = OrientationType.Horizontal,
             SegmentedOutlineColor = Color.FromArgb("#B4B4B4"),
             TabType = TabType.Fixed,
             VerticalOptions = LayoutOptions.End,
+            HorizontalOptions = LayoutOptions.Center,
             Tabs =
             {
+                // Shop Tab
+                GenerateShopTab(),
+
+                // Timer Tab
                 new BottomTabItem()
                 {
-                    Label = "Shop"
+                    Label = SolidIcons.Clock,
+                    FontFamily = nameof(SolidIcons)
                 },
+
+                // Social Tab
                 new BottomTabItem()
                 {
-                    Label = "Timer"
-                },
-                new BottomTabItem()
-                {
-                    Label = "Social"
+                    Label = SolidIcons.Users,
+                    FontFamily = nameof(SolidIcons)
                 }
             }
         }
-        .Paddings(20, 0)
-        .CenterHorizontal();
+        .Paddings(0, 0);
 
         ViewSwitcher switcher = new ViewSwitcher()
         {
@@ -88,6 +151,10 @@ internal class MainPage : ContentPage
         };
     }
 
+    /// <summary>
+    /// Used to allow hot reload to work
+    /// </summary>
+    /// <param name="obj"></param>
     private void ReloadUI(Type[] obj)
     {
         MainThread.BeginInvokeOnMainThread(() =>
