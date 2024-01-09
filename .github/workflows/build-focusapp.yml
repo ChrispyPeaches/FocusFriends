@@ -9,9 +9,6 @@ on:
   pull_request:
     branches: [ '*' ]
 
-env:
-  PROJECT_PATH: "src/FocusApp/FocusApp.csproj"
-
 jobs:
   build:
 
@@ -26,8 +23,8 @@ jobs:
     - name: Install .NET Maui
       run: dotnet workload install maui
     - name: Restore dependencies
-      run: dotnet restore $PROJECT_PATH
+      run: dotnet restore src/FocusApp/FocusApp.csproj
     - name: Build
-      run: dotnet build $PROJECT_PATH --configuration Release --framework:net8.0-android --no-restore
+      run: dotnet build src/FocusApp/FocusApp.csproj --configuration Release --framework:net8.0-android --no-restore
     # - name: Test
     #   run: dotnet test --no-build --verbosity normal
