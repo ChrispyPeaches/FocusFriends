@@ -2,15 +2,15 @@
 using FocusCore.Queries;
 using MediatR;
 
-namespace FocusCore.Methods.Shop;
-public class GetShopData
+namespace FocusApi.Methods.User;
+public class GetUserData
 {
-    public class Handler : IRequestHandler<GetShopDataQuery, UserModel>
+    public class Handler : IRequestHandler<GetUserDataQuery, UserModel>
     {
         // TODO: Add db client references
         public Handler() { }
 
-        public async Task<UserModel> Handle(GetShopDataQuery query, CancellationToken cancellationToken)
+        public async Task<UserModel> Handle(GetUserDataQuery query, CancellationToken cancellationToken)
         {
             return new UserModel { Id = Guid.NewGuid(), Name = "Gunter" };
         }

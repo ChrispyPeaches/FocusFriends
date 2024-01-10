@@ -1,13 +1,8 @@
 ﻿using FocusCore.Commands;
 using FocusCore.Models;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FocusCore.Methods.User;
+namespace FocusApi.Methods.User;
 public class CreateUser
 {
     public class Handler : IRequestHandler<CreateUserCommand, Unit>
