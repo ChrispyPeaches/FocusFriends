@@ -13,6 +13,8 @@ namespace FocusApp
             Resources = new AppStyles();
 
             MainPage = new ContentPage() { Content = new Views.SettingsView() };
+
+            //MainPage = new Shell() { CurrentItem = new MainPage() };
         }
     }
 }
