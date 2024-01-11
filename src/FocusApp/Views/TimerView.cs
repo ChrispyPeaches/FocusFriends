@@ -6,6 +6,7 @@
         {
             Content = new Grid
             {
+                BackgroundColor = Colors.PeachPuff,
                 Children =
                 {
                     new Label

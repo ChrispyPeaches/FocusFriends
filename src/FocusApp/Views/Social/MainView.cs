@@ -6,6 +6,7 @@
         {
             Content = new Grid
             {
+                BackgroundColor = Colors.LightGreen, Opacity = 0.9,
                 Children =
                 {
                     new Label
