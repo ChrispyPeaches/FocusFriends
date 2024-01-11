@@ -4,6 +4,9 @@ using Sharpnado.Tabs;
 using FocusApp.Helpers;
 using FocusApp.Resources.FontAwesomeIcons;
 using FocusApp.Resources;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Maui.Controls;
+using Sharpnado.Tabs.Effects;
 
 namespace FocusApp;
 
@@ -19,95 +22,144 @@ internal class MainPage : ContentPage
 #endif
     }
 
-    public BottomTabItem GenerateShopTab()
+
+
+    #region Generate Tabs
+
+    private static BottomTabItem GenerateBaseTab()
     {
-        
-
-
-        BottomTabItem shopTab = new BottomTabItem()
-        {
-            HorizontalOptions = LayoutOptions.Center,
-            VerticalOptions = LayoutOptions.Center,  
-        }
-        .Paddings(
-            top: 5,
-            bottom: 5,
-            left: 10,
-            right: 10);
-
         Frame frame = new Frame()
         {
             CornerRadius = 20,
-            WidthRequest = 100,
             HeightRequest = 40,
             HasShadow = false,
-            BackgroundColor = AppStyles.navigationBarButtonBackgroundColor,
+            BackgroundColor = Colors.Transparent,
             Padding = 0,
+            CascadeInputTransparent = true,
+            InputTransparent = true,
             Content = new Label()
             {
-                Text = SolidIcons.BagShopping,
-                FontFamily = nameof(SolidIcons),
                 FontSize = 20,
+                FontFamily = nameof(SolidIcons),
                 HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
+                VerticalOptions = LayoutOptions.Center,
+                InputTransparent = true
             }
-        }.TapGesture(() =>
-        {
-            shopTab.
-        });
+        };
 
-        shopTab.Content = frame;
+        BottomTabItem baseTab = new BottomTabItem()
+        {
+            HorizontalOptions = LayoutOptions.Center,
+            Background = Colors.Transparent,
+            BackgroundColor = Colors.Transparent, 
+            VerticalOptions = LayoutOptions.Center,
+            Content = frame
+        };
+
+        // If the tab is selected, show the background color
+        baseTab.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(baseTab.IsSelected))
+            {
+                frame.BackgroundColor = baseTab.IsSelected ?
+                    AppStyles.navigationBarButtonBackgroundColor
+                    : Colors.Transparent;
+            }
+        };
+
+        return baseTab;
+    }
+
+    public static BottomTabItem GenerateShopTab()
+    {
+        BottomTabItem shopTab = GenerateBaseTab()
+            .Paddings(
+                top: 5,
+                bottom: 5,
+                left: 10,
+                right: 10);
+
+        Frame frame = VisualTreeElementExtensions
+            .GetVisualTreeDescendants(shopTab)
+            .OfType<Frame>()
+            .First();
+        frame.WidthRequest = 100;
+
+        Label label = VisualTreeElementExtensions
+            .GetVisualTreeDescendants(frame)
+            .OfType<Label>()
+            .First();
+        label.Text = SolidIcons.BagShopping;
 
         return shopTab;
     }
 
-    public BottomTabItem GenerateTimerTab()
+    public static BottomTabItem GenerateTimerTab()
     {
-        return new BottomTabItem()
-        {
-            Content = new Frame()
-            {
-                Content = new Label()
-                {
-                    Text = SolidIcons.Clock,
-                    FontFamily = nameof(SolidIcons),
-                    BackgroundColor = AppStyles.navigationBarButtonBackgroundColor,
-                    FontSize = 10,
-                }
-            }
-        };
+        BottomTabItem timerTab = GenerateBaseTab()
+            .Paddings(
+                top: 5,
+                bottom: 5,
+                left: 10,
+                right: 10);
+
+        Frame frame = VisualTreeElementExtensions
+            .GetVisualTreeDescendants(timerTab)
+            .OfType<Frame>()
+            .First();
+        frame.WidthRequest = 100;
+
+        Label label = VisualTreeElementExtensions
+            .GetVisualTreeDescendants(frame)
+            .OfType<Label>()
+            .First();
+        label.Text = SolidIcons.Clock;
+
+        return timerTab;
     }
+
+    public static BottomTabItem GenerateSocialTab()
+    {
+        BottomTabItem socialTab = GenerateBaseTab()
+            .Paddings(
+                top: 5,
+                bottom: 5,
+                left: 10,
+                right: 10);
+
+        Frame frame = VisualTreeElementExtensions
+            .GetVisualTreeDescendants(socialTab)
+            .OfType<Frame>()
+            .First();
+        frame.WidthRequest = 100;
+
+        Label label = VisualTreeElementExtensions
+            .GetVisualTreeDescendants(frame)
+            .OfType<Label>()
+            .First();
+        label.Text = SolidIcons.Users;
+
+        return socialTab;
+    }
+
+    #endregion
 
     public void Build()
     {
         TabHostView tabHostView = new TabHostView
         {
-            WidthRequest = 400,
             HeightRequest = 60,
-            IsSegmented = true,
+            IsSegmented = true, SegmentedHasSeparator = false, SegmentedOutlineColor = Colors.Transparent,
             Orientation = OrientationType.Horizontal,
-            SegmentedOutlineColor = Color.FromArgb("#B4B4B4"),
             TabType = TabType.Fixed,
             VerticalOptions = LayoutOptions.End,
-            HorizontalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
+            BackgroundColor = Colors.Transparent,
             Tabs =
             {
-                // Shop Tab
                 GenerateShopTab(),
-
-                // Timer Tab
-                new BottomTabItem()
-                {
-                    Label = SolidIcons.Clock,
-                    FontFamily = nameof(SolidIcons)
-                },
-
-                // Social Tab
-                new BottomTabItem()
-                {
-                    Label = SolidIcons.Users,
-                    FontFamily = nameof(SolidIcons)
-                }
+                GenerateTimerTab(),
+                GenerateSocialTab(),
             }
         }
         .Paddings(0, 0);
