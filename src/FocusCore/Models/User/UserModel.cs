@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FocusCore.Models;
+namespace FocusCore.Models.User;
 public class UserModel
 {
     public Guid Id { get; set; }
