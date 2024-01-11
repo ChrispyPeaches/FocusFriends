@@ -144,6 +144,9 @@ internal class MainPage : ContentPage
 
     #endregion
 
+    /// <summary>
+    /// For the main page, we're putting the UI in a separate method so that we can call it again when Hot Reload is triggered.
+    /// </summary>
     public void Build()
     {
         TabHostView tabHostView = new TabHostView
@@ -204,7 +207,7 @@ internal class MainPage : ContentPage
     }
 
     /// <summary>
-    /// Used to allow hot reload to work
+    /// This method is called when Hot Reload is triggered.
     /// </summary>
     /// <param name="obj"></param>
     private void ReloadUI(Type[] obj)
