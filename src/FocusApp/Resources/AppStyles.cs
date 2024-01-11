@@ -4,7 +4,7 @@ namespace FocusApp.Resources;
 
 public class AppStyles : ResourceDictionary
 {
-	static readonly Color browserNavigationBarTextColorDark = Colors.White,
+	public static readonly Color browserNavigationBarTextColorDark = Colors.White,
 							browserNavigationBarTextColorLight = Color.FromArgb("3F3F3F"),
 							browserNavigationBarBackgroundColorDark = Color.FromArgb("BA7E56"),
 							browserNavigationBarBackgroundColorLight = Color.FromArgb("FFE6D5"),
@@ -12,7 +12,8 @@ public class AppStyles : ResourceDictionary
 							lightOrange = Color.FromArgb("FF6601"),
 							pageBackgroundColorLight = Color.FromArgb("#F6F6EF"),
 							pageBackgroundColorDark = Color.FromArgb("#1B1B1B"),
-							whiteColor = Color.FromArgb("FFFFFF");
+							whiteColor = Color.FromArgb("FFFFFF"),
+							navigationBarButtonBackgroundColor = Color.FromArgb("#CEA9FF");
 
 	public AppStyles()
 	{
