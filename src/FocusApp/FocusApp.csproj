@@ -69,8 +69,4 @@
 	  <ProjectReference Include="..\FocusCore\FocusCore.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Views\" />
-	</ItemGroup>
-
 </Project>
