@@ -1,7 +1,7 @@
-﻿using FocusCore.Models;
+﻿using FocusCore.Models.User;
 using MediatR;
 
-namespace FocusCore.Queries;
+namespace FocusCore.Queries.Shop;
 public class GetShopDataQuery : IRequest<UserModel>
 {
     public Guid Id { get; set; }
