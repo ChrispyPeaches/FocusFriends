@@ -76,6 +76,7 @@ internal sealed class SettingsView : ContentView
                 .Row(1)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                .CenterVertical()
                 .ColumnSpan(3),
 
                 // SFX Slider
@@ -87,6 +88,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(1)
                 .Column(2)
+                .CenterVertical()
                 .ColumnSpan(3)
                 // When the value is changed, save it & print for debug
                 .Invoke(s => s.ValueChanged += (sender, e) => {sfxVolume = e.NewValue; Console.WriteLine($"SFX volume is {sfxVolume})");}),
@@ -101,6 +103,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(2)
                 .Column(0)
+                .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
 
@@ -113,6 +116,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(2)
                 .Column(2)
+                .CenterVertical()
                 .ColumnSpan(3)
                 // When the value is changed, save it & print for debug
                 .Invoke(s => s.ValueChanged += (sender, e) => {ambianceVolume = e.NewValue; Console.WriteLine($"New volume is {ambianceVolume})");}),
@@ -127,6 +131,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(3)
                 .Column(0)
+                .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
 
@@ -137,7 +142,9 @@ internal sealed class SettingsView : ContentView
                     OnColor = Colors.Green
                 }
                 .Row(3)
-                .Column(2)
+                .Column(3)
+                .Left()
+                .CenterVertical()
                 .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Notifications Switch Tapped"); }),
 
 
@@ -150,6 +157,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(4)
                 .Column(0)
+                .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
 
@@ -160,7 +168,9 @@ internal sealed class SettingsView : ContentView
                     OnColor = Colors.Green
                 }
                 .Row(4)
-                .Column(2)
+                .Column(3)
+                .Left()
+                .CenterVertical()
                 .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Dark Mode Switch Tapped"); }),
 
 
@@ -174,6 +184,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(5)
                 .Column(0)
+                .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
 
@@ -185,6 +196,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(5)
                 .Column(0)
+                .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3)
                 // When the button is pressed, print for debug
@@ -201,6 +213,7 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(6)
                 .Column(0)
+                .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
 
@@ -212,9 +225,19 @@ internal sealed class SettingsView : ContentView
                 }
                 .Row(6)
                 .Column(0)
-                .Paddings(top: 0, bottom: 0, left: 15, right: 0)
+                .CenterVertical()
+                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(2)
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");})
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");}),
+
+                // Logo
+                new Image
+                {
+                    Source = "logo.png"
+                }
+                .Row(7)
+                .Column(2)
+                .Center()
             }
         };
     }
