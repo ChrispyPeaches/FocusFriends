@@ -22,6 +22,11 @@ internal class MainPage : ContentPage
 #endif
     }
 
+    /// <summary>
+    /// Generate a tab with the specified icon.
+    /// </summary>
+    /// <param name="tabIcon">A FontIcon constant (From <see cref="FocusApp.Resources.FontAwesomeIcons"/>)</param>
+    /// <returns></returns>
     private static BottomTabItem GenerateTab(string tabIcon)
     {
         Frame frame = new Frame()
@@ -69,7 +74,7 @@ internal class MainPage : ContentPage
     }
 
     /// <summary>
-    /// For the main page, we're putting the UI in a separate method so that we can call it again when Hot Reload is triggered.
+    /// For the main page, the UI has a separate method so it can be rebuilt when Hot Reload is triggered.
     /// </summary>
     public void Build()
     {
