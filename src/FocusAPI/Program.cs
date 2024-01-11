@@ -1,4 +1,8 @@
+using FluentValidation;
+using MediatR;
 using System.Reflection;
+using FocusAPI.Configuration.PipelineBehaviors;
+using FocusCore.Validators.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +16,11 @@ builder.Services.AddSwaggerGen();
 // Configure MediatR
 Assembly[] assemblies = [Assembly.GetExecutingAssembly()];
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
+
+// Configure FluentValidation and ValidationPipeline
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+// Register FocusCore assembly containing validators with FluentValidation
+builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator)));
 
 var app = builder.Build();
 

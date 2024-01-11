@@ -1,5 +1,5 @@
-﻿using FocusCore.Models;
-using FocusCore.Queries;
+﻿using FocusCore.Models.User;
+using FocusCore.Queries.Shop;
 using MediatR;
 
 namespace FocusApi.Methods.Shop;
