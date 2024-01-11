@@ -14,12 +14,12 @@ public class MainView : ContentView
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
         for (int i = 0; i < 5; i++)
-        {
+{
             focusingFriends.Add(new ImageCell
-            { 
+    {
                 Text = "Friend" + i,
                 ImageSource = new FileImageSource
-                    {
+        {
                         // Add logic that gets profile picture from friend user data
                         File = "dotnet_bot.png"
                     },
@@ -27,17 +27,17 @@ public class MainView : ContentView
             });
         };
 
-        Content = new Grid
-        {
+            Content = new Grid
+            {
             // Define rows and columns (Star means that row/column will take up the remaining space)
             RowDefinitions = Rows.Define(80, Star),
             ColumnDefinitions = Columns.Define(Star, Star),
 
-            Children =
-            {
-                // Header
-                new Label
+                Children =
                 {
+                // Header
+                    new Label
+                    {
                     Text = "Friends",
                     FontSize = 40
                 }
@@ -80,11 +80,12 @@ public class MainView : ContentView
                     ItemsSource = focusingFriends
                     //ItemTemplate = new DataTemplate(typeof(ImageCell)),
                     //BindingContext = ImageCell.BindingContextProperty
-                }
+                    }
                 .Row(1)
                 .Column(0)
                 .ColumnSpan(2)
-            }
-        };
-	}
+                }
+            };
+        }
+    }
 }
