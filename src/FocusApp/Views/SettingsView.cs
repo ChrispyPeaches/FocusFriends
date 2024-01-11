@@ -10,12 +10,15 @@ internal sealed class SettingsView : ContentView
 {
     public SettingsView()
     {
-        double value = 50;
+        // Defualt volume values for the sliders
+        double sfxVolume = 50;
+        double ambianceVolume = 50;
+
         // Using grids
         Content = new Grid
         {
             // Define the lenth of the rows & columns
-            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, Star),
+            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, Star),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
 
             Children =
@@ -33,7 +36,7 @@ internal sealed class SettingsView : ContentView
                 .CenterVertical()
                 .Paddings(top: 5, bottom: 5, left: 5, right: 5),
 
-                // Button
+                // Back Button
                 new Button
                 {
                      Text = SolidIcons.ChevronLeft,
@@ -46,9 +49,11 @@ internal sealed class SettingsView : ContentView
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .Column(0)
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Clicked");}),
+                // When clicked, go to timer view
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
 
-                // Divider
+
+                // Header & Content Divider
                 new BoxView
                 {
                     Color = Color.Parse("Black"),
@@ -60,7 +65,6 @@ internal sealed class SettingsView : ContentView
                 .Column(0)
                 .ColumnSpan(5),
 
-                // Settings:
 
                 // SFX
                 new Label
@@ -72,21 +76,21 @@ internal sealed class SettingsView : ContentView
                 .Row(1)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3)
-                ,
+                .ColumnSpan(3),
 
                 // SFX Slider
                 new Slider
                 {
                     Maximum = 100,
-                    Value = value,
+                    Value = sfxVolume,
                     WidthRequest = 200,
                 }
-                .Invoke(s => s.ValueChanged += (sender, e) => {value = e.NewValue; Console.WriteLine($"New value is {value})");})
                 .Row(1)
                 .Column(2)
                 .ColumnSpan(3)
-                ,
+                // When the value is changed, save it & print for debug
+                .Invoke(s => s.ValueChanged += (sender, e) => {sfxVolume = e.NewValue; Console.WriteLine($"SFX volume is {sfxVolume})");}),
+
 
                 // Ambiance
                 new Label
@@ -98,8 +102,21 @@ internal sealed class SettingsView : ContentView
                 .Row(2)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                .ColumnSpan(3),
+
+                // Ambiance Slider
+                new Slider
+                {
+                    Maximum = 100,
+                    Value = ambianceVolume,
+                    WidthRequest = 200
+                }
+                .Row(2)
+                .Column(2)
                 .ColumnSpan(3)
-                ,
+                // When the value is changed, save it & print for debug
+                .Invoke(s => s.ValueChanged += (sender, e) => {ambianceVolume = e.NewValue; Console.WriteLine($"New volume is {ambianceVolume})");}),
+
 
                 // Notifications
                 new Label
@@ -111,8 +128,18 @@ internal sealed class SettingsView : ContentView
                 .Row(3)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3)
-                ,
+                .ColumnSpan(3),
+
+                // Notifications Switch
+                new Switch
+                {
+                    ThumbColor = Colors.SlateGrey,
+                    OnColor = Colors.Green
+                }
+                .Row(3)
+                .Column(2)
+                .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Notifications Switch Tapped"); }),
+
 
                 // Dark Mode
                 new Label
@@ -124,34 +151,70 @@ internal sealed class SettingsView : ContentView
                 .Row(4)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3)
-                ,
+                .ColumnSpan(3),
+
+                // Dark Mode Switch
+                new Switch
+                {
+                    ThumbColor = Colors.SlateGrey,
+                    OnColor = Colors.Green
+                }
+                .Row(4)
+                .Column(2)
+                .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Dark Mode Switch Tapped"); }),
+
 
                 // Languages
                 new Label
                 {
                     Text = "Languages",
+                    TextDecorations = TextDecorations.Underline,
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
                 .Row(5)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                .ColumnSpan(3),
+
+                // There should be a way to transform this later into a hyperlink
+                // Invisible button for languages functionality
+                new Button
+                {
+                    Opacity = 0
+                }
+                .Row(5)
+                .Column(0)
+                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3)
-                ,
+                // When the button is pressed, print for debug
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Languages Button Tapped");}),
+
 
                 // About
                 new Label
                 {
-                    Text = "About",
+                    Text = "About", 
+                    TextDecorations = TextDecorations.Underline,
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
                 .Row(6)
                 .Column(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3)
+                .ColumnSpan(3),
 
+                // There should be a way to transform this later into a hyperlink
+                // Invisible button for languages functionality
+                new Button
+                {
+                    Opacity = 0
+                }
+                .Row(6)
+                .Column(0)
+                .Paddings(top: 0, bottom: 0, left: 15, right: 0)
+                .ColumnSpan(2)
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");})
             }
         };
     }
