@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
+using FocusApp.Resources.FontAwesomeIcons;
 using Microsoft.Extensions.Logging;
+using Sharpnado.Tabs;
 
 namespace FocusApp
 {
@@ -12,10 +14,13 @@ namespace FocusApp
             builder.UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMarkup()
+                .UseSharpnadoTabs(loggerEnable: false)
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Font-Awesome-6-Free-Solid.otf", nameof(SolidIcons));
+                    fonts.AddFont("Font-Awesome-6-Free-Regular.otf", nameof(LineArtIcons));
                 });
 
 #if DEBUG
