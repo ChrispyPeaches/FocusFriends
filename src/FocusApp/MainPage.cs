@@ -22,16 +22,11 @@ internal class MainPage : ContentPage
 #endif
     }
 
-
-
-    #region Generate Tabs
-
-    private static BottomTabItem GenerateBaseTab()
+    private static BottomTabItem GenerateTab(string tabIcon)
     {
         Frame frame = new Frame()
         {
             CornerRadius = 20,
-            HeightRequest = 40,
             HasShadow = false,
             BackgroundColor = Colors.Transparent,
             Padding = 0,
@@ -39,20 +34,23 @@ internal class MainPage : ContentPage
             InputTransparent = true,
             Content = new Label()
             {
-                FontSize = 20,
+                FontSize = 30,
                 FontFamily = nameof(SolidIcons),
+                TextColor = Colors.Black,
+                Opacity = 0.8,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center,
-                InputTransparent = true
+                InputTransparent = true,
+                Text = tabIcon
             }
-        };
+        }
+        .FillVertical()
+        .FillHorizontal();
 
         BottomTabItem baseTab = new BottomTabItem()
         {
-            HorizontalOptions = LayoutOptions.Center,
             Background = Colors.Transparent,
-            BackgroundColor = Colors.Transparent, 
-            VerticalOptions = LayoutOptions.Center,
+            BackgroundColor = Colors.Transparent,
             Content = frame
         };
 
@@ -70,80 +68,6 @@ internal class MainPage : ContentPage
         return baseTab;
     }
 
-    public static BottomTabItem GenerateShopTab()
-    {
-        BottomTabItem shopTab = GenerateBaseTab()
-            .Paddings(
-                top: 5,
-                bottom: 5,
-                left: 10,
-                right: 10);
-
-        Frame frame = VisualTreeElementExtensions
-            .GetVisualTreeDescendants(shopTab)
-            .OfType<Frame>()
-            .First();
-        frame.WidthRequest = 100;
-
-        Label label = VisualTreeElementExtensions
-            .GetVisualTreeDescendants(frame)
-            .OfType<Label>()
-            .First();
-        label.Text = SolidIcons.BagShopping;
-
-        return shopTab;
-    }
-
-    public static BottomTabItem GenerateTimerTab()
-    {
-        BottomTabItem timerTab = GenerateBaseTab()
-            .Paddings(
-                top: 5,
-                bottom: 5,
-                left: 10,
-                right: 10);
-
-        Frame frame = VisualTreeElementExtensions
-            .GetVisualTreeDescendants(timerTab)
-            .OfType<Frame>()
-            .First();
-        frame.WidthRequest = 100;
-
-        Label label = VisualTreeElementExtensions
-            .GetVisualTreeDescendants(frame)
-            .OfType<Label>()
-            .First();
-        label.Text = SolidIcons.Clock;
-
-        return timerTab;
-    }
-
-    public static BottomTabItem GenerateSocialTab()
-    {
-        BottomTabItem socialTab = GenerateBaseTab()
-            .Paddings(
-                top: 5,
-                bottom: 5,
-                left: 10,
-                right: 10);
-
-        Frame frame = VisualTreeElementExtensions
-            .GetVisualTreeDescendants(socialTab)
-            .OfType<Frame>()
-            .First();
-        frame.WidthRequest = 100;
-
-        Label label = VisualTreeElementExtensions
-            .GetVisualTreeDescendants(frame)
-            .OfType<Label>()
-            .First();
-        label.Text = SolidIcons.Users;
-
-        return socialTab;
-    }
-
-    #endregion
-
     /// <summary>
     /// For the main page, we're putting the UI in a separate method so that we can call it again when Hot Reload is triggered.
     /// </summary>
@@ -151,21 +75,33 @@ internal class MainPage : ContentPage
     {
         TabHostView tabHostView = new TabHostView
         {
-            HeightRequest = 60,
+            HeightRequest = 70,
             IsSegmented = true, SegmentedHasSeparator = false, SegmentedOutlineColor = Colors.Transparent,
             Orientation = OrientationType.Horizontal,
             TabType = TabType.Fixed,
             VerticalOptions = LayoutOptions.End,
-            HorizontalOptions = LayoutOptions.Fill,
             BackgroundColor = Colors.Transparent,
             Tabs =
             {
-                GenerateShopTab(),
-                GenerateTimerTab(),
-                GenerateSocialTab(),
+                GenerateTab(SolidIcons.BagShopping)
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15),
+                GenerateTab(SolidIcons.Clock)
+                    .Paddings(top: 10, bottom: 10, left: 30, right: 30),
+                GenerateTab(SolidIcons.Users)
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15),
             }
         }
-        .Paddings(0, 0);
+        .Paddings(0, 0)
+        .FillHorizontal();
+
+        VisualTreeElementExtensions
+            .GetVisualTreeDescendants(tabHostView)
+            .OfType<Grid>()
+            .First()
+            .ColumnDefinitions = GridRowsColumns.Columns.Define(
+                GridRowsColumns.Stars(1),
+                GridRowsColumns.Stars(2),
+                GridRowsColumns.Stars(1));
 
         ViewSwitcher switcher = new ViewSwitcher()
         {
