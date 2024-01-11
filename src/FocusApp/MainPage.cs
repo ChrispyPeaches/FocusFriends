@@ -114,15 +114,18 @@ internal class MainPage : ContentPage
             {
                 new DelayedView<Views.Shop.MainView>
                 {
-                    UseActivityIndicator = true
+                    UseActivityIndicator = true,
+                    Animate = true
                 },
                 new DelayedView<TimerView>
                 {
-                    UseActivityIndicator = true
+                    UseActivityIndicator = true,
+                    Animate = true
                 },
                 new DelayedView<Views.Social.MainView>
                 {
-                    UseActivityIndicator = true
+                    UseActivityIndicator = true,
+                    Animate = true
                 }
             }
         }
