@@ -4,22 +4,34 @@ using Sharpnado.Tabs;
 using FocusApp.Helpers;
 using FocusApp.Resources.FontAwesomeIcons;
 using FocusApp.Resources;
+using FocusCore.Queries.User;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Maui.Controls;
 using Sharpnado.Tabs.Effects;
+using FocusApp.Clients;
 
 namespace FocusApp;
 
 internal class MainPage : ContentPage
 {
     private int _selectedTabIndex { get; set; } = 1;
+    private APIService _apiService { get; set; }
 
     public MainPage()
     {
+        _apiService = new APIService();
+        new Action(async () => await LoadData())();
+
         Build();
 #if DEBUG
         HotReloadService.UpdateApplicationEvent += ReloadUI;
 #endif
+    }
+
+    async Task LoadData()
+    {
+        var user = await _apiService.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
+        var g = 8000;
     }
 
     /// <summary>
