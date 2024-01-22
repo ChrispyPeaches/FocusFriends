@@ -1,3 +1,5 @@
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
@@ -11,8 +13,12 @@ namespace FocusApp.Views.Social;
 
 public class MainView : Microsoft.Maui.Controls.ContentView
 {
-	public MainView()
+    private readonly IPopupService popupService;
+
+    public MainView()
 	{
+        this.popupService = new PopupService();
+
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
         for (int i = 0; i < 5; i++)
@@ -80,19 +86,7 @@ public class MainView : Microsoft.Maui.Controls.ContentView
                 .Right()
                 .Column(1)
                 .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
-                .Invoke(b => b.Clicked += (sender, e) => new Popup
-                {
-                    Content = new VerticalStackLayout
-                    {
-                        Children =
-                        {
-                            new Label
-                            {
-                                Text = "This is a very important message!"
-                            }
-                        }
-                    }
-                }.),
+                .Invoke(b => b.Clicked += (s,e) => OnClickShowPopup(s,e)),
 
                 // Friends List
                 new ListView
@@ -106,5 +100,22 @@ public class MainView : Microsoft.Maui.Controls.ContentView
                 .ColumnSpan(2)
             }
         };
+    }
+
+    private void OnClickShowPopup(object sender, EventArgs e)
+    {
+        PopupExtensions.ShowPopup(this, new Popup
+        {
+            Content = new VerticalStackLayout
+            {
+                Children =
+                {
+                    new Label
+                    {
+                        Text = "This is a very important message!"
+                    }
+                }
+            }
+        });
     }
 }
