@@ -1,5 +1,6 @@
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
+using FocusApp.Resources.FontAwesomeIcons;
 using Microsoft.Maui.Controls.Shapes;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -88,7 +89,43 @@ public class MainView : ContentView
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2)
+                .ColumnSpan(2),
+
+                new Button
+                {
+                    Text = SolidIcons.Ankh,
+                    TextColor = Colors.Black,
+                    FontFamily = nameof(SolidIcons),
+                    FontSize = 40,
+                    BackgroundColor = Colors.Transparent
+                }
+                .Row(2)
+                .Column(0)
+                .Invoke(b => b.Clicked += (sender, e) => { Content = new AccountView(); }),
+
+                new Button
+                {
+                    Text = SolidIcons.BanSmoking,
+                    TextColor = Colors.Black,
+                    FontFamily = nameof(SolidIcons),
+                    FontSize = 40,
+                    BackgroundColor = Colors.Transparent
+                }
+                .Row(2)
+                .Column(1)
+                .Invoke(b => b.Clicked += (sender, e) => { Content = new BadgeView(); }),
+
+                new Button
+                {
+                    Text = SolidIcons.BreadSlice,
+                    TextColor = Colors.Black,
+                    FontFamily = nameof(SolidIcons),
+                    FontSize = 40,
+                    BackgroundColor = Colors.Transparent
+                }
+                .Row(3)
+                .Column(0)
+                .Invoke(b => b.Clicked += (sender, e) => { Content = new PetsView(); }),
             }
         };
     }

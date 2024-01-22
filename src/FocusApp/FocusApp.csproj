@@ -71,10 +71,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Views\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <MauiFont Include="Resources\FontAwesomeIcons.cs" />
 	</ItemGroup>
 

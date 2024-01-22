@@ -25,7 +25,6 @@ namespace FocusApp.Views
                     .Top()
                     .Left()
                     .Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
-                    
 
                     new Label
                     {
