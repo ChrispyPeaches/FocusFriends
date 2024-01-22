@@ -1,13 +1,15 @@
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
+using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Platform;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Views.Social;
 
-public class MainView : ContentView
+public class MainView : Microsoft.Maui.Controls.ContentView
 {
 	public MainView()
 	{
@@ -64,7 +66,7 @@ public class MainView : ContentView
                 .ColumnSpan(2),
 
                 // Profile Picture
-                new Image
+                new ImageButton
                 {
                     Source = new FileImageSource
                     {
@@ -77,7 +79,20 @@ public class MainView : ContentView
                 .Top()
                 .Right()
                 .Column(1)
-                .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 }),
+                .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
+                .Invoke(b => b.Clicked += (sender, e) => new Popup
+                {
+                    Content = new VerticalStackLayout
+                    {
+                        Children =
+                        {
+                            new Label
+                            {
+                                Text = "This is a very important message!"
+                            }
+                        }
+                    }
+                }.),
 
                 // Friends List
                 new ListView
