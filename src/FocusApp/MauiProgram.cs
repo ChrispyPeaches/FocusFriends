@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Resources.FontAwesomeIcons;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,10 @@ namespace FocusApp
                     fonts.AddFont("Font-Awesome-6-Free-Solid.otf", nameof(SolidIcons));
                     fonts.AddFont("Font-Awesome-6-Free-Regular.otf", nameof(LineArtIcons));
                 });
+
+            builder.Services.AddSingleton<IPopupService, PopupService>();
+            builder.Services.AddSingleton<MainPage>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();

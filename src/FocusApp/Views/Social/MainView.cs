@@ -17,7 +17,7 @@ public class MainView : Microsoft.Maui.Controls.ContentView
 
     public MainView()
 	{
-        this.popupService = new PopupService();
+        this.popupService = this.Handler.MauiContext.Services.GetService<IPopupService>();
 
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
@@ -104,7 +104,7 @@ public class MainView : Microsoft.Maui.Controls.ContentView
 
     private void OnClickShowPopup(object sender, EventArgs e)
     {
-        PopupExtensions.ShowPopup(this, new Popup
+        popupService.ShowPopup(new Popup
         {
             Content = new VerticalStackLayout
             {
@@ -117,5 +117,19 @@ public class MainView : Microsoft.Maui.Controls.ContentView
                 }
             }
         });
+        
+        /*PopupExtensions.ShowPopup(this, new Popup
+        {
+            Content = new VerticalStackLayout
+            {
+                Children =
+                {
+                    new Label
+                    {
+                        Text = "This is a very important message!"
+                    }
+                }
+            }
+        });*/
     }
 }
