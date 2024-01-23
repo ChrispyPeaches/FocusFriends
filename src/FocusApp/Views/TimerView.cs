@@ -7,6 +7,7 @@ namespace FocusApp.Views
 {
     internal class TimerView : ContentView
     {
+        private TimerHelper _timerHelper;
 
         enum Row { TopBar, TimerDisplay, Island, TimerButtons, BottomWhiteSpace }
         enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
