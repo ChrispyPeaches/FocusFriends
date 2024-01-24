@@ -11,6 +11,7 @@ namespace FocusApp.Views
 
         enum Row { TopBar, TimerDisplay, Island, TimerButtons, BottomWhiteSpace }
         enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
+        public enum TimerButton { Up, Down }
 
         public TimerView()
         {
@@ -57,7 +58,8 @@ namespace FocusApp.Views
                     .End()
                     .CenterVertical()
                     .Row(Row.TimerButtons)
-                    .Column(Column.LeftTimerButton),
+                    .Column(Column.LeftTimerButton)
+                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimerButtonClick(TimerButton.Up)),
 
                     new Label
                     {
@@ -74,14 +76,17 @@ namespace FocusApp.Views
                     {
                         Text = SolidIcons.ChevronDown,
                         BackgroundColor = Colors.Transparent,
-                        TextColor = Colors.Black,
+                        TextColor = Colors.Black
                     }
                     .Font(family: nameof(SolidIcons), size: 40)
                     .Start()
                     .CenterVertical()
                     .Row(Row.TimerButtons)
-                    .Column(Column.RightTimerButton),
+                    .Column(Column.RightTimerButton)
+                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimerButtonClick(TimerButton.Down)),
                 }
+
+                
             };
         }
     }
