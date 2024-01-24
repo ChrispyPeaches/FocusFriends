@@ -2,7 +2,7 @@
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Resources.FontAwesomeIcons;
 using Microsoft.Extensions.Logging;
-using Sharpnado.Tabs;
+using SimpleToolkit.Core;
 
 namespace FocusApp
 {
@@ -14,7 +14,7 @@ namespace FocusApp
             builder.UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMarkup()
-                .UseSharpnadoTabs(loggerEnable: false)
+                .UseSimpleToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
