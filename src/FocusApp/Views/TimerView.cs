@@ -61,13 +61,14 @@ namespace FocusApp.Views
 
                     new Label
                     {
-                        Text = "Timer",
+                        BindingContext = _timerHelper,
                         FontSize = 30,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
                     }
                     .Row(Row.TimerDisplay)
-                    .Column(Column.TimerAmount),
+                    .Column(Column.TimerAmount)
+                    .Bind(Label.TextProperty, getter: static (TimerHelper th) => th.TimerDisplay),
 
                     new Button
                     {
