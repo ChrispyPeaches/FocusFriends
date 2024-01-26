@@ -1,4 +1,5 @@
 ﻿using FocusApp.Resources;
+using SimpleToolkit.SimpleShell;
 
 namespace FocusApp
 {
@@ -12,7 +13,7 @@ namespace FocusApp
         {
             Resources = new AppStyles();
 
-            MainPage = new Shell() { CurrentItem = new MainPage() };
+            MainPage = new AppShell();
         }
     }
 }

@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Resources.FontAwesomeIcons;
-using Sharpnado.Tabs;
 
 namespace FocusApp.Views
 {
-    internal class TimerView : ContentView
+    internal class TimerView : ContentPage
     {
         public TimerView()
         {
@@ -23,8 +22,8 @@ namespace FocusApp.Views
                         BackgroundColor = Colors.Transparent
                     }
                     .Top()
-                    .Left()
-                    .Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
+                    .Left(),
+                    //.Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
                     
 
                     new Label

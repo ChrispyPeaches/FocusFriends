@@ -6,7 +6,7 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views;
 
-internal sealed class SettingsView : ContentView
+internal sealed class SettingsView : ContentPage
 {
     public SettingsView()
     {
@@ -48,10 +48,10 @@ internal sealed class SettingsView : ContentView
                 .Left()
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Column(0)
+                .Column(0),
                 // When clicked, go to timer view
                 //.Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
-                .Invoke(b => b.Clicked += (sender, e) => { Content = new TimerView(); }),
+                //.Invoke(b => b.Clicked += (sender, e) => { Content = new TimerView(); }),
 
 
                 // Header & Content Divider
