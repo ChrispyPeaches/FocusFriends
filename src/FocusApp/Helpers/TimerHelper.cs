@@ -72,7 +72,7 @@ internal class TimerHelper : INotifyPropertyChanged
         private set => SetProperty(ref _toggleTimerButtonBackgroudColor, value);
     }
 
-    private int TimeLeft
+    public int TimeLeft
     {
         get => _timeLeft;
         set
@@ -106,12 +106,12 @@ internal class TimerHelper : INotifyPropertyChanged
     public TimerHelper()
     {
         _timerDisplay = new TimerDto();
-        _lastFocusTimerDuration = TimeSpan.FromMinutes(15).Seconds;
-        _lastBreakTimerDuration = TimeSpan.FromMinutes(5).Seconds;
+        _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
+        _lastBreakTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
         _state = TimerState.StoppedPreFocus;
         _toggleTimerButtonText = "Start Focus";
         _toggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
-        TimeLeft = TimeSpan.FromMinutes(15).Seconds;
+        TimeLeft = _lastFocusTimerDuration;
         ToggleTimer += TransitionToNextState;
     }
 
@@ -119,21 +119,6 @@ internal class TimerHelper : INotifyPropertyChanged
     {
         return (_state == TimerState.FocusCountdown ||
                 _state == TimerState.BreakCountdown);
-    }
-
-    /// <summary>
-    /// Increment or decrement the timer duration.
-    /// </summary>
-    public void onTimeStepperButtonClick(TimerView.TimerButton clickedButton)
-    {
-        int stepAmount = 60;
-
-        TimeLeft = clickedButton switch
-        {
-            TimerView.TimerButton.Up => TimeLeft + stepAmount,
-            TimerView.TimerButton.Down => TimeLeft - stepAmount,
-            _ => 0
-        };
     }
 
     /// <summary>
@@ -279,7 +264,7 @@ internal class TimerHelper : INotifyPropertyChanged
             TimeSpan timeElapsed = DateTime.Now - _lastKnownTime.Value;
             _lastKnownTime = null;
 
-            TimeLeft -= timeElapsed.Seconds;
+            TimeLeft -= (int)timeElapsed.TotalSeconds;
             if (TimeLeft <= 0) 
             {
                 TransitionToNextState();
