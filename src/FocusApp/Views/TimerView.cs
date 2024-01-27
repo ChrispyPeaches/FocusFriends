@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Helpers;
+using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views
@@ -34,6 +35,7 @@ namespace FocusApp.Views
                 BackgroundColor = Color.FromArgb("BBD0FF"),
                 Children =
                 {
+                    // Setting Button
                     new Button
                     {
                         Text = SolidIcons.Gears,
@@ -47,6 +49,19 @@ namespace FocusApp.Views
                     .Left()
                     .Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
 
+                    // Time Left Display
+                    new Label
+                    {
+                        BindingContext = _timerHelper,
+                        FontSize = 30,
+                        HorizontalOptions = LayoutOptions.Center,
+                        VerticalOptions = LayoutOptions.Center
+                    }
+                    .Row(Row.TimerDisplay)
+                    .Column(Column.TimerAmount)
+                    .Bind(Label.TextProperty, getter: static (TimerHelper th) => th.TimerDisplay),
+
+                    // Increase Time Button
                     new Button
                     {
                         Text = SolidIcons.ChevronUp,
@@ -59,19 +74,22 @@ namespace FocusApp.Views
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.LeftTimerButton)
-                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimerButtonClick(TimerButton.Up)),
+                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimeStepperButtonClick(TimerButton.Up)),
 
-                    new Label
+                    // Toggle Timer Button
+                    new Button
                     {
-                        BindingContext = _timerHelper,
-                        FontSize = 30,
-                        HorizontalOptions = LayoutOptions.Center,
-                        VerticalOptions = LayoutOptions.Center
+                        Text = "Start Timer",
+                        BackgroundColor = AppStyles.Palette.Celeste,
+                        TextColor = Colors.Black
                     }
-                    .Row(Row.TimerDisplay)
+                    .Font(size: 20)
+                    .CenterVertical()
+                    .Row(Row.TimerButtons)
                     .Column(Column.TimerAmount)
-                    .Bind(Label.TextProperty, getter: static (TimerHelper th) => th.TimerDisplay),
+                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.ToggleTimer.Invoke(button)),
 
+                    // Decrease Time Button
                     new Button
                     {
                         Text = SolidIcons.ChevronDown,
@@ -83,10 +101,8 @@ namespace FocusApp.Views
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.RightTimerButton)
-                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimerButtonClick(TimerButton.Down)),
+                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimeStepperButtonClick(TimerButton.Down)),
                 }
-
-                
             };
         }
     }

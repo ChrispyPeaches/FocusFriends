@@ -1,6 +1,4 @@
-﻿using AuthenticationServices;
-using CommunityToolkit.Maui.Markup;
-using FocusApp.Resources;
+﻿using FocusApp.Resources;
 
 namespace FocusApp
 {
