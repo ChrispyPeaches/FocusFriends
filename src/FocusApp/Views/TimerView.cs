@@ -59,7 +59,10 @@ namespace FocusApp.Views
                     }
                     .Row(Row.TimerDisplay)
                     .Column(Column.TimerAmount)
-                    .Bind(Label.TextProperty, getter: static (TimerHelper th) => th.TimerDisplay),
+                    .Bind(Label.TextProperty,
+                            getter: static (TimerHelper th) => th.TimerDisplay),
+
+                    // Island
 
                     // Increase Time Button
                     new Button
@@ -74,12 +77,13 @@ namespace FocusApp.Views
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.LeftTimerButton)
-                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.onTimeStepperButtonClick(TimerButton.Up)),
+                    .Invoke(button => button.Clicked += (sender, eventArgs) => 
+                            _timerHelper.onTimeStepperButtonClick(TimerButton.Up)),
 
                     // Toggle Timer Button
                     new Button
                     {
-                        Text = "Start Timer",
+                        BindingContext = _timerHelper,
                         BackgroundColor = AppStyles.Palette.Celeste,
                         TextColor = Colors.Black
                     }
@@ -87,7 +91,12 @@ namespace FocusApp.Views
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.TimerAmount)
-                    .Invoke(button => button.Clicked += (sender, eventArgs) => _timerHelper.ToggleTimer.Invoke(button)),
+                    .Bind(Button.TextProperty,
+                            getter: static (TimerHelper th) => th.ToggleTimerButtonText)
+                    .Bind(Button.BackgroundColorProperty,
+                            getter: static (TimerHelper th) => th.ToggleTimerButtonBackgroudColor)
+                    .Invoke(button => button.Clicked += (sender, eventArgs) =>
+                            _timerHelper.ToggleTimer.Invoke()),
 
                     // Decrease Time Button
                     new Button

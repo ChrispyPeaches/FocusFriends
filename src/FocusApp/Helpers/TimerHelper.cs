@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui.Markup;
+using FocusApp.Resources;
 using FocusApp.Views;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -40,10 +41,13 @@ internal class TimerHelper : INotifyPropertyChanged
     #region Fields
 
     private TimerDto _timerDisplay;
+    private string _toggleTimerButtonText;
     private int _timeLeft;
     private IDispatcherTimer? _timer;
-    private DateTime? lastKnownTime;
-    private TimerState _state = TimerState.StoppedPreStudy;
+    private DateTime? _lastKnownTime;
+    private TimerState _state;
+    private int _lastStudyTimerDuration;
+    private int _lastBreakTimerDuration;
 
     #endregion
 
@@ -54,6 +58,20 @@ internal class TimerHelper : INotifyPropertyChanged
         get => _timerDisplay;
         set => SetProperty(ref _timerDisplay, value);
     }
+
+    public string ToggleTimerButtonText
+    {
+        get => _toggleTimerButtonText;
+        private set => SetProperty(ref _toggleTimerButtonText, value);
+    }
+
+    private Color _toggleTimerButtonBackgroudColor;
+    public Color ToggleTimerButtonBackgroudColor
+    {
+        get => _toggleTimerButtonBackgroudColor;
+        private set => SetProperty(ref _toggleTimerButtonBackgroudColor, value);
+    }
+
     private int TimeLeft
     {
         get => _timeLeft;
@@ -71,7 +89,7 @@ internal class TimerHelper : INotifyPropertyChanged
     #region Delegates
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    public Action<Button> ToggleTimer { get; set; }
+    public Action ToggleTimer { get; set; }
 
     #endregion
 
@@ -88,69 +106,70 @@ internal class TimerHelper : INotifyPropertyChanged
     public TimerHelper()
     {
         _timerDisplay = new TimerDto();
-        ToggleTimer += onTimerToggleButtonClick;
+        _lastStudyTimerDuration = 60;
+        _lastBreakTimerDuration = 60;
+        _state = TimerState.StoppedPreStudy;
+        _toggleTimerButtonText = "Start Studying";
+        _toggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
+        TimeLeft = 60;
+        ToggleTimer += TransitionToNextState;
+    }
+
+    public bool isTimerActive()
+    {
+        return (_state == TimerState.StudyCountdown ||
+                _state == TimerState.BreakCountdown);
     }
 
     public void onTimeStepperButtonClick(TimerView.TimerButton clickedButton)
     {
-        if (clickedButton == TimerView.TimerButton.Up)
+        int stepAmount = 60;
+
+        TimeLeft = clickedButton switch
         {
-            TimeLeft += 60;
-        }
-        else
-        {
-            TimeLeft -= 60;
-        }
-    }
-
-    private void onTimerToggleButtonClick(Button buttonTimerToggle)
-    {
-        TransitionToNextState();
-
-        switch (_state)
-        {
-            case TimerState.StoppedPreStudy:
-                onTimerStop();
-                buttonTimerToggle.Text = "Start Studying";
-                break;
-
-            case TimerState.StudyCountdown:
-                onTimerStart();
-                buttonTimerToggle.Text = "Stop";
-                break;
-
-            case TimerState.StoppedPreBreak:
-                onTimerStop();
-                buttonTimerToggle.Text = "Start Break";
-                break;
-
-            case TimerState.BreakCountdown:
-                onTimerStart();
-                buttonTimerToggle.Text = "Skip";
-                break;
-        }
+            TimerView.TimerButton.Up => TimeLeft + stepAmount,
+            TimerView.TimerButton.Down => TimeLeft - stepAmount,
+            _ => 0
+        };
     }
 
     private void TransitionToNextState()
     {
+        _state = _state switch
+        {
+            TimerState.StoppedPreStudy => TimerState.StudyCountdown,
+            TimerState.StudyCountdown => TimeLeft > 0 ?
+                                            TimerState.StoppedPreStudy
+                                            : TimerState.StoppedPreBreak,
+            TimerState.StoppedPreBreak => TimerState.BreakCountdown,
+            TimerState.BreakCountdown => TimerState.StoppedPreStudy,
+            _ => TimerState.StoppedPreStudy
+        };
+
         switch (_state)
         {
             case TimerState.StoppedPreStudy:
-                _state = TimerState.StudyCountdown;
+                onTimerStop();
+                ToggleTimerButtonText = "Start Studying";
+                ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
                 break;
 
             case TimerState.StudyCountdown:
-                _state = _timeLeft > 0 ?
-                    TimerState.StoppedPreStudy
-                    : TimerState.StoppedPreBreak;
+                onTimerStart();
+                ToggleTimerButtonText = "Stop";
+                ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
                 break;
 
             case TimerState.StoppedPreBreak:
-                _state = TimerState.BreakCountdown;
+                onTimerStop();
+                ToggleTimerButtonText = "Start Break";
+                ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
                 break;
 
             case TimerState.BreakCountdown:
-                _state = TimerState.StoppedPreStudy;
+                onTimerStart();
+                ToggleTimerButtonText = "Skip";
+                ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
                 break;
         }
     }
@@ -166,6 +185,13 @@ internal class TimerHelper : INotifyPropertyChanged
             (TimerDisplay.MinuteTime * 60) +
              TimerDisplay.SecondTime;
 
+        _ = _state switch
+        {
+            TimerState.StudyCountdown => _lastStudyTimerDuration = TimeLeft,
+            TimerState.BreakCountdown => _lastBreakTimerDuration = TimeLeft,
+            _ => 0
+        };
+
         _timer = Application.Current!.Dispatcher.CreateTimer();
         _timer.Interval = TimeSpan.FromMilliseconds(1000);
         _timer.Tick += (sender, eventArgs) =>
@@ -173,7 +199,7 @@ internal class TimerHelper : INotifyPropertyChanged
             TimeLeft--;
             if (TimeLeft <= 0)
             {
-                onTimerStop();
+                TransitionToNextState();
             }
         };
         _timer.Start();
@@ -182,18 +208,21 @@ internal class TimerHelper : INotifyPropertyChanged
 
     private void onTimerStop()
     {
-        _timeLeft = 0;
+        App.WindowDeactivated -= onAppMinimized;
+        App.WindowStopped -= onAppMinimized;
+        App.WindowDestroying -= onAppMinimized;
+
+        TimeLeft = _state switch
+        {
+            TimerState.StoppedPreStudy => _lastStudyTimerDuration,
+            TimerState.StoppedPreBreak => _lastBreakTimerDuration,
+            _ => 60,
+        };
+
         if (_timer != null)
         {
             _timer.Stop();
         }
-
-        TimerDisplay = new TimerDto
-        {
-            HourTime = 0,
-            MinuteTime = 0,
-            SecondTime = 0
-        };
     }
 
     #region App Lifecycle Triggered Logic
@@ -206,7 +235,11 @@ internal class TimerHelper : INotifyPropertyChanged
         App.WindowActivated += onAppResumed;
         App.WindowResumed += onAppResumed;
 
-        lastKnownTime = DateTime.Now;
+        if (_timer != null)
+        {
+            _timer.Stop();
+        }
+        _lastKnownTime = DateTime.Now;
     }
     
     private void onAppResumed()
@@ -217,19 +250,19 @@ internal class TimerHelper : INotifyPropertyChanged
         App.WindowDeactivated += onAppMinimized;
         App.WindowStopped += onAppMinimized;
         
-        TimeSpan? timeElapsed = null;
-        if (lastKnownTime != null)
+        if (_lastKnownTime != null)
         {
-            timeElapsed = DateTime.Now - lastKnownTime.Value;
-            lastKnownTime = null;
-        }
+            TimeSpan timeElapsed = DateTime.Now - _lastKnownTime.Value;
+            _lastKnownTime = null;
 
-        if (_state != TimerState.StoppedPreStudy && timeElapsed != null)
-        {
-            _timeLeft -= timeElapsed.Value.Seconds;
-            if (_timeLeft <= 0)
+            TimeLeft -= timeElapsed.Seconds;
+            if (TimeLeft <= 0) 
             {
-                onTimerStop();
+                TransitionToNextState();
+            }
+            else if (_timer != null)
+            {
+                _timer.Start();
             }
         }
     }
