@@ -32,8 +32,8 @@ internal class TimerHelper : INotifyPropertyChanged
 
     public enum TimerState
     {
-        StoppedPreStudy,
-        StudyCountdown,
+        StoppedPreFocus,
+        FocusCountdown,
         StoppedPreBreak,
         BreakCountdown
     }
@@ -42,11 +42,12 @@ internal class TimerHelper : INotifyPropertyChanged
 
     private TimerDto _timerDisplay;
     private string _toggleTimerButtonText;
+    private Color _toggleTimerButtonBackgroudColor;
     private int _timeLeft;
     private IDispatcherTimer? _timer;
     private DateTime? _lastKnownTime;
     private TimerState _state;
-    private int _lastStudyTimerDuration;
+    private int _lastFocusTimerDuration;
     private int _lastBreakTimerDuration;
 
     #endregion
@@ -65,7 +66,6 @@ internal class TimerHelper : INotifyPropertyChanged
         private set => SetProperty(ref _toggleTimerButtonText, value);
     }
 
-    private Color _toggleTimerButtonBackgroudColor;
     public Color ToggleTimerButtonBackgroudColor
     {
         get => _toggleTimerButtonBackgroudColor;
@@ -106,21 +106,24 @@ internal class TimerHelper : INotifyPropertyChanged
     public TimerHelper()
     {
         _timerDisplay = new TimerDto();
-        _lastStudyTimerDuration = 60;
-        _lastBreakTimerDuration = 60;
-        _state = TimerState.StoppedPreStudy;
-        _toggleTimerButtonText = "Start Studying";
+        _lastFocusTimerDuration = TimeSpan.FromMinutes(15).Seconds;
+        _lastBreakTimerDuration = TimeSpan.FromMinutes(5).Seconds;
+        _state = TimerState.StoppedPreFocus;
+        _toggleTimerButtonText = "Start Focus";
         _toggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
-        TimeLeft = 60;
+        TimeLeft = TimeSpan.FromMinutes(15).Seconds;
         ToggleTimer += TransitionToNextState;
     }
 
     public bool isTimerActive()
     {
-        return (_state == TimerState.StudyCountdown ||
+        return (_state == TimerState.FocusCountdown ||
                 _state == TimerState.BreakCountdown);
     }
 
+    /// <summary>
+    /// Increment or decrement the timer duration.
+    /// </summary>
     public void onTimeStepperButtonClick(TimerView.TimerButton clickedButton)
     {
         int stepAmount = 60;
@@ -133,28 +136,31 @@ internal class TimerHelper : INotifyPropertyChanged
         };
     }
 
+    /// <summary>
+    /// Move between states of the timer and perform transition logic
+    /// </summary>
     private void TransitionToNextState()
     {
         _state = _state switch
         {
-            TimerState.StoppedPreStudy => TimerState.StudyCountdown,
-            TimerState.StudyCountdown => TimeLeft > 0 ?
-                                            TimerState.StoppedPreStudy
+            TimerState.StoppedPreFocus => TimerState.FocusCountdown,
+            TimerState.FocusCountdown => TimeLeft > 0 ?
+                                            TimerState.StoppedPreFocus
                                             : TimerState.StoppedPreBreak,
             TimerState.StoppedPreBreak => TimerState.BreakCountdown,
-            TimerState.BreakCountdown => TimerState.StoppedPreStudy,
-            _ => TimerState.StoppedPreStudy
+            TimerState.BreakCountdown => TimerState.StoppedPreFocus,
+            _ => TimerState.StoppedPreFocus
         };
 
         switch (_state)
         {
-            case TimerState.StoppedPreStudy:
+            case TimerState.StoppedPreFocus:
                 onTimerStop();
-                ToggleTimerButtonText = "Start Studying";
+                ToggleTimerButtonText = "Start Focus";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
                 break;
 
-            case TimerState.StudyCountdown:
+            case TimerState.FocusCountdown:
                 onTimerStart();
                 ToggleTimerButtonText = "Stop";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
@@ -174,6 +180,9 @@ internal class TimerHelper : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Subscribe to app lifecycle events, save the timer duration, then setup and start a timer
+    /// </summary>
     private void onTimerStart()
     {
         App.WindowDeactivated += onAppMinimized;
@@ -187,13 +196,13 @@ internal class TimerHelper : INotifyPropertyChanged
 
         _ = _state switch
         {
-            TimerState.StudyCountdown => _lastStudyTimerDuration = TimeLeft,
+            TimerState.FocusCountdown => _lastFocusTimerDuration = TimeLeft,
             TimerState.BreakCountdown => _lastBreakTimerDuration = TimeLeft,
             _ => 0
         };
 
         _timer = Application.Current!.Dispatcher.CreateTimer();
-        _timer.Interval = TimeSpan.FromMilliseconds(1000);
+        _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += (sender, eventArgs) =>
         {
             TimeLeft--;
@@ -205,28 +214,38 @@ internal class TimerHelper : INotifyPropertyChanged
         _timer.Start();
     }
 
-
+    /// <summary>
+    /// Unsubscribe from app lifecyce events, 
+    /// stop the timer,
+    /// and reset the timer to the last used duration for this state.
+    /// </summary>
     private void onTimerStop()
     {
         App.WindowDeactivated -= onAppMinimized;
         App.WindowStopped -= onAppMinimized;
         App.WindowDestroying -= onAppMinimized;
 
-        TimeLeft = _state switch
-        {
-            TimerState.StoppedPreStudy => _lastStudyTimerDuration,
-            TimerState.StoppedPreBreak => _lastBreakTimerDuration,
-            _ => 60,
-        };
-
         if (_timer != null)
         {
             _timer.Stop();
         }
+
+        TimeLeft = _state switch
+        {
+            TimerState.StoppedPreFocus => _lastFocusTimerDuration,
+            TimerState.StoppedPreBreak => _lastBreakTimerDuration,
+            _ => 60,
+        };
+
     }
 
     #region App Lifecycle Triggered Logic
 
+    /// <summary>
+    /// Rotate the subscribed app lifecycle events,
+    /// stop the timer,
+    /// and keep track of when the app was minimized.
+    /// </summary>
     private void onAppMinimized()
     {
         App.WindowDeactivated -= onAppMinimized;
@@ -242,6 +261,11 @@ internal class TimerHelper : INotifyPropertyChanged
         _lastKnownTime = DateTime.Now;
     }
     
+    /// <summary>
+    /// Rotate the app lifecycle events,
+    /// subtract the time outside of the app from the time left on the timer,
+    /// and continute the timer or transition to the next state
+    /// </summary>
     private void onAppResumed()
     {
         App.WindowResumed -= onAppResumed;
@@ -269,6 +293,8 @@ internal class TimerHelper : INotifyPropertyChanged
 
     #endregion
 
+    #region Property Changed Notification Logic
+
     protected void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
     {
         if (EqualityComparer<T>.Default.Equals(backingStore, value))
@@ -283,4 +309,6 @@ internal class TimerHelper : INotifyPropertyChanged
 
     void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    #endregion
 }

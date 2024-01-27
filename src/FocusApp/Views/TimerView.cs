@@ -53,7 +53,7 @@ namespace FocusApp.Views
                     new Label
                     {
                         BindingContext = _timerHelper,
-                        FontSize = 30,
+                        FontSize = 60,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
                     }
@@ -84,7 +84,6 @@ namespace FocusApp.Views
                     new Button
                     {
                         BindingContext = _timerHelper,
-                        BackgroundColor = AppStyles.Palette.Celeste,
                         TextColor = Colors.Black
                     }
                     .Font(size: 20)
