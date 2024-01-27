@@ -43,6 +43,7 @@ internal class TimerHelper : INotifyPropertyChanged
     private TimerDto _timerDisplay;
     private string _toggleTimerButtonText;
     private Color _toggleTimerButtonBackgroudColor;
+    private bool _areStepperButtonsVisible;
     private int _timeLeft;
     private IDispatcherTimer? _timer;
     private DateTime? _lastKnownTime;
@@ -72,12 +73,21 @@ internal class TimerHelper : INotifyPropertyChanged
         private set => SetProperty(ref _toggleTimerButtonBackgroudColor, value);
     }
 
+    public bool AreStepperButtonsVisible
+    {
+        get => _areStepperButtonsVisible;
+        private set => SetProperty(ref _areStepperButtonsVisible, value);
+    }
+
     public int TimeLeft
     {
         get => _timeLeft;
         set
         {
+            int maxTime = (int)TimeSpan.FromHours(5).TotalSeconds;
+
             value = (value < 0) ? 0 : value;
+            value = (value > maxTime) ? maxTime : value;
 
             SetProperty(ref _timeLeft, value);
             UpdateTimerDisplay();
@@ -112,6 +122,7 @@ internal class TimerHelper : INotifyPropertyChanged
         _toggleTimerButtonText = "Start Focus";
         _toggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
         TimeLeft = _lastFocusTimerDuration;
+        AreStepperButtonsVisible = true;
         ToggleTimer += TransitionToNextState;
     }
 
@@ -143,24 +154,28 @@ internal class TimerHelper : INotifyPropertyChanged
                 onTimerStop();
                 ToggleTimerButtonText = "Start Focus";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
+                AreStepperButtonsVisible = true;
                 break;
 
             case TimerState.FocusCountdown:
                 onTimerStart();
                 ToggleTimerButtonText = "Stop";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
+                AreStepperButtonsVisible = false;
                 break;
 
             case TimerState.StoppedPreBreak:
                 onTimerStop();
                 ToggleTimerButtonText = "Start Break";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
+                AreStepperButtonsVisible = true;
                 break;
 
             case TimerState.BreakCountdown:
                 onTimerStart();
                 ToggleTimerButtonText = "Skip";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
+                AreStepperButtonsVisible = false;
                 break;
         }
     }

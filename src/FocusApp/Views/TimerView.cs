@@ -47,18 +47,21 @@ namespace FocusApp.Views
                     .Row(Row.TopBar)
                     .Top()
                     .Left()
+                    .Bind(IsVisibleProperty,
+                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
                     .Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
 
                     // Time Left Display
                     new Label
                     {
                         BindingContext = _timerHelper,
-                        FontSize = 60,
+                        FontSize = 70,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
                     }
+                    .Center()
                     .Row(Row.TimerDisplay)
-                    .Column(Column.TimerAmount)
+                    .ColumnSpan(typeof(Column).GetEnumNames().Length)
                     .Bind(Label.TextProperty,
                             getter: static (TimerHelper th) => th.TimerDisplay),
 
@@ -75,24 +78,29 @@ namespace FocusApp.Views
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.LeftTimerButton)
+                    .Bind(IsVisibleProperty,
+                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
                     .Invoke(button => button.Clicked += (sender, eventArgs) => 
                             onTimeStepperButtonClick(TimerButton.Up))
-                    .Invoke(button => button.Pressed += (sender, eventArgs) => onTimeStepperButtonPressed(TimerButton.Up))
-                    .Invoke(button => button.Released += (sender, eventArgs) => onTimeStepperButtonReleased()),
+                    .Invoke(button => button.Pressed += (sender, eventArgs) =>
+                            onTimeStepperButtonPressed(TimerButton.Up))
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                            onTimeStepperButtonReleased()),
 
                     // Toggle Timer Button
                     new Button
                     {
                         BindingContext = _timerHelper,
-                        TextColor = Colors.Black
+                        TextColor = Colors.Black,
+                        CornerRadius = 20,
                     }
-                    .Font(size: 20)
+                    .Font(size: 20).Margins(left: 10, right: 10)
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.TimerAmount)
                     .Bind(Button.TextProperty,
                             getter: static (TimerHelper th) => th.ToggleTimerButtonText)
-                    .Bind(Button.BackgroundColorProperty,
+                    .Bind(BackgroundColorProperty,
                             getter: static (TimerHelper th) => th.ToggleTimerButtonBackgroudColor)
                     .Invoke(button => button.Clicked += (sender, eventArgs) =>
                             _timerHelper.ToggleTimer.Invoke()),
@@ -100,6 +108,7 @@ namespace FocusApp.Views
                     // Decrease Time Button
                     new Button
                     {
+                        BindingContext = _timerHelper,
                         Text = SolidIcons.ChevronDown,
                         BackgroundColor = Colors.Transparent,
                         TextColor = Colors.Black
@@ -109,9 +118,14 @@ namespace FocusApp.Views
                     .CenterVertical()
                     .Row(Row.TimerButtons)
                     .Column(Column.RightTimerButton)
-                    .Invoke(button => button.Clicked += (sender, eventArgs) => onTimeStepperButtonClick(TimerButton.Down))
-                    .Invoke(button => button.Pressed += (sender, eventArgs) => onTimeStepperButtonPressed(TimerButton.Down))
-                    .Invoke(button => button.Released += (sender, eventArgs) => onTimeStepperButtonReleased()),
+                    .Bind(IsVisibleProperty, 
+                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper )
+                    .Invoke(button => button.Clicked += (sender, eventArgs) =>
+                            onTimeStepperButtonClick(TimerButton.Down))
+                    .Invoke(button => button.Pressed += (sender, eventArgs) =>
+                            onTimeStepperButtonPressed(TimerButton.Down))
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                            onTimeStepperButtonReleased()),
                 }
             };
         }
@@ -139,7 +153,7 @@ namespace FocusApp.Views
         public void onTimeStepperButtonPressed(TimerButton clickedButton)
         {
             _timeStepperTimer = Application.Current!.Dispatcher.CreateTimer();
-            _timeStepperTimer.Interval = TimeSpan.FromMilliseconds(250);
+            _timeStepperTimer.Interval = TimeSpan.FromMilliseconds(200);
             _timeStepperTimer.Tick += (sender, e) => onTimeStepperButtonClick(clickedButton);
             _timeStepperTimer.Start();
         }
