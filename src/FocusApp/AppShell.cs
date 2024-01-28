@@ -5,6 +5,7 @@ using FocusApp.Resources.FontAwesomeIcons;
 using FocusApp.Resources;
 using Microsoft.Maui.Controls;
 using SimpleToolkit.SimpleShell;
+using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp;
 
@@ -40,6 +41,28 @@ internal class AppShell : SimpleShell
                      Route = "TimerView"
                 }
             }
+        };
+        var grid = new Grid()
+        {
+            // Define the lenth of the rows & columns
+            RowDefinitions = Rows.Define(50, Star),
+            ColumnDefinitions = Columns.Define(50, Star),
+
+            Children =
+            {
+                // Header
+                new HorizontalStackLayout
+                {
+                    
+                }
+                .Row(0)
+                .Column(1)
+            }
+        };
+
+        var rootPageContainer = RootPageContainer
+        {
+            Items.Add()
         };
 
         var tabbar = new TabBar() { Title = "Tabbar", Route = "Tab" };
