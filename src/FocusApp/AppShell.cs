@@ -9,12 +9,12 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp;
 
-internal class AppShell : SimpleShell
+public class AppShell : SimpleShell
 {
-    private int _selectedTabIndex { get; set; } = 1;
-
     public AppShell()
     {
+        Routing.RegisterRoute(nameof(Views.Social.MainView), typeof(Views.Social.MainView));
+
         var tab = new Tab()
         {
             Title = "SettingsView",
@@ -42,27 +42,42 @@ internal class AppShell : SimpleShell
                 }
             }
         };
-        var grid = new Grid()
+
+
+        RootPageContainer = new Grid()
         {
-            // Define the lenth of the rows & columns
-            RowDefinitions = Rows.Define(50, Star),
-            ColumnDefinitions = Columns.Define(50, Star),
+            // Define the rows & columns
+            RowDefinitions = Rows.Define(Star, Auto),
 
             Children =
             {
-                // Header
                 new HorizontalStackLayout
                 {
-                    
-                }
-                .Row(0)
-                .Column(1)
-            }
-        };
+                    HorizontalOptions = LayoutOptions.Center,
+                    Spacing = 10,
 
-        var rootPageContainer = RootPageContainer
-        {
-            Items.Add()
+
+                    Children =
+                    {
+                        new Button
+                        {
+                            Text = "Shop"
+                        },
+
+                        new Button
+                        {
+                            Text = "Timer"
+                        },
+
+                        new Button
+                        {
+                            Text = "Social"
+                        }
+                    }
+                }
+                .Row(1)
+                .Margin(20, 5)
+            }
         };
 
         var tabbar = new TabBar() { Title = "Tabbar", Route = "Tab" };
