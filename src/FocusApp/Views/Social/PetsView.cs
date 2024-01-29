@@ -13,8 +13,8 @@ internal sealed class PetsView : ContentView
 		Content = new Grid
 		{
 			// Define the length of the rows & columns
-			RowDefinitions = Rows.Define(80, 70, Star),
-			ColumnDefinitions = Columns.Define(Star, Star, Star, Star),
+			RowDefinitions = Rows.Define(80, Star, Star, Star, Star, Star, Star, Star, Star),
+			ColumnDefinitions = Columns.Define(Star, Star),
 			Children = {
 
 				// Header
@@ -57,8 +57,44 @@ internal sealed class PetsView : ContentView
 				.Bottom()
 				.Row(0)
 				.Column(0)
-				.ColumnSpan(5),
-			}
+				.ColumnSpan(int.MaxValue),
+
+				// Image 1
+				new BoxView
+				{
+					Color = Colors.DarkGray,
+					WidthRequest = 150,
+					HeightRequest = 150,
+					CornerRadius = 30,
+					Shadow = new Shadow
+					{
+						Brush = Colors.Black,
+						Opacity = 0.35f
+					}
+				}
+				.Row(2)
+				.Column(0)
+				.ColumnSpan(0)
+				.Center()
+				.Bottom(),
+
+				// Sub Image 1
+				
+
+				// Image 2
+				new BoxView
+                {
+                    Color = Colors.DarkGray,
+                    WidthRequest = 150,
+                    HeightRequest = 150,
+                    CornerRadius = 30
+                }
+                .Row(2)
+                .Column(1)
+                .ColumnSpan(2)
+                .Center()
+                .Bottom()
+            }
 		};
 	}
 }
