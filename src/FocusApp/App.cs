@@ -1,4 +1,5 @@
-﻿using FocusApp.Resources;
+﻿using FocusApp.Clients;
+using FocusApp.Resources;
 
 namespace FocusApp
 {
@@ -10,6 +11,7 @@ namespace FocusApp
         /// </summary>
         public App()
         {
+            //var user = apiClient.GetUser(new FocusCore.Queries.User.GetUserQuery { Id = Guid.NewGuid() });
             Resources = new AppStyles();
 
             MainPage = new Shell() { CurrentItem = new MainPage() };

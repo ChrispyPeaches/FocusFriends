@@ -9,29 +9,36 @@ using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Maui.Controls;
 using Sharpnado.Tabs.Effects;
 using FocusApp.Clients;
+using Refit;
+using FocusCore.Models.User;
 
 namespace FocusApp;
-
 internal class MainPage : ContentPage
 {
     private int _selectedTabIndex { get; set; } = 1;
-    private APIService _apiService { get; set; }
-
+    private IAPIClient _client { get; set; }
+    Helpers.RestService restService { get; set; }
     public MainPage()
     {
-        _apiService = new APIService();
-        new Action(async () => await LoadData())();
-
+        _client = Refit.RestService.For<IAPIClient>("http://10.0.2.2:5223");
+        //new Action(async () => await LoadData())();
+        //restService = new Helpers.RestService();
         Build();
 #if DEBUG
         HotReloadService.UpdateApplicationEvent += ReloadUI;
 #endif
     }
 
-    async Task LoadData()
+    async Task<UserModel> LoadData()
     {
-        var user = await _apiService.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
-        var g = 8000;
+        var user = await restService.GetUser();
+        return user;
+    }
+
+    protected override async void OnAppearing()
+    {
+        var user = await _client.GetUser();
+        base.OnAppearing();
     }
 
     /// <summary>

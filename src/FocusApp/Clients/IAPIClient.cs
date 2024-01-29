@@ -11,5 +11,5 @@ namespace FocusApp.Clients;
 public interface IAPIClient
 {
     [Get("/User")]
-    Task<UserModel> GetUser(GetUserQuery query);
+    Task<UserModel> GetUser();
 }

@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Clients;
+using FocusApp.Helpers;
 using FocusApp.Resources.FontAwesomeIcons;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Refit;
 using Sharpnado.Tabs;
