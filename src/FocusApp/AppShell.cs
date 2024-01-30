@@ -15,7 +15,7 @@ public class AppShell : SimpleShell
     {
         Routing.RegisterRoute(nameof(Views.Social.MainView), typeof(Views.Social.MainView));
 
-        var tab = new Tab()
+        var shopTab = new Tab()
         {
             Title = "SettingsView",
             Route = "SettingsView",
@@ -28,7 +28,7 @@ public class AppShell : SimpleShell
              }
          }
         };
-        var tab2 = new Tab()
+        var timerTab = new Tab()
         {
             Title = "TimerView",
             Route = "TimerView",
@@ -42,6 +42,20 @@ public class AppShell : SimpleShell
                 }
             }
         };
+        var socialTab = new Tab()
+        {
+            Title = "SocialView",
+            Route = "Views/Social/MainView",
+            Items =
+            {
+                new ShellContent()
+                {
+                     Title = "SocialView",
+                     ContentTemplate = new DataTemplate(() => new Views.Social.MainView()),
+                     Route = "Views/Social/MainView"
+                }
+            }
+        };
 
 
         RootPageContainer = new Grid()
@@ -51,28 +65,35 @@ public class AppShell : SimpleShell
 
             Children =
             {
+                new SimpleNavigationHost(),
                 new HorizontalStackLayout
                 {
                     HorizontalOptions = LayoutOptions.Center,
                     Spacing = 10,
 
-
                     Children =
                     {
                         new Button
                         {
-                            Text = "Shop"
-                        },
-
-                        new Button
-                        {
-                            Text = "Timer"
-                        },
-
-                        new Button
-                        {
-                            Text = "Social"
+                            Text = "Shop",
+                            BindingContext = shopTab
                         }
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs)),
+
+                        new Button
+                        {
+                            Text = "Timer",
+                            BindingContext = timerTab
+                        }.Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs)),
+
+                        new Button
+                        {
+                            Text = "Social",
+                            BindingContext = socialTab
+                        }.Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs))
                     }
                 }
                 .Row(1)
@@ -81,8 +102,9 @@ public class AppShell : SimpleShell
         };
 
         var tabbar = new TabBar() { Title = "Tabbar", Route = "Tab" };
-        tabbar.Items.Add(tab2);
-        tabbar.Items.Add(tab);
+        tabbar.Items.Add(timerTab);
+        tabbar.Items.Add(shopTab);
+        tabbar.Items.Add(socialTab);
         Items.Add(tabbar);
 
         Build();
