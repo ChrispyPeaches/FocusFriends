@@ -9,7 +9,7 @@ public class UserSessionHistory
     [Key]
     public Guid Id { get; set; }
 
-    public Users UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public DateTimeOffset SessionStartTime { get; set; }
 

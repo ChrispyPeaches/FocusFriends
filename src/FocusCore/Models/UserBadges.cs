@@ -9,7 +9,7 @@ public class UserBadges
     [Key]
     public Guid Id { get; set; }
 
-    public Users UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     public ICollection<Badges>? Badges { get; set; }
 }

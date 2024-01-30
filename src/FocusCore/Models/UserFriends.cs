@@ -9,7 +9,7 @@ public class UserFriends
     [Key]
     public Guid Id { get; set; }
 
-    public Users PrimaryUser { get; set; } = null!;
+    public Guid PrimaryUserId { get; set; }
 
     public ICollection<Users>? FriendIds { get; set; }
 
