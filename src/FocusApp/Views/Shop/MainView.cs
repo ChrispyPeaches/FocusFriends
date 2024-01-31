@@ -5,12 +5,8 @@ namespace FocusApp.Views.Shop
 {
     internal class MainView : ContentView
     {
-        private IAPIClient _client { get; set; }
-
         public MainView()
         {
-            _client = RestService.For<IAPIClient>("http://10.0.2.2:5223");
-            //new Action(async () => await LoadData())();
             Content = new Grid
             {
                 BackgroundColor = Colors.LightYellow,
@@ -25,12 +21,6 @@ namespace FocusApp.Views.Shop
                     }
                 }
             };
-        }
-
-        public async Task LoadData()
-        {
-            var users = await _client.GetUser();
-            var g = 8;
         }
     }
 }

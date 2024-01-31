@@ -17,27 +17,18 @@ internal class MainPage : ContentPage
 {
     private int _selectedTabIndex { get; set; } = 1;
     private IAPIClient _client { get; set; }
-    Helpers.RestService restService { get; set; }
     public MainPage()
     {
-        _client = Refit.RestService.For<IAPIClient>("http://10.0.2.2:5223");
-        //new Action(async () => await LoadData())();
-        //restService = new Helpers.RestService();
+        _client = RestService.For<IAPIClient>("http://10.0.2.2:5223");
         Build();
 #if DEBUG
         HotReloadService.UpdateApplicationEvent += ReloadUI;
 #endif
     }
 
-    async Task<UserModel> LoadData()
-    {
-        var user = await restService.GetUser();
-        return user;
-    }
-
     protected override async void OnAppearing()
     {
-        var user = await _client.GetUser();
+        var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
         base.OnAppearing();
     }
 
