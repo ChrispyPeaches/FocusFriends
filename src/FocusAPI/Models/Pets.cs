@@ -7,7 +7,7 @@ namespace FocusCore.Models;
 public class Pets
 {
     [Key]
-    public Guid PetId { get; set; }
+    public Guid Id { get; set; }
 
     public int Price { get; set; }
 

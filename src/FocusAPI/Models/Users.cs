@@ -7,7 +7,7 @@ namespace FocusCore.Models;
 public class Users
 {
 	[Key]
-	public Guid UserId { get; set; }
+	public Guid Id { get; set; }
 
 	public string Email { get; set; } = null!;
 

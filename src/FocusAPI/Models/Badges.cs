@@ -7,7 +7,7 @@ namespace FocusCore.Models;
 public class Badges
 {
     [Key]
-    public Guid BadgeId { get; set; }
+    public Guid Id { get; set; }
 
     public string Name { get; set; } = null!;
 
