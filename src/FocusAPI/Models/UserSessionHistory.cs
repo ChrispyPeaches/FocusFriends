@@ -2,14 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FocusCore.Models;
+namespace FocusAPI.Models;
 
 public class UserSessionHistory
 {
     [Key]
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 
     public DateTimeOffset SessionStartTime { get; set; }
 

@@ -2,9 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FocusCore.Models;
+namespace FocusAPI.Models;
 
-public class Pets
+[Table("Pets")]
+public class Pet
 {
     [Key]
     public Guid Id { get; set; }

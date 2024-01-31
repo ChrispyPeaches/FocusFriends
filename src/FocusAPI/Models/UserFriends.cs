@@ -2,15 +2,15 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FocusCore.Models;
+namespace FocusAPI.Models;
 
 public class UserFriends
 {
     [Key]
     public Guid Id { get; set; }
 
-    public Guid PrimaryUserId { get; set; }
+    public User User { get; set; } = null!;
 
-    public ICollection<Users>? FriendIds { get; set; }
+    public User Friend { get; set; } = null!;
 
 }

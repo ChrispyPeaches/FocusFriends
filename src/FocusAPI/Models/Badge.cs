@@ -2,9 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FocusCore.Models;
+namespace FocusAPI.Models;
 
-public class Badges
+[Table("Badges")]
+public class Badge
 {
     [Key]
     public Guid Id { get; set; }

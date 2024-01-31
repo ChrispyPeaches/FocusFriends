@@ -2,14 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FocusCore.Models;
+namespace FocusAPI.Models;
 
 public class UserBadges
 {
     [Key]
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public User User { get; set; } = null!;
 
-    public ICollection<Badges>? Badges { get; set; }
+    public Badge Badge { get; set; } = null!;
+
+    public DateTimeOffset DateAcquired { get; set; }
 }
