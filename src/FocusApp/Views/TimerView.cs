@@ -22,8 +22,9 @@ namespace FocusApp.Views
                         BackgroundColor = Colors.Transparent
                     }
                     .Top()
-                    .Left(),
-                    //.Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
+                    .Left()
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                            SettingsButtonClicked(sender, eventArgs)),
                     
 
                     new Label
@@ -35,6 +36,11 @@ namespace FocusApp.Views
                     }
                 }
             };
+        }
+
+        private async void SettingsButtonClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(SettingsView));
         }
     }
 }

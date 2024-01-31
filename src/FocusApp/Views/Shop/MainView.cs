@@ -1,6 +1,6 @@
 ﻿namespace FocusApp.Views.Shop
 {
-    internal class MainView : ContentView
+    internal class MainView : ContentPage
     {
         public MainView()
         {

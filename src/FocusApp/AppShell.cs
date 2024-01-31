@@ -13,18 +13,18 @@ public class AppShell : SimpleShell
 {
     public AppShell()
     {
-        Routing.RegisterRoute(nameof(Views.Social.MainView), typeof(Views.Social.MainView));
+        Routing.RegisterRoute(nameof(Views.Social.MainPage), typeof(Views.Social.MainPage));
 
         var shopTab = new Tab()
         {
-            Title = "SettingsView",
-            Route = "SettingsView",
+            Title = "ShopView",
+            Route = "ShopView",
             Items = {
              new ShellContent()
              {
-                 Title = "SettingsView",
-                 ContentTemplate = new DataTemplate(() => new SettingsView()),
-                 Route = "SettingsView"
+                 Title = "ShopView",
+                 ContentTemplate = new DataTemplate(() => new Views.Shop.MainView()),
+                 Route = "ShopView"
              }
          }
         };
@@ -44,15 +44,29 @@ public class AppShell : SimpleShell
         };
         var socialTab = new Tab()
         {
-            Title = "SocialView",
-            Route = "Views/Social/MainView",
+            Title = "SocialPage",
+            Route = "SocialPage",
             Items =
             {
                 new ShellContent()
                 {
-                     Title = "SocialView",
-                     ContentTemplate = new DataTemplate(() => new Views.Social.MainView()),
-                     Route = "Views/Social/MainView"
+                     Title = "SocialPage",
+                     ContentTemplate = new DataTemplate(() => new Views.Social.MainPage()),
+                     Route = "SocialPage"
+                }
+            }
+        };
+        var settingsTab = new Tab()
+        {
+            Title = "SettingsView",
+            Route = "SettingsView",
+            Items =
+            {
+                new ShellContent()
+                {
+                     Title = "SettingsView",
+                     ContentTemplate = new DataTemplate(() => new SettingsView()),
+                     Route = "SettingsView"
                 }
             }
         };
@@ -60,6 +74,9 @@ public class AppShell : SimpleShell
 
         RootPageContainer = new Grid()
         {
+            // Define tab container background color
+            BackgroundColor = Color.FromArgb("#C8B6FF"),
+
             // Define the rows & columns
             RowDefinitions = Rows.Define(Star, Auto),
 
@@ -68,8 +85,9 @@ public class AppShell : SimpleShell
                 new SimpleNavigationHost(),
                 new HorizontalStackLayout
                 {
+                    BackgroundColor = Color.FromArgb("#C8B6FF"),
                     HorizontalOptions = LayoutOptions.Center,
-                    Spacing = 10,
+                    Spacing = 30,
 
                     Children =
                     {
@@ -85,15 +103,41 @@ public class AppShell : SimpleShell
                         {
                             Text = "Timer",
                             BindingContext = timerTab
-                        }.Invoke(button => button.Released += (sender, eventArgs) =>
+                        }
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
                             ShellItemButtonClicked(sender, eventArgs)),
 
                         new Button
                         {
                             Text = "Social",
                             BindingContext = socialTab
-                        }.Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs))
+                        }
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs)),
+
+                        new Frame
+                        {
+                            CornerRadius = 20,
+                            HasShadow = false,
+                            BackgroundColor = Colors.Transparent,
+                            Padding = 0,
+                            CascadeInputTransparent = true,
+                            InputTransparent = true,
+                            Content = new Label()
+                            {
+                                FontSize = 30,
+                                FontFamily = nameof(SolidIcons),
+                                TextColor = Colors.Black,
+                                Opacity = 0.8,
+                                HorizontalOptions = LayoutOptions.Center,
+                                VerticalOptions = LayoutOptions.Center,
+                                InputTransparent = true,
+                                Text = SolidIcons.Clock
+                            },
+                            GestureRecognizers = { new TapGestureRecognizer() }
+                        }
+                        .FillVertical()
+                        .FillHorizontal()
                     }
                 }
                 .Row(1)
@@ -105,6 +149,7 @@ public class AppShell : SimpleShell
         tabbar.Items.Add(timerTab);
         tabbar.Items.Add(shopTab);
         tabbar.Items.Add(socialTab);
+        tabbar.Items.Add(settingsTab);
         Items.Add(tabbar);
 
         Build();
