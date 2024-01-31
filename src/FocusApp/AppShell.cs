@@ -77,67 +77,74 @@ public class AppShell : SimpleShell
             // Define tab container background color
             BackgroundColor = Color.FromArgb("#C8B6FF"),
 
-            // Define the rows & columns
-            RowDefinitions = Rows.Define(Star, Auto),
+            // Define the rows
+            RowDefinitions = Rows.Define(Stars(9), Star),
 
             Children =
             {
                 new SimpleNavigationHost(),
-                new HorizontalStackLayout
+                new Grid
                 {
                     BackgroundColor = Color.FromArgb("#C8B6FF"),
-                    HorizontalOptions = LayoutOptions.Center,
-                    Spacing = 30,
+
+                    // Define the rows
+                    ColumnDefinitions = Columns.Define(Star, Stars(2), Star),
 
                     Children =
                     {
                         new Button
                         {
-                            Text = "Shop",
-                            BindingContext = shopTab
-                        }
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs)),
-
-                        new Button
-                        {
-                            Text = "Timer",
-                            BindingContext = timerTab
-                        }
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs)),
-
-                        new Button
-                        {
-                            Text = "Social",
-                            BindingContext = socialTab
-                        }
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs)),
-
-                        new Frame
-                        {
+                            BindingContext = shopTab,
                             CornerRadius = 20,
-                            HasShadow = false,
                             BackgroundColor = Colors.Transparent,
                             Padding = 0,
-                            CascadeInputTransparent = true,
-                            InputTransparent = true,
-                            Content = new Label()
-                            {
-                                FontSize = 30,
-                                FontFamily = nameof(SolidIcons),
-                                TextColor = Colors.Black,
-                                Opacity = 0.8,
-                                HorizontalOptions = LayoutOptions.Center,
-                                VerticalOptions = LayoutOptions.Center,
-                                InputTransparent = true,
-                                Text = SolidIcons.Clock
-                            },
-                            GestureRecognizers = { new TapGestureRecognizer() }
+                            FontSize = 30,
+                            FontFamily = nameof(SolidIcons),
+                            TextColor = Colors.Black,
+                            Opacity = 0.8,
+                            Text = SolidIcons.BagShopping
                         }
-                        .FillVertical()
+                        .Column(0)
                         .FillHorizontal()
+                        .FillVertical()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs)),
+
+                        new Button
+                        {
+                            BindingContext = timerTab,
+                            CornerRadius = 20,
+                            BackgroundColor = Colors.Transparent,
+                            Padding = 0,
+                            FontSize = 30,
+                            FontFamily = nameof(SolidIcons),
+                            TextColor = Colors.Black,
+                            Opacity = 0.8,
+                            Text = SolidIcons.Clock
+                        }
+                        .Column(1)
+                        .FillHorizontal()
+                        .FillVertical()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs)),
+
+                        new Button
+                        {
+                            BindingContext = socialTab,
+                            CornerRadius = 20,
+                            BackgroundColor = Colors.Transparent,
+                            Padding = 0,
+                            FontSize = 30,
+                            FontFamily = nameof(SolidIcons),
+                            TextColor = Colors.Black,
+                            Opacity = 0.8,
+                            Text = SolidIcons.Users
+                        }
+                        .Column(2)
+                        .FillHorizontal()
+                        .FillVertical()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            ShellItemButtonClicked(sender, eventArgs))
                     }
                 }
                 .Row(1)

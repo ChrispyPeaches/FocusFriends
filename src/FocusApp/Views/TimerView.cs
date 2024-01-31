@@ -40,7 +40,7 @@ namespace FocusApp.Views
 
         private async void SettingsButtonClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync(nameof(SettingsView));
+            await Shell.Current.GoToAsync("///" + nameof(SettingsView));
         }
     }
 }
