@@ -15,8 +15,8 @@ public class FocusContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Bad practice
-        // Better alternative in https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
+        // No SQL server conneciton yet
+        // Better alternative for SQL Server connection https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
         optionsBuilder.UseSqlServer(@"Sql Sever Connection String Goes here");
     }
 }
