@@ -1,7 +1,4 @@
-﻿using FocusApp.Clients;
-using Refit;
-using Microsoft.Maui.Controls;
-namespace FocusApp.Views.Shop
+﻿namespace FocusApp.Views.Shop
 {
     internal class MainView : ContentView
     {
