@@ -11,10 +11,11 @@ namespace FocusApp;
 
 public class AppShell : SimpleShell
 {
+    List<Button> tabButtons;
+
     public AppShell()
     {
-        Routing.RegisterRoute(nameof(Views.Social.MainPage), typeof(Views.Social.MainPage));
-
+        // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
         {
             Title = "ShopView",
@@ -71,7 +72,66 @@ public class AppShell : SimpleShell
             }
         };
 
+        // Create buttons and add to button list
+        #region Buttons
+        var shopButton = new Button
+        {
+            BindingContext = shopTab,
+            CornerRadius = 20,
+            BackgroundColor = Colors.Transparent,
+            Padding = 0,
+            FontSize = 30,
+            FontFamily = nameof(SolidIcons),
+            TextColor = Colors.Black,
+            Opacity = 0.8,
+            Text = SolidIcons.BagShopping
+        }
+        .Column(0)
+        .FillHorizontal()
+        .FillVertical()
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            ShellItemButtonClicked(sender, eventArgs));
 
+        var timerButton = new Button
+        {
+            BindingContext = timerTab,
+            CornerRadius = 20,
+            BackgroundColor = Colors.White,
+            Padding = 0,
+            FontSize = 30,
+            FontFamily = nameof(SolidIcons),
+            TextColor = Colors.Black,
+            Opacity = 0.8,
+            Text = SolidIcons.Clock
+        }
+        .Column(1)
+        .FillHorizontal()
+        .FillVertical()
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            ShellItemButtonClicked(sender, eventArgs));
+
+        var socialButton = new Button
+        {
+            BindingContext = socialTab,
+            CornerRadius = 20,
+            BackgroundColor = Colors.Transparent,
+            Padding = 0,
+            FontSize = 30,
+            FontFamily = nameof(SolidIcons),
+            TextColor = Colors.Black,
+            Opacity = 0.8,
+            Text = SolidIcons.Users
+        }
+        .Column(2)
+        .FillHorizontal()
+        .FillVertical()
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            ShellItemButtonClicked(sender, eventArgs));
+        #endregion
+
+        tabButtons = new List<Button> { shopButton, timerButton, socialButton };
+
+        // This container holds all the view data
         RootPageContainer = new Grid()
         {
             // Define tab container background color
@@ -82,7 +142,10 @@ public class AppShell : SimpleShell
 
             Children =
             {
+                // The simple navigation host is the "window" that lets you see the pages
                 new SimpleNavigationHost(),
+
+                // This grid contains the tab buttons
                 new Grid
                 {
                     BackgroundColor = Color.FromArgb("#C8B6FF"),
@@ -92,59 +155,9 @@ public class AppShell : SimpleShell
 
                     Children =
                     {
-                        new Button
-                        {
-                            BindingContext = shopTab,
-                            CornerRadius = 20,
-                            BackgroundColor = Colors.Transparent,
-                            Padding = 0,
-                            FontSize = 30,
-                            FontFamily = nameof(SolidIcons),
-                            TextColor = Colors.Black,
-                            Opacity = 0.8,
-                            Text = SolidIcons.BagShopping
-                        }
-                        .Column(0)
-                        .FillHorizontal()
-                        .FillVertical()
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs)),
-
-                        new Button
-                        {
-                            BindingContext = timerTab,
-                            CornerRadius = 20,
-                            BackgroundColor = Colors.Transparent,
-                            Padding = 0,
-                            FontSize = 30,
-                            FontFamily = nameof(SolidIcons),
-                            TextColor = Colors.Black,
-                            Opacity = 0.8,
-                            Text = SolidIcons.Clock
-                        }
-                        .Column(1)
-                        .FillHorizontal()
-                        .FillVertical()
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs)),
-
-                        new Button
-                        {
-                            BindingContext = socialTab,
-                            CornerRadius = 20,
-                            BackgroundColor = Colors.Transparent,
-                            Padding = 0,
-                            FontSize = 30,
-                            FontFamily = nameof(SolidIcons),
-                            TextColor = Colors.Black,
-                            Opacity = 0.8,
-                            Text = SolidIcons.Users
-                        }
-                        .Column(2)
-                        .FillHorizontal()
-                        .FillVertical()
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            ShellItemButtonClicked(sender, eventArgs))
+                        tabButtons[0],
+                        tabButtons[1],
+                        tabButtons[2]
                     }
                 }
                 .Row(1)
@@ -152,51 +165,34 @@ public class AppShell : SimpleShell
             }
         };
 
+        // Tabs must be added to the tab bar in order to be routed
         var tabbar = new TabBar() { Title = "Tabbar", Route = "Tab" };
         tabbar.Items.Add(timerTab);
         tabbar.Items.Add(shopTab);
         tabbar.Items.Add(socialTab);
         tabbar.Items.Add(settingsTab);
         Items.Add(tabbar);
-
-        Build();
-#if DEBUG
-        HotReloadService.UpdateApplicationEvent += ReloadUI;
-#endif
     }
 
     /// <summary>
-    /// For the main page, the UI has a separate method so it can be rebuilt when Hot Reload is triggered.
+    /// This on click function navigates to the page attached to the route contained in the shell item
     /// </summary>
-    public void Build()
-    {
-        //
-    }
-
     private async void ShellItemButtonClicked(object sender, EventArgs e)
     {
         var button = sender as Button;
         var shellItem = button.BindingContext as BaseShellItem;
 
+        // Reset highlighted tab button color
+        for (int i = 0; i < tabButtons.Count(); i++)
+        {
+            tabButtons[i].BackgroundColor = Colors.Transparent;
+        }
+
+        // Highlight current selected tab
+        button.BackgroundColor = Colors.White;
+
         // Navigate to a new tab if it is not the current tab
         if (!CurrentState.Location.OriginalString.Contains(shellItem.Route))
             await GoToAsync($"///{shellItem.Route}");
-    }
-
-    private async void BackButtonClicked(object sender, EventArgs e)
-    {
-        await GoToAsync("..");
-    }
-
-    /// <summary>
-    /// This method is called when Hot Reload is triggered.
-    /// </summary>
-    /// <param name="obj"></param>
-    private void ReloadUI(Type[] obj)
-    {
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            Build();
-        });
     }
 }
