@@ -1,4 +1,5 @@
 ﻿using FocusApp.Clients;
+using FocusApp.Helpers;
 using FocusApp.Resources;
 
 namespace FocusApp
@@ -16,12 +17,12 @@ namespace FocusApp
         /// Create a new instance of the application with the styling resources and 
         /// a <see cref="Shell"/> that only acts as a container for the <see cref="MainPage"/>.
         /// </summary>
-        public App()
+        public App(APIService apiService)
         {
             //var user = apiClient.GetUser(new FocusCore.Queries.User.GetUserQuery { Id = Guid.NewGuid() });
             Resources = new AppStyles();
 
-            MainPage = new Shell() { CurrentItem = new MainPage() };
+            MainPage = new Shell() { CurrentItem = new MainPage(apiService) };
         }
 
         /// <summary>

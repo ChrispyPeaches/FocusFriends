@@ -16,10 +16,10 @@ namespace FocusApp;
 internal class MainPage : ContentPage
 {
     private int _selectedTabIndex { get; set; } = 1;
-    private IAPIClient _client { get; set; }
-    public MainPage()
+    private APIService _apiService { get; set; }
+    public MainPage(APIService apiService)
     {
-        _client = RestService.For<IAPIClient>("http://10.0.2.2:5223");
+        _apiService = apiService;
         Build();
 #if DEBUG
         HotReloadService.UpdateApplicationEvent += ReloadUI;
@@ -28,7 +28,7 @@ internal class MainPage : ContentPage
 
     protected override async void OnAppearing()
     {
-        UserModel user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
+        UserModel user = await _apiService.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
         base.OnAppearing();
     }
 
