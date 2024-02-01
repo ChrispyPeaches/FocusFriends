@@ -23,7 +23,9 @@ public class User
 
 	public byte[]? ProfilePicture { get; set; }
 
-	public ICollection<UserFriends>? Friends { get; set; }
+	public virtual ICollection<UserFriends>? Inviters { get; set; }
+
+	public virtual ICollection<UserFriends>? Invitees { get; set; }
 
 	public ICollection<UserPets>? Pets { get; set; }
 
