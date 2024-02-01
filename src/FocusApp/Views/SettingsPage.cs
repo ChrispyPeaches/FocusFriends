@@ -6,9 +6,9 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views;
 
-internal sealed class SettingsView : ContentView
+internal sealed class SettingsPage : ContentPage
 {
-    public SettingsView()
+    public SettingsPage()
     {
         // Defualt volume values for the sliders
         double sfxVolume = 50;
@@ -50,8 +50,8 @@ internal sealed class SettingsView : ContentView
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .Column(0)
                 // When clicked, go to timer view
-                //.Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
-                .Invoke(b => b.Clicked += (sender, e) => { Content = new TimerView(); }),
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    BackButtonClicked(sender, eventArgs)),
 
 
                 // Header & Content Divider
@@ -241,5 +241,10 @@ internal sealed class SettingsView : ContentView
                 .Center()
             }
         };
+    }
+
+    private async void BackButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 }
