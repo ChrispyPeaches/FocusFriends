@@ -71,6 +71,20 @@ public class AppShell : SimpleShell
                 }
             }
         };
+        var petsTab = new Tab()
+        {
+            Title = "PetsPage",
+            Route = "PetsPage",
+            Items =
+            {
+                new ShellContent()
+                {
+                    Title = "PetPage",
+                    ContentTemplate = new DataTemplate(() => new Views.Social.PetsPage()),
+                    Route = "PetPage"
+                }
+            }
+        };
 
         // Create buttons and add to button list
         #region Buttons
@@ -176,6 +190,7 @@ public class AppShell : SimpleShell
         tabbar.Items.Add(shopTab);
         tabbar.Items.Add(socialTab);
         tabbar.Items.Add(settingsTab);
+        tabbar.Items.Add(petsTab);
         Items.Add(tabbar);
     }
 

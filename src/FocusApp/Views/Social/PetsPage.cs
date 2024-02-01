@@ -5,10 +5,10 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views.Social;
 
-internal sealed class PetsView : ContentView
+internal sealed class PetsPage : ContentView
 {
     private Image? selectedCheckmark;
-    public PetsView()
+    public PetsPage()
 	{
         // Variable checks for if pet is owned
         bool hasBeans = false;
