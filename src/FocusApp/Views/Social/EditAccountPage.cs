@@ -4,9 +4,9 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views.Social
 {
-    public class AccountView : ContentView
+    public class EditAccountPage : ContentPage
     {
-        public AccountView() 
+        public EditAccountPage() 
         {
             Content = new Grid
             {
@@ -15,7 +15,7 @@ namespace FocusApp.Views.Social
                 {
                     new Label
                     {
-                        Text = "Account",
+                        Text = "Edit Account",
                         FontSize = 30,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
@@ -35,19 +35,7 @@ namespace FocusApp.Views.Social
                     .Column(0)
                     // When clicked, go to timer view
                     //.Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
-                    .Invoke(b => b.Clicked += (sender, e) => { Content = new MainView(); }),
-
-                    new Button
-                    {
-                        Text = SolidIcons.BreadSlice,
-                        TextColor = Colors.Black,
-                        FontFamily = nameof(SolidIcons),
-                        FontSize = 40,
-                        BackgroundColor = Colors.Transparent
-                    }
-                    .Row(1)
-                    .Column(0)
-                    .Invoke(b => b.Clicked += (sender, e) => { Content = new EditAccountView(); }),
+                    .Invoke(b => b.Clicked += (sender, e) => { Content = new AccountView(); }),
                 }
             };
         }

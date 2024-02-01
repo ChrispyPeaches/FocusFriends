@@ -4,9 +4,9 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views.Social
 {
-    public class EditAccountView : ContentView
+    public class BadgePage : ContentPage
     {
-        public EditAccountView() 
+        public BadgePage()
         {
             Content = new Grid
             {
@@ -15,7 +15,7 @@ namespace FocusApp.Views.Social
                 {
                     new Label
                     {
-                        Text = "Edit Account",
+                        Text = "Badges",
                         FontSize = 30,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
@@ -35,7 +35,7 @@ namespace FocusApp.Views.Social
                     .Column(0)
                     // When clicked, go to timer view
                     //.Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
-                    .Invoke(b => b.Clicked += (sender, e) => { Content = new AccountView(); }),
+                    .Invoke(b => b.Clicked += (sender, e) => { Content = new MainView(); }),
                 }
             };
         }

@@ -101,7 +101,7 @@ public class MainView : ContentView
                 }
                 .Row(2)
                 .Column(0)
-                .Invoke(b => b.Clicked += (sender, e) => { Content = new AccountView(); }),
+                .Invoke(b => b.Clicked += (sender, e) => { Content = new AccountPage(); }),
 
                 new Button
                 {
@@ -113,7 +113,7 @@ public class MainView : ContentView
                 }
                 .Row(2)
                 .Column(1)
-                .Invoke(b => b.Clicked += (sender, e) => { Content = new BadgeView(); }),
+                .Invoke(b => b.Clicked += (sender, e) => { Content = new BadgePage(); }),
 
                 new Button
                 {
