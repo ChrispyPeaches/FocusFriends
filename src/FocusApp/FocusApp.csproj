@@ -67,14 +67,12 @@
 		<PackageReference Include="Refit" Version="7.0.0" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
 		<PackageReference Include="Sharpnado.Tabs.Maui" Version="3.0.1" />
+		<PackageReference Include="SimpleToolkit.Core" Version="4.0.0" />
+		<PackageReference Include="SimpleToolkit.SimpleShell" Version="4.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\FocusCore\FocusCore.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Views\" />
 	</ItemGroup>
 
 	<ItemGroup>

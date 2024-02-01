@@ -5,7 +5,7 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views
 {
-    internal class TimerView : ContentView
+    internal class TimerPage : ContentPage
     {
         private TimerHelper _timerHelper;
         private IDispatcherTimer? _timeStepperTimer;
@@ -14,7 +14,7 @@ namespace FocusApp.Views
         enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
         public enum TimerButton { Up, Down }
 
-        public TimerView()
+        public TimerPage()
         {
             _timerHelper = new TimerHelper();
 
@@ -49,7 +49,8 @@ namespace FocusApp.Views
                     .Left()
                     .Bind(IsVisibleProperty,
                             getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
-                    .Invoke(b => b.Clicked += (sender, e) => { Content = new SettingsView(); }),
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                            SettingsButtonClicked(sender, eventArgs)),
 
                     // Time Left Display
                     new Label
@@ -168,6 +169,11 @@ namespace FocusApp.Views
                 _timeStepperTimer.Stop();
                 _timeStepperTimer = null;
             }
+        }
+
+        private async void SettingsButtonClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using FocusApp.Clients;
+using FocusApp.Clients;
 using FocusApp.Helpers;
 using FocusApp.Resources;
+using SimpleToolkit.SimpleShell;
 
 namespace FocusApp
 {
@@ -21,7 +22,7 @@ namespace FocusApp
         {
             Resources = new AppStyles();
 
-            MainPage = new Shell() { CurrentItem = new MainPage(apiClient) };
+            MainPage = new AppShell();
         }
 
         /// <summary>
