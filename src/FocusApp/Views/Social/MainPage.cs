@@ -88,8 +88,22 @@ public class MainPage : ContentPage
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2)
+                .ColumnSpan(2),
+
+                new Button
+                {
+                    Text = "Pets Page",
+                    MaximumHeightRequest = 50
+                }
+                .Row(2)
+                .Column(0)
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    PetsButtonClicked(sender, eventArgs)),
             }
         };
+    }
+    private async void PetsButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
     }
 }

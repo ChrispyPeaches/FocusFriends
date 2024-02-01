@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace FocusApp.Views.Social;
 
-internal sealed class PetsPage : ContentView
+internal sealed class PetsPage : ContentPage
 {
     private Image? selectedCheckmark;
     public PetsPage()
@@ -627,6 +627,7 @@ internal sealed class PetsPage : ContentView
             selectedCheckmark = checkmark;
         }
 	}
+
     private async void BackButtonClicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("///" + nameof(MainPage));
