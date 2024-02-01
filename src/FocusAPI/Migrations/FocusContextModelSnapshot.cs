@@ -207,13 +207,13 @@ namespace FocusAPI.Migrations
                     b.HasOne("FocusAPI.Models.User", "Friend")
                         .WithMany("Invitees")
                         .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FocusAPI.Models.User", "User")
                         .WithMany("Inviters")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Friend");

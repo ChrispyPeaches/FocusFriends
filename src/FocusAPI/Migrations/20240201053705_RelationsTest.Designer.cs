@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusAPI.Migrations
 {
     [DbContext(typeof(FocusContext))]
-    [Migration("20240201052953_RelationsTest")]
+    [Migration("20240201053705_RelationsTest")]
     partial class RelationsTest
     {
         /// <inheritdoc />
@@ -210,13 +210,13 @@ namespace FocusAPI.Migrations
                     b.HasOne("FocusAPI.Models.User", "Friend")
                         .WithMany("Invitees")
                         .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FocusAPI.Models.User", "User")
                         .WithMany("Inviters")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Friend");

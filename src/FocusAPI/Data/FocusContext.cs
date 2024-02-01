@@ -22,14 +22,16 @@ public class FocusContext : DbContext
         modelBuilder.Entity<UserFriends>()
             .HasOne(x => x.User)
             .WithMany(x => x.Inviters)
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserFriends>()
             .HasOne(x => x.Friend)
             .WithMany(x => x.Invitees)
-            .HasForeignKey(x => x.FriendId);
+            .HasForeignKey(x => x.FriendId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // No SQL server conneciton yet
