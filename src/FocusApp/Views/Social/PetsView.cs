@@ -90,8 +90,8 @@ internal sealed class PetsView : ContentView
                 new Image
                 {
                     Source = "pet_greg.png",
-                    WidthRequest = 140,
-                    HeightRequest = 140
+                    WidthRequest = 120,
+                    HeightRequest = 120
                 }
                 .Row(2)
                 .Column(0)
@@ -123,6 +123,17 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Pet Image 2
+                new Image
+                {
+                    Source = "pet_beans.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(2)
+                .Column(1)
+                .Center(),
+
 				// Image Background 3
 				new BoxView
                 {
@@ -143,6 +154,17 @@ internal sealed class PetsView : ContentView
                     WidthRequest = 140,
                     HeightRequest = 140,
                     CornerRadius = 30
+                }
+                .Row(3)
+                .Column(0)
+                .Center(),
+
+                // Pet Image 3
+                new Image
+                {
+                    Source = "pet_bob.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
                 }
                 .Row(3)
                 .Column(0)
@@ -173,6 +195,17 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Pet Image 4
+                new Image
+                {
+                    Source = "pet_danole.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(3)
+                .Column(1)
+                .Center(),
+
 				// Image Background 5
 				new BoxView
                 {
@@ -193,6 +226,17 @@ internal sealed class PetsView : ContentView
                     WidthRequest = 140,
                     HeightRequest = 140,
                     CornerRadius = 30
+                }
+                .Row(4)
+                .Column(0)
+                .Center(),
+
+                // Pet Image 5
+                new Image
+                {
+                    Source = "pet_franklin.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
                 }
                 .Row(4)
                 .Column(0)
@@ -221,7 +265,18 @@ internal sealed class PetsView : ContentView
                 }
                 .Row(4)
                 .Column(1)
-                .Center()
+                .Center(),
+
+                // Pet Image 6
+                new Image
+                {
+                    Source = "pet_wurmy.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(4)
+                .Column(1)
+                .Center(),
             }
 		};
 	}
