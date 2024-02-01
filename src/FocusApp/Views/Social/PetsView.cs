@@ -60,7 +60,7 @@ internal sealed class PetsView : ContentView
 				.Row(0)
 				.Column(0)
 				.ColumnSpan(int.MaxValue),
-
+                /////////////////////////////////////////////
 				// Image Background 1
 				new BoxView
 				{
@@ -71,7 +71,6 @@ internal sealed class PetsView : ContentView
 				}
 				.Row(2)
 				.Column(0)
-				.ColumnSpan(0)
 				.Center(),
 
 				// Image Foreground 1
@@ -96,8 +95,21 @@ internal sealed class PetsView : ContentView
                 .Row(2)
                 .Column(0)
                 .Center(),
-				
 
+                // Button 1
+                new Button
+                {
+                    Opacity = 0,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(2)
+                .Column(0)
+                .Center()
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Greg Tapped");}),
+				
+                /////////////////////////////////////////////
 				// Image Background 2
 				new BoxView
                 {
@@ -108,7 +120,6 @@ internal sealed class PetsView : ContentView
                 }
                 .Row(2)
                 .Column(1)
-                .ColumnSpan(2)
                 .Center(),
 
 				// Image Foreground 2
@@ -134,6 +145,20 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Button 2
+                new Button
+                {
+                    Opacity = 0,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(2)
+                .Column(1)
+                .Center()
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Beans Tapped");}),
+
+                /////////////////////////////////////////////
 				// Image Background 3
 				new BoxView
                 {
@@ -144,7 +169,6 @@ internal sealed class PetsView : ContentView
                 }
                 .Row(3)
                 .Column(0)
-                .ColumnSpan(0)
                 .Center(),
 
 				// Image Foreground 3
@@ -170,6 +194,20 @@ internal sealed class PetsView : ContentView
                 .Column(0)
                 .Center(),
 
+                // Button 3
+                new Button
+                {
+                    Opacity = 0,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(3)
+                .Column(0)
+                .Center()
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Bob Tapped");}),
+
+                /////////////////////////////////////////////
 				// Image Background 4
 				new BoxView
                 {
@@ -180,7 +218,6 @@ internal sealed class PetsView : ContentView
                 }
                 .Row(3)
                 .Column(1)
-                .ColumnSpan(0)
                 .Center(),
 
 				// Image Foreground 4
@@ -206,6 +243,20 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Button 4
+                new Button
+                {
+                    Opacity = 0,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(3)
+                .Column(1)
+                .Center()
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Danole Tapped");}),
+
+                /////////////////////////////////////////////
 				// Image Background 5
 				new BoxView
                 {
@@ -216,7 +267,6 @@ internal sealed class PetsView : ContentView
                 }
                 .Row(4)
                 .Column(0)
-                .ColumnSpan(0)
                 .Center(),
 
 				// Image Foreground 5
@@ -242,6 +292,20 @@ internal sealed class PetsView : ContentView
                 .Column(0)
                 .Center(),
 
+                // Button 5
+                new Button
+                {
+                    Opacity = 0,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(4)
+                .Column(0)
+                .Center()
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Franklin Tapped");}),
+
+                /////////////////////////////////////////////
 				// Image Background 6
 				new BoxView
                 {
@@ -252,7 +316,6 @@ internal sealed class PetsView : ContentView
                 }
                 .Row(4)
                 .Column(1)
-                .ColumnSpan(0)
                 .Center(),
 
 				// Image Foreground 6
@@ -277,6 +340,19 @@ internal sealed class PetsView : ContentView
                 .Row(4)
                 .Column(1)
                 .Center(),
+
+                // Button 6
+                new Button
+                {
+                    Opacity = 0,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(4)
+                .Column(1)
+                .Center()
+                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Wurmy Tapped");}),
             }
 		};
 	}
