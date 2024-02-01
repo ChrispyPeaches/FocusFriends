@@ -13,7 +13,9 @@ internal sealed class PetsView : ContentView
 		Content = new Grid
 		{
 			// Define the length of the rows & columns
-			RowDefinitions = Rows.Define(80, Star, Star, Star, Star, Star, Star, Star, Star),
+            // Rows: 80 for the top, 20 to act as padding, Stars for even spacing, and 140 for bottom padding
+            // Columns: Two even columns should be enough
+			RowDefinitions = Rows.Define(80, 20, Star, Star, Star, 140),
 			ColumnDefinitions = Columns.Define(Star, Star),
 			Children = {
 
@@ -25,10 +27,10 @@ internal sealed class PetsView : ContentView
 					FontSize = 40
 				}
 				.Row(0)
-				.Column(1)
+				.Column(0)
 				.ColumnSpan(3)
 				.CenterVertical()
-				.Paddings(top : 5, bottom: 5, left: 5, right: 5),
+				.Paddings(top : 5, bottom: 5, left: 75, right: 5),
 
 
 				// Back Button
@@ -43,7 +45,7 @@ internal sealed class PetsView : ContentView
 				.Left()
 				.CenterVertical()
 				.Column(0)
-                .Paddings(top : 5, bottom: 5, left: 5, right: 5)
+                .Paddings(top : 5, bottom: 5, left: 10, right: 5)
 				// When clicked, go to social view
 				.Invoke(b => b.Clicked += (sender, e) => {Content = new MainView(); }),
 
@@ -59,41 +61,167 @@ internal sealed class PetsView : ContentView
 				.Column(0)
 				.ColumnSpan(int.MaxValue),
 
-				// Image 1
+				// Image Background 1
 				new BoxView
 				{
 					Color = Colors.DarkGray,
-					WidthRequest = 150,
-					HeightRequest = 150,
-					CornerRadius = 30,
-					Shadow = new Shadow
-					{
-						Brush = Colors.Black,
-						Opacity = 0.35f
-					}
+					WidthRequest = 160,
+					HeightRequest = 160,
+					CornerRadius = 30
 				}
 				.Row(2)
 				.Column(0)
 				.ColumnSpan(0)
-				.Center()
-				.Bottom(),
+				.Center(),
 
-				// Sub Image 1
+				// Image Foreground 1
+				new BoxView
+				{
+					Color = Colors.LightGrey,
+					WidthRequest = 140,
+					HeightRequest = 140,
+					CornerRadius = 30
+				}
+				.Row(2)
+				.Column(0)
+				.Center(),
+
+                // Pet Image 1
+                new Image
+                {
+                    Source = "pet_greg.png",
+                    WidthRequest = 140,
+                    HeightRequest = 140
+                }
+                .Row(2)
+                .Column(0)
+                .Center(),
 				
 
-				// Image 2
+				// Image Background 2
 				new BoxView
                 {
                     Color = Colors.DarkGray,
-                    WidthRequest = 150,
-                    HeightRequest = 150,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
                     CornerRadius = 30
                 }
                 .Row(2)
                 .Column(1)
                 .ColumnSpan(2)
+                .Center(),
+
+				// Image Foreground 2
+				new BoxView
+                {
+                    Color = Colors.LightGrey,
+                    WidthRequest = 140,
+                    HeightRequest = 140,
+                    CornerRadius = 30
+                }
+                .Row(2)
+                .Column(1)
+                .Center(),
+
+				// Image Background 3
+				new BoxView
+                {
+                    Color = Colors.DarkGray,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(3)
+                .Column(0)
+                .ColumnSpan(0)
+                .Center(),
+
+				// Image Foreground 3
+				new BoxView
+                {
+                    Color = Colors.LightGrey,
+                    WidthRequest = 140,
+                    HeightRequest = 140,
+                    CornerRadius = 30
+                }
+                .Row(3)
+                .Column(0)
+                .Center(),
+
+				// Image Background 4
+				new BoxView
+                {
+                    Color = Colors.DarkGray,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(3)
+                .Column(1)
+                .ColumnSpan(0)
+                .Center(),
+
+				// Image Foreground 4
+				new BoxView
+                {
+                    Color = Colors.LightGrey,
+                    WidthRequest = 140,
+                    HeightRequest = 140,
+                    CornerRadius = 30
+                }
+                .Row(3)
+                .Column(1)
+                .Center(),
+
+				// Image Background 5
+				new BoxView
+                {
+                    Color = Colors.DarkGray,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(4)
+                .Column(0)
+                .ColumnSpan(0)
+                .Center(),
+
+				// Image Foreground 5
+				new BoxView
+                {
+                    Color = Colors.LightGrey,
+                    WidthRequest = 140,
+                    HeightRequest = 140,
+                    CornerRadius = 30
+                }
+                .Row(4)
+                .Column(0)
+                .Center(),
+
+				// Image Background 6
+				new BoxView
+                {
+                    Color = Colors.DarkGray,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(4)
+                .Column(1)
+                .ColumnSpan(0)
+                .Center(),
+
+				// Image Foreground 6
+				new BoxView
+                {
+                    Color = Colors.LightGrey,
+                    WidthRequest = 140,
+                    HeightRequest = 140,
+                    CornerRadius = 30
+                }
+                .Row(4)
+                .Column(1)
                 .Center()
-                .Bottom()
             }
 		};
 	}
