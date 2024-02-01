@@ -9,6 +9,14 @@ internal sealed class PetsView : ContentView
 {
 	public PetsView()
 	{
+        // Variable checks for if pet is owned
+        bool hasBeans = true;
+        bool hasBob = true;
+        bool hasDanole = false;
+        bool hasFranklin = true;
+        bool hasGreg = false;
+        bool hasWurmy = false;
+
 		// Using grids
 		Content = new Grid
 		{
@@ -60,7 +68,7 @@ internal sealed class PetsView : ContentView
 				.Row(0)
 				.Column(0)
 				.ColumnSpan(int.MaxValue),
-                /////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 				// Image Background 1
 				new BoxView
 				{
@@ -96,6 +104,17 @@ internal sealed class PetsView : ContentView
                 .Column(0)
                 .Center(),
 
+                // Locked Pet Image 1
+                new Image
+                {
+                    Source = hasGreg ? null : "pet_locked.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(2)
+                .Column(0)
+                .Center(),
+
                 // Button 1
                 new Button
                 {
@@ -107,9 +126,19 @@ internal sealed class PetsView : ContentView
                 .Row(2)
                 .Column(0)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Greg Tapped");}),
+                .Invoke(b => b.Clicked += (sender, e) => 
+                {
+                    if (hasGreg) 
+                    {
+                        Console.WriteLine("Greg Tapped");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Greg Not Owned");
+                    }
+                    ;}),
 				
-                /////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 				// Image Background 2
 				new BoxView
                 {
@@ -145,6 +174,17 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Locked Pet Image 2
+                new Image
+                {
+                    Source = hasBeans ? null : "pet_locked.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(2)
+                .Column(1)
+                .Center(),
+
                 // Button 2
                 new Button
                 {
@@ -156,9 +196,19 @@ internal sealed class PetsView : ContentView
                 .Row(2)
                 .Column(1)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Beans Tapped");}),
+                .Invoke(b => b.Clicked += (sender, e) =>
+                {
+                    if (hasBeans)
+                    {
+                        Console.WriteLine("Beans Tapped");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Beans Not Owned");
+                    }
+                    ;}),
 
-                /////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 				// Image Background 3
 				new BoxView
                 {
@@ -182,11 +232,22 @@ internal sealed class PetsView : ContentView
                 .Row(3)
                 .Column(0)
                 .Center(),
-
+                
                 // Pet Image 3
                 new Image
                 {
                     Source = "pet_bob.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(3)
+                .Column(0)
+                .Center(),
+
+                // Locked Pet Image 3
+                new Image
+                {
+                    Source = hasBob ? null : "pet_locked.png",
                     WidthRequest = 120,
                     HeightRequest = 120
                 }
@@ -205,9 +266,19 @@ internal sealed class PetsView : ContentView
                 .Row(3)
                 .Column(0)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Bob Tapped");}),
+                .Invoke(b => b.Clicked += (sender, e) =>
+                {
+                    if (hasBob)
+                    {
+                        Console.WriteLine("Bob Tapped");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Bob Not Owned");
+                    }
+                    ;}),
 
-                /////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 				// Image Background 4
 				new BoxView
                 {
@@ -243,6 +314,17 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Locked Pet Image 4
+                new Image
+                {
+                    Source = hasDanole ? null : "pet_locked.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(3)
+                .Column(1)
+                .Center(),
+
                 // Button 4
                 new Button
                 {
@@ -254,9 +336,19 @@ internal sealed class PetsView : ContentView
                 .Row(3)
                 .Column(1)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Danole Tapped");}),
+                .Invoke(b => b.Clicked += (sender, e) =>
+                {
+                    if (hasDanole)
+                    {
+                        Console.WriteLine("Danole Tapped");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Danole Not Owned");
+                    }
+                    ;}),
 
-                /////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 				// Image Background 5
 				new BoxView
                 {
@@ -292,6 +384,17 @@ internal sealed class PetsView : ContentView
                 .Column(0)
                 .Center(),
 
+                // Locked Pet Image 5
+                new Image
+                {
+                    Source = hasFranklin ? null : "pet_locked.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(4)
+                .Column(0)
+                .Center(),
+
                 // Button 5
                 new Button
                 {
@@ -303,9 +406,19 @@ internal sealed class PetsView : ContentView
                 .Row(4)
                 .Column(0)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Franklin Tapped");}),
+                .Invoke(b => b.Clicked += (sender, e) =>
+                {
+                    if (hasFranklin)
+                    {
+                        Console.WriteLine("Franklin Tapped");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Franklin Not Owned");
+                    }
+                    ;}),
 
-                /////////////////////////////////////////////
+                //////////////////////////////////////////////////////////
 				// Image Background 6
 				new BoxView
                 {
@@ -341,6 +454,17 @@ internal sealed class PetsView : ContentView
                 .Column(1)
                 .Center(),
 
+                // Locked Pet Image 6
+                new Image
+                {
+                    Source = hasWurmy ? null : "pet_locked.png",
+                    WidthRequest = 120,
+                    HeightRequest = 120
+                }
+                .Row(4)
+                .Column(1)
+                .Center(),
+
                 // Button 6
                 new Button
                 {
@@ -352,7 +476,17 @@ internal sealed class PetsView : ContentView
                 .Row(4)
                 .Column(1)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Wurmy Tapped");}),
+                .Invoke(b => b.Clicked += (sender, e) =>
+                {
+                    if (hasWurmy)
+                    {
+                        Console.WriteLine("Wurmy Tapped");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Wurmy Not Owned");
+                    }
+                    ;})
             }
 		};
 	}
