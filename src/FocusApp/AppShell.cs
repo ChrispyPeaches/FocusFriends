@@ -83,9 +83,9 @@ public class AppShell : SimpleShell
             FontSize = 30,
             FontFamily = nameof(SolidIcons),
             TextColor = Colors.Black,
-            Opacity = 0.8,
             Text = SolidIcons.BagShopping
         }
+        .Paddings(top: 10, bottom: 10, left: 15, right: 15)
         .Column(0)
         .FillHorizontal()
         .FillVertical()
@@ -101,9 +101,9 @@ public class AppShell : SimpleShell
             FontSize = 30,
             FontFamily = nameof(SolidIcons),
             TextColor = Colors.Black,
-            Opacity = 0.8,
             Text = SolidIcons.Clock
         }
+        .Paddings(top: 10, bottom: 10, left: 15, right: 15)
         .Column(1)
         .FillHorizontal()
         .FillVertical()
@@ -119,9 +119,9 @@ public class AppShell : SimpleShell
             FontSize = 30,
             FontFamily = nameof(SolidIcons),
             TextColor = Colors.Black,
-            Opacity = 0.8,
             Text = SolidIcons.Users
         }
+        .Paddings(top: 10, bottom: 10, left: 15, right: 15)
         .Column(2)
         .FillHorizontal()
         .FillVertical()
