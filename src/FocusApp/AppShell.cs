@@ -96,7 +96,7 @@ public class AppShell : SimpleShell
         {
             BindingContext = timerTab,
             CornerRadius = 20,
-            BackgroundColor = Colors.White,
+            BackgroundColor = Color.FromArgb("#C8B6FF"),
             Padding = 0,
             FontSize = 30,
             FontFamily = nameof(SolidIcons),
@@ -135,7 +135,7 @@ public class AppShell : SimpleShell
         RootPageContainer = new Grid()
         {
             // Define tab container background color
-            BackgroundColor = Color.FromArgb("#C8B6FF"),
+            BackgroundColor = Colors.Transparent,
 
             // Define the rows
             RowDefinitions = Rows.Define(Stars(9), Star),
@@ -148,7 +148,7 @@ public class AppShell : SimpleShell
                 // This grid contains the tab buttons
                 new Grid
                 {
-                    BackgroundColor = Color.FromArgb("#C8B6FF"),
+                    BackgroundColor = Colors.Transparent,
 
                     // Define the rows
                     ColumnDefinitions = Columns.Define(Star, Stars(2), Star),
@@ -189,7 +189,7 @@ public class AppShell : SimpleShell
         }
 
         // Highlight current selected tab
-        button.BackgroundColor = Colors.White;
+        button.BackgroundColor = Color.FromArgb("#C8B6FF");
 
         // Navigate to a new tab if it is not the current tab
         if (!CurrentState.Location.OriginalString.Contains(shellItem.Route))
