@@ -19,7 +19,6 @@ namespace FocusApp
         /// </summary>
         public App(APIService apiService)
         {
-            //var user = apiClient.GetUser(new FocusCore.Queries.User.GetUserQuery { Id = Guid.NewGuid() });
             Resources = new AppStyles();
 
             MainPage = new Shell() { CurrentItem = new MainPage(apiService) };
