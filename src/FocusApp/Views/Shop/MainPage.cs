@@ -1,8 +1,8 @@
 ﻿namespace FocusApp.Views.Shop
 {
-    internal class MainView : ContentView
+    internal class MainPage : ContentPage
     {
-        public MainView()
+        public MainPage()
         {
             Content = new Grid
             {

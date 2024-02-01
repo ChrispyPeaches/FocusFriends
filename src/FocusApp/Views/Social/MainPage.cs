@@ -7,9 +7,9 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Views.Social;
 
-public class MainView : ContentView
+public class MainPage : ContentPage
 {
-	public MainView()
+	public MainPage()
 	{
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
