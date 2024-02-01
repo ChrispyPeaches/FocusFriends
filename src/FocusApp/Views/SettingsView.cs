@@ -48,10 +48,10 @@ internal sealed class SettingsView : ContentPage
                 .Left()
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Column(0),
+                .Column(0)
                 // When clicked, go to timer view
-                //.Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
-                //.Invoke(b => b.Clicked += (sender, e) => { Content = new TimerView(); }),
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    BackButtonClicked(sender, eventArgs)),
 
 
                 // Header & Content Divider
@@ -241,5 +241,10 @@ internal sealed class SettingsView : ContentPage
                 .Center()
             }
         };
+    }
+
+    private async void BackButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(TimerView));
     }
 }
