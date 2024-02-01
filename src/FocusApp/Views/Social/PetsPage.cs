@@ -626,10 +626,9 @@ internal sealed class PetsPage : ContentView
 
             selectedCheckmark = checkmark;
         }
-
-        async void BackButtonClicked(object sender, EventArgs e)
-        {
-            await Shell.Current.GoToAsync("///" + nameof(MainPage));
-        }
 	}
+    private async void BackButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(MainPage));
+    }
 }
