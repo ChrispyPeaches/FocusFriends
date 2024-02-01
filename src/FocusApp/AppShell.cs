@@ -18,28 +18,28 @@ public class AppShell : SimpleShell
         // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
         {
-            Title = "ShopView",
-            Route = "ShopView",
+            Title = "ShopPage",
+            Route = "ShopPage",
             Items = {
              new ShellContent()
              {
-                 Title = "ShopView",
-                 ContentTemplate = new DataTemplate(() => new Views.Shop.MainView()),
-                 Route = "ShopView"
+                 Title = "ShopPage",
+                 ContentTemplate = new DataTemplate(() => new Views.Shop.MainPage()),
+                 Route = "ShopPage"
              }
          }
         };
         var timerTab = new Tab()
         {
-            Title = "TimerView",
-            Route = "TimerView",
+            Title = "TimerPage",
+            Route = "TimerPage",
             Items =
             {
                 new ShellContent()
                 {
-                     Title = "TimerView",
-                     ContentTemplate = new DataTemplate(() => new TimerView()),
-                     Route = "TimerView"
+                     Title = "TimerPage",
+                     ContentTemplate = new DataTemplate(() => new TimerPage()),
+                     Route = "TimerPage"
                 }
             }
         };
@@ -59,15 +59,15 @@ public class AppShell : SimpleShell
         };
         var settingsTab = new Tab()
         {
-            Title = "SettingsView",
-            Route = "SettingsView",
+            Title = "SettingsPage",
+            Route = "SettingsPage",
             Items =
             {
                 new ShellContent()
                 {
-                     Title = "SettingsView",
-                     ContentTemplate = new DataTemplate(() => new SettingsView()),
-                     Route = "SettingsView"
+                     Title = "SettingsPage",
+                     ContentTemplate = new DataTemplate(() => new SettingsPage()),
+                     Route = "SettingsPage"
                 }
             }
         };

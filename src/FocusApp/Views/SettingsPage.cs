@@ -6,9 +6,9 @@ using FocusApp.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Views;
 
-internal sealed class SettingsView : ContentPage
+internal sealed class SettingsPage : ContentPage
 {
-    public SettingsView()
+    public SettingsPage()
     {
         // Defualt volume values for the sliders
         double sfxVolume = 50;
@@ -245,6 +245,6 @@ internal sealed class SettingsView : ContentPage
 
     private async void BackButtonClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("///" + nameof(TimerView));
+        await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 }
