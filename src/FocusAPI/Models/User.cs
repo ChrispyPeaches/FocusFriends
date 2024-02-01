@@ -29,9 +29,9 @@ public class User
 
 	public virtual ICollection<UserFriends>? Invitees { get; set; }
 
-	public ICollection<UserPets>? Pets { get; set; }
+	public virtual ICollection<UserPets>? Pets { get; set; }
 
-	public ICollection<UserBadges>? Badges { get; set; }
+	public virtual ICollection<UserBadges>? Badges { get; set; }
 
 	public ICollection<UserSessionHistory>? UserSessions { get; set; }
 }

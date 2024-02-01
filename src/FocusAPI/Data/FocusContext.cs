@@ -30,6 +30,24 @@ public class FocusContext : DbContext
             .WithMany(x => x.Invitees)
             .HasForeignKey(x => x.FriendId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserPets>()
+            .HasKey(x => new { x.UserId, x.PetId });
+
+        modelBuilder.Entity<UserPets>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Pets)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserBadges>()
+            .HasKey(x => new { x.UserId, x.BadgeId });
+
+        modelBuilder.Entity<UserBadges>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Badges)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

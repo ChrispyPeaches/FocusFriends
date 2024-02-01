@@ -6,12 +6,13 @@ namespace FocusAPI.Models;
 
 public class UserPets
 {
-    [Key]
-    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
 
     public User User { get; set; } = null!;
 
     public Pet Pet { get; set; } = null!;
+
+    public Guid PetId { get; set; }
 
     public DateTimeOffset DateAcquired { get; set; }
 }
