@@ -96,7 +96,7 @@ public class AppShell : SimpleShell
         {
             BindingContext = timerTab,
             CornerRadius = 20,
-            BackgroundColor = Color.FromArgb("#C8B6FF"),
+            BackgroundColor = AppStyles.Palette.LightMauve,
             Padding = 0,
             FontSize = 30,
             FontFamily = nameof(SolidIcons),
@@ -143,11 +143,16 @@ public class AppShell : SimpleShell
             Children =
             {
                 // The simple navigation host is the "window" that lets you see the pages
-                new SimpleNavigationHost(),
+                new SimpleNavigationHost()
+                {
+                    ZIndex = 0
+                }
+                .RowSpan(2),
 
                 // This grid contains the tab buttons
                 new Grid
                 {
+                    ZIndex = 1,
                     BackgroundColor = Colors.Transparent,
 
                     // Define the rows
@@ -189,7 +194,7 @@ public class AppShell : SimpleShell
         }
 
         // Highlight current selected tab
-        button.BackgroundColor = Color.FromArgb("#C8B6FF");
+        button.BackgroundColor = AppStyles.Palette.LightMauve;
 
         // Navigate to a new tab if it is not the current tab
         if (!CurrentState.Location.OriginalString.Contains(shellItem.Route))
