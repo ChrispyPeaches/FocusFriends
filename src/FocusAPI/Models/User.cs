@@ -9,6 +9,8 @@ public class User
 	[Key]
 	public Guid Id { get; set; }
 
+	public string UserName { get; set; } = null!;
+
 	public string Email { get; set; } = null!;
 
 	public DateTimeOffset DateCreated { get; set; }
