@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Resources.FontAwesomeIcons;
+using System.Runtime.CompilerServices;
 
 namespace FocusApp.Views.Social;
 
@@ -144,7 +145,8 @@ internal sealed class PetsPage : ContentView
                 .Column(0)
                 .Paddings(top : 5, bottom: 5, left: 10, right: 5)
 				// When clicked, go to social view
-				.Invoke(b => b.Clicked += (sender, e) => {Content = new MainView(); }),
+				.Invoke(button => button.Released += (sender, eventArgs) =>
+                    BackButtonClicked(sender, eventArgs)),
 
 				// Header & Content Divider
 				new BoxView
@@ -623,6 +625,11 @@ internal sealed class PetsPage : ContentView
             checkmark.FadeTo(1, 250);
 
             selectedCheckmark = checkmark;
+        }
+
+        async void BackButtonClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("///" + nameof(MainPage));
         }
 	}
 }
