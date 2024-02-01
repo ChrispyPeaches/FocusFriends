@@ -10,88 +10,103 @@ internal sealed class PetsView : ContentView
 	public PetsView()
 	{
         // Variable checks for if pet is owned
-        bool hasBeans = true;
-        bool hasBob = true;
-        bool hasDanole = false;
+        bool hasBeans = false;
+        bool hasBob = false;
+        bool hasDanole = true;
         bool hasFranklin = true;
-        bool hasGreg = false;
+        bool hasGreg = true;
         bool hasWurmy = false;
 
-		// Using grids
-		Content = new Grid
-		{
-			// Define the length of the rows & columns
+        // Selected Pet
+        string selectedPet = "No Pet Selected";
+
+        // Label for selected pet
+        var dynamicLabel = new Label
+        {
+            Text = selectedPet,
+            TextColor = Colors.Black,
+            FontSize = 20
+        }
+        .Row(5)
+        .Column(0)
+        .ColumnSpan(2)
+        .Center();
+
+        // Using grids
+        Content = new Grid
+        {
+            // Define the length of the rows & columns
             // Rows: 80 for the top, 20 to act as padding, Stars for even spacing, and 140 for bottom padding
             // Columns: Two even columns should be enough
-			RowDefinitions = Rows.Define(80, 20, Star, Star, Star, 140),
-			ColumnDefinitions = Columns.Define(Star, Star),
-			Children = {
+            RowDefinitions = Rows.Define(80, 20, Star, Star, Star, 50, 90),
+            ColumnDefinitions = Columns.Define(Star, Star),
+            Children = {
 
 				// Header
 				new Label
-				{
-					Text = "Pets",
-					TextColor = Colors.Black,
-					FontSize = 40
-				}
-				.Row(0)
-				.Column(0)
-				.ColumnSpan(3)
-				.CenterVertical()
-				.Paddings(top : 5, bottom: 5, left: 75, right: 5),
+                {
+                    Text = "Pets",
+                    TextColor = Colors.Black,
+                    FontSize = 40
+                }
+                .Row(0)
+                .Column(0)
+                .ColumnSpan(3)
+                .CenterVertical()
+                .Paddings(top : 5, bottom: 5, left: 75, right: 5),
 
 
 				// Back Button
 				new Button
-				{
-					Text = SolidIcons.ChevronLeft,
-					TextColor = Colors.Black,
-					FontFamily = nameof(SolidIcons),
-					FontSize = 40,
-					BackgroundColor = Colors.Transparent
-				}
-				.Left()
-				.CenterVertical()
-				.Column(0)
+                {
+                    Text = SolidIcons.ChevronLeft,
+                    TextColor = Colors.Black,
+                    FontFamily = nameof(SolidIcons),
+                    FontSize = 40,
+                    BackgroundColor = Colors.Transparent
+                }
+                .Left()
+                .CenterVertical()
+                .Column(0)
                 .Paddings(top : 5, bottom: 5, left: 10, right: 5)
 				// When clicked, go to social view
 				.Invoke(b => b.Clicked += (sender, e) => {Content = new MainView(); }),
 
 				// Header & Content Divider
 				new BoxView
-				{
-					Color = Colors.Black,
-					WidthRequest = 400,
-					HeightRequest = 2
-				}
-				.Bottom()
-				.Row(0)
-				.Column(0)
-				.ColumnSpan(int.MaxValue),
+                {
+                    Color = Colors.Black,
+                    WidthRequest = 400,
+                    HeightRequest = 2
+                }
+                .Bottom()
+                .Row(0)
+                .Column(0)
+                .ColumnSpan(int.MaxValue),
                 //////////////////////////////////////////////////////////
 				// Image Background 1
 				new BoxView
-				{
-					Color = Colors.DarkGray,
-					WidthRequest = 160,
-					HeightRequest = 160,
-					CornerRadius = 30
-				}
-				.Row(2)
-				.Column(0)
-				.Center(),
+                {
+                    Color = Colors.DarkGray,
+                    WidthRequest = 160,
+                    HeightRequest = 160,
+                    CornerRadius = 30
+                }
+                .Row(2)
+                .Column(0)
+                .Center(),
 
 				// Image Foreground 1
 				new BoxView
-				{
-					Color = Colors.LightGrey,
-					WidthRequest = 140,
-					HeightRequest = 140,
-					CornerRadius = 30
-				}
-				.Row(2)
-				.Column(0)
-				.Center(),
+                {
+                    Color = Colors.LightGrey,
+                    WidthRequest = 140,
+                    HeightRequest = 140,
+                    CornerRadius = 30
+                }
+                .Row(2)
+                .Column(0)
+                .Center(),
 
                 // Pet Image 1
                 new Image
@@ -126,16 +141,20 @@ internal sealed class PetsView : ContentView
                 .Row(2)
                 .Column(0)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) => 
+                .Invoke(b => b.Clicked += (sender, e) =>
                 {
-                    if (hasGreg) 
+                    if (hasGreg)
                     {
                         Console.WriteLine("Greg Tapped");
+                        selectedPet = "Greg Selected";
                     }
                     else
                     {
                         Console.WriteLine("Greg Not Owned");
                     }
+
+                    // Update pet selection
+                    dynamicLabel.Text = selectedPet;
                     ;}),
 				
                 //////////////////////////////////////////////////////////
@@ -201,11 +220,15 @@ internal sealed class PetsView : ContentView
                     if (hasBeans)
                     {
                         Console.WriteLine("Beans Tapped");
+                        selectedPet = "Beans Selected";
                     }
                     else
                     {
                         Console.WriteLine("Beans Not Owned");
                     }
+
+                    // Update pet selection
+                    dynamicLabel.Text = selectedPet;
                     ;}),
 
                 //////////////////////////////////////////////////////////
@@ -271,11 +294,15 @@ internal sealed class PetsView : ContentView
                     if (hasBob)
                     {
                         Console.WriteLine("Bob Tapped");
+                        selectedPet = "Bob Selected";
                     }
                     else
                     {
                         Console.WriteLine("Bob Not Owned");
                     }
+
+                    // Update pet selection
+                    dynamicLabel.Text = selectedPet;
                     ;}),
 
                 //////////////////////////////////////////////////////////
@@ -341,11 +368,15 @@ internal sealed class PetsView : ContentView
                     if (hasDanole)
                     {
                         Console.WriteLine("Danole Tapped");
+                        selectedPet = "Danole Selected";
                     }
                     else
                     {
                         Console.WriteLine("Danole Not Owned");
                     }
+
+                    // Update pet selection
+                    dynamicLabel.Text = selectedPet;
                     ;}),
 
                 //////////////////////////////////////////////////////////
@@ -411,11 +442,15 @@ internal sealed class PetsView : ContentView
                     if (hasFranklin)
                     {
                         Console.WriteLine("Franklin Tapped");
+                        selectedPet = "Franklin Selected";
                     }
                     else
                     {
                         Console.WriteLine("Franklin Not Owned");
                     }
+
+                    // Update pet selection
+                    dynamicLabel.Text = selectedPet;
                     ;}),
 
                 //////////////////////////////////////////////////////////
@@ -481,12 +516,19 @@ internal sealed class PetsView : ContentView
                     if (hasWurmy)
                     {
                         Console.WriteLine("Wurmy Tapped");
+                        selectedPet = "Wurmy Selected";
                     }
                     else
                     {
                         Console.WriteLine("Wurmy Not Owned");
                     }
-                    ;})
+
+                    // Update pet selection
+                    dynamicLabel.Text = selectedPet;
+                    ;}),
+
+                // Display Label
+                dynamicLabel
             }
 		};
 	}
