@@ -7,7 +7,8 @@ namespace FocusApp.Views.Social;
 
 internal sealed class PetsView : ContentView
 {
-	public PetsView()
+    private Image? selectedCheckmark;
+    public PetsView()
 	{
         // Variable checks for if pet is owned
         bool hasBeans = false;
@@ -31,6 +32,79 @@ internal sealed class PetsView : ContentView
         .Column(0)
         .ColumnSpan(2)
         .Center();
+
+        // Checkmarks for selected pet
+        var checkmark1 = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = 0
+        }
+        .Row(2)
+        .Column(0)
+        .Top()
+        .Right();
+
+        var checkmark2 = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = 0
+        }
+        .Row(2)
+        .Column(1)
+        .Top()
+        .Right();
+
+        var checkmark3 = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = 0
+        }
+        .Row(3)
+        .Column(0)
+        .Top()
+        .Right();
+
+        var checkmark4 = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = 0
+        }
+        .Row(3)
+        .Column(1)
+        .Top()
+        .Right();
+
+        var checkmark5 = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = 0
+        }
+        .Row(4)
+        .Column(0)
+        .Top()
+        .Right();
+
+        var checkmark6 = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = 0
+        }
+        .Row(4)
+        .Column(1)
+        .Top()
+        .Right();
 
         // Using grids
         Content = new Grid
@@ -146,7 +220,7 @@ internal sealed class PetsView : ContentView
                     if (hasGreg)
                     {
                         Console.WriteLine("Greg Tapped");
-                        selectedPet = "Greg Selected";
+                        PetHandler(checkmark1, "Greg");
                     }
                     else
                     {
@@ -220,7 +294,7 @@ internal sealed class PetsView : ContentView
                     if (hasBeans)
                     {
                         Console.WriteLine("Beans Tapped");
-                        selectedPet = "Beans Selected";
+                        PetHandler(checkmark2, "Beans");
                     }
                     else
                     {
@@ -294,7 +368,7 @@ internal sealed class PetsView : ContentView
                     if (hasBob)
                     {
                         Console.WriteLine("Bob Tapped");
-                        selectedPet = "Bob Selected";
+                        PetHandler(checkmark3, "Bob");
                     }
                     else
                     {
@@ -368,7 +442,7 @@ internal sealed class PetsView : ContentView
                     if (hasDanole)
                     {
                         Console.WriteLine("Danole Tapped");
-                        selectedPet = "Danole Selected";
+                        PetHandler(checkmark4, "Danole");
                     }
                     else
                     {
@@ -442,7 +516,7 @@ internal sealed class PetsView : ContentView
                     if (hasFranklin)
                     {
                         Console.WriteLine("Franklin Tapped");
-                        selectedPet = "Franklin Selected";
+                        PetHandler(checkmark5, "Franklin");
                     }
                     else
                     {
@@ -516,7 +590,7 @@ internal sealed class PetsView : ContentView
                     if (hasWurmy)
                     {
                         Console.WriteLine("Wurmy Tapped");
-                        selectedPet = "Wurmy Selected";
+                        PetHandler(checkmark6, "Wurmy");
                     }
                     else
                     {
@@ -528,8 +602,27 @@ internal sealed class PetsView : ContentView
                     ;}),
 
                 // Display Label
-                dynamicLabel
+                dynamicLabel,
+                checkmark1,
+                checkmark2,
+                checkmark3,
+                checkmark4,
+                checkmark5,
+                checkmark6
+
             }
 		};
+
+        void PetHandler(Image checkmark, string pet)
+        {
+            selectedPet = $"{pet} Selected";
+
+            dynamicLabel.Text = selectedPet;
+
+            selectedCheckmark?.FadeTo(0, 250);
+            checkmark.FadeTo(1, 250);
+
+            selectedCheckmark = checkmark;
+        }
 	}
 }
