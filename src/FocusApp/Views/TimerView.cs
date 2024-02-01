@@ -21,11 +21,11 @@ namespace FocusApp.Views
             Content = new Grid
             {
                 RowDefinitions = GridRowsColumns.Rows.Define(
-                    ( Row.TopBar, GridRowsColumns.Stars(1)           ),
-                    ( Row.TimerDisplay, GridRowsColumns.Stars(2)     ),
-                    ( Row.Island, GridRowsColumns.Stars(3)           ),
-                    ( Row.TimerButtons, GridRowsColumns.Stars(1)     ),
-                    ( Row.BottomWhiteSpace, GridRowsColumns.Stars(1) )
+                    (Row.TopBar, GridRowsColumns.Stars(1)),
+                    (Row.TimerDisplay, GridRowsColumns.Stars(2)),
+                    (Row.Island, GridRowsColumns.Stars(3)),
+                    (Row.TimerButtons, GridRowsColumns.Stars(1)),
+                    (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
                     ),
                 ColumnDefinitions = GridRowsColumns.Columns.Define(
                     (Column.LeftTimerButton, GridRowsColumns.Stars(1)),
@@ -64,6 +64,14 @@ namespace FocusApp.Views
                     .ColumnSpan(typeof(Column).GetEnumNames().Length)
                     .Bind(Label.TextProperty,
                             getter: static (TimerHelper th) => th.TimerDisplay),
+
+                    // Island
+                    new Image
+                    {
+                        Source = "island_zero.png"
+                    }
+                    .Row(Row.Island)
+                    .ColumnSpan(typeof(Column).GetEnumNames().Length),
 
                     // Increase Time Button
                     new Button
