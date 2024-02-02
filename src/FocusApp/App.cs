@@ -22,7 +22,7 @@ namespace FocusApp
         {
             Resources = new AppStyles();
 
-            MainPage = new AppShell();
+            MainPage = new AppShell(apiClient);
         }
 
         /// <summary>

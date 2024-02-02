@@ -1,5 +1,7 @@
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
+using FocusApp.Clients;
+using FocusCore.Queries.User;
 using Microsoft.Maui.Controls.Shapes;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,8 +11,10 @@ namespace FocusApp.Views.Social;
 
 public class MainPage : ContentPage
 {
-	public MainPage()
+    IAPIClient _client { get; set; }
+	public MainPage(IAPIClient client)
 	{
+        _client = client;
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
         for (int i = 0; i < 5; i++)
@@ -91,5 +95,11 @@ public class MainPage : ContentPage
                 .ColumnSpan(2)
             }
         };
+    }
+
+    protected override async void OnAppearing()
+    {
+        var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
+        base.OnAppearing();
     }
 }
