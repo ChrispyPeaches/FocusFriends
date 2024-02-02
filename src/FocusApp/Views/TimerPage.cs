@@ -2,6 +2,8 @@
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Clients;
 using FocusApp.Helpers;
+using FocusApp.Models;
+using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
 using FocusCore.Queries.User;
 
@@ -13,30 +15,45 @@ namespace FocusApp.Views
         private IDispatcherTimer? _timeStepperTimer;
         IAPIClient _client;
 
-        enum Row { TopBar, TimerDisplay, Island, TimerButtons, BottomWhiteSpace }
+        enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
         enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
         public enum TimerButton { Up, Down }
 
         public TimerPage(IAPIClient client)
         {
             _client = client;
+            Island islandPlaceholder = new Island()
+            {
+                Name = "Default",
+                ImagePath = "island_zero.png"
+            };
+
+            Pet petPlaceholder = new Pet()
+            {
+                Name = "Cat",
+                ImagePath = "pet_cat_zero.png",
+                HeightRequest = 90
+            };
+
             _timerHelper = new TimerHelper();
 
             Content = new Grid
             {
                 RowDefinitions = GridRowsColumns.Rows.Define(
-                    ( Row.TopBar, GridRowsColumns.Stars(1)           ),
-                    ( Row.TimerDisplay, GridRowsColumns.Stars(2)     ),
-                    ( Row.Island, GridRowsColumns.Stars(3)           ),
-                    ( Row.TimerButtons, GridRowsColumns.Stars(1)     ),
-                    ( Row.BottomWhiteSpace, GridRowsColumns.Stars(1) )
+                    (Row.TopBar, GridRowsColumns.Stars(1)),
+                    (Row.TimerDisplay, GridRowsColumns.Stars(1)),
+                    (Row.Island, GridRowsColumns.Stars(3)),
+                    (Row.PetAndIsland, GridRowsColumns.Stars(1)),
+                    (Row.MiddleWhiteSpace, GridRowsColumns.Stars(1)),
+                    (Row.TimerButtons, GridRowsColumns.Stars(1)),
+                    (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
                     ),
                 ColumnDefinitions = GridRowsColumns.Columns.Define(
                     (Column.LeftTimerButton, GridRowsColumns.Stars(1)),
                     (Column.TimerAmount, GridRowsColumns.Stars(2)),
                     (Column.RightTimerButton, GridRowsColumns.Stars(1))
                     ),
-                BackgroundColor = Color.FromArgb("BBD0FF"),
+                BackgroundColor = AppStyles.Palette.LightPeriwinkle,
                 Children =
                 {
                     // Setting Button
@@ -69,6 +86,29 @@ namespace FocusApp.Views
                     .ColumnSpan(typeof(Column).GetEnumNames().Length)
                     .Bind(Label.TextProperty,
                             getter: static (TimerHelper th) => th.TimerDisplay),
+
+                    // Island
+                    new Image
+                    {
+                        Source = islandPlaceholder.ImagePath,
+                    }
+                    .Row(Row.Island)
+                    .RowSpan(3)
+                    .ColumnSpan(typeof(Column).GetEnumNames().Length)
+                    .Margins(left: 10, right: 10),
+
+                    // Pet
+                    new Image
+                    {
+                        Source = petPlaceholder.ImagePath,
+                        MaximumHeightRequest = 200,
+                        HeightRequest = petPlaceholder.HeightRequest
+                    }
+                    .Row(Row.PetAndIsland)
+                    .Column(Column.TimerAmount)
+                    .Margins(bottom: 60)
+                    .Bottom()
+                    .End(),
 
                     // Increase Time Button
                     new Button
