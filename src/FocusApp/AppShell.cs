@@ -79,9 +79,9 @@ public class AppShell : SimpleShell
             {
                 new ShellContent()
                 {
-                    Title = "PetPage",
+                    Title = "PetsPage",
                     ContentTemplate = new DataTemplate(() => new Views.Social.PetsPage()),
-                    Route = "PetPage"
+                    Route = "PetsPage"
                 }
             }
         };
