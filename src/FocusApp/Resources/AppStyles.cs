@@ -15,6 +15,18 @@ public class AppStyles : ResourceDictionary
 							whiteColor = Color.FromArgb("FFFFFF"),
 							navigationBarButtonBackgroundColor = Color.FromArgb("#CEA9FF");
 
+	public static class Palette
+	{
+        public static readonly Color FairyTale = Color.FromArgb("FFCADB");
+        public static readonly Color OrchidPink = Color.FromArgb("FFBFD4");
+        public static readonly Color LightMauve = Color.FromArgb("E7C6FF");
+        public static readonly Color DarkMauve = Color.FromArgb("C8B6FF");
+        public static readonly Color Celeste = Color.FromArgb("BDEDE0");
+        public static readonly Color MintGreen = Color.FromArgb("BBDBD1");
+        public static readonly Color LightPeriwinkle = Color.FromArgb("BBD0FF");
+        public static readonly Color DarkPeriwinkle = Color.FromArgb("B8C0FF");
+    }
+
 	public AppStyles()
 	{
 		// all the colors and styles are being accessed directly except the below two

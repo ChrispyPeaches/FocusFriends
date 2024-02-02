@@ -3,13 +3,18 @@ using CommunityToolkit.Maui.Markup.LeftToRight;
 using Microsoft.Maui.Controls.Shapes;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Resources.FontAwesomeIcons;
+using FocusApp.Clients;
+using FocusCore.Queries.User;
 
 namespace FocusApp.Views;
 
-internal sealed class SettingsView : ContentView
+internal sealed class SettingsPage : ContentPage
 {
-    public SettingsView()
+    IAPIClient _client { get; set; }
+    public SettingsPage(IAPIClient client)
     {
+        _client = client;
+
         // Defualt volume values for the sliders
         double sfxVolume = 50;
         double ambianceVolume = 50;
@@ -50,8 +55,8 @@ internal sealed class SettingsView : ContentView
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .Column(0)
                 // When clicked, go to timer view
-                //.Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Back Button Tapped");}),
-                .Invoke(b => b.Clicked += (sender, e) => { Content = new TimerView(); }),
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    BackButtonClicked(sender, eventArgs)),
 
 
                 // Header & Content Divider
@@ -241,5 +246,16 @@ internal sealed class SettingsView : ContentView
                 .Center()
             }
         };
+    }
+
+    private async void BackButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(TimerPage));
+    }
+
+    protected override async void OnAppearing()
+    {
+        var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
+        base.OnAppearing();
     }
 }
