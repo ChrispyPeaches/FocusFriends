@@ -6,14 +6,14 @@ using FocusApp.Resources;
 using Microsoft.Maui.Controls;
 using SimpleToolkit.SimpleShell;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using FocusApp.Clients;
 
 namespace FocusApp;
 
 public class AppShell : SimpleShell
 {
     List<Button> tabButtons;
-
-    public AppShell()
+    public AppShell(IAPIClient client)
     {
         // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
@@ -24,7 +24,7 @@ public class AppShell : SimpleShell
              new ShellContent()
              {
                  Title = "ShopPage",
-                 ContentTemplate = new DataTemplate(() => new Views.Shop.MainPage()),
+                 ContentTemplate = new DataTemplate(() => new Views.Shop.MainPage(client)),
                  Route = "ShopPage"
              }
          }
@@ -38,7 +38,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "TimerPage",
-                     ContentTemplate = new DataTemplate(() => new TimerPage()),
+                     ContentTemplate = new DataTemplate(() => new TimerPage(client)),
                      Route = "TimerPage"
                 }
             }
@@ -52,7 +52,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "SocialPage",
-                     ContentTemplate = new DataTemplate(() => new Views.Social.MainPage()),
+                     ContentTemplate = new DataTemplate(() => new Views.Social.MainPage(client)),
                      Route = "SocialPage"
                 }
             }
@@ -66,7 +66,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "SettingsPage",
-                     ContentTemplate = new DataTemplate(() => new SettingsPage()),
+                     ContentTemplate = new DataTemplate(() => new SettingsPage(client)),
                      Route = "SettingsPage"
                 }
             }
