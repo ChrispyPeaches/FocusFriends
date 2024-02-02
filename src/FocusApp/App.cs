@@ -1,4 +1,6 @@
-﻿using FocusApp.Resources;
+using FocusApp.Clients;
+using FocusApp.Helpers;
+using FocusApp.Resources;
 using SimpleToolkit.SimpleShell;
 
 namespace FocusApp
@@ -16,11 +18,11 @@ namespace FocusApp
         /// Create a new instance of the application with the styling resources and 
         /// a <see cref="Shell"/> that only acts as a container for the <see cref="MainPage"/>.
         /// </summary>
-        public App()
+        public App(IAPIClient apiClient)
         {
             Resources = new AppStyles();
 
-            MainPage = new AppShell();
+            MainPage = new AppShell(apiClient);
         }
 
         /// <summary>

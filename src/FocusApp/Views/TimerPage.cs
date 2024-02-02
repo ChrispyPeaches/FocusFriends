@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
+using FocusApp.Clients;
 using FocusApp.Helpers;
 using FocusApp.Models;
 using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
+using FocusCore.Queries.User;
 
 namespace FocusApp.Views
 {
@@ -11,13 +13,15 @@ namespace FocusApp.Views
     {
         private TimerHelper _timerHelper;
         private IDispatcherTimer? _timeStepperTimer;
+        IAPIClient _client;
 
         enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
         enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
         public enum TimerButton { Up, Down }
 
-        public TimerPage()
+        public TimerPage(IAPIClient client)
         {
+            _client = client;
             Island islandPlaceholder = new Island()
             {
                 Name = "Default",
@@ -214,6 +218,12 @@ namespace FocusApp.Views
         private async void SettingsButtonClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
+        }
+
+        protected override async void OnAppearing()
+        {
+            var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() } );
+            base.OnAppearing();
         }
     }
 }

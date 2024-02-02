@@ -3,13 +3,18 @@ using CommunityToolkit.Maui.Markup.LeftToRight;
 using Microsoft.Maui.Controls.Shapes;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Resources.FontAwesomeIcons;
+using FocusApp.Clients;
+using FocusCore.Queries.User;
 
 namespace FocusApp.Views;
 
 internal sealed class SettingsPage : ContentPage
 {
-    public SettingsPage()
+    IAPIClient _client { get; set; }
+    public SettingsPage(IAPIClient client)
     {
+        _client = client;
+
         // Defualt volume values for the sliders
         double sfxVolume = 50;
         double ambianceVolume = 50;
@@ -246,5 +251,11 @@ internal sealed class SettingsPage : ContentPage
     private async void BackButtonClicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
+    }
+
+    protected override async void OnAppearing()
+    {
+        var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
+        base.OnAppearing();
     }
 }
