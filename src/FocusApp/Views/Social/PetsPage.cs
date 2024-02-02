@@ -630,6 +630,6 @@ internal sealed class PetsPage : ContentPage
 
     private async void BackButtonClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("///" + nameof(MainPage));
+        await Shell.Current.GoToAsync("///" + nameof(SocialPage));
     }
 }

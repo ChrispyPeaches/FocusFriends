@@ -52,7 +52,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "SocialPage",
-                     ContentTemplate = new DataTemplate(() => new Views.Social.MainPage()),
+                     ContentTemplate = new DataTemplate(() => new Views.Social.SocialPage()),
                      Route = "SocialPage"
                 }
             }
