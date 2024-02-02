@@ -9,10 +9,10 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Views.Social;
 
-public class MainPage : ContentPage
+public class SocialPage : ContentPage
 {
     IAPIClient _client { get; set; }
-	public MainPage(IAPIClient client)
+	public SocialPage(IAPIClient client)
 	{
         _client = client;
         // Add logic to fetch focused friends
@@ -92,9 +92,24 @@ public class MainPage : ContentPage
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2)
+                .ColumnSpan(2),
+
+                new Button
+                {
+                    Text = "Pets Page",
+                    MaximumHeightRequest = 50
+                }
+                .Row(2)
+                .Column(0)
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    PetsButtonClicked(sender, eventArgs)),
             }
         };
+    }
+
+    private async void PetsButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
     }
 
     protected override async void OnAppearing()

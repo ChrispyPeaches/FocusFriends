@@ -52,7 +52,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "SocialPage",
-                     ContentTemplate = new DataTemplate(() => new Views.Social.MainPage(client)),
+                     ContentTemplate = new DataTemplate(() => new Views.Social.SocialPage(client)),
                      Route = "SocialPage"
                 }
             }
@@ -68,6 +68,20 @@ public class AppShell : SimpleShell
                      Title = "SettingsPage",
                      ContentTemplate = new DataTemplate(() => new SettingsPage(client)),
                      Route = "SettingsPage"
+                }
+            }
+        };
+        var petsTab = new Tab()
+        {
+            Title = "PetsPage",
+            Route = "PetsPage",
+            Items =
+            {
+                new ShellContent()
+                {
+                    Title = "PetsPage",
+                    ContentTemplate = new DataTemplate(() => new Views.Social.PetsPage()),
+                    Route = "PetsPage"
                 }
             }
         };
@@ -176,6 +190,7 @@ public class AppShell : SimpleShell
         tabbar.Items.Add(shopTab);
         tabbar.Items.Add(socialTab);
         tabbar.Items.Add(settingsTab);
+        tabbar.Items.Add(petsTab);
         Items.Add(tabbar);
     }
 
