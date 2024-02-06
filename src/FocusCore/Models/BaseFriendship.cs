@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusCore.Models;
 
-[Table("UserFriends")]
+[Table("Friendships")]
 [PrimaryKey(nameof(UserId), nameof(FriendId), nameof(Status))]
-public abstract class BaseUserFriend
+public abstract class BaseFriendship
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }

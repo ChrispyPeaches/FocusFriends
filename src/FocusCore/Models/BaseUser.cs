@@ -25,9 +25,9 @@ public abstract class BaseUser
 
 	public byte[]? ProfilePicture { get; set; }
 
-	public ICollection<BaseUserFriend>? Inviters { get; set; }
+	public ICollection<BaseFriendship>? Inviters { get; set; }
 
-	public virtual ICollection<BaseUserFriend>? Invitees { get; set; }
+	public virtual ICollection<BaseFriendship>? Invitees { get; set; }
 
 	public virtual ICollection<BaseUserPet>? Pets { get; set; }
 

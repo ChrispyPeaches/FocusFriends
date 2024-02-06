@@ -2,7 +2,7 @@
 
 namespace FocusAPI.Models;
 
-public class UserFriend : FocusCore.Models.BaseUserFriend
+public class Friendship : FocusCore.Models.BaseFriendship
 {
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new User? User { get; set; }

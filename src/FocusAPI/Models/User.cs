@@ -4,11 +4,11 @@ namespace FocusAPI.Models;
 
 public class User : FocusCore.Models.BaseUser
 {
-	[InverseProperty(nameof(UserFriend.User))]
-	public new ICollection<UserFriend>? Inviters { get; set; }
+	[InverseProperty(nameof(Friendship.User))]
+	public new ICollection<Friendship>? Inviters { get; set; }
 
-    [InverseProperty(nameof(UserFriend.Friend))]
-    public new ICollection<UserFriend>? Invitees { get; set; }
+    [InverseProperty(nameof(Friendship.Friend))]
+    public new ICollection<Friendship>? Invitees { get; set; }
 
 	public new ICollection<UserPet>? Pets { get; set; }
 
