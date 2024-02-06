@@ -4,13 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusAPI.Models;
 
-[Table("Badges")]
-public class Badge
+public class Badge : FocusCore.Models.BaseBadge
 {
-    [Key]
-    public Guid Id { get; set; }
-
-    public string Name { get; set; } = null!;
-
-    public string FilePath { get; set; } = null!;
 }

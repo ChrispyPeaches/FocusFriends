@@ -1,37 +1,18 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusAPI.Models;
 
-public class User
+public class User : FocusCore.Models.BaseUser
 {
-	[Key]
-	public Guid Id { get; set; }
+	[InverseProperty(nameof(UserFriend.User))]
+	public new ICollection<UserFriend>? Inviters { get; set; }
 
-	public string UserName { get; set; } = null!;
+    [InverseProperty(nameof(UserFriend.Friend))]
+    public new ICollection<UserFriend>? Invitees { get; set; }
 
-	public string Email { get; set; } = null!;
+	public new ICollection<UserPet>? Pets { get; set; }
 
-	public DateTimeOffset DateCreated { get; set; }
+	public new ICollection<UserBadge>? Badges { get; set; }
 
-	public int Balance { get; set; }
-
-	public string? FirstName { get; set; }
-
-	public string? LastName { get; set; }
-
-	public string? Pronouns { get; set; }
-
-	public byte[]? ProfilePicture { get; set; }
-
-	public virtual ICollection<UserFriends>? Inviters { get; set; }
-
-	public virtual ICollection<UserFriends>? Invitees { get; set; }
-
-	public virtual ICollection<UserPets>? Pets { get; set; }
-
-	public virtual ICollection<UserBadges>? Badges { get; set; }
-
-	public ICollection<UserSessionHistory>? UserSessions { get; set; }
+	public new ICollection<UserSession>? UserSessions { get; set; }
 }

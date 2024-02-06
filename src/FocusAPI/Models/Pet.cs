@@ -4,13 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusAPI.Models;
 
-[Table("Pets")]
-public class Pet
+public class Pet : FocusCore.Models.BasePet
 {
-    [Key]
-    public Guid Id { get; set; }
-
-    public int Price { get; set; }
-
-    public string Name { get; set; } = null!;
 }
