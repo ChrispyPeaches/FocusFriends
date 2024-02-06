@@ -1,7 +1,8 @@
-﻿using FocusAPI.Models;
+﻿using FocusApp.Models;
+using FocusApp.Resources;
 using Microsoft.EntityFrameworkCore;
 
-namespace FocusAPI.Data;
+namespace FocusApp.Data;
 
 public class FocusContext : DbContext
 {
@@ -13,10 +14,11 @@ public class FocusContext : DbContext
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public FocusContext(DbContextOptions<FocusContext> options)
+        : base(options)
     {
-        // No SQL server conneciton yet
-        // Better alternative for SQL Server connection https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
-        optionsBuilder.UseSqlServer(@"Data Source=(localdb)\TestDb;Initial Catalog=FocusFriendsDevTest;Integrated Security=True;");
+        SQLitePCL.Batteries_V2.Init();
+
+        Database.EnsureCreated();
     }
 }

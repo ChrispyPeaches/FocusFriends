@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Clients;
+using FocusApp.Dtos;
 using FocusApp.Helpers;
-using FocusApp.Models;
 using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
 using FocusCore.Queries.User;

@@ -1,4 +1,4 @@
-﻿namespace FocusApp.Models;
+﻿namespace FocusApp.Dtos;
 
 internal class Island
 {

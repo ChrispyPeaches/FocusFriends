@@ -1,8 +1,5 @@
 ﻿namespace FocusApp.Models;
 
-internal class Pet
+public class Pet : FocusCore.Models.BasePet
 {
-    public required string Name { get; set; }
-    public required string ImagePath { get; set; }
-    public required int HeightRequest { get; set; }
 }
