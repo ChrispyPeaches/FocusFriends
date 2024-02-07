@@ -1,5 +1,5 @@
-﻿using FocusCore.Commands;
-using FocusCore.Models;
+﻿using FocusCore.Commands.User;
+using FocusCore.Models.User;
 using MediatR;
 
 namespace FocusApi.Methods.User;
