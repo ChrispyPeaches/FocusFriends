@@ -20,7 +20,8 @@ namespace FocusApp.Views.Shop
                         FontSize = 30,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
-                    }
+                    },
+                    new CarouselView()
                 }
             };
         }
