@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FocusApp.Models;
+namespace FocusAppShared.Models;
 
-public class UserPet : FocusCore.Models.BaseUserPet
+public class Friendship : FocusCore.Models.BaseFriendship
 {
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new User? User { get; set; }
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public new Pet? Pet { get; set; }
+    public new User? Friend { get; set; }
 }

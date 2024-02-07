@@ -1,4 +1,4 @@
-﻿namespace FocusApp.Models;
+﻿namespace FocusAppShared.Models;
 
 public class UserSession : FocusCore.Models.BaseUserSession
 {

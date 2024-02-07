@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FocusApp.Models;
+namespace FocusAppShared.Models;
 
 public class UserBadge : FocusCore.Models.BaseUserBadge
 {

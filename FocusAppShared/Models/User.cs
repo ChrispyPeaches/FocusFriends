@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FocusApp.Models;
+namespace FocusAppShared.Models;
 
 public class User : FocusCore.Models.BaseUser
 {

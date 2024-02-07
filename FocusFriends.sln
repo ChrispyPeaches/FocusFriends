@@ -23,6 +23,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FocusApp", "src\FocusApp\Fo
 		{996C25C7-AF52-4F70-9735-93147E6BF53D} = {996C25C7-AF52-4F70-9735-93147E6BF53D}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusAppTools", "src\FocusAppTools\FocusAppTools.csproj", "{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{58ED35D7-3C08-42AC-81A0-DC4B8B086E8A} = {58ED35D7-3C08-42AC-81A0-DC4B8B086E8A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusAppShared", "FocusAppShared\FocusAppShared.csproj", "{7D406949-4097-4EEE-BAAA-4082F78DD777}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +50,14 @@ Global
 		{58ED35D7-3C08-42AC-81A0-DC4B8B086E8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58ED35D7-3C08-42AC-81A0-DC4B8B086E8A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{58ED35D7-3C08-42AC-81A0-DC4B8B086E8A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D406949-4097-4EEE-BAAA-4082F78DD777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D406949-4097-4EEE-BAAA-4082F78DD777}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D406949-4097-4EEE-BAAA-4082F78DD777}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D406949-4097-4EEE-BAAA-4082F78DD777}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
