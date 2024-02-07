@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Clients;
+using FocusApp.Data;
 using FocusApp.Helpers;
 using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
-using FocusAppShared.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -34,7 +34,7 @@ namespace FocusApp
                 .AddRefitClient<IAPIClient>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));
 
-            builder.Services.AddDbContext<BaseFocusAppContext>();
+            builder.Services.AddDbContext<FocusAppContext>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -40,7 +40,6 @@ public class BaseFocusAppContext : DbContext
             // required to initialize SQLite on some platforms
             SQLitePCL.Batteries_V2.Init();
 
-            Database.EnsureCreated();
             Database.Migrate();
         }
     }
