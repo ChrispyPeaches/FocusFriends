@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Clients;
-using FocusApp.Data;
+using FocusAppShared.Data;
 using FocusApp.Helpers;
 using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
 using SimpleToolkit.SimpleShell;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 
 namespace FocusApp
 {
@@ -34,7 +35,12 @@ namespace FocusApp
                 .AddRefitClient<IAPIClient>()
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));
 
-            builder.Services.AddDbContext<FocusAppContext>();
+
+            var migrationAssembly = typeof(FocusAppContext).Assembly.GetName().Name;
+            builder.Services.AddDbContext<IFocusAppContext, FocusAppContext>(opts =>
+            {
+                opts.UseSqlite($"Filename={Consts.DatabasePath}", x => x.MigrationsAssembly(migrationAssembly));
+            });
 
 #if DEBUG
             builder.Logging.AddDebug();

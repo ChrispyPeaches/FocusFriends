@@ -19,16 +19,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FocusCore", "src\FocusCore\FocusCore.csproj", "{996C25C7-AF52-4F70-9735-93147E6BF53D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FocusApp", "src\FocusApp\FocusApp.csproj", "{58ED35D7-3C08-42AC-81A0-DC4B8B086E8A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{996C25C7-AF52-4F70-9735-93147E6BF53D} = {996C25C7-AF52-4F70-9735-93147E6BF53D}
-	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusAppTools", "src\FocusAppTools\FocusAppTools.csproj", "{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{58ED35D7-3C08-42AC-81A0-DC4B8B086E8A} = {58ED35D7-3C08-42AC-81A0-DC4B8B086E8A}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FocusAppTools", "src\FocusAppTools\FocusAppTools.csproj", "{D05C3B26-553B-4B3E-B7AE-D71E2050ADFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusAppShared", "FocusAppShared\FocusAppShared.csproj", "{7D406949-4097-4EEE-BAAA-4082F78DD777}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FocusAppShared", "FocusAppShared\FocusAppShared.csproj", "{7D406949-4097-4EEE-BAAA-4082F78DD777}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
