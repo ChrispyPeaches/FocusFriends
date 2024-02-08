@@ -49,7 +49,7 @@ public class FocusAppContext : DbContext, IFocusAppContext
         if (!Initialized)
         {
             Initialized = true;
-            Database.EnsureDeleted();
+
             // required to initialize SQLite on some platforms
             SQLitePCL.Batteries_V2.Init();
 
