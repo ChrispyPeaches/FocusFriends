@@ -9,4 +9,6 @@ public class UserBadge : FocusCore.Models.BaseUserBadge
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new Badge? Badge { get; set; }
+
+    public new DateTime DateAcquired { get; set; }
 }

@@ -4,6 +4,8 @@ namespace FocusAppShared.Models;
 
 public class User : FocusCore.Models.BaseUser
 {
+	public new DateTime DateCreated { get; set; }
+
 	[InverseProperty(nameof(Friendship.User))]
 	public new ICollection<Friendship>? Inviters { get; set; }
 
