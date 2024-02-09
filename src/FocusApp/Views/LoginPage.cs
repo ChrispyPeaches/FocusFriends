@@ -39,7 +39,7 @@ internal class LoginPage : ContentPage
 				// Login Text
 				new Label
 				{
-					Text = "Login",
+					Text = "Login With Google",
 					TextColor = Colors.Black,
 					FontSize = 40
 				}
@@ -53,7 +53,7 @@ internal class LoginPage : ContentPage
 	{
 		await Shell.Current.GoToAsync("///" + nameof(TimerPage));
 	}
-
+	
 	protected override async void OnAppearing()
 	{
 		var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
