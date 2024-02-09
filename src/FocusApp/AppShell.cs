@@ -7,13 +7,17 @@ using Microsoft.Maui.Controls;
 using SimpleToolkit.SimpleShell;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Clients;
+using FocusApp.Views.Shop;
+using FocusApp.Views.Social;
+using FocusAppShared.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApp;
 
 public class AppShell : SimpleShell
 {
     List<Button> tabButtons;
-    public AppShell(IAPIClient client)
+    public AppShell()
     {
         // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
@@ -24,7 +28,7 @@ public class AppShell : SimpleShell
              new ShellContent()
              {
                  Title = "ShopPage",
-                 ContentTemplate = new DataTemplate(() => new Views.Shop.MainPage(client)),
+                 ContentTemplate = new DataTemplate(typeof(MainPage)),
                  Route = "ShopPage"
              }
          }
@@ -38,7 +42,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "TimerPage",
-                     ContentTemplate = new DataTemplate(() => new TimerPage(client)),
+                     ContentTemplate = new DataTemplate(typeof(TimerPage)),
                      Route = "TimerPage"
                 }
             }
@@ -52,7 +56,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "SocialPage",
-                     ContentTemplate = new DataTemplate(() => new Views.Social.SocialPage(client)),
+                     ContentTemplate = new DataTemplate(typeof(SocialPage)),
                      Route = "SocialPage"
                 }
             }
@@ -66,7 +70,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                      Title = "SettingsPage",
-                     ContentTemplate = new DataTemplate(() => new SettingsPage(client)),
+                     ContentTemplate = new DataTemplate(typeof(SettingsPage)),
                      Route = "SettingsPage"
                 }
             }
@@ -80,7 +84,7 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                     Title = "PetsPage",
-                    ContentTemplate = new DataTemplate(() => new Views.Social.PetsPage()),
+                    ContentTemplate = new DataTemplate(typeof(PetsPage)),
                     Route = "PetsPage"
                 }
             }

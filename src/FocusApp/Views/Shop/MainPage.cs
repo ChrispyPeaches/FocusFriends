@@ -3,7 +3,7 @@ using FocusCore.Queries.User;
 
 namespace FocusApp.Views.Shop
 {
-    internal class MainPage : ContentPage
+    internal class MainPage : BasePage
     {
         IAPIClient _client;
         public MainPage(IAPIClient client)

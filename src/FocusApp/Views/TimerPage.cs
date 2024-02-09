@@ -5,13 +5,14 @@ using FocusApp.Dtos;
 using FocusApp.Helpers;
 using FocusApp.Resources;
 using FocusApp.Resources.FontAwesomeIcons;
+using FocusAppShared.Data;
 using FocusCore.Queries.User;
 
 namespace FocusApp.Views
 {
-    internal class TimerPage : ContentPage
+    internal class TimerPage : BasePage
     {
-        private TimerHelper _timerHelper;
+        private ITimerService _timerService;
         private IDispatcherTimer? _timeStepperTimer;
         IAPIClient _client;
 
@@ -19,9 +20,11 @@ namespace FocusApp.Views
         enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
         public enum TimerButton { Up, Down }
 
-        public TimerPage(IAPIClient client)
+        public TimerPage(IAPIClient client, ITimerService timerService)
         {
             _client = client;
+            _timerService = timerService;
+
             Island islandPlaceholder = new Island()
             {
                 Name = "Default",
@@ -34,8 +37,6 @@ namespace FocusApp.Views
                 ImagePath = "pet_cat_zero.png",
                 HeightRequest = 90
             };
-
-            _timerHelper = new TimerHelper();
 
             Content = new Grid
             {
@@ -69,14 +70,14 @@ namespace FocusApp.Views
                     .Top()
                     .Left()
                     .Bind(IsVisibleProperty,
-                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
+                            getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
                     .Invoke(button => button.Released += (sender, eventArgs) =>
                             SettingsButtonClicked(sender, eventArgs)),
 
                     // Time Left Display
                     new Label
                     {
-                        BindingContext = _timerHelper,
+                        BindingContext = _timerService,
                         FontSize = 70,
                         HorizontalOptions = LayoutOptions.Center,
                         VerticalOptions = LayoutOptions.Center
@@ -85,7 +86,7 @@ namespace FocusApp.Views
                     .Row(Row.TimerDisplay)
                     .ColumnSpan(typeof(Column).GetEnumNames().Length)
                     .Bind(Label.TextProperty,
-                            getter: static (TimerHelper th) => th.TimerDisplay),
+                            getter: static (ITimerService th) => th.TimerDisplay),
 
                     // Island
                     new Image
@@ -124,7 +125,7 @@ namespace FocusApp.Views
                     .Row(Row.TimerButtons)
                     .Column(Column.LeftTimerButton)
                     .Bind(IsVisibleProperty,
-                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
+                            getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
                     .Invoke(button => button.Clicked += (sender, eventArgs) => 
                             onTimeStepperButtonClick(TimerButton.Up))
                     .Invoke(button => button.Pressed += (sender, eventArgs) =>
@@ -135,7 +136,7 @@ namespace FocusApp.Views
                     // Toggle Timer Button
                     new Button
                     {
-                        BindingContext = _timerHelper,
+                        BindingContext = _timerService,
                         TextColor = Colors.Black,
                         CornerRadius = 20,
                     }
@@ -144,16 +145,16 @@ namespace FocusApp.Views
                     .Row(Row.TimerButtons)
                     .Column(Column.TimerAmount)
                     .Bind(Button.TextProperty,
-                            getter: static (TimerHelper th) => th.ToggleTimerButtonText)
+                            getter: static (ITimerService th) => th.ToggleTimerButtonText)
                     .Bind(BackgroundColorProperty,
-                            getter: static (TimerHelper th) => th.ToggleTimerButtonBackgroudColor)
+                            getter: static (ITimerService th) => th.ToggleTimerButtonBackgroudColor)
                     .Invoke(button => button.Clicked += (sender, eventArgs) =>
-                            _timerHelper.ToggleTimer.Invoke()),
+                            _timerService.ToggleTimer.Invoke()),
 
                     // Decrease Time Button
                     new Button
                     {
-                        BindingContext = _timerHelper,
+                        BindingContext = _timerService,
                         Text = SolidIcons.ChevronDown,
                         BackgroundColor = Colors.Transparent,
                         TextColor = Colors.Black
@@ -164,7 +165,7 @@ namespace FocusApp.Views
                     .Row(Row.TimerButtons)
                     .Column(Column.RightTimerButton)
                     .Bind(IsVisibleProperty, 
-                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper )
+                            getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService )
                     .Invoke(button => button.Clicked += (sender, eventArgs) =>
                             onTimeStepperButtonClick(TimerButton.Down))
                     .Invoke(button => button.Pressed += (sender, eventArgs) =>
@@ -182,11 +183,11 @@ namespace FocusApp.Views
         {
             int _stepRate = (int)TimeSpan.FromMinutes(1).TotalSeconds;
 
-            _timerHelper.TimeLeft = clickedButton switch
+            _timerService.TimeLeft = clickedButton switch
             {
-                TimerButton.Up => _timerHelper.TimeLeft + _stepRate,
-                TimerButton.Down => (_timerHelper.TimeLeft > _stepRate) ?
-                                                    _timerHelper.TimeLeft - _stepRate
+                TimerButton.Up => _timerService.TimeLeft + _stepRate,
+                TimerButton.Down => (_timerService.TimeLeft > _stepRate) ?
+                                                    _timerService.TimeLeft - _stepRate
                                                     : _stepRate,
                 _ => 0
             };

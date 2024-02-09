@@ -8,7 +8,7 @@ using FocusCore.Queries.User;
 
 namespace FocusApp.Views;
 
-internal sealed class SettingsPage : ContentPage
+internal sealed class SettingsPage : BasePage
 {
     IAPIClient _client { get; set; }
     public SettingsPage(IAPIClient client)

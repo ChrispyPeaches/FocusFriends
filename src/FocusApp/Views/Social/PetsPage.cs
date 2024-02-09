@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace FocusApp.Views.Social;
 
-internal sealed class PetsPage : ContentPage
+internal sealed class PetsPage : BasePage
 {
     private Image? selectedCheckmark;
     public PetsPage()

@@ -4,10 +4,22 @@ using FocusApp.Views;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using FocusAppShared.Data;
 
 namespace FocusApp.Helpers;
 
-internal class TimerHelper : INotifyPropertyChanged
+internal interface ITimerService
+{
+    TimerService.TimerDto TimerDisplay { get; set; }
+    string ToggleTimerButtonText { get; }
+    Color ToggleTimerButtonBackgroudColor { get; }
+    bool AreStepperButtonsVisible { get; }
+    int TimeLeft { get; set; }
+    Action ToggleTimer { get; set; }
+    event PropertyChangedEventHandler? PropertyChanged;
+}
+
+internal class TimerService : ITimerService, INotifyPropertyChanged
 {
     public class TimerDto
     {
@@ -50,6 +62,7 @@ internal class TimerHelper : INotifyPropertyChanged
     private TimerState _state;
     private int _lastFocusTimerDuration;
     private int _lastBreakTimerDuration;
+    private FocusAppContext _context;
 
     #endregion
 
@@ -113,8 +126,10 @@ internal class TimerHelper : INotifyPropertyChanged
         };
     }
 
-    public TimerHelper()
+    public TimerService(FocusAppContext context)
     {
+        _context = context;
+
         _timerDisplay = new TimerDto();
         _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
         _lastBreakTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
@@ -126,7 +141,7 @@ internal class TimerHelper : INotifyPropertyChanged
         ToggleTimer += TransitionToNextState;
     }
 
-    public bool isTimerActive()
+    private bool isTimerActive()
     {
         return (_state == TimerState.FocusCountdown ||
                 _state == TimerState.BreakCountdown);
@@ -295,7 +310,7 @@ internal class TimerHelper : INotifyPropertyChanged
 
     #region Property Changed Notification Logic
 
-    protected void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
+    private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
     {
         if (EqualityComparer<T>.Default.Equals(backingStore, value))
         {

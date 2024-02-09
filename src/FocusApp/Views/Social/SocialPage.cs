@@ -9,7 +9,7 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Views.Social;
 
-public class SocialPage : ContentPage
+internal class SocialPage : BasePage
 {
     IAPIClient _client { get; set; }
 	public SocialPage(IAPIClient client)
