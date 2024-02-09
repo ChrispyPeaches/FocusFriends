@@ -33,15 +33,9 @@ namespace FocusApp.Client
                     fonts.AddFont("Font-Awesome-6-Free-Solid.otf", nameof(SolidIcons));
                     fonts.AddFont("Font-Awesome-6-Free-Regular.otf", nameof(LineArtIcons));
                 });
-            
-
-            var migrationAssembly = typeof(FocusAppContext).Assembly.GetName().Name;
-            builder.Services.AddDbContext<IFocusAppContext, FocusAppContext>(opts =>
-            {
-                opts.UseSqlite($"Filename={Consts.DatabasePath}", x => x.MigrationsAssembly(migrationAssembly));
-            });
 
             builder.Services
+                .RegisterDatabaseContext()
                 .RegisterRefitClient()
                 .RegisterServices()
                 .RegisterPages();
@@ -53,6 +47,17 @@ namespace FocusApp.Client
             return builder.Build();
         }
 
+        private static IServiceCollection RegisterDatabaseContext(this IServiceCollection services)
+        {
+            var migrationAssembly = typeof(FocusAppContext).Assembly.GetName().Name;
+            services.AddDbContext<IFocusAppContext, FocusAppContext>(opts =>
+            {
+                opts.UseSqlite($"Filename={Consts.DatabasePath}", x => x.MigrationsAssembly(migrationAssembly));
+            });
+
+            return services;
+        }
+
         private static IServiceCollection RegisterRefitClient(this IServiceCollection services)
         {
             services
@@ -62,9 +67,9 @@ namespace FocusApp.Client
             return services;
         }
 
-
         private static IServiceCollection RegisterServices(this IServiceCollection services)
         {
+            // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
 
             return services;
