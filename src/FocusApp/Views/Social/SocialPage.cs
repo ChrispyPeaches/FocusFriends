@@ -2,6 +2,8 @@ using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
+using FocusApp.Clients;
+using FocusCore.Queries.User;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Platform;
@@ -11,14 +13,12 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Views.Social;
 
-public class MainView : Microsoft.Maui.Controls.ContentView
+public class SocialPage : ContentPage
 {
-    private readonly IPopupService popupService;
-
-    public MainView()
+    IAPIClient _client { get; set; }
+	public SocialPage(IAPIClient client)
 	{
-        this.popupService = this.Handler.MauiContext.Services.GetService<IPopupService>();
-
+        _client = client;
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
         for (int i = 0; i < 5; i++)
@@ -97,9 +97,30 @@ public class MainView : Microsoft.Maui.Controls.ContentView
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2)
+                .ColumnSpan(2),
+
+                new Button
+                {
+                    Text = "Pets Page",
+                    MaximumHeightRequest = 50
+                }
+                .Row(2)
+                .Column(0)
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    PetsButtonClicked(sender, eventArgs)),
             }
         };
+    }
+
+    private async void PetsButtonClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
+    }
+
+    protected override async void OnAppearing()
+    {
+        var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
+        base.OnAppearing();
     }
 
     private void OnClickShowPopup(object sender, EventArgs e)

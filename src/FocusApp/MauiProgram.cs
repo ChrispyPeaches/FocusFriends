@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
+using FocusApp.Clients;
+using FocusApp.Helpers;
 using FocusApp.Resources.FontAwesomeIcons;
 using Microsoft.Extensions.Logging;
-using Sharpnado.Tabs;
+using Refit;
+using SimpleToolkit.SimpleShell;
 
 namespace FocusApp
 {
@@ -15,7 +18,7 @@ namespace FocusApp
             builder.UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMarkup()
-                .UseSharpnadoTabs(loggerEnable: false)
+                .UseSimpleShell()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -24,8 +27,11 @@ namespace FocusApp
                     fonts.AddFont("Font-Awesome-6-Free-Regular.otf", nameof(LineArtIcons));
                 });
 
+            builder.Services
+                .AddRefitClient<IAPIClient>()
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));
+
             builder.Services.AddSingleton<IPopupService, PopupService>();
-            builder.Services.AddSingleton<MainPage>();
 
 
 #if DEBUG
