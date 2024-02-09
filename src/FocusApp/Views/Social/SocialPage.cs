@@ -10,11 +10,14 @@ using Microsoft.Maui.Platform;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using FocusApp.Resources;
 
 namespace FocusApp.Views.Social;
 
 public class SocialPage : ContentPage
 {
+    Popup navigationPopup;
+
     IAPIClient _client { get; set; }
 	public SocialPage(IAPIClient client)
 	{
@@ -33,6 +36,55 @@ public class SocialPage : ContentPage
                 },
                 BindingContext = this
             });
+        };
+
+        navigationPopup = new Popup
+        {
+            // Set popup location
+            HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End,
+            VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start,
+
+            Content = new VerticalStackLayout
+            {
+                BackgroundColor = Colors.Transparent,
+                Children =
+                {
+                    new Frame
+                    {
+                        CornerRadius = 20,
+                        BackgroundColor = AppStyles.Palette.LightMauve,
+                        Content = new VerticalStackLayout
+                        {
+                            Children =
+                            {
+                                new Label()
+                                {
+                                    FontSize = 30,
+                                    TextColor = Colors.White,
+                                    HorizontalOptions = LayoutOptions.Center,
+                                    VerticalOptions = LayoutOptions.Center,
+
+                                    // Add logic to fetch username
+                                    Text = "Username"
+                                },
+
+                                new Button()
+                                {
+                                    BackgroundColor = Colors.Transparent,
+                                    Padding = 0,
+                                    FontSize = 30,
+                                    TextColor = Colors.White,
+                                    Text = "My Pets"
+                                }
+                                .Invoke(button => button.Released += (sender, eventArgs) =>
+                                        PageButtonClicked(sender, eventArgs)),
+                            }
+                        }
+                        .Top()
+                        .Right()
+                    }
+                }
+            }
         };
 
         DataTemplate dataTemplate = new DataTemplate(typeof(ImageCell));
@@ -123,34 +175,18 @@ public class SocialPage : ContentPage
         base.OnAppearing();
     }
 
+    // Display navigation popup on hit
     private void OnClickShowPopup(object sender, EventArgs e)
     {
-        popupService.ShowPopup(new Popup
-        {
-            Content = new VerticalStackLayout
-            {
-                Children =
-                {
-                    new Label
-                    {
-                        Text = "This is a very important message!"
-                    }
-                }
-            }
-        });
-        
-        /*PopupExtensions.ShowPopup(this, new Popup
-        {
-            Content = new VerticalStackLayout
-            {
-                Children =
-                {
-                    new Label
-                    {
-                        Text = "This is a very important message!"
-                    }
-                }
-            }
-        });*/
+        PopupExtensions.ShowPopup(this, navigationPopup);
+    }
+
+    // Navigate to page according to button
+    private async void PageButtonClicked(object sender, EventArgs e)
+    {
+        var button = sender as Button;
+
+        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
+        navigationPopup.CloseAsync();
     }
 }

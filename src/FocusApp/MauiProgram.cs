@@ -33,7 +33,6 @@ namespace FocusApp
 
             builder.Services.AddSingleton<IPopupService, PopupService>();
 
-
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
