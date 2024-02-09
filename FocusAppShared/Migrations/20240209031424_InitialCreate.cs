@@ -42,9 +42,9 @@ namespace FocusAppShared.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
-                    DateCreated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     Balance = table.Column<int>(type: "INTEGER", nullable: false),
                     FirstName = table.Column<string>(type: "TEXT", nullable: true),
                     LastName = table.Column<string>(type: "TEXT", nullable: true),
@@ -87,7 +87,7 @@ namespace FocusAppShared.Migrations
                 {
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     BadgeId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DateAcquired = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    DateAcquired = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,7 +112,7 @@ namespace FocusAppShared.Migrations
                 {
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     PetId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DateAcquired = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    DateAcquired = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,9 +136,9 @@ namespace FocusAppShared.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SessionStartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    SessionEndTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SessionStartTime = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    SessionEndTime = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     CurrencyEarned = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

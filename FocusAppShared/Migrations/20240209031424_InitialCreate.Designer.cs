@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusAppShared.Migrations
 {
     [DbContext(typeof(FocusAppContext))]
-    [Migration("20240209020212_RefactorToUseDateTime")]
-    partial class RefactorToUseDateTime
+    [Migration("20240209031424_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
