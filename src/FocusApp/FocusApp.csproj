@@ -89,4 +89,10 @@
 	  <MauiFont Include="Resources\FontAwesomeIcons.cs" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="Views\Shop\ShopPage.cs">
+	    <Generator></Generator>
+	  </Compile>
+	</ItemGroup>
+
 </Project>
