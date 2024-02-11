@@ -43,12 +43,12 @@ namespace FocusApp.Shared.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     Balance = table.Column<int>(type: "INTEGER", nullable: false),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
-                    LastName = table.Column<string>(type: "TEXT", nullable: true),
-                    Pronouns = table.Column<string>(type: "TEXT", nullable: true),
+                    FirstName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Pronouns = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ProfilePicture = table.Column<byte[]>(type: "BLOB", nullable: true)
                 },
                 constraints: table =>
