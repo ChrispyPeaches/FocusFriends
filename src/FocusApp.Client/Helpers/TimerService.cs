@@ -5,6 +5,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using FocusApp.Shared.Data;
+using FocusApp.Shared.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace FocusApp.Client.Helpers;
 
@@ -58,11 +61,13 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
     private bool _areStepperButtonsVisible;
     private int _timeLeft;
     private IDispatcherTimer? _timer;
-    private DateTime? _lastKnownTime;
+    private DateTimeOffset? _lastKnownTime;
     private TimerState _state;
     private int _lastFocusTimerDuration;
     private int _lastBreakTimerDuration;
     private FocusAppContext _context;
+    private DateTimeOffset? _currentSessionStartTime;
+    private User _currentUser;
 
     #endregion
 
@@ -136,6 +141,14 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         _state = TimerState.StoppedPreFocus;
         _toggleTimerButtonText = "Start Focus";
         _toggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
+        _currentUser = new User()
+        {
+            UserName = "TestUser",
+            Id = Guid.Parse("d77aa5fc-eed4-495e-b568-85ed7c8d7e64"),
+            Balance = 0,
+            Email = "testemail@test.com"
+        };
+
         TimeLeft = _lastFocusTimerDuration;
         AreStepperButtonsVisible = true;
         ToggleTimer += TransitionToNextState;
@@ -177,10 +190,12 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
                 ToggleTimerButtonText = "Stop";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
                 AreStepperButtonsVisible = false;
+                _currentSessionStartTime = DateTimeOffset.Now;
                 break;
 
             case TimerState.StoppedPreBreak:
                 onTimerStop();
+                Task.Run(TrackFocusSession);
                 ToggleTimerButtonText = "Start Break";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
                 AreStepperButtonsVisible = true;
@@ -193,6 +208,55 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
                 AreStepperButtonsVisible = false;
                 break;
         }
+    }
+
+    private async void TrackFocusSession()
+    {
+        if (!_currentSessionStartTime.HasValue)
+        {
+            return;
+        }
+
+        DateTimeOffset? endTime = _currentSessionStartTime + TimeSpan.FromMinutes(_lastFocusTimerDuration);
+
+        int currencyEarned = CalculateCurrencyEarned(endTime);
+        
+        User? user = await _context.Users
+            .Include(u => u.UserSessions)
+            .FirstOrDefaultAsync(u => u.Id == _currentUser.Id);
+
+        // Temporarily used only for testing purposes
+        if (user == null)
+        {
+            EntityEntry<User> userEntity = await _context.Users.AddAsync(_currentUser);
+            user = userEntity.Entity;
+        }
+
+        UserSession session = new UserSession
+        {
+            SessionStartTime  = _currentSessionStartTime.Value.UtcDateTime,
+            SessionEndTime = endTime.Value.UtcDateTime,
+            CurrencyEarned = currencyEarned
+        };
+
+        _currentSessionStartTime = null;
+
+        user.UserSessions ??= new List<UserSession>();
+        user.UserSessions.Add(session);
+
+        await _context.SaveChangesAsync();
+    }
+
+    private int CalculateCurrencyEarned(DateTimeOffset? endTime)
+    {
+        int currencyEarned = 0;
+        if (endTime.HasValue && _currentSessionStartTime.HasValue)
+        {
+            currencyEarned = (int)Math.Floor((endTime - _currentSessionStartTime).Value.TotalMinutes);
+        }
+        currencyEarned = currencyEarned <= 0 ? 0 : currencyEarned;
+
+        return currencyEarned;
     }
 
     /// <summary>
@@ -273,7 +337,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         {
             _timer.Stop();
         }
-        _lastKnownTime = DateTime.Now;
+        _lastKnownTime = DateTimeOffset.Now;
     }
     
     /// <summary>
@@ -289,12 +353,11 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         App.WindowDeactivated += onAppMinimized;
         App.WindowStopped += onAppMinimized;
         
-        if (_lastKnownTime != null)
+        if (_currentSessionStartTime != null)
         {
-            TimeSpan timeElapsed = DateTime.Now - _lastKnownTime.Value;
-            _lastKnownTime = null;
+            TimeSpan? totalSessionTime = DateTimeOffset.Now - _currentSessionStartTime;
 
-            TimeLeft -= (int)timeElapsed.TotalSeconds;
+            TimeLeft = (int)totalSessionTime.Value.TotalSeconds;
             if (TimeLeft <= 0) 
             {
                 TransitionToNextState();
