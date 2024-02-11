@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Clients;
 using FocusCore.Queries.User;
+using Microsoft.Maui.Controls;
 
 namespace FocusApp.Views.Shop
 {
@@ -84,8 +85,8 @@ namespace FocusApp.Views.Shop
                 // Shop item image
                 Image itemImage = new Image
                 {
-                    WidthRequest = 150,
-                    HeightRequest = 150
+                    WidthRequest = 100,
+                    HeightRequest = 100
                 };
                 itemImage.SetBinding(Image.SourceProperty, "ImageSource");
 
@@ -104,7 +105,18 @@ namespace FocusApp.Views.Shop
 
             // Add space between the carousels - allows room for carousel label
             carouselView.Margins(0, 5, 0, 10);
+            
+            // Cant seem to get the indicator view to work - not sure what I'm doing wrong here
+            /*
+            IndicatorView indicatorView = new IndicatorView
+            {
+                IndicatorSize = 10,
+                Margin = 500,
+                HorizontalOptions = LayoutOptions.Center,
+            };
 
+            carouselView.IndicatorView = indicatorView;
+            */
             return carouselView;
         }
 
@@ -117,8 +129,10 @@ namespace FocusApp.Views.Shop
             // Logic for populating carousels is here so that API calls may be made to fetch data
             // Note: It'd be best to fetch all shop items with one API call, then parse by ShopItemType
             //       to populate the appropriate shop item carousel
-            _petsCarouselView.ItemsSource = GetPets();
-            _soundsCarouselView.ItemsSource = GetPets();
+            ShopItem[] shopItems = GetPets();
+            _petsCarouselView.ItemsSource = shopItems;
+            _soundsCarouselView.ItemsSource = shopItems;
+
             base.OnAppearing();
         }
 
@@ -133,7 +147,8 @@ namespace FocusApp.Views.Shop
                     ImageSource = new FileImageSource
                     {
                         File = "pet_beans.png"
-                    }
+                    },
+                    Type = ShopItemType.Pets
                 },
                 new ShopItem
                 {
@@ -141,7 +156,8 @@ namespace FocusApp.Views.Shop
                     ImageSource = new FileImageSource
                     {
                         File = "pet_bob.png"
-                    }
+                    },
+                    Type = ShopItemType.Pets
                 },
                 new ShopItem
                 {
@@ -149,7 +165,8 @@ namespace FocusApp.Views.Shop
                     ImageSource = new FileImageSource
                     {
                         File = "pet_danole.png"
-                    }
+                    },
+                    Type = ShopItemType.Pets
                 },
                 new ShopItem
                 {
@@ -157,7 +174,8 @@ namespace FocusApp.Views.Shop
                     ImageSource = new FileImageSource
                     {
                         File = "pet_franklin.png"
-                    }
+                    },
+                    Type = ShopItemType.Pets
                 },
                 new ShopItem
                 {
@@ -165,7 +183,8 @@ namespace FocusApp.Views.Shop
                     ImageSource = new FileImageSource
                     {
                         File = "pet_greg.png"
-                    }
+                    },
+                    Type = ShopItemType.Pets
                 },
             ];
         }
@@ -178,4 +197,11 @@ public class ShopItem
 { 
     public string Name { get; set; }
     public FileImageSource ImageSource { get; set; }
+    public ShopItemType Type { get; set; }
+}
+
+public enum ShopItemType
+{ 
+    Pets,
+    Sounds
 }
