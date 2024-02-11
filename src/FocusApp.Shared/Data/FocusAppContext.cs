@@ -61,47 +61,4 @@ public class FocusAppContext : DbContext, IFocusAppContext
     {
         return base.SaveChangesAsync();
     }
-
-#if MIGRATION_PROJECT
-    /// <summary>
-    /// Configuration for creating migrations.
-    /// </summary>
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        try
-        {
-            var a = Process.GetCurrentProcess().ProcessName;
-
-            Assembly currentlyRunningAssembly = null;
-            if (a.Contains("FocusAppTools"))
-            {
-                currentlyRunningAssembly = Assembly.GetAssembly(typeof(FocusAppShared.Consts));
-            }
-            else
-            {
-                currentlyRunningAssembly = Assembly.GetExecutingAssembly();
-
-                // Get the type of MyClass in the current assembly
-            }
-            string databasePath = "";
-
-            var d = "";
-
-            var b = currentlyRunningAssembly
-                .GetTypes()
-                .FirstOrDefault(type => type.Name == nameof(Consts));
-
-            var c = b
-                .GetProperty(nameof(Consts.DatabasePath))?
-                .GetValue(null) as string;
-            optionsBuilder.UseSqlite($"Filename={databasePath}");
-            optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
-        }
-        catch (FileNotFoundException ex)
-        {
-            throw new FileNotFoundException($"The {nameof(Consts)} class holding the database file name could not be found.", ex);
-        }
-    }
-#endif
-
 }
