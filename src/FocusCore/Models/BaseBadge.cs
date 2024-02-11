@@ -9,7 +9,7 @@ public abstract class BaseBadge
     [Key]
     public Guid Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; } = null!;
 
-    public string FilePath { get; set; } = null!;
+    public required string FilePath { get; set; } = null!;
 }

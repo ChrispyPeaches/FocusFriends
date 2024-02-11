@@ -8,12 +8,12 @@ namespace FocusCore.Models;
 public abstract class BaseUserBadge
 {
     [ForeignKey(nameof(User))]
-    public required Guid UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public BaseUser? User { get; set; }
 
     [ForeignKey(nameof(Badge))]
-    public required Guid BadgeId { get; set; }
+    public Guid BadgeId { get; set; }
 
     public BaseBadge? Badge { get; set; }
 

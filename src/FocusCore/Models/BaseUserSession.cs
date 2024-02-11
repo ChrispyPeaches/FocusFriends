@@ -18,5 +18,5 @@ public abstract class BaseUserSession
 
     public DateTimeOffset SessionEndTime { get; set; }
 
-    public int CurrencyEarned { get; set; }
+    public required int CurrencyEarned { get; set; }
 }

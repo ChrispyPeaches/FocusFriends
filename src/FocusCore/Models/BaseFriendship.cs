@@ -16,5 +16,6 @@ public abstract class BaseFriendship
     public Guid FriendId { get; set; }
 
     public BaseUser? Friend { get; set; }
-    public int Status { get; set; }
+
+    public required int Status { get; set; }
 }

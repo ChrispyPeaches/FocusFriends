@@ -9,7 +9,7 @@ public abstract class BasePet
     [Key]
     public Guid Id { get; set; }
 
-    public int Price { get; set; }
+    public required int Price { get; set; }
 
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; } = null!;
 }
