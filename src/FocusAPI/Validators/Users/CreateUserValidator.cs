@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using FocusCore.Commands.User;
+using FocusAPI.Commands.User;
 
 namespace FocusCore.Validators.Users;
 public class CreateUserValidator : AbstractValidator<CreateUserCommand>
