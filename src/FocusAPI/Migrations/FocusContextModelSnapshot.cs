@@ -91,8 +91,8 @@ namespace FocusAPI.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(50)

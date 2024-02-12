@@ -15,7 +15,7 @@ public abstract class BaseUser
     [MaxLength(50)]
     public required string UserName { get; set; } = null!;
 
-    [MaxLength(50)]
+    [MaxLength(320)]
     public required string Email { get; set; } = null!;
 
 	public DateTimeOffset DateCreated { get; set; }
