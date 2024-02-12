@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Markup;
 using FocusApp.Clients;
 using FocusApp.Helpers;
 using FocusApp.Resources.FontAwesomeIcons;
+using FocusApp.Views.Social;
 using Microsoft.Extensions.Logging;
 using Refit;
 using SimpleToolkit.SimpleShell;
@@ -32,6 +33,7 @@ namespace FocusApp
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));
 
             builder.Services.AddSingleton<IPopupService, PopupService>();
+            builder.Services.AddTransient<ProfilePopupInterface>();
 
 #if DEBUG
             builder.Logging.AddDebug();

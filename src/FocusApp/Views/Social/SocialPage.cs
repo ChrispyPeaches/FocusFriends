@@ -17,6 +17,7 @@ namespace FocusApp.Views.Social;
 public class SocialPage : ContentPage
 {
     Popup navigationPopup;
+    IPopupService popupService;
 
     IAPIClient _client { get; set; }
 	public SocialPage(IAPIClient client)
@@ -178,7 +179,7 @@ public class SocialPage : ContentPage
     // Display navigation popup on hit
     private void OnClickShowPopup(object sender, EventArgs e)
     {
-        PopupExtensions.ShowPopup(this, navigationPopup);
+        popupService.ShowPopup<ProfilePopupInterface>();
     }
 
     // Navigate to page according to button
@@ -187,6 +188,6 @@ public class SocialPage : ContentPage
         var button = sender as Button;
 
         await Shell.Current.GoToAsync("///" + nameof(PetsPage));
-        navigationPopup.CloseAsync();
+        //popupService.();
     }
 }
