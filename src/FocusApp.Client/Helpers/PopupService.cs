@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Maui.Views;
 
-namespace FocusApp.Helpers
+namespace FocusApp.Client.Helpers
 {
     public interface IPopupService
     {

@@ -10,18 +10,18 @@ using Microsoft.Maui.Platform;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
-using FocusApp.Resources;
+using FocusApp.Client.Resources;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class SocialPage : BasePage
 {
-    Popup navigationPopup;
-    IPopupService popupService;
+    private Helpers.PopupService _popupService;
 
     IAPIClient _client { get; set; }
-	public SocialPage(IAPIClient client)
+	public SocialPage(IAPIClient client, Helpers.PopupService popupService)
 	{
+        _popupService = popupService;
         _client = client;
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
@@ -37,55 +37,6 @@ internal class SocialPage : BasePage
                 },
                 BindingContext = this
             });
-        };
-
-        navigationPopup = new Popup
-        {
-            // Set popup location
-            HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End,
-            VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start,
-
-            Content = new VerticalStackLayout
-            {
-                BackgroundColor = Colors.Transparent,
-                Children =
-                {
-                    new Frame
-                    {
-                        CornerRadius = 20,
-                        BackgroundColor = AppStyles.Palette.LightMauve,
-                        Content = new VerticalStackLayout
-                        {
-                            Children =
-                            {
-                                new Label()
-                                {
-                                    FontSize = 30,
-                                    TextColor = Colors.White,
-                                    HorizontalOptions = LayoutOptions.Center,
-                                    VerticalOptions = LayoutOptions.Center,
-
-                                    // Add logic to fetch username
-                                    Text = "Username"
-                                },
-
-                                new Button()
-                                {
-                                    BackgroundColor = Colors.Transparent,
-                                    Padding = 0,
-                                    FontSize = 30,
-                                    TextColor = Colors.White,
-                                    Text = "My Pets"
-                                }
-                                .Invoke(button => button.Released += (sender, eventArgs) =>
-                                        PageButtonClicked(sender, eventArgs)),
-                            }
-                        }
-                        .Top()
-                        .Right()
-                    }
-                }
-            }
         };
 
         DataTemplate dataTemplate = new DataTemplate(typeof(ImageCell));
@@ -179,7 +130,7 @@ internal class SocialPage : BasePage
     // Display navigation popup on hit
     private void OnClickShowPopup(object sender, EventArgs e)
     {
-        popupService.ShowPopup<ProfilePopupInterface>();
+        _popupService.ShowPopup<ProfilePopupInterface>();
     }
 
     // Navigate to page according to button
@@ -188,6 +139,6 @@ internal class SocialPage : BasePage
         var button = sender as Button;
 
         await Shell.Current.GoToAsync("///" + nameof(PetsPage));
-        //popupService.();
+        _popupService.HidePopup();
     }
 }

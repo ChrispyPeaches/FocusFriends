@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
-using FocusApp.Resources;
+using FocusApp.Client.Resources;
 using Microsoft.Maui.Graphics.Text;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,16 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace FocusApp.Views.Social
+namespace FocusApp.Client.Views.Social
 {
     public class ProfilePopupInterface : Popup
     {
-        public ProfilePopupInterface()
+        private Helpers.PopupService _popupService;
+
+        public ProfilePopupInterface(Helpers.PopupService popupService)
         {
+            _popupService = popupService;
+
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start;
@@ -52,8 +57,8 @@ namespace FocusApp.Views.Social
                                     TextColor = Colors.White,
                                     Text = "My Pets"
                                 }
-                                //.Invoke(button => button.Released += (sender, eventArgs) =>
-                                 //       PageButtonClicked(sender, eventArgs)),
+                                .Invoke(button => button.Released += (sender, eventArgs) =>
+                                        PageButtonClicked(sender, eventArgs)),
                             }
                         }
                         .Top()
@@ -61,6 +66,15 @@ namespace FocusApp.Views.Social
                     }
                 }
             };
+        }
+
+        // Navigate to page according to button
+        private async void PageButtonClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+
+            await Shell.Current.GoToAsync("///" + nameof(PetsPage));
+            _popupService.HidePopup();
         }
     }
 }

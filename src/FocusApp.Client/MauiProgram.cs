@@ -14,6 +14,8 @@ using Refit;
 using SimpleToolkit.SimpleShell;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
+using FocusApp.Client.Helpers;
+using FocusApp.Client.Views.Social;
 
 namespace FocusApp.Client
 {
@@ -39,6 +41,8 @@ namespace FocusApp.Client
                 .RegisterRefitClient()
                 .RegisterServices()
                 .RegisterPages();
+
+            builder.Services.AddTransient<ProfilePopupInterface>();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -71,6 +75,7 @@ namespace FocusApp.Client
         {
             // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
+            services.AddSingleton<Helpers.PopupService>();
 
             return services;
         }

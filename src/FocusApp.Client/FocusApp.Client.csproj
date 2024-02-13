@@ -57,6 +57,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="bin\**" />
+	  <Compile Remove="bin\**" />
+	  <EmbeddedResource Remove="bin\**" />
+	  <MauiCss Remove="bin\**" />
+	  <MauiXaml Remove="bin\**" />
+	  <None Remove="bin\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\Islands\island_zero.svg" />
 	  <None Remove="Resources\Images\Pets\pet_cat_zero.svg" />
 	</ItemGroup>
