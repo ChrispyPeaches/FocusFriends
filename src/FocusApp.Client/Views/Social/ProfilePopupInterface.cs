@@ -55,7 +55,8 @@ namespace FocusApp.Client.Views.Social
                                     Padding = 0,
                                     FontSize = 30,
                                     TextColor = Colors.White,
-                                    Text = "My Pets"
+                                    Text = "My Pets",
+                                    BindingContext = nameof(PetsPage)
                                 }
                                 .Invoke(button => button.Released += (sender, eventArgs) =>
                                         PageButtonClicked(sender, eventArgs)),
@@ -72,8 +73,9 @@ namespace FocusApp.Client.Views.Social
         private async void PageButtonClicked(object sender, EventArgs e)
         {
             var button = sender as Button;
+            var pageName = button.BindingContext as string;
 
-            await Shell.Current.GoToAsync("///" + nameof(PetsPage));
+            await Shell.Current.GoToAsync("///" + pageName);
             _popupService.HidePopup();
         }
     }
