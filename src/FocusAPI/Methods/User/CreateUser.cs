@@ -12,11 +12,12 @@ public class CreateUser
 
         public async Task<Unit> Handle(CreateUserCommand command, CancellationToken cancellationToken)
         {
+            /*
             FocusAPI.Models.User user = new FocusAPI.Models.User
             {
                 Id = Guid.NewGuid()
             };
-
+            */
             // TODO: Insert new user into database
 
             return Unit.Value;

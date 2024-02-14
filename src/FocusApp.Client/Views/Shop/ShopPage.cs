@@ -1,10 +1,10 @@
 ﻿using System.Xml;
 using CommunityToolkit.Maui.Markup;
-using FocusApp.Clients;
+using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using Microsoft.Maui.Controls;
 
-namespace FocusApp.Views.Shop
+namespace FocusApp.Client.Views.Shop
 {
     internal class ShopPage : ContentPage
     {

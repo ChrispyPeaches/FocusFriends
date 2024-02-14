@@ -28,7 +28,7 @@ public class AppShell : SimpleShell
              new ShellContent()
              {
                  Title = "ShopPage",
-                 ContentTemplate = new DataTemplate(typeof(MainPage)),
+                 ContentTemplate = new DataTemplate(typeof(ShopPage)),
                  Route = "ShopPage"
              }
          }

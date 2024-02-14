@@ -18,9 +18,9 @@ Assembly[] assemblies = [Assembly.GetExecutingAssembly()];
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
 
 // Configure FluentValidation and ValidationPipeline
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+//builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 // Register FocusCore assembly containing validators with FluentValidation
-builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator)));
+//builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator)));
 
 builder.Services.AddDbContext<FocusContext>();
 
