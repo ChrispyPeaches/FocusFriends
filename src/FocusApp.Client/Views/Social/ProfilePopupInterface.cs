@@ -40,6 +40,7 @@ namespace FocusApp.Client.Views.Social
                             {
                                 new Label()
                                 {
+                                    BackgroundColor = AppStyles.Palette.LightMauve,
                                     FontSize = 30,
                                     TextColor = Colors.White,
                                     HorizontalOptions = LayoutOptions.Center,
@@ -51,7 +52,17 @@ namespace FocusApp.Client.Views.Social
 
                                 new Button()
                                 {
-                                    BackgroundColor = Colors.Transparent,
+                                    BackgroundColor = AppStyles.Palette.DarkMauve,
+                                    Padding = 0,
+                                    FontSize = 30,
+                                    TextColor = Colors.White,
+                                    Text = "My Profile"
+                                    //BindingContext = nameof(ProfilePage)
+                                },
+
+                                new Button()
+                                {
+                                    BackgroundColor = AppStyles.Palette.DarkMauve,
                                     Padding = 0,
                                     FontSize = 30,
                                     TextColor = Colors.White,
@@ -60,6 +71,16 @@ namespace FocusApp.Client.Views.Social
                                 }
                                 .Invoke(button => button.Released += (sender, eventArgs) =>
                                         PageButtonClicked(sender, eventArgs)),
+
+                                new Button()
+                                {
+                                    BackgroundColor = AppStyles.Palette.DarkMauve,
+                                    Padding = 0,
+                                    FontSize = 30,
+                                    TextColor = Colors.White,
+                                    Text = "My Badges"
+                                    //BindingContext = nameof(BadgesPage)
+                                }
                             }
                         }
                         .Top()
