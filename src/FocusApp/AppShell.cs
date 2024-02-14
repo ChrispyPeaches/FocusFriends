@@ -94,7 +94,8 @@ public class AppShell : SimpleShell
                 new ShellContent()
                 {
                     Title = "LoginPage",
-                    ContentTemplate = new DataTemplate(() => new TimerPage(client))
+                    ContentTemplate = new DataTemplate(() => new LoginPage(client)),
+                    Route = "LoginPage"
                 }
             }
         };

@@ -14,7 +14,7 @@ internal class LoginPage : ContentPage
 	IAPIClient _client;
 	public LoginPage(IAPIClient client)
 	{
-		_client = client;
+        _client = client;
 
 		Content = new Grid
 		{
@@ -28,23 +28,37 @@ internal class LoginPage : ContentPage
 				new Button
 				{
 					Text = "Skip",
-					MaximumHeightRequest = 50,
-					MaximumWidthRequest = 100
+					TextColor = Colors.Black,
+					CornerRadius = 20,
+					BackgroundColor = AppStyles.Palette.Celeste
 				}
 				.Row(0)
-				.Right()
-                .Paddings(top: 5, bottom: 5, left: 5, right: 10)
-                .CenterVertical(),
+                .Top()
+                .Right()
+				.Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
+				.Invoke(button => button.Released += (sender, eventArgs) =>
+					SkipButtonClicked(sender, eventArgs)),
 
 				// Login Text
 				new Label
 				{
-					Text = "Login With Google",
+					Text = "Login",
 					TextColor = Colors.Black,
 					FontSize = 40
 				}
 				.Row(2)
+				.Center(),
+
+				// Google sign in button
+				new ImageButton
+				{
+					Source = "g_sign_in"
+				}
+				.Row(3)
 				.Center()
+				// Logic when clicked
+				.Invoke(button => button.Released += (sender, eventArgs) =>
+					GoogleSignInClicked(sender, eventArgs)),
 			}
 		};
 	}
@@ -53,8 +67,13 @@ internal class LoginPage : ContentPage
 	{
 		await Shell.Current.GoToAsync("///" + nameof(TimerPage));
 	}
-	
-	protected override async void OnAppearing()
+
+	private void GoogleSignInClicked(object sender, EventArgs e)
+	{
+		Console.WriteLine("Clicked");
+	}
+
+    protected override async void OnAppearing()
 	{
 		var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
 		base.OnAppearing();

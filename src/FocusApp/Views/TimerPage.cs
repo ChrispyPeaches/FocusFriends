@@ -73,6 +73,26 @@ namespace FocusApp.Views
                     .Invoke(button => button.Released += (sender, eventArgs) =>
                             SettingsButtonClicked(sender, eventArgs)),
 
+                    // Login Button
+                    new Button
+                    {
+                        Text = "Login",
+                        BindingContext = _timerHelper,
+                        TextColor = Colors.Black,
+                        CornerRadius = 20
+                    }
+                    .Row(Row.TopBar)
+                    .Column(Column.RightTimerButton)
+                    .Top()
+                    .Right()
+                    .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
+                    .Bind(BackgroundColorProperty,
+                            getter: static (TimerHelper th) => th.ToggleTimerButtonBackgroudColor)
+                    .Bind(IsVisibleProperty,
+                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                            LoginButtonClicked(sender, eventArgs)),
+
                     // Time Left Display
                     new Label
                     {
@@ -218,6 +238,11 @@ namespace FocusApp.Views
         private async void SettingsButtonClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
+        }
+
+        private async void LoginButtonClicked(object sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync("///" + nameof(LoginPage));
         }
 
         protected override async void OnAppearing()
