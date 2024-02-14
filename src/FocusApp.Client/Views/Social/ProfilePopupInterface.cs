@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Resources;
+using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -24,69 +24,86 @@ namespace FocusApp.Client.Views.Social
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start;
+            Color = Colors.Transparent;
 
-            Content = new VerticalStackLayout
+            Content = new Border
             {
-                BackgroundColor = Colors.Transparent,
-                Children =
+                StrokeThickness = 1,
+                StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20,20,20,20)},
+                BackgroundColor = AppStyles.Palette.LightMauve,
+                WidthRequest = 200,
+                HeightRequest = 250,
+                Content = new VerticalStackLayout
                 {
-                    new Frame
+                    WidthRequest = 200,
+                    HeightRequest = 250,
+                    BackgroundColor = AppStyles.Palette.DarkMauve,
+                    Children =
                     {
-                        CornerRadius = 20,
-                        BackgroundColor = AppStyles.Palette.LightMauve,
-                        Content = new VerticalStackLayout
+                        new Label()
                         {
-                            Children =
-                            {
-                                new Label()
-                                {
-                                    BackgroundColor = AppStyles.Palette.LightMauve,
-                                    FontSize = 30,
-                                    TextColor = Colors.White,
-                                    HorizontalOptions = LayoutOptions.Center,
-                                    VerticalOptions = LayoutOptions.Center,
+                            WidthRequest = 210,
+                            HeightRequest = 55,
+                            BackgroundColor = AppStyles.Palette.LightMauve,
+                            FontSize = 30,
+                            TextColor = Colors.White,
+                            HorizontalTextAlignment = TextAlignment.Center,
+                            VerticalTextAlignment = TextAlignment.Center,
+                            HorizontalOptions = LayoutOptions.Center,
+                            VerticalOptions = LayoutOptions.Center,
 
-                                    // Add logic to fetch username
-                                    Text = "Username"
-                                },
+                            // Add logic to fetch username
+                            Text = "Username"
+                        },
 
-                                new Button()
-                                {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
-                                    Padding = 0,
-                                    FontSize = 30,
-                                    TextColor = Colors.White,
-                                    Text = "My Profile"
-                                    //BindingContext = nameof(ProfilePage)
-                                },
+                        new Button()
+                        {
+                            WidthRequest = 210,
+                            HeightRequest = 55,
+                            BorderWidth = 0.5,
+                            BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
+                            BackgroundColor = AppStyles.Palette.DarkMauve,
+                            Padding = 0,
+                            FontSize = 30,
+                            TextColor = Colors.White,
+                            Text = "My Profile"
+                            //BindingContext = nameof(ProfilePage)
+                        },
 
-                                new Button()
-                                {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
-                                    Padding = 0,
-                                    FontSize = 30,
-                                    TextColor = Colors.White,
-                                    Text = "My Pets",
-                                    BindingContext = nameof(PetsPage)
-                                }
-                                .Invoke(button => button.Released += (sender, eventArgs) =>
-                                        PageButtonClicked(sender, eventArgs)),
-
-                                new Button()
-                                {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
-                                    Padding = 0,
-                                    FontSize = 30,
-                                    TextColor = Colors.White,
-                                    Text = "My Badges"
-                                    //BindingContext = nameof(BadgesPage)
-                                }
-                            }
+                        new Button()
+                        {
+                            WidthRequest = 210,
+                            HeightRequest = 55,
+                            BorderWidth = 0.5,
+                            BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
+                            BackgroundColor = AppStyles.Palette.DarkMauve,
+                            Padding = 0,
+                            FontSize = 30,
+                            TextColor = Colors.White,
+                            Text = "My Pets",
+                            BindingContext = nameof(PetsPage)
                         }
-                        .Top()
-                        .Right()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                                PageButtonClicked(sender, eventArgs)),
+
+                        new Button()
+                        {
+
+                            WidthRequest = 210,
+                            HeightRequest = 55,
+                            BorderWidth = 0.5,
+                            BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
+                            BackgroundColor = AppStyles.Palette.DarkMauve,
+                            Padding = 0,
+                            FontSize = 30,
+                            TextColor = Colors.White,
+                            Text = "My Badges"
+                            //BindingContext = nameof(BadgesPage)
+                        }
                     }
                 }
+                .Top()
+                .Right()
             };
         }
 

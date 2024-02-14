@@ -56,6 +56,7 @@ internal class SocialPage : BasePage
                 // Header
                 new Label
                 {
+                    TextColor = Colors.Black,
                     Text = "Friends",
                     FontSize = 40
                 }
