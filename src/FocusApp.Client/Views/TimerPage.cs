@@ -78,7 +78,7 @@ namespace FocusApp.Client.Views
                     new Button
                     {
                         Text = "Login",
-                        BindingContext = _timerHelper,
+                        BindingContext = _timerService,
                         TextColor = Colors.Black,
                         CornerRadius = 20
                     }
@@ -88,9 +88,7 @@ namespace FocusApp.Client.Views
                     .Right()
                     .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
                     .Bind(BackgroundColorProperty,
-                            getter: static (TimerHelper th) => th.ToggleTimerButtonBackgroudColor)
-                    .Bind(IsVisibleProperty,
-                            getter: (TimerHelper th) => th.AreStepperButtonsVisible, source: _timerHelper)
+                            getter: static (ITimerService th) => th.ToggleTimerButtonBackgroudColor)
                     .Invoke(button => button.Released += (sender, eventArgs) =>
                             LoginButtonClicked(sender, eventArgs)),
 
