@@ -7,6 +7,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Shared.Data;
 using FocusCore.Queries.User;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views
 {
@@ -218,6 +219,7 @@ namespace FocusApp.Client.Views
 
         private async void SettingsButtonClicked(object sender, EventArgs e)
         {
+            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
             await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
         }
 
