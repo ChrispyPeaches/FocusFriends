@@ -1,4 +1,4 @@
-﻿using FocusAPI.Commands.User;
+﻿using FocusCore.Commands.User;
 using FocusAPI.Models;
 using MediatR;
 

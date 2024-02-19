@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using FocusAPI.Models;
-using FocusAPI.Queries.Shop;
+using FocusCore.Queries.Shop;
+using FocusCore.Models;
 
 namespace FocusAPI.Controllers
 {
@@ -19,7 +20,7 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Pet>> GetAllShopItems()
+        public async Task<List<BasePet>> GetAllShopItems()
         {
             return await _mediator.Send(new GetAllShopItemsQuery());
         }

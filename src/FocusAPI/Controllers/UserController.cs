@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using FocusAPI.Commands.User;
+using FocusCore.Commands.User;
 using FocusCore.Queries.User;
 using FocusAPI.Models;
 using FocusCore.Models;

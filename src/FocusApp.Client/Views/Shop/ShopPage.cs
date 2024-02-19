@@ -1,16 +1,23 @@
-﻿using System.Xml;
+﻿using System.Diagnostics;
+using System.Xml;
 using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
+using FocusApp.Shared.Models;
+using FocusCore.Queries.Shop;
 using FocusCore.Queries.User;
 using Microsoft.Maui.Controls;
 
 namespace FocusApp.Client.Views.Shop
 {
-    internal class ShopPage : ContentPage
+    internal class ShopPage : BasePage
     {
         IAPIClient _client;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
+        CarouselView _thirdCarouselView { get; set; }
+        ActivityIndicator _awaitAPIIndicator { get; set; }
+        Popup _awaitAPIPopup { get; set; }
 
         #region Frontend
         public ShopPage(IAPIClient client)
@@ -19,6 +26,28 @@ namespace FocusApp.Client.Views.Shop
 
             _petsCarouselView = BuildBaseCarouselView();
             _soundsCarouselView = BuildBaseCarouselView();
+            _thirdCarouselView = BuildBaseCarouselView();
+
+            /*
+            _awaitAPIIndicator = new ActivityIndicator
+            {
+                IsRunning = true,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Center,
+                BackgroundColor = Color.FromRgba("#FFFFFF00"),
+            };
+
+            _awaitAPIPopup = new Popup
+            {
+                Content = new VerticalStackLayout
+                { 
+                    Children =
+                    {
+                        _awaitAPIIndicator
+                    }
+                }
+            };
+            */
 
             Content = new StackLayout
             {
@@ -53,6 +82,7 @@ namespace FocusApp.Client.Views.Shop
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
+                    // Pets Carousel
                     _petsCarouselView,
                     // Sounds Carousel Label
                     new Label
@@ -63,6 +93,14 @@ namespace FocusApp.Client.Views.Shop
                         HorizontalOptions = LayoutOptions.Start,
                     },
                     _soundsCarouselView,
+                    new Label
+                    { 
+                        Text = "Third Carousel",
+                        FontSize = 20,
+                        FontAttributes = FontAttributes.Bold,
+                        HorizontalOptions = LayoutOptions.Start,
+                    },
+                    _thirdCarouselView
                 }
             };
         }
@@ -83,41 +121,49 @@ namespace FocusApp.Client.Views.Shop
                 itemName.SetBinding(Label.TextProperty, "Name");
 
                 // Shop item image
-                Image itemImage = new Image
+                ImageButton itemImage = new ImageButton
                 {
                     WidthRequest = 100,
-                    HeightRequest = 100
+                    HeightRequest = 100,
                 };
-                itemImage.SetBinding(Image.SourceProperty, "ImageSource");
+                itemImage.SetBinding(ImageButton.SourceProperty, "ImageSource");
+                itemImage.Clicked += (s,e) =>
+                {
+                    OnImageButtonClicked();
+                };
+
+                // Shop item price
+                Label itemPrice = new Label
+                {
+                    FontSize = 15,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                };
+                itemPrice.SetBinding(Label.TextProperty, "Price");
 
                 // Shop item stack for grouping shop item elements
                 VerticalStackLayout itemStack = new VerticalStackLayout
                 {
-                    BackgroundColor = Color.FromRgba("#E0E4FF"),
+                    BackgroundColor = Color.FromRgba("#E0E4FF00"),
                     Padding = 10
                 };
 
                 itemStack.Add(itemName);
                 itemStack.Add(itemImage);
+                itemStack.Add(itemPrice);
 
                 return itemStack;
             });
 
             // Add space between the carousels - allows room for carousel label
             carouselView.Margins(0, 5, 0, 10);
-            
-            // Cant seem to get the indicator view to work - not sure what I'm doing wrong here
-            /*
-            IndicatorView indicatorView = new IndicatorView
-            {
-                IndicatorSize = 10,
-                Margin = 500,
-                HorizontalOptions = LayoutOptions.Center,
-            };
 
-            carouselView.IndicatorView = indicatorView;
-            */
             return carouselView;
+        }
+
+        void OnImageButtonClicked()
+        {
+            var g = 1;
         }
 
         #endregion
@@ -125,13 +171,27 @@ namespace FocusApp.Client.Views.Shop
         #region Backend
         protected override async void OnAppearing()
         {
-            var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
-            // Logic for populating carousels is here so that API calls may be made to fetch data
-            // Note: It'd be best to fetch all shop items with one API call, then parse by ShopItemType
-            //       to populate the appropriate shop item carousel
-            ShopItem[] shopItems = GetPets();
-            _petsCarouselView.ItemsSource = shopItems;
-            _soundsCarouselView.ItemsSource = shopItems;
+            //this.ShowPopup(_awaitAPIPopup);
+
+            List<Pet> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery());
+
+            ShopItem[] pets = shopItems.Select(p => new ShopItem
+            { 
+                Name = p.Name,
+                Price = p.Price,
+                ImageSource = new FileImageSource
+                {
+                    File = "pet_beans.png"
+                },
+                Type = ShopItemType.Pets
+            }).ToArray();
+
+            _petsCarouselView.ItemsSource = pets;
+            _soundsCarouselView.ItemsSource = pets;
+            _thirdCarouselView.ItemsSource = pets;
+
+            //_awaitAPIIndicator.IsRunning = false;
+            //_awaitAPIPopup.CloseAsync();
 
             base.OnAppearing();
         }
@@ -198,10 +258,12 @@ public class ShopItem
     public string Name { get; set; }
     public FileImageSource ImageSource { get; set; }
     public ShopItemType Type { get; set; }
+    public int Price { get; set; }
 }
 
 public enum ShopItemType
 { 
     Pets,
-    Sounds
+    Sounds,
+    Misc
 }

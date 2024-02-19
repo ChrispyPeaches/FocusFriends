@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using FocusAPI.Queries.User;
+using FocusCore.Queries.User;
 
 namespace FocusCore.Validators.Users;
 public class GetUserValidator : AbstractValidator<GetUserQuery>

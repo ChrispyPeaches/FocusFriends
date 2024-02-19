@@ -1,6 +1,6 @@
-﻿//using FocusAPI.Models;
+﻿using FocusCore.Models;
 using MediatR;
 
-namespace FocusAPI.Queries.Shop;
-//public class GetAllShopItemsQuery : IRequest<List<Pet>> { }
+namespace FocusCore.Queries.Shop;
+public class GetAllShopItemsQuery : IRequest<List<BasePet>> { }
 

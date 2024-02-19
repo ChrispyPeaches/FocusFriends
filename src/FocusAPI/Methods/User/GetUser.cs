@@ -13,8 +13,8 @@ public class GetUser
 
         public async Task<BaseUser> Handle(GetUserQuery query, CancellationToken cancellationToken)
         {
-            var x = new FocusAPI.Models.User { Id = query.Id, UserName = "Frog", Balance = 100, Email = "frog@frog.com" };
-            return x;
+            var user = new FocusAPI.Models.User { Id = query.Id, UserName = "Frog", Balance = 100, Email = "frog@frog.com" };
+            return user;
         }
     }
 }
