@@ -240,8 +240,9 @@ public class AppShell : SimpleShell
                 case "SocialPage":
                     this.SetTransition(Transitions.RightToLeftPlatformTransition);
                     break;
+                // default animation is simple fade in
                 default:
-                    this.SetTransition(Transitions.RightToLeftPlatformTransition);
+                    this.SetTransition(null);
                     break;
             }
 
