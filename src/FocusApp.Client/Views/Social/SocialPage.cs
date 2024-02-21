@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using Microsoft.Maui.Controls.Shapes;
+using SimpleToolkit.SimpleShell.Extensions;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
@@ -109,6 +110,7 @@ internal class SocialPage : BasePage
 
     private async void PetsButtonClicked(object sender, EventArgs e)
     {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync("///" + nameof(PetsPage));
     }
 
