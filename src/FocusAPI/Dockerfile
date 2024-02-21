@@ -9,10 +9,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["FocusFriends/FocusAPI/FocusAPI.csproj", "FocusFriends/FocusAPI/"]
-RUN dotnet restore "./FocusFriends/FocusAPI/./FocusAPI.csproj"
+COPY ["FocusAPI/FocusAPI.csproj", "FocusAPI/"]
+RUN dotnet restore "./FocusAPI/./FocusAPI.csproj"
 COPY . .
-WORKDIR "/src/FocusFriends/FocusAPI"
+WORKDIR "/src/FocusAPI"
 RUN dotnet build "./FocusAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
