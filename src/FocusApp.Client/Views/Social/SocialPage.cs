@@ -6,6 +6,7 @@ using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Shapes;
+using SimpleToolkit.SimpleShell.Extensions;
 using Microsoft.Maui.Platform;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -119,6 +120,7 @@ internal class SocialPage : BasePage
 
     private async void PetsButtonClicked(object sender, EventArgs e)
     {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync("///" + nameof(PetsPage));
     }
 
