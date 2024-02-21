@@ -103,25 +103,9 @@ internal class SocialPage : BasePage
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2),
-
-                new Button
-                {
-                    Text = "Pets Page",
-                    MaximumHeightRequest = 50
-                }
-                .Row(2)
-                .Column(0)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    PetsButtonClicked(sender, eventArgs)),
+                .ColumnSpan(2)
             }
         };
-    }
-
-    private async void PetsButtonClicked(object sender, EventArgs e)
-    {
-        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
     }
 
     protected override async void OnAppearing()
@@ -134,14 +118,5 @@ internal class SocialPage : BasePage
     private void OnClickShowPopup(object sender, EventArgs e)
     {
         _popupService.ShowPopup<ProfilePopupInterface>();
-    }
-
-    // Navigate to page according to button
-    private async void PageButtonClicked(object sender, EventArgs e)
-    {
-        var button = sender as Button;
-
-        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
-        _popupService.HidePopup();
     }
 }
