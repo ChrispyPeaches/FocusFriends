@@ -12,7 +12,7 @@ WORKDIR /src
 COPY ["FocusAPI/FocusAPI.csproj", "FocusAPI/"]
 RUN dotnet restore "./FocusAPI/./FocusAPI.csproj"
 COPY . .
-WORKDIR ./FocusApi
+WORKDIR "/src/FocusAPI"
 RUN dotnet build "./FocusAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
