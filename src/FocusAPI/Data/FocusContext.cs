@@ -1,5 +1,7 @@
 ﻿using FocusAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FocusAPI.Data;
 
@@ -13,10 +15,23 @@ public class FocusContext : DbContext
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    /// <summary>
+    /// If the database isn't created, create it.
+    /// If the tables aren't created, create them.
+    /// </summary>
+    public FocusContext(DbContextOptions<FocusContext> options) : base(options)
     {
-        // No SQL server conneciton yet
-        // Better alternative for SQL Server connection https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
-        optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=FocusFriendsDevTest;Integrated Security=True;");
+        if (Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator dbCreator)
+        {
+            if (!dbCreator.CanConnect())
+            {
+                dbCreator.Create();
+            }
+
+            if (!dbCreator.HasTables())
+            {
+                dbCreator.CreateTables();
+            }
+        }
     }
 }

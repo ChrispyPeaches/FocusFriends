@@ -2,7 +2,9 @@ using FluentValidation;
 using MediatR;
 using System.Reflection;
 using FocusAPI.Configuration.PipelineBehaviors;
+using FocusAPI.Data;
 using FocusCore.Validators.Users;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,10 +23,16 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 // Register FocusCore assembly containing validators with FluentValidation
 builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator)));
 
+// Register DbContext
+builder.Services.AddDbContext<FocusContext>(options =>
+    {
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
