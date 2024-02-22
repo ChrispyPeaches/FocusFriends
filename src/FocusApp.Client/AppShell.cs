@@ -22,7 +22,6 @@ public class AppShell : SimpleShell
     {
         // Register routes to any side pages
         Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
-        Routing.RegisterRoute(nameof(PetsPage), typeof(PetsPage));
 
         this.SetTransition(Transitions.RightToLeftPlatformTransition);
 
@@ -65,6 +64,13 @@ public class AppShell : SimpleShell
                      Title = "SocialPage",
                      ContentTemplate = new DataTemplate(typeof(SocialPage)),
                      Route = "SocialPage"
+                },
+
+                new ShellContent()
+                {
+                     Title = "PetsPage",
+                     ContentTemplate = new DataTemplate(typeof(PetsPage)),
+                     Route = "PetsPage"
                 }
             }
         };
