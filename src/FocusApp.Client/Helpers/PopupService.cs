@@ -11,14 +11,14 @@ namespace FocusApp.Client.Helpers
 
     public class PopupService : IPopupService
     {
-        private readonly IServiceProvider services;
+        private readonly IServiceProvider _services;
 
         // Need to keep track of the popups so we can close them.
-        private Stack<Popup> popups = new();
+        private Stack<Popup> _popups = new();
 
-        public PopupService(IServiceProvider services)
+        public PopupService(IServiceProvider _services)
         {
-            this.services = services;
+            this._services = _services;
         }
 
         /// <summary>
@@ -29,21 +29,21 @@ namespace FocusApp.Client.Helpers
         public void ShowPopup<T>() where T : Popup
         {
             var mainPage = App.Current?.MainPage ?? throw new MissingMethodException("Main page is null");
-            var popup = services.GetRequiredService<T>();
+            var popup = _services.GetRequiredService<T>();
             mainPage.ShowPopup<T>(popup);
-            popups.Push(popup);
+            _popups.Push(popup);
         }
 
         public void HidePopup()
         {
-            popups.Pop().Close();
+            _popups.Pop().Close();
         }
 
         public void HideAllPopups()
         {
-            while (popups.Count > 0)
+            while (_popups.Count > 0)
             {
-                popups.Pop().Close();
+                _popups.Pop().Close();
             }
         }
     }
