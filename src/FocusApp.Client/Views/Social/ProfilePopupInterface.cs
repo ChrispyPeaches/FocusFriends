@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace FocusApp.Client.Views.Social
 {
-    public class ProfilePopupInterface : Popup
+    internal class ProfilePopupInterface : BasePopup
     {
         private Helpers.PopupService _popupService;
 

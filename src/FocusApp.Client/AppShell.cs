@@ -26,7 +26,7 @@ public class AppShell : SimpleShell
 
         this.SetTransition(Transitions.RightToLeftPlatformTransition);
 
-        // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
+        // Create tabs, tab pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
         {
             Title = "ShopPage",

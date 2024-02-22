@@ -14,7 +14,6 @@ using Refit;
 using SimpleToolkit.SimpleShell;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
-using FocusApp.Client.Helpers;
 using FocusApp.Client.Views.Social;
 
 namespace FocusApp.Client
@@ -40,9 +39,8 @@ namespace FocusApp.Client
                 .RegisterDatabaseContext()
                 .RegisterRefitClient()
                 .RegisterServices()
-                .RegisterPages();
-
-            builder.Services.AddTransient<ProfilePopupInterface>();
+                .RegisterPages()
+                .RegisterPopups();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -91,6 +89,23 @@ namespace FocusApp.Client
                 foreach (Type pageType in pageTypes)
                 {
                     services.AddTransient(pageType);
+                }
+            }
+
+            return services;
+        }
+
+        private static IServiceCollection RegisterPopups(this IServiceCollection services)
+        {
+            IEnumerable<Type>? popupTypes = Assembly.GetAssembly(typeof(BasePopup))?
+                .GetTypes()
+                .Where(t => t.IsSubclassOf(typeof(BasePopup)));
+
+            if (popupTypes is not null)
+            {
+                foreach (Type popupType in popupTypes)
+                {
+                    services.AddTransient(popupType);
                 }
             }
 
