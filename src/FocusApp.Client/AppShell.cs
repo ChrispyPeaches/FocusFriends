@@ -11,6 +11,7 @@ using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using FocusApp.Shared.Data;
 using Microsoft.EntityFrameworkCore;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client;
 
@@ -19,6 +20,8 @@ public class AppShell : SimpleShell
     List<Button> tabButtons;
     public AppShell()
     {
+        this.SetTransition(Transitions.RightToLeftPlatformTransition);
+
         // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
         {
@@ -232,6 +235,33 @@ public class AppShell : SimpleShell
 
         // Navigate to a new tab if it is not the current tab
         if (!CurrentState.Location.OriginalString.Contains(shellItem.Route))
-            await GoToAsync($"///{shellItem.Route}");
+        {
+            // Determine navigation animation
+            switch (shellItem.Route)
+            {
+                case "ShopPage":
+                    this.SetTransition(Transitions.LeftToRightPlatformTransition);
+                    break;
+                case "TimerPage":
+                    if (Shell.Current.CurrentItem.CurrentItem.Route == "ShopPage")
+                    {
+                        this.SetTransition(Transitions.RightToLeftPlatformTransition);
+                    }
+                    else if (Shell.Current.CurrentItem.CurrentItem.Route == "SocialPage")
+                    {
+                        this.SetTransition(Transitions.LeftToRightPlatformTransition);
+                    }
+                    break;
+                case "SocialPage":
+                    this.SetTransition(Transitions.RightToLeftPlatformTransition);
+                    break;
+                // default animation is simple fade in
+                default:
+                    this.SetTransition(null);
+                    break;
+            }
+
+            await GoToAsync($"///{shellItem.Route}", true);
+        }
     }
 }
