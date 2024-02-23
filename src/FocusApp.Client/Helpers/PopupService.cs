@@ -12,13 +12,13 @@ namespace FocusApp.Client.Helpers
     public class PopupService : IPopupService
     {
         private readonly IServiceProvider _services;
-
-        // Need to keep track of the popups so we can close them.
-        private Stack<Popup> _popups = new();
+        private Stack<Popup> _popups;
 
         public PopupService(IServiceProvider _services)
         {
             this._services = _services;
+            // Need to keep track of the popups so we can close them.
+            _popups = new();
         }
 
         /// <summary>
