@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Resources;
 using FocusApp.Shared.Models;
 using FocusCore.Queries.Shop;
 using FocusCore.Queries.User;
@@ -190,6 +191,8 @@ namespace FocusApp.Client.Views.Shop
 
             // Add space between the carousels - allows room for carousel label
             carouselView.Margins(0, 5, 0, 10);
+
+            carouselView.BackgroundColor = AppStyles.Palette.MintGreen;
 
             return carouselView;
         }
