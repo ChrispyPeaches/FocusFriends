@@ -6,7 +6,7 @@ networks:
 services:
   FocusApi:
     container_name: FocusApiContainer
-    image: ${DOCKER_REGISTRY-}focusapi
+    image: ghcr.io/chrispypeaches/focusfriends/focusapi:add-cd
     ports:
       - 25565:8080
       - 25566:8081
