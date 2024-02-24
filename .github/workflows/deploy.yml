@@ -5,6 +5,10 @@ on:
     branches:
       - add-cd
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -13,19 +17,25 @@ jobs:
       packages: write
     steps:
       - name: Check Out Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Build Docker image
-        run: |
-          REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-          BRANCH_NAME=$(echo ${{ github.ref_name }} | tr '[:upper:]' '[:lower:]') # Get the branch name in lowercase
-          docker build ./src/FocusAPI -t ghcr.io/$REPO_LOWER/focusapi:$BRANCH_NAME
-
-      - name: Push Docker image to GitHub Packages
-        run: |
-          REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-          BRANCH_NAME=$(echo ${{ github.ref_name }} | tr '[:upper:]' '[:lower:]') # Get the branch name in lowercase
-          docker push ghcr.io/$REPO_LOWER/focusapi:$BRANCH_NAME
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: "{{defaultContext}}/src/FocusAPI"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
