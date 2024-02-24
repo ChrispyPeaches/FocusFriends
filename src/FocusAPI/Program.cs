@@ -1,6 +1,7 @@
 using FluentValidation;
 using MediatR;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using FocusAPI.Configuration.PipelineBehaviors;
 using FocusAPI.Data;
 using FocusCore.Validators.Users;
@@ -30,6 +31,9 @@ builder.Services.AddDbContext<FocusContext>(options =>
     });
 
 var app = builder.Build();
+
+// Instantiate the DbContext so that the database is created if it doesn't exist
+_ = app.Services.GetService<FocusContext>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsProduction())
