@@ -19,6 +19,7 @@ public class GetAllShopItems
         {
             //List<Pet> pets = _context.Pets.ToList();
             List<BasePet> pets = _context.Pets.OfType<BasePet>().ToList();
+
             return pets;
         }
     }

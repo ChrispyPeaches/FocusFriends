@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Xml;
+using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
@@ -15,7 +16,7 @@ namespace FocusApp.Client.Views.Shop
         IAPIClient _client;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
-        CarouselView _thirdCarouselView { get; set; }
+        CarouselView _furnitureCarouselView { get; set; }
         ActivityIndicator _awaitAPIIndicator { get; set; }
         Popup _awaitAPIPopup { get; set; }
 
@@ -26,7 +27,7 @@ namespace FocusApp.Client.Views.Shop
 
             _petsCarouselView = BuildBaseCarouselView();
             _soundsCarouselView = BuildBaseCarouselView();
-            _thirdCarouselView = BuildBaseCarouselView();
+            _furnitureCarouselView = BuildBaseCarouselView();
 
             /*
             _awaitAPIIndicator = new ActivityIndicator
@@ -95,12 +96,12 @@ namespace FocusApp.Client.Views.Shop
                     _soundsCarouselView,
                     new Label
                     { 
-                        Text = "Third Carousel",
+                        Text = "Furniture",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
-                    _thirdCarouselView
+                    _furnitureCarouselView
                 }
             };
         }
@@ -126,7 +127,10 @@ namespace FocusApp.Client.Views.Shop
                     WidthRequest = 100,
                     HeightRequest = 100,
                 };
-                itemImage.SetBinding(ImageButton.SourceProperty, "ImageSource");
+                itemImage.SetBinding(
+                    ImageButton.SourceProperty, "ImageSource",
+                    converter: new ByteArrayToImageSourceConverter());
+
                 itemImage.Clicked += (s,e) =>
                 {
                     OnImageButtonClicked();
@@ -179,16 +183,15 @@ namespace FocusApp.Client.Views.Shop
             { 
                 Name = p.Name,
                 Price = p.Price,
-                ImageSource = new FileImageSource
-                {
-                    File = "pet_beans.png"
-                },
+                ImageSource = p.Image,
                 Type = ShopItemType.Pets
-            }).ToArray();
+            })
+            .OrderBy(p => p.Price)
+            .ToArray();
 
             _petsCarouselView.ItemsSource = pets;
             _soundsCarouselView.ItemsSource = pets;
-            _thirdCarouselView.ItemsSource = pets;
+            _furnitureCarouselView.ItemsSource = pets;
 
             //_awaitAPIIndicator.IsRunning = false;
             //_awaitAPIPopup.CloseAsync();
@@ -197,57 +200,6 @@ namespace FocusApp.Client.Views.Shop
         }
 
         // Test function for implementing UI - this will be replaced by API call
-        private ShopItem[] GetPets()
-        { 
-            return
-            [
-                new ShopItem
-                {
-                    Name = "Frog",
-                    ImageSource = new FileImageSource
-                    {
-                        File = "pet_beans.png"
-                    },
-                    Type = ShopItemType.Pets
-                },
-                new ShopItem
-                {
-                    Name = "Big Frog",
-                    ImageSource = new FileImageSource
-                    {
-                        File = "pet_bob.png"
-                    },
-                    Type = ShopItemType.Pets
-                },
-                new ShopItem
-                {
-                    Name = "Bigger Frog",
-                    ImageSource = new FileImageSource
-                    {
-                        File = "pet_danole.png"
-                    },
-                    Type = ShopItemType.Pets
-                },
-                new ShopItem
-                {
-                    Name = "Even Bigger Frog",
-                    ImageSource = new FileImageSource
-                    {
-                        File = "pet_franklin.png"
-                    },
-                    Type = ShopItemType.Pets
-                },
-                new ShopItem
-                {
-                    Name = "Humongous Fucker",
-                    ImageSource = new FileImageSource
-                    {
-                        File = "pet_greg.png"
-                    },
-                    Type = ShopItemType.Pets
-                },
-            ];
-        }
         #endregion
     }
 }
@@ -256,7 +208,7 @@ namespace FocusApp.Client.Views.Shop
 public class ShopItem
 { 
     public string Name { get; set; }
-    public FileImageSource ImageSource { get; set; }
+    public byte[] ImageSource { get; set; }
     public ShopItemType Type { get; set; }
     public int Price { get; set; }
 }
@@ -265,5 +217,5 @@ public enum ShopItemType
 { 
     Pets,
     Sounds,
-    Misc
+    Furniture
 }

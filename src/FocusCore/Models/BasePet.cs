@@ -12,4 +12,5 @@ public abstract class BasePet
     public required int Price { get; set; }
 
     public required string Name { get; set; } = null!;
+    public byte[] Image { get; set; }
 }

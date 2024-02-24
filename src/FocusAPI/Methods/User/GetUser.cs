@@ -1,5 +1,4 @@
 ﻿using FocusCore.Queries.User;
-using FocusAPI.Models;
 using FocusCore.Models;
 using MediatR;
 
