@@ -6,6 +6,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
+using FocusApp.Client.Models;
 using FocusApp.Client.Views;
 
 namespace FocusApp.Client.Views;
@@ -13,9 +14,12 @@ namespace FocusApp.Client.Views;
 internal class LoginPage : BasePage
 {
     IAPIClient _client;
+    private AuthenticationHandler _authHandler;
+
     public LoginPage(IAPIClient client)
     {
         _client = client;
+        _authHandler = new AuthenticationHandler();
 
         Content = new Grid
         {
@@ -69,9 +73,9 @@ internal class LoginPage : BasePage
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
-    private void GoogleSignInClicked(object sender, EventArgs e)
+    private async void GoogleSignInClicked(object sender, EventArgs e)
     {
-        Console.WriteLine("Clicked");
+        await Task.Run(() => _authHandler.LoginCommand.Execute(null));
     }
 
     protected override async void OnAppearing()
