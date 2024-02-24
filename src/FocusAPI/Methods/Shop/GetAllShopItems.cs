@@ -17,7 +17,6 @@ public class GetAllShopItems
 
         public async Task<List<BasePet>> Handle(GetAllShopItemsQuery query, CancellationToken cancellationToken)
         {
-            //List<Pet> pets = _context.Pets.ToList();
             List<BasePet> pets = _context.Pets.OfType<BasePet>().ToList();
 
             return pets;

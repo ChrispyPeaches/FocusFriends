@@ -14,6 +14,7 @@ namespace FocusApp.Client.Views.Shop
     internal class ShopPage : BasePage
     {
         IAPIClient _client;
+        Helpers.PopupService _popupService;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
         CarouselView _furnitureCarouselView { get; set; }
@@ -21,9 +22,10 @@ namespace FocusApp.Client.Views.Shop
         Popup _awaitAPIPopup { get; set; }
 
         #region Frontend
-        public ShopPage(IAPIClient client)
+        public ShopPage(IAPIClient client, Helpers.PopupService popupService)
         {
             _client = client;
+            _popupService = popupService;
 
             _petsCarouselView = BuildBaseCarouselView();
             _soundsCarouselView = BuildBaseCarouselView();
@@ -160,7 +162,7 @@ namespace FocusApp.Client.Views.Shop
 
                 itemImage.Clicked += (s,e) =>
                 {
-                    OnImageButtonClicked();
+                    OnImageButtonClicked(s, e);
                 };
 
                 // Shop item price
@@ -192,9 +194,13 @@ namespace FocusApp.Client.Views.Shop
             return carouselView;
         }
 
-        void OnImageButtonClicked()
+        void OnImageButtonClicked(object sender, EventArgs eventArgs)
         {
-            var g = 1;
+            var itemButton = sender as ImageButton;
+            var shopItem = (ShopItem)itemButton.BindingContext;
+
+            var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
+            itemPopup.PopulatePopup(shopItem);
         }
 
         #endregion
