@@ -55,13 +55,40 @@ namespace FocusApp.Client.Views.Shop
                 BackgroundColor = Colors.LightYellow,
                 Children =
                 {
-                    // Header
-                    new Label
-                    {
-                        Text = "Shop",
-                        FontSize = 30,
-                        HorizontalOptions = LayoutOptions.Center,
-                        VerticalOptions = LayoutOptions.Center
+                    new Grid
+                    { 
+                        Children =
+                        { 
+                            new Label
+                            { 
+                                Text = "20",
+                                FontSize = 20,
+                                HorizontalOptions = LayoutOptions.Start,
+                                VerticalOptions = LayoutOptions.Center,
+                            }
+                            .Margins(left: 10, right: 10),
+                            new Image
+                            { 
+                                Source = new FileImageSource
+                                { 
+                                    File = "logo.png"
+                                },
+                                HeightRequest = 25,
+                                WidthRequest = 25,
+                                HorizontalOptions = LayoutOptions.Start,
+                                VerticalOptions = LayoutOptions.Center,
+                            }
+                            .Margins(left:40, right:40),
+                            // Header
+                            new Label
+                            {
+                                Text = "Shop",
+                                FontSize = 30,
+                                HorizontalOptions = LayoutOptions.Center,
+                                VerticalOptions = LayoutOptions.Center,
+                                FontAttributes = FontAttributes.Bold
+                            }
+                        }
                     },
                     // Horizontal Divider
                     new BoxView
@@ -69,7 +96,7 @@ namespace FocusApp.Client.Views.Shop
                         Color = Color.Parse("Black"),
                         WidthRequest = 400,
                         HeightRequest = 2,
-                        Margin = 30
+                        Margin = 20
                     }
                     .Bottom()
                     .Row(0)
@@ -199,7 +226,6 @@ namespace FocusApp.Client.Views.Shop
             base.OnAppearing();
         }
 
-        // Test function for implementing UI - this will be replaced by API call
         #endregion
     }
 }
