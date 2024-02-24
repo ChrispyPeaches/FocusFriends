@@ -220,7 +220,7 @@ namespace FocusApp.Client.Views
         private async void SettingsButtonClicked(object sender, EventArgs e)
         {
             Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-            await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
+            await Shell.Current.GoToAsync($"///{nameof(TimerPage)}/{nameof(SettingsPage)}");
         }
 
         protected override async void OnAppearing()
