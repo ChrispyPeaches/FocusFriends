@@ -1,14 +1,11 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using Microsoft.Maui.Controls.Shapes;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
-using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
-using FocusApp.Client.Models;
-using FocusApp.Client.Views;
 using Auth0.OidcClient;
+using FocusApp.Client.Helpers;
 
 namespace FocusApp.Client.Views;
 
@@ -16,11 +13,13 @@ internal class LoginPage : BasePage
 {
     IAPIClient _client;
     private readonly Auth0Client auth0Client;
+    IAuthenticationService _authenticationService;
 
-    public LoginPage(IAPIClient client, Auth0Client authClient)
+    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService)
     {
         _client = client;
         auth0Client = authClient;
+        _authenticationService = authenticationService;
 
         Content = new Grid
         {
@@ -80,13 +79,10 @@ internal class LoginPage : BasePage
 
         if (!loginResult.IsError)
         {
-            var _user = loginResult.User;
-            var name = _user.FindFirst(c => c.Type == "name")?.Value;
-            var email = _user.FindFirst(c => c.Type == "email")?.Value;
+            _authenticationService.AuthToken = loginResult.AccessToken;
+            Console.WriteLine("Login Page: " + _authenticationService.AuthToken);
 
-            Console.WriteLine(name, email);
-
-            await Shell.Current.GoToAsync("///" + nameof(TimerPage));
+            await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
         }
         else
         {
