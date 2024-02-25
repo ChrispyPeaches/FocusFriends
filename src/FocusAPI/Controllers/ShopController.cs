@@ -20,7 +20,7 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<BasePet>> GetAllShopItems()
+        public async Task<List<ShopItem>> GetAllShopItems()
         {
             return await _mediator.Send(new GetAllShopItemsQuery());
         }

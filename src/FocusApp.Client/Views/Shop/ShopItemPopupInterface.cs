@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Resources;
+using FocusApp.Shared.Models;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
 using SimpleToolkit.SimpleShell.Extensions;

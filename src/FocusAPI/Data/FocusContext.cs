@@ -12,11 +12,13 @@ public class FocusContext : DbContext
     public DbSet<UserPet> UserPets { get; set; }
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
+    public DbSet<Furniture> Furniture { get; set; }
+    public DbSet<Sound> Sounds { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // No SQL server conneciton yet
         // Better alternative for SQL Server connection https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
-        optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=FocusFriendsDevTest;Integrated Security=True;");
+        optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=FocusFriendsDevTest;Integrated Security=True;Trust Server Certificate=True");
     }
 }

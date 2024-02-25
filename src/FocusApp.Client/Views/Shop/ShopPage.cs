@@ -19,8 +19,6 @@ namespace FocusApp.Client.Views.Shop
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
         CarouselView _furnitureCarouselView { get; set; }
-        ActivityIndicator _awaitAPIIndicator { get; set; }
-        Popup _awaitAPIPopup { get; set; }
 
         #region Frontend
         public ShopPage(IAPIClient client, Helpers.PopupService popupService)
@@ -32,27 +30,6 @@ namespace FocusApp.Client.Views.Shop
             _soundsCarouselView = BuildBaseCarouselView();
             _furnitureCarouselView = BuildBaseCarouselView();
 
-            /*
-            _awaitAPIIndicator = new ActivityIndicator
-            {
-                IsRunning = true,
-                VerticalOptions = LayoutOptions.Center,
-                HorizontalOptions = LayoutOptions.Center,
-                BackgroundColor = Color.FromRgba("#FFFFFF00"),
-            };
-
-            _awaitAPIPopup = new Popup
-            {
-                Content = new VerticalStackLayout
-                { 
-                    Children =
-                    {
-                        _awaitAPIIndicator
-                    }
-                }
-            };
-            */
-
             Content = new StackLayout
             {
                 BackgroundColor = Colors.LightYellow,
@@ -62,6 +39,7 @@ namespace FocusApp.Client.Views.Shop
                     { 
                         Children =
                         { 
+                            // Currency text
                             new Label
                             { 
                                 Text = "20",
@@ -70,6 +48,7 @@ namespace FocusApp.Client.Views.Shop
                                 VerticalOptions = LayoutOptions.Center,
                             }
                             .Margins(left: 10, right: 10),
+                            // Currency icon
                             new Image
                             { 
                                 Source = new FileImageSource
@@ -124,6 +103,7 @@ namespace FocusApp.Client.Views.Shop
                         HorizontalOptions = LayoutOptions.Start,
                     },
                     _soundsCarouselView,
+                    // Furniture Carousel Label
                     new Label
                     { 
                         Text = "Furniture",
@@ -131,6 +111,7 @@ namespace FocusApp.Client.Views.Shop
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
+                    // Furniture Carousel
                     _furnitureCarouselView
                 }
             };
@@ -211,46 +192,17 @@ namespace FocusApp.Client.Views.Shop
         #region Backend
         protected override async void OnAppearing()
         {
-            //this.ShowPopup(_awaitAPIPopup);
+            List<ShopItem> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery());
 
-            List<Pet> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery());
+            shopItems = shopItems.OrderBy(p => p.Price).ToList();
 
-            ShopItem[] pets = shopItems.Select(p => new ShopItem
-            { 
-                Name = p.Name,
-                Price = p.Price,
-                ImageSource = p.Image,
-                Type = ShopItemType.Pets
-            })
-            .OrderBy(p => p.Price)
-            .ToArray();
-
-            _petsCarouselView.ItemsSource = pets;
-            _soundsCarouselView.ItemsSource = pets;
-            _furnitureCarouselView.ItemsSource = pets;
-
-            //_awaitAPIIndicator.IsRunning = false;
-            //_awaitAPIPopup.CloseAsync();
+            _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
+            _soundsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Sounds);
+            _furnitureCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Furniture);
 
             base.OnAppearing();
         }
 
         #endregion
     }
-}
-
-// Basic class for grouping ShopItem data
-public class ShopItem
-{ 
-    public string Name { get; set; }
-    public byte[] ImageSource { get; set; }
-    public ShopItemType Type { get; set; }
-    public int Price { get; set; }
-}
-
-public enum ShopItemType
-{ 
-    Pets,
-    Sounds,
-    Furniture
 }

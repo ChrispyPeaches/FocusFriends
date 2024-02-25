@@ -59,6 +59,28 @@ namespace FocusAPI.Migrations
                     b.ToTable("Friendships");
                 });
 
+            modelBuilder.Entity("FocusAPI.Models.Furniture", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Furniture");
+                });
+
             modelBuilder.Entity("FocusAPI.Models.Pet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -79,6 +101,28 @@ namespace FocusAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Pets");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.Sound", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sounds");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.User", b =>

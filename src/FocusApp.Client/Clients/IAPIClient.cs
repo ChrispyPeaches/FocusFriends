@@ -10,5 +10,5 @@ public interface IAPIClient
     Task<User> GetUser(GetUserQuery query);
 
     [Get("/Shop")]
-    Task<List<Pet>> GetAllShopItems(GetAllShopItemsQuery query);
+    Task<List<ShopItem>> GetAllShopItems(GetAllShopItemsQuery query);
 }

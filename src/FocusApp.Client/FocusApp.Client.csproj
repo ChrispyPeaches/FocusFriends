@@ -59,6 +59,7 @@
 	<ItemGroup>
 	  <None Remove="Resources\Images\Islands\island_zero.svg" />
 	  <None Remove="Resources\Images\Pets\pet_cat_zero.svg" />
+	  <None Remove="Resources\Images\sound_image.png" />
 	</ItemGroup>
 
 	<ItemGroup>
