@@ -8,18 +8,19 @@ using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using FocusApp.Client.Models;
 using FocusApp.Client.Views;
+using Auth0.OidcClient;
 
 namespace FocusApp.Client.Views;
 
 internal class LoginPage : BasePage
 {
     IAPIClient _client;
-    private AuthenticationHandler _authHandler;
+    private readonly Auth0Client auth0Client;
 
-    public LoginPage(IAPIClient client)
+    public LoginPage(IAPIClient client, Auth0Client authClient)
     {
         _client = client;
-        _authHandler = new AuthenticationHandler();
+        auth0Client = authClient;
 
         Content = new Grid
         {
@@ -63,7 +64,7 @@ internal class LoginPage : BasePage
                 .Center()
 				// Logic when clicked
 				.Invoke(button => button.Released += (sender, eventArgs) =>
-                    GoogleSignInClicked(sender, eventArgs)),
+                    OnLoginClicked(sender, eventArgs)),
             }
         };
     }
@@ -73,9 +74,24 @@ internal class LoginPage : BasePage
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
-    private async void GoogleSignInClicked(object sender, EventArgs e)
+    private async void OnLoginClicked(object sender, EventArgs e)
     {
-        await Task.Run(() => _authHandler.LoginCommand.Execute(null));
+        var loginResult = await auth0Client.LoginAsync();
+
+        if (!loginResult.IsError)
+        {
+            var _user = loginResult.User;
+            var name = _user.FindFirst(c => c.Type == "name")?.Value;
+            var email = _user.FindFirst(c => c.Type == "email")?.Value;
+
+            Console.WriteLine(name, email);
+
+            await Shell.Current.GoToAsync("///" + nameof(TimerPage));
+        }
+        else
+        {
+            await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
+        }
     }
 
     protected override async void OnAppearing()

@@ -14,6 +14,7 @@ using Refit;
 using SimpleToolkit.SimpleShell;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
+using Auth0.OidcClient;
 
 namespace FocusApp.Client
 {
@@ -43,6 +44,18 @@ namespace FocusApp.Client
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
+
+            builder.Services.AddSingleton<MainPage>();
+
+            builder.Services.AddSingleton(new Auth0Client(new()
+            {
+                Domain = "dev-7c8vyxbx5myhzmji.us.auth0.com",
+                ClientId = "PR3eHq0ehapDGtpYyLl5XFhd1mOQX9uD",
+                RedirectUri = "myapp://callback",
+                PostLogoutRedirectUri = "myapp://callback",
+                Scope = "openid profile email"
+            }));
+
 
             return builder.Build();
         }
