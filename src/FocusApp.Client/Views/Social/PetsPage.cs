@@ -631,7 +631,8 @@ internal sealed class PetsPage : BasePage
 
     private async void BackButtonClicked(object sender, EventArgs e)
     {
+        // Back navigation reverses animation so can keep right to left
         Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
-        await Shell.Current.GoToAsync("///" + nameof(SocialPage));
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
     }
 }

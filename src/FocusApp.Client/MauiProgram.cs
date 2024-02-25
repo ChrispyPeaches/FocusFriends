@@ -14,6 +14,7 @@ using Refit;
 using SimpleToolkit.SimpleShell;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
+using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
 
 namespace FocusApp.Client
@@ -39,7 +40,8 @@ namespace FocusApp.Client
                 .RegisterDatabaseContext()
                 .RegisterRefitClient()
                 .RegisterServices()
-                .RegisterPages();
+                .RegisterPages()
+                .RegisterPopups();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -84,6 +86,7 @@ namespace FocusApp.Client
         {
             // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
+            services.AddSingleton<Helpers.PopupService>();
 
             // Singleton User Data
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
@@ -102,6 +105,23 @@ namespace FocusApp.Client
                 foreach (Type pageType in pageTypes)
                 {
                     services.AddTransient(pageType);
+                }
+            }
+
+            return services;
+        }
+
+        private static IServiceCollection RegisterPopups(this IServiceCollection services)
+        {
+            IEnumerable<Type>? popupTypes = Assembly.GetAssembly(typeof(BasePopup))?
+                .GetTypes()
+                .Where(t => t.IsSubclassOf(typeof(BasePopup)));
+
+            if (popupTypes is not null)
+            {
+                foreach (Type popupType in popupTypes)
+                {
+                    services.AddTransient(popupType);
                 }
             }
 

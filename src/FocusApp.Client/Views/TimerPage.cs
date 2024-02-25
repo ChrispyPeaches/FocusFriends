@@ -255,11 +255,11 @@ internal class TimerPage : BasePage
         }
     }
 
-    private async void SettingsButtonClicked(object sender, EventArgs e)
-    {
-        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
-    }
+        private async void SettingsButtonClicked(object sender, EventArgs e)
+        {
+            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+            await Shell.Current.GoToAsync($"///{nameof(TimerPage)}/{nameof(SettingsPage)}");
+        }
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {

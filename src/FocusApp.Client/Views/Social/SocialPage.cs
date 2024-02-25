@@ -1,20 +1,28 @@
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
+using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
+using Microsoft.Maui.Platform;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using FocusApp.Client.Resources;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class SocialPage : BasePage
 {
+    private Helpers.PopupService _popupService;
+
     IAPIClient _client { get; set; }
-	public SocialPage(IAPIClient client)
+	public SocialPage(IAPIClient client, Helpers.PopupService popupService)
 	{
+        _popupService = popupService;
         _client = client;
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
@@ -49,6 +57,7 @@ internal class SocialPage : BasePage
                 // Header
                 new Label
                 {
+                    TextColor = Colors.Black,
                     Text = "Friends",
                     FontSize = 40
                 }
@@ -69,7 +78,7 @@ internal class SocialPage : BasePage
                 .ColumnSpan(2),
 
                 // Profile Picture
-                new Image
+                new ImageButton
                 {
                     Source = new FileImageSource
                     {
@@ -82,7 +91,8 @@ internal class SocialPage : BasePage
                 .Top()
                 .Right()
                 .Column(1)
-                .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 }),
+                .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
+                .Invoke(b => b.Clicked += (s,e) => OnClickShowPopup(s,e)),
 
                 // Friends List
                 new ListView
@@ -93,30 +103,20 @@ internal class SocialPage : BasePage
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2),
-
-                new Button
-                {
-                    Text = "Pets Page",
-                    MaximumHeightRequest = 50
-                }
-                .Row(2)
-                .Column(0)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    PetsButtonClicked(sender, eventArgs)),
+                .ColumnSpan(2)
             }
         };
-    }
-
-    private async void PetsButtonClicked(object sender, EventArgs e)
-    {
-        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync("///" + nameof(PetsPage));
     }
 
     protected override async void OnAppearing()
     {
         var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
         base.OnAppearing();
+    }
+
+    // Display navigation popup on hit
+    private void OnClickShowPopup(object sender, EventArgs e)
+    {
+        _popupService.ShowPopup<ProfilePopupInterface>();
     }
 }
