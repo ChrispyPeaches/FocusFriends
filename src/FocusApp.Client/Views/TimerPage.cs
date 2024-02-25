@@ -62,6 +62,8 @@ internal class TimerPage : BasePage
         .Top()
         .Right()
         .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
+        .Bind(IsVisibleProperty,
+                        getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
         .Invoke(button => button.Released += (sender, eventArgs) =>
         {
         if (loggedIn)
