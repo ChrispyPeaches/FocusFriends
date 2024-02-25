@@ -102,15 +102,17 @@ namespace FocusApp.Client.Views.Shop
                         Text = "Leave Me Be",
                         HorizontalOptions = LayoutOptions.Start,
                     }
-                    .Margins(left: 35, top: 50),
+                    .Margins(left: 35, top: 50)
+                    .Invoke(button => button.Pressed += (s,e) => PageButtonClicked(s,e)),
                     new Button
                     {
                         WidthRequest = 125,
                         HeightRequest = 50,
-                        Text = "Buy Me Now",
+                        Text = "Buy Me!",
                         HorizontalOptions = LayoutOptions.End,
                     }
                     .Margins(right: 35, top: 50)
+                    .Invoke(button => button.Pressed += (s,e) => PageButtonClicked(s,e))
                 }
             };
 
@@ -124,7 +126,7 @@ namespace FocusApp.Client.Views.Shop
         // Navigate to page according to button
         private async void PageButtonClicked(object sender, EventArgs e)
         {
-
+            _popupService.HidePopup();
         }
     }
 }
