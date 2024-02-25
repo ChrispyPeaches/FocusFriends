@@ -6,7 +6,7 @@ networks:
 services:
   FocusApi:
     container_name: FocusApiContainer
-    image: FROM ghcr.io/chrispypeaches/focusfriends/focusapi:test
+    image: ghcr.io/chrispypeaches/focusfriends/focusapi:test
     ports:
       - 25565:8080
       - 25566:8081
