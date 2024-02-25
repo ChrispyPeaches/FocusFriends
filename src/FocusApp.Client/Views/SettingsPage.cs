@@ -5,6 +5,7 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
 
@@ -250,7 +251,9 @@ internal sealed class SettingsPage : BasePage
 
     private async void BackButtonClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("///" + nameof(TimerPage));
+        // Back navigation reverses animation so can keep right to left
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync("..");
     }
 
     protected override async void OnAppearing()

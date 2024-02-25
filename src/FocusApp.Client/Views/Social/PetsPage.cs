@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Markup.LeftToRight;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using System.Runtime.CompilerServices;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -630,6 +631,8 @@ internal sealed class PetsPage : BasePage
 
     private async void BackButtonClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("///" + nameof(SocialPage));
+        // Back navigation reverses animation so can keep right to left
+        Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
     }
 }

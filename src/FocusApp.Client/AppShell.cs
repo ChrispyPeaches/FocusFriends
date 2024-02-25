@@ -11,6 +11,7 @@ using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using FocusApp.Shared.Data;
 using Microsoft.EntityFrameworkCore;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client;
 
@@ -19,7 +20,12 @@ public class AppShell : SimpleShell
     List<Button> tabButtons;
     public AppShell()
     {
-        // Create tabs, all pages must exist in a tab and be added to the tab bar to be navigated to
+        // Register routes to any side pages
+        Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
+
+        this.SetTransition(Transitions.RightToLeftPlatformTransition);
+
+        // Create tabs, tab pages must exist in a tab and be added to the tab bar to be navigated to
         var shopTab = new Tab()
         {
             Title = "ShopPage",
@@ -58,34 +64,13 @@ public class AppShell : SimpleShell
                      Title = "SocialPage",
                      ContentTemplate = new DataTemplate(typeof(SocialPage)),
                      Route = "SocialPage"
-                }
-            }
-        };
-        var settingsTab = new Tab()
-        {
-            Title = "SettingsPage",
-            Route = "SettingsPage",
-            Items =
-            {
+                },
+
                 new ShellContent()
                 {
-                     Title = "SettingsPage",
-                     ContentTemplate = new DataTemplate(typeof(SettingsPage)),
-                     Route = "SettingsPage"
-                }
-            }
-        };
-        var petsTab = new Tab()
-        {
-            Title = "PetsPage",
-            Route = "PetsPage",
-            Items =
-            {
-                new ShellContent()
-                {
-                    Title = "PetsPage",
-                    ContentTemplate = new DataTemplate(typeof(PetsPage)),
-                    Route = "PetsPage"
+                     Title = "PetsPage",
+                     ContentTemplate = new DataTemplate(typeof(PetsPage)),
+                     Route = "PetsPage"
                 }
             }
         };
@@ -193,8 +178,6 @@ public class AppShell : SimpleShell
         tabbar.Items.Add(timerTab);
         tabbar.Items.Add(shopTab);
         tabbar.Items.Add(socialTab);
-        tabbar.Items.Add(settingsTab);
-        tabbar.Items.Add(petsTab);
         Items.Add(tabbar);
     }
 
@@ -217,6 +200,33 @@ public class AppShell : SimpleShell
 
         // Navigate to a new tab if it is not the current tab
         if (!CurrentState.Location.OriginalString.Contains(shellItem.Route))
-            await GoToAsync($"///{shellItem.Route}");
+        {
+            // Determine navigation animation
+            switch (shellItem.Route)
+            {
+                case "ShopPage":
+                    this.SetTransition(Transitions.LeftToRightPlatformTransition);
+                    break;
+                case "TimerPage":
+                    if (Shell.Current.CurrentItem.CurrentItem.Route == "ShopPage")
+                    {
+                        this.SetTransition(Transitions.RightToLeftPlatformTransition);
+                    }
+                    else if (Shell.Current.CurrentItem.CurrentItem.Route == "SocialPage")
+                    {
+                        this.SetTransition(Transitions.LeftToRightPlatformTransition);
+                    }
+                    break;
+                case "SocialPage":
+                    this.SetTransition(Transitions.RightToLeftPlatformTransition);
+                    break;
+                // default animation is simple fade in
+                default:
+                    this.SetTransition(null);
+                    break;
+            }
+
+            await GoToAsync($"///{shellItem.Route}", true);
+        }
     }
 }
