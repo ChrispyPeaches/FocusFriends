@@ -74,6 +74,20 @@ public class AppShell : SimpleShell
                 }
             }
         };
+        var loginTab = new Tab()
+        {
+            Title = "LoginPage",
+            Route = "LoginPage",
+            Items =
+            {
+                new ShellContent()
+                {
+                    Title = "LoginPage",
+                    ContentTemplate = new DataTemplate(typeof(LoginPage)),
+                    Route = "LoginPage"
+                }
+            }
+        };
 
         // Create buttons and add to button list
         #region Buttons
@@ -175,6 +189,7 @@ public class AppShell : SimpleShell
 
         // Tabs must be added to the tab bar in order to be routed
         var tabbar = new TabBar() { Title = "Tabbar", Route = "Tab" };
+        tabbar.Items.Add(loginTab);
         tabbar.Items.Add(timerTab);
         tabbar.Items.Add(shopTab);
         tabbar.Items.Add(socialTab);

@@ -15,6 +15,7 @@ using SimpleToolkit.SimpleShell;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
+using Auth0.OidcClient;
 
 namespace FocusApp.Client
 {
@@ -46,6 +47,18 @@ namespace FocusApp.Client
             builder.Logging.AddDebug();
 #endif
 
+            builder.Services.AddSingleton<MainPage>();
+
+            builder.Services.AddSingleton(new Auth0Client(new()
+            {
+                Domain = "dev-7c8vyxbx5myhzmji.us.auth0.com",
+                ClientId = "PR3eHq0ehapDGtpYyLl5XFhd1mOQX9uD",
+                RedirectUri = "myapp://callback",
+                PostLogoutRedirectUri = "myapp://callback",
+                Scope = "openid profile email"
+            }));
+
+
             return builder.Build();
         }
 
@@ -74,6 +87,9 @@ namespace FocusApp.Client
             // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
             services.AddSingleton<Helpers.PopupService>();
+
+            // Singleton User Data
+            services.AddSingleton<IAuthenticationService, AuthenticationService>();
 
             return services;
         }
