@@ -27,7 +27,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUse
 // Register DbContext
 builder.Services.AddDbContext<FocusContext>(options =>
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        options.UseSqlServer(builder.Configuration["DefaultConnectionString"]);
     });
 
 var app = builder.Build();
