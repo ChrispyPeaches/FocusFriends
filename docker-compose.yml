@@ -20,6 +20,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Test
       ASPNETCORE_HTTP_PORTS: 8080
       ASPNETCORE_HTTPS_PORTS: 8081
+    env_file:
+      - stack.env
   FocusApiDb:
     container_name: FocusApiDbContainer
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -27,3 +29,5 @@ services:
       - 8002:1433
     environment:
       - ACCEPT_EULA=Y
+    env_file:
+      - stack.env
