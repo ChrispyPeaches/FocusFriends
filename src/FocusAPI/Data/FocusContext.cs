@@ -19,6 +19,6 @@ public class FocusContext : DbContext
     {
         // No SQL server conneciton yet
         // Better alternative for SQL Server connection https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
-        optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=FocusFriendsDevTest;Integrated Security=True;Trust Server Certificate=True");
+        optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=FocusFriendsDevTest;Integrated Security=True;");
     }
 }
