@@ -7,6 +7,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusCore.Queries.User;
 using SimpleToolkit.SimpleShell.Extensions;
+using Auth0.OidcClient;
 
 namespace FocusApp.Client.Views;
 
@@ -14,6 +15,7 @@ internal class TimerPage : BasePage
 {
     private ITimerService _timerService;
     private IDispatcherTimer? _timeStepperTimer;
+    private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
     IAPIClient _client;
     private bool loggedIn;
@@ -24,12 +26,13 @@ internal class TimerPage : BasePage
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(IAPIClient client, ITimerService timerService, IAuthenticationService authenticationService)
+    public TimerPage(IAPIClient client, ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService)
     {
         string selectedText = "";
         _client = client;
         _authenticationService = authenticationService;
         _timerService = timerService;
+        auth0Client = authClient;
 
         Island islandPlaceholder = new Island()
         {
@@ -44,11 +47,13 @@ internal class TimerPage : BasePage
             HeightRequest = 90
         };
 
-        // LoginButton
+        // Login/Logout Button
+        // This is placed here and not in the grid so the text
+        //  can be dynamically updated
         LogButton = new Button
         {
             Text = selectedText,
-            BindingContext = _timerService,
+            BackgroundColor = AppStyles.Palette.Celeste,
             TextColor = Colors.Black,
             CornerRadius = 20
         }
@@ -57,23 +62,15 @@ internal class TimerPage : BasePage
         .Top()
         .Right()
         .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
-        .Bind(BackgroundColorProperty,
-            getter: static (ITimerService th) => th.ToggleTimerButtonBackgroudColor)
         .Invoke(button => button.Released += (sender, eventArgs) =>
         {
         if (loggedIn)
         {
-            Console.WriteLine(loggedIn);
-            Console.WriteLine("Logout");
-            Console.WriteLine("TimerPage: " + _authenticationService.AuthToken);
-
+            OnLogoutClicked(sender, eventArgs);
         }
         else
         {
-            Console.WriteLine(loggedIn);
-            Console.WriteLine("Login");
-            Console.WriteLine("TimerPage: " + _authenticationService.AuthToken);
-            LoginButtonClicked(sender, eventArgs);
+            OnLoginClicked(sender, eventArgs);
         };
         });
 
@@ -264,9 +261,17 @@ internal class TimerPage : BasePage
         await Shell.Current.GoToAsync("///" + nameof(SettingsPage));
     }
 
-    private async void LoginButtonClicked(object sender, EventArgs e)
+    private async void OnLoginClicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("///" + nameof(LoginPage));
+    }
+
+    private async void OnLogoutClicked(object sender, EventArgs e)
+    {
+        var logoutResult = await auth0Client.LogoutAsync();
+        _authenticationService.AuthToken = "";
+
+        await Shell.Current.GoToAsync($"///" + nameof(LoginPage));
     }
 
     protected override async void OnAppearing()
@@ -276,7 +281,6 @@ internal class TimerPage : BasePage
         loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
         selectedText = loggedIn ? "Logout" : "Login";
         LogButton.Text = selectedText;
-        Console.WriteLine(selectedText);
     }
 
 }

@@ -21,49 +21,75 @@ internal class LoginPage : BasePage
         auth0Client = authClient;
         _authenticationService = authenticationService;
 
+        var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
+        var rnd = new Random();
+
         Content = new Grid
         {
-            RowDefinitions = Rows.Define(60, 120, 80, 80, 80, 80, Star),
+            RowDefinitions = Rows.Define(200, 100, 100, 80, 80, Star, 50),
             ColumnDefinitions = Columns.Define(Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
             Children =
             {
-				// Skip Login Button
+                // Pet Image
+                new Image
+                {
+                    Source = pets[rnd.Next(0, pets.Count)],
+                    WidthRequest = 150,
+                    HeightRequest = 150
+                }
+                .Row(0)
+                .Center()
+                .Bottom(),
+
+                // Label
+                new Label
+                {
+                    Text = "Focus Friends",
+                    TextColor = Colors.Black,
+                }
+                .Row(1)
+                .Center()
+                .Font(size: 40).Margins(top: 10, bottom: 10, left: 10, right: 10),
+
+                // Login/Signup Button
 				new Button
                 {
-                    Text = "Skip",
+                    Text = "Login/Signup",
                     TextColor = Colors.Black,
                     CornerRadius = 20,
                     BackgroundColor = AppStyles.Palette.Celeste
                 }
-                .Row(0)
-                .Top()
-                .Right()
-                .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
+                .Row(3)
+                .CenterHorizontal()
+                .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    OnLoginClicked(sender, eventArgs)),
+
+				// Skip Login Button
+				new Button
+                {
+                    Text = "Continue Without Login",
+                    TextColor = Colors.Black,
+                    CornerRadius = 20,
+                    BackgroundColor = AppStyles.Palette.Celeste
+                }
+                .Row(4)
+                .CenterHorizontal()
+                .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
                 .Invoke(button => button.Released += (sender, eventArgs) =>
                     SkipButtonClicked(sender, eventArgs)),
 
-				// Login Text
-				new Label
+                // Logo 
+                new Image
                 {
-                    Text = "Login",
-                    TextColor = Colors.Black,
-                    FontSize = 40
+                    Source = "logo.png",
+                    WidthRequest = 75,
+                    HeightRequest = 75,
                 }
-                .Row(2)
-                .Center(),
-
-				// Google sign in button
-				new ImageButton
-                {
-                    Source = "g_sign_in"
-                }
-                .Row(3)
+                .Row(5)
                 .Center()
-				// Logic when clicked
-				.Invoke(button => button.Released += (sender, eventArgs) =>
-                    OnLoginClicked(sender, eventArgs)),
             }
         };
     }
