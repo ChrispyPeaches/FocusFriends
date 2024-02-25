@@ -27,4 +27,3 @@ services:
       - 8002:1433
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=testPassword_#123
