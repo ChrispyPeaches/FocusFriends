@@ -2,9 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusCore.Models;
-
-[Table("Pets")]
-public abstract class BasePet
+[Table("Sounds")]
+public class BaseSound
 {
     [Key]
     public Guid Id { get; set; }
@@ -13,4 +12,5 @@ public abstract class BasePet
 
     public required string Name { get; set; } = null!;
     public byte[] Image { get; set; }
+    // Todo: Add sound file to database
 }
