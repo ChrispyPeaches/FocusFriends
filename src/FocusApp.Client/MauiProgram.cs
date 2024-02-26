@@ -47,8 +47,6 @@ namespace FocusApp.Client
             builder.Logging.AddDebug();
 #endif
 
-            builder.Services.AddSingleton<MainPage>();
-
             builder.Services.AddSingleton(new Auth0Client(new()
             {
                 Domain = "dev-7c8vyxbx5myhzmji.us.auth0.com",
