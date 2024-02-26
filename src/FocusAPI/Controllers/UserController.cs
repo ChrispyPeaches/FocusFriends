@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using FocusCore.Commands.User;
 using FocusCore.Queries.User;
-using FocusCore.Models.User;
+using FocusAPI.Models;
+using FocusCore.Models;
 
 namespace FocusAPI.Controllers
 {
@@ -20,7 +21,7 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<UserModel> GetUser([FromQuery] GetUserQuery query)
+        public async Task<BaseUser> GetUser([FromQuery] GetUserQuery query)
         {
             return await _mediator.Send(new GetUserQuery { Id = query.Id });
         }

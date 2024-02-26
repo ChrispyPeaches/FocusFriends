@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusCore.Models;
 
-[Table("Pets")]
-public abstract class BasePet
+[Table("Furniture")]
+public abstract class BaseFurniture
 {
     [Key]
     public Guid Id { get; set; }

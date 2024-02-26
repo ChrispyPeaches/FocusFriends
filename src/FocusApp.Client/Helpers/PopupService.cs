@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Maui.Views;
+using FocusApp.Client.Views.Shop;
 
 namespace FocusApp.Client.Helpers
 {
     public interface IPopupService
     {
         void ShowPopup<T>() where T : Popup;
+        Popup ShowAndGetPopup<T>() where T : Popup;
         void HidePopup();
         void HideAllPopups();
     }
@@ -32,6 +34,22 @@ namespace FocusApp.Client.Helpers
             var popup = _services.GetRequiredService<T>();
             mainPage.ShowPopup<T>(popup);
             _popups.Push(popup);
+        }
+
+        /// <summary>
+        /// Show popup and return the object for populating with shop data
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        /// <exception cref="MissingMethodException"></exception>
+        public Popup ShowAndGetPopup<T>() where T : Popup
+        {
+            var mainPage = App.Current?.MainPage ?? throw new MissingMethodException("Main page is null");
+            var popup = _services.GetRequiredService<T>();
+            mainPage.ShowPopup<T>(popup);
+            _popups.Push(popup);
+            return popup;
         }
 
         public void HidePopup()

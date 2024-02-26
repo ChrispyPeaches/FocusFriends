@@ -3,6 +3,7 @@ using System;
 using FocusApp.Shared.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusApp.Shared.Migrations
 {
     [DbContext(typeof(FocusAppContext))]
-    partial class FocusAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240224004539_AddImageToPetsTable")]
+    partial class AddImageToPetsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
@@ -54,28 +57,6 @@ namespace FocusApp.Shared.Migrations
                     b.ToTable("Friendships");
                 });
 
-            modelBuilder.Entity("FocusApp.Shared.Models.Furniture", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("Image")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Price")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Furniture");
-                });
-
             modelBuilder.Entity("FocusApp.Shared.Models.Pet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -96,28 +77,6 @@ namespace FocusApp.Shared.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Pets");
-                });
-
-            modelBuilder.Entity("FocusApp.Shared.Models.Sound", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("Image")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Price")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sounds");
                 });
 
             modelBuilder.Entity("FocusApp.Shared.Models.User", b =>

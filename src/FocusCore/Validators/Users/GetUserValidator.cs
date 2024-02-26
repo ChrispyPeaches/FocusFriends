@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FocusCore.Commands.User;
 using FocusCore.Queries.User;
 
 namespace FocusCore.Validators.Users;

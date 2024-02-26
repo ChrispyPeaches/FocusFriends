@@ -1,5 +1,5 @@
 ﻿using FocusCore.Commands.User;
-using FocusCore.Models.User;
+using FocusAPI.Models;
 using MediatR;
 
 namespace FocusApi.Methods.User;
@@ -12,11 +12,12 @@ public class CreateUser
 
         public async Task<Unit> Handle(CreateUserCommand command, CancellationToken cancellationToken)
         {
-            UserModel user = new UserModel
+            /*
+            FocusAPI.Models.User user = new FocusAPI.Models.User
             {
-                Name = command.Name
+                Id = Guid.NewGuid()
             };
-
+            */
             // TODO: Insert new user into database
 
             return Unit.Value;
