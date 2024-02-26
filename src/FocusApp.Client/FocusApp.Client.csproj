@@ -67,6 +67,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Auth0.OidcClient.MAUI" Version="1.0.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
 		<PackageReference Include="CommunityToolkit.Maui.Markup" Version="4.0.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -86,11 +87,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Models\" />
+		<Folder Include="Models\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
+		<ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
 	</ItemGroup>
+
+	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">
+		<AndroidKeyStore>True</AndroidKeyStore>
+		<AndroidSigningKeyStore>ff.keystore</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>MyAppkey</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass>2x4WFl6FUbU3</AndroidSigningKeyPass>
+		<AndroidSigningStorePass>2x4WFl6FUbU3</AndroidSigningStorePass>
+	</PropertyGroup>
 
 </Project>
