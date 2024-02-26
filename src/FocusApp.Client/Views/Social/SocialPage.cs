@@ -110,7 +110,6 @@ internal class SocialPage : BasePage
 
     protected override async void OnAppearing()
     {
-        var user = await _client.GetUser(new GetUserQuery { Id = Guid.NewGuid() });
         base.OnAppearing();
     }
 
