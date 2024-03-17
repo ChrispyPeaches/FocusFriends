@@ -7,6 +7,7 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Views;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
+using FluentValidation;
+using FocusApp.Client.Configuration.PipelineBehaviors;
 
 namespace FocusApp.Client
 {
@@ -41,7 +44,8 @@ namespace FocusApp.Client
                 .RegisterRefitClient()
                 .RegisterServices()
                 .RegisterPages()
-                .RegisterPopups();
+                .RegisterPopups()
+                .RegisterMediatR();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -56,8 +60,17 @@ namespace FocusApp.Client
                 Scope = "openid profile email"
             }));
 
-
             return builder.Build();
+        }
+
+        /// <summary>Registers all the handlers, validators, and behaviors.</summary>
+        public static IServiceCollection RegisterMediatR(this IServiceCollection services, params Assembly[] assemblies)
+        {
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            return services;
         }
 
         private static IServiceCollection RegisterDatabaseContext(this IServiceCollection services)
