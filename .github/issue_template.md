@@ -1,8 +1,6 @@
 ## Problem
 <!--Add a description and the userstory prompt-->
 
-## Solution
-
 ## Definition of Done
 
 ## Subtasks
