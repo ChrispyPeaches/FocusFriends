@@ -5,9 +5,10 @@ using FocusApp.Client.Dtos;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
-using FocusCore.Queries.User;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
+using FocusApp.Client.Views.Shop;
+using FocusCore.Extensions;
 
 namespace FocusApp.Client.Views;
 
@@ -21,18 +22,21 @@ internal class TimerPage : BasePage
     private bool loggedIn;
     private string selectedText;
     Button LogButton;
+    Helpers.PopupService _popupService;
 
     enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(IAPIClient client, ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService)
+    public TimerPage(IAPIClient client, ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService)
     {
         string selectedText = "";
         _client = client;
         _authenticationService = authenticationService;
         _timerService = timerService;
         auth0Client = authClient;
+        _popupService = popupService;
+        bool showMindfulnessTipPopupOnStartSettingPlaceholder = true;
 
         Island islandPlaceholder = new Island()
         {
@@ -46,6 +50,11 @@ internal class TimerPage : BasePage
             ImagePath = "pet_cat_zero.png",
             HeightRequest = 90
         };
+
+        if (showMindfulnessTipPopupOnStartSettingPlaceholder)
+        {
+            this.Loaded += ShowMindfulnessTipPopup;
+        }
 
         // Login/Logout Button
         // This is placed here and not in the grid so the text
@@ -284,4 +293,14 @@ internal class TimerPage : BasePage
         LogButton.Text = selectedText;
     }
 
+    /// <summary>
+    /// Remove subscription to the Content.Loaded event so that the popup is only shown once on app startup,
+    /// then show and populate the mindfulness tip popup.
+    /// </summary>
+    private async void ShowMindfulnessTipPopup(object? sender, EventArgs e)
+    {
+        this.Loaded -= ShowMindfulnessTipPopup;
+        MindfulnessTipPopupInterface tipPopup = (MindfulnessTipPopupInterface)_popupService.ShowAndGetPopup<MindfulnessTipPopupInterface>();
+        await tipPopup.PopulatePopup(MindfulnessTipExtensions.FocusSessionRating.Good, default);
+    }
 }

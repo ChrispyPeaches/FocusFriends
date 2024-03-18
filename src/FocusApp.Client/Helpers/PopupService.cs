@@ -54,7 +54,10 @@ namespace FocusApp.Client.Helpers
 
         public void HidePopup()
         {
-            _popups.Pop().Close();
+            if (_popups.Count > 0)
+            {
+                _popups.Pop().Close();
+            }
         }
 
         public void HideAllPopups()
