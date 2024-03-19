@@ -7,7 +7,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
-using FocusApp.Client.Views.Shop;
+using FocusApp.Client.Views.Mindfulness;
 using FocusCore.Extensions;
 
 namespace FocusApp.Client.Views;
@@ -23,6 +23,7 @@ internal class TimerPage : BasePage
     private string selectedText;
     Button LogButton;
     Helpers.PopupService _popupService;
+    private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
 
     enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
@@ -36,7 +37,7 @@ internal class TimerPage : BasePage
         _timerService = timerService;
         auth0Client = authClient;
         _popupService = popupService;
-        bool showMindfulnessTipPopupOnStartSettingPlaceholder = true;
+        _showMindfulnessTipPopupOnStartSettingPlaceholder = true;
 
         Island islandPlaceholder = new Island()
         {
@@ -51,17 +52,12 @@ internal class TimerPage : BasePage
             HeightRequest = 90
         };
 
-        if (showMindfulnessTipPopupOnStartSettingPlaceholder)
-        {
-            this.Loaded += ShowMindfulnessTipPopup;
-        }
-
         // Login/Logout Button
         // This is placed here and not in the grid so the text
         //  can be dynamically updated
         LogButton = new Button
         {
-            Text = selectedText,
+            Text = _selectedText,
             BackgroundColor = AppStyles.Palette.Celeste,
             TextColor = Colors.Black,
             CornerRadius = 20
@@ -266,7 +262,7 @@ internal class TimerPage : BasePage
         }
     }
 
-        private async void SettingsButtonClicked(object sender, EventArgs e)
+    private async void SettingsButtonClicked(object sender, EventArgs e)
         {
             Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
             await Shell.Current.GoToAsync($"///{nameof(TimerPage)}/{nameof(SettingsPage)}");
@@ -291,16 +287,21 @@ internal class TimerPage : BasePage
         loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
         selectedText = loggedIn ? "Logout" : "Login";
         LogButton.Text = selectedText;
+        if (_showMindfulnessTipPopupOnStartSettingPlaceholder)
+        {
+            await Task.Run(ShowMindfulnessTipPopup);
+        }
     }
 
     /// <summary>
     /// Remove subscription to the Content.Loaded event so that the popup is only shown once on app startup,
     /// then show and populate the mindfulness tip popup.
     /// </summary>
-    private async void ShowMindfulnessTipPopup(object? sender, EventArgs e)
+    private async void ShowMindfulnessTipPopup()
     {
-        this.Loaded -= ShowMindfulnessTipPopup;
-        MindfulnessTipPopupInterface tipPopup = (MindfulnessTipPopupInterface)_popupService.ShowAndGetPopup<MindfulnessTipPopupInterface>();
-        await tipPopup.PopulatePopup(MindfulnessTipExtensions.FocusSessionRating.Good, default);
+        Thread.Sleep(1000);
+        MindfulnessTipPopupInterface tipPopup =
+            (MindfulnessTipPopupInterface)_popupService.ShowAndGetPopup<MindfulnessTipPopupInterface>();
+        await tipPopup?.PopulatePopup(MindfulnessTipExtensions.FocusSessionRating.Good, default)!;
     }
 }
