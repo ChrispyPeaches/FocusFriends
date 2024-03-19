@@ -10,7 +10,7 @@ using MediatR;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.LifecycleEvents;
 
-namespace FocusApp.Client.Views.Shop
+namespace FocusApp.Client.Views.Mindfulness
 {
 
     internal class MindfulnessTipPopupInterface : BasePopup
@@ -93,12 +93,16 @@ namespace FocusApp.Client.Views.Shop
             // Display tip
             if (tip != null)
             {
-                _popupContent.Children.Add(
-                    new WebView()
-                        {
-                            Source = new HtmlWebViewSource() { Html = tip.Content }
-                        }
-                        .Row(Row.TipDisplay));
+                WebView tipContent = new WebView()
+                    {
+                        Source = new HtmlWebViewSource() { Html = tip.Content }
+                    }
+                    .Row(Row.TipDisplay);
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    _popupContent.Children.Add(tipContent);
+                });
             }
             else
             {
