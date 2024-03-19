@@ -1,0 +1,33 @@
+version: '3.4'
+
+networks:
+  FocusApiNetwork:
+
+services:
+  FocusApi:
+    container_name: FocusApiContainer
+    image: ghcr.io/chrispypeaches/focusfriends/focusapi:test
+    ports:
+      - 25565:8080
+      - 25566:8081
+    build:
+      context: .
+      dockerfile: src/FocusAPI/Dockerfile
+    depends_on:
+      - FocusApiDb
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: Test
+      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_HTTPS_PORTS: 8081
+    env_file:
+      - stack.env
+  FocusApiDb:
+    container_name: FocusApiDbContainer
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 8002:1433
+    environment:
+      - ACCEPT_EULA=Y
+    env_file:
+      - stack.env
