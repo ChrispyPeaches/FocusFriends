@@ -43,11 +43,11 @@ namespace FocusApp.Client.DevHttp
 #endif
 
 #if ANDROID
-            services.AddRefitClient<IAPIClient>();
-            services.AddHttpClient(name, client =>
-            {
-                client.BaseAddress = new UriBuilder("https", DevServerName, sslPort).Uri;
-            })
+            services.AddRefitClient<IAPIClient>()
+                .ConfigureHttpClient(client =>
+                {
+                    client.BaseAddress = new UriBuilder("https", DevServerName, sslPort).Uri;
+                })
                 .ConfigurePrimaryHttpMessageHandler(() =>
                 {
                     var handler = new CustomAndroidMessageHandler();
