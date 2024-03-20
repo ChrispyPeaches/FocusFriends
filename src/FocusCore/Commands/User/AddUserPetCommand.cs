@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FocusCore.Models;
+using MediatR;
 
 namespace FocusCore.Commands.User;
 public class AddUserPetCommand : IRequest<Unit>

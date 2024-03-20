@@ -16,6 +16,20 @@ public class AddUserFurniture
 
         public async Task<Unit> Handle(AddUserFurnitureCommand command, CancellationToken cancellationToken)
         {
+            FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
+            FocusAPI.Models.Furniture furniture = _context.Furniture.First(f => f.Id == command.FurnitureId);
+
+            _context.UserFurniture.Add(new UserFurniture
+            {
+                User = user,
+                Furniture = furniture,
+                DateAcquired = DateTime.UtcNow,
+            });
+
+            user.Balance = command.UpdatedBalance;
+
+            await _context.SaveChangesAsync();
+
             return Unit.Value;
         }
     }
