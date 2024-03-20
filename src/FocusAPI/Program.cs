@@ -33,7 +33,10 @@ builder.Services.AddDbContext<FocusContext>(options =>
 var app = builder.Build();
 
 // Instantiate the DbContext so that the database is created if it doesn't exist
-_ = app.Services.GetService<FocusContext>();
+_ = app.Services
+    .CreateScope()
+    .ServiceProvider
+    .GetService<FocusContext>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsProduction())
