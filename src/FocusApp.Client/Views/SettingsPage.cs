@@ -1,12 +1,10 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using Microsoft.Maui.Controls.Shapes;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
+using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
-using FocusCore.Queries.User;
 using SimpleToolkit.SimpleShell.Extensions;
-using Microsoft.Maui.Storage;
 
 namespace FocusApp.Client.Views;
 
@@ -17,18 +15,21 @@ internal sealed class SettingsPage : BasePage
     {
         _client = client;
 
-        // Defualt values for preferences
+        // Default values for preferences
         double sfxVolume = Preferences.Get("sfx_volume", 50.00);
         double ambianceVolume = Preferences.Get("ambiance_volume", 50.00);
         var isNotificationsEnabled = Preferences.Get("notifications_enabled", false);
-        var isDarkmodeEnabled = Preferences.Get("darkmode_enabled", false);
+        //var isDarkmodeEnabled = Preferences.Get("darkmode_enabled", false);
+        var isStartupTipsEnabled = Preferences.Get("startup_tips_enabled", true);
+        var isSessionRatingEnabled = Preferences.Get("session_rating_enabled", true);
 
         // Using grids
         Content = new Grid
         {
-            // Define the lenth of the rows & columns
-            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, Star),
+            // Define the length of the rows & columns
+            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, 70, Star),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
+            BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
             Children =
             {
@@ -100,8 +101,6 @@ internal sealed class SettingsPage : BasePage
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                // When the value is changed, save it & print for debug
-                //.Invoke(s => s.ValueChanged += (sender, e) => {sfxVolume = e.NewValue; Console.WriteLine($"SFX volume is {sfxVolume})");}),
                 .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Set("sfx_volume",e.NewValue);}),
 
 
@@ -129,8 +128,6 @@ internal sealed class SettingsPage : BasePage
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                // When the value is changed, save it & print for debug
-                //.Invoke(s => s.ValueChanged += (sender, e) => {ambianceVolume = e.NewValue; Console.WriteLine($"New volume is {ambianceVolume})");}),
                 .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Set("ambiance_volume", e.NewValue);}),
 
 
@@ -152,71 +149,95 @@ internal sealed class SettingsPage : BasePage
                 {
                     ThumbColor = Colors.SlateGrey,
                     OnColor = Colors.Green,
-                    IsToggled = Preferences.Get("notifications_enabled", false)
+                    IsToggled = isNotificationsEnabled
                 }
                 .Row(3)
-                .Column(3)
+                .Column(5)
                 .Left()
                 .CenterVertical()
-                //.Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Notifications Switch Tapped"); }),
                 .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("notifications_enabled", e.Value); }),
-
-                // Dark Mode
+                
+                
+                // Show Mindful Tips on Startup
                 new Label
-                {
-                    Text = "Dark Mode",
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(4)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
+                    {
+                        Text = "Show Tips on Startup",
+                        TextColor = Colors.Black,
+                        FontSize = 30
+                    }
+                    .Row(4)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(5),
 
-                // Dark Mode Switch
+                // Show Mindful Tips on Startup Switch
                 new Switch
-                {
-                    ThumbColor = Colors.SlateGrey,
-                    OnColor = Colors.Green,
-                    IsToggled = Preferences.Get("darkmode_enabled", false)
-                }
-                .Row(4)
-                .Column(3)
-                .Left()
-                .CenterVertical()
-                //.Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Dark Mode Switch Tapped"); }),
-                .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("darkmode_enabled", e.Value); }),
-
-
-                // Languages
+                    {
+                        ThumbColor = Colors.SlateGrey,
+                        OnColor = Colors.Green,
+                        IsToggled = isSessionRatingEnabled
+                    }
+                    .Row(4)
+                    .Column(5)
+                    .Left()
+                    .CenterVertical()
+                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("startup_tips_enabled", e.Value); }),
+                
+                
+                // Show Session Rating
                 new Label
-                {
-                    Text = "Languages",
-                    TextDecorations = TextDecorations.Underline,
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(5)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
+                    {
+                        Text = "Show Session Rating",
+                        TextColor = Colors.Black,
+                        FontSize = 30
+                    }
+                    .Row(5)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(5),
 
-                // There should be a way to transform this later into a hyperlink
-                // Invisible button for languages functionality
+                // Show Session Rating Switch
+                new Switch
+                    {
+                        ThumbColor = Colors.SlateGrey,
+                        OnColor = Colors.Green,
+                        IsToggled = isStartupTipsEnabled
+                    }
+                    .Row(5)
+                    .Column(5)
+                    .Left()
+                    .CenterVertical()
+                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("session_rating_enabled", e.Value); }),
+                
+                
+                // Tutorial
+                new Label
+                    {
+                        Text = "Tutorial", 
+                        TextDecorations = TextDecorations.Underline,
+                        TextColor = Colors.Black,
+                        FontSize = 30
+                    }
+                    .Row(6)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(3),
+
+                // Tutorial Button
                 new Button
-                {
-                    Opacity = 0
-                }
-                .Row(5)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3)
-                // When the button is pressed, print for debug
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Languages Button Tapped");}),
-
+                    {
+                        Opacity = 0
+                    }
+                    .Row(6)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(2)
+                    .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Tutorial Button Tapped");}),
+                
 
                 // About
                 new Label
@@ -226,31 +247,31 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(6)
+                .Row(7)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
-
-                // There should be a way to transform this later into a hyperlink
-                // Invisible button for languages functionality
+                
+                // About Button
                 new Button
                 {
                     Opacity = 0
                 }
-                .Row(6)
+                .Row(7)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(2)
                 .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");}),
 
+                
                 // Logo
                 new Image
                 {
                     Source = "logo.png"
                 }
-                .Row(7)
+                .Row(8)
                 .Column(2)
                 .Center()
             }
