@@ -27,6 +27,7 @@ namespace FocusApp.Client
             builder.UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMarkup()
+                .UseMauiCommunityToolkitMediaElement()
                 .UseSimpleShell()
                 .ConfigureFonts(fonts =>
                 {
