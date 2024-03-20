@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Maui.Converters;
-using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Methods.MindfulnessTip;
 using FocusApp.Client.Resources;
@@ -8,11 +7,8 @@ using FocusApp.Shared.Models;
 using FocusCore.Extensions;
 using MediatR;
 using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.LifecycleEvents;
-using FocusApp.Client.Helpers;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FocusApp.Client.Views.Mindfulness
 {
@@ -124,14 +120,12 @@ namespace FocusApp.Client.Views.Mindfulness
             {
                 // Handle exception
             }
-            Thread.Sleep(1000);
-            // Display tip or close popup if tip retrieval failed
+            
+            // Display tip and hide loading spinner or close popup if tip retrieval failed
             if (tip != null)
             {
-                TipHtmlSource = new HtmlWebViewSource() { Html = tip.Content };
-
-                // Stop displaying loading icon
                 IsBusy = false;
+                TipHtmlSource = new HtmlWebViewSource() { Html = tip.Content };
             }
             else
             {
