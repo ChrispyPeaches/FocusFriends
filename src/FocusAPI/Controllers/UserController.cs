@@ -21,9 +21,14 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<BaseUser> GetUser([FromQuery] GetUserQuery query)
+        public async Task<BaseUser> GetUserByAuth0Id([FromQuery] GetUserQuery query)
         {
-            return await _mediator.Send(new GetUserQuery { Id = query.Id });
+            return await _mediator.Send(new GetUserQuery
+            {
+                Auth0Id = query.Auth0Id,
+                Email = query.Email,
+                UserName = query.UserName
+            });
         }
 
         [HttpPost]

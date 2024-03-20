@@ -4,6 +4,7 @@ using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusAPI.Migrations
 {
     [DbContext(typeof(FocusContext))]
-    partial class FocusContextModelSnapshot : ModelSnapshot
+    [Migration("20240318230321_AddAuth0IdToUsers")]
+    partial class AddAuth0IdToUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,24 +192,6 @@ namespace FocusAPI.Migrations
                     b.ToTable("UserBadges");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserFurniture", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FurnitureId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("DateAcquired")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("UserId", "FurnitureId");
-
-                    b.HasIndex("FurnitureId");
-
-                    b.ToTable("UserFurniture");
-                });
-
             modelBuilder.Entity("FocusAPI.Models.UserPet", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -250,24 +235,6 @@ namespace FocusAPI.Migrations
                     b.ToTable("UserSessionHistory");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserSound", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SoundId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("DateAcquired")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("UserId", "SoundId");
-
-                    b.HasIndex("SoundId");
-
-                    b.ToTable("UserSounds");
-                });
-
             modelBuilder.Entity("FocusAPI.Models.Friendship", b =>
                 {
                     b.HasOne("FocusAPI.Models.User", "Friend")
@@ -306,25 +273,6 @@ namespace FocusAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserFurniture", b =>
-                {
-                    b.HasOne("FocusAPI.Models.Furniture", "Furniture")
-                        .WithMany()
-                        .HasForeignKey("FurnitureId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FocusAPI.Models.User", "User")
-                        .WithMany("Furniture")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Furniture");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FocusAPI.Models.UserPet", b =>
                 {
                     b.HasOne("FocusAPI.Models.Pet", "Pet")
@@ -355,38 +303,15 @@ namespace FocusAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserSound", b =>
-                {
-                    b.HasOne("FocusAPI.Models.Sound", "Sound")
-                        .WithMany()
-                        .HasForeignKey("SoundId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FocusAPI.Models.User", "User")
-                        .WithMany("Sounds")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Sound");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FocusAPI.Models.User", b =>
                 {
                     b.Navigation("Badges");
-
-                    b.Navigation("Furniture");
 
                     b.Navigation("Invitees");
 
                     b.Navigation("Inviters");
 
                     b.Navigation("Pets");
-
-                    b.Navigation("Sounds");
 
                     b.Navigation("UserSessions");
                 });

@@ -23,15 +23,17 @@ public class GetAllShopItems
 
             var petItems = pets.Select(p => new ShopItem
             {
+                Id = p.Id,
                 Name = p.Name,
                 Price = p.Price,
                 ImageSource = p.Image,
-                Type = ShopItemType.Pets
+                Type = ShopItemType.Pets,
             })
             .ToList();
 
             var furnitureItems = furniture.Select(f => new ShopItem
             {
+                Id = f.Id,
                 Name = f.Name,
                 Price = f.Price,
                 ImageSource = f.Image,
@@ -41,6 +43,7 @@ public class GetAllShopItems
 
             var soundItems = sounds.Select(s => new ShopItem
             {
+                Id = s.Id,
                 Name = s.Name,
                 Price = s.Price,
                 ImageSource = s.Image,

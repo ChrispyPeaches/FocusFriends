@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Models;
 using FocusCore.Queries.Shop;
@@ -15,20 +16,34 @@ namespace FocusApp.Client.Views.Shop
     internal class ShopPage : BasePage
     {
         IAPIClient _client;
+        IAuthenticationService _authenticationService;
         Helpers.PopupService _popupService;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
         CarouselView _furnitureCarouselView { get; set; }
 
+        public Label _balanceLabel { get; set; }
+
         #region Frontend
-        public ShopPage(IAPIClient client, Helpers.PopupService popupService)
+        public ShopPage(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService)
         {
             _client = client;
             _popupService = popupService;
+            _authenticationService = authenticationService;
 
             _petsCarouselView = BuildBaseCarouselView();
             _soundsCarouselView = BuildBaseCarouselView();
             _furnitureCarouselView = BuildBaseCarouselView();
+
+            // Currency text
+            _balanceLabel = new Label
+            {
+                Text = _authenticationService.CurrentUser.Balance.ToString(),
+                FontSize = 20,
+                HorizontalOptions = LayoutOptions.Start,
+                VerticalOptions = LayoutOptions.Center,
+            }
+            .Margins(left: 10, right: 10);
 
             Content = new StackLayout
             {
@@ -40,14 +55,7 @@ namespace FocusApp.Client.Views.Shop
                         Children =
                         { 
                             // Currency text
-                            new Label
-                            { 
-                                Text = "20",
-                                FontSize = 20,
-                                HorizontalOptions = LayoutOptions.Start,
-                                VerticalOptions = LayoutOptions.Center,
-                            }
-                            .Margins(left: 10, right: 10),
+                            _balanceLabel,
                             // Currency icon
                             new Image
                             { 
@@ -60,7 +68,7 @@ namespace FocusApp.Client.Views.Shop
                                 HorizontalOptions = LayoutOptions.Start,
                                 VerticalOptions = LayoutOptions.Center,
                             }
-                            .Margins(left:40, right:40),
+                            .Margins(left:60, right:40),
                             // Header
                             new Label
                             {
@@ -184,6 +192,8 @@ namespace FocusApp.Client.Views.Shop
             var shopItem = (ShopItem)itemButton.BindingContext;
 
             var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
+            // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
+            itemPopup.ShopPage = this;
             itemPopup.PopulatePopup(shopItem);
         }
 
@@ -192,6 +202,9 @@ namespace FocusApp.Client.Views.Shop
         #region Backend
         protected override async void OnAppearing()
         {
+            // Update user balance upon showing shop page
+            _balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
+
             List<ShopItem> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery());
 
             shopItems = shopItems.OrderBy(p => p.Price).ToList();

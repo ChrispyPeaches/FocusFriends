@@ -6,6 +6,8 @@ using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
+using System.Security.Claims;
+using FocusCore.Models;
 
 namespace FocusApp.Client.Views;
 
@@ -108,6 +110,25 @@ internal class LoginPage : BasePage
             _authenticationService.AuthToken = loginResult.AccessToken;
             Console.WriteLine("Login Page: " + _authenticationService.AuthToken);
 
+            var userIdentity = loginResult.User.Identity as ClaimsIdentity;
+            if (userIdentity != null)
+            {
+                IEnumerable<Claim> claims = userIdentity.Claims;
+
+                string auth0UserId = claims.First(c => c.Type == "sub").Value;
+                string userEmail = claims.First(c => c.Type == "email").Value;
+                string userName = claims.First(c => c.Type == "name").Value;
+
+                BaseUser user = await _client.GetUserByAuth0Id(new GetUserQuery
+                {
+                    Auth0Id = auth0UserId,
+                    Email = userEmail,
+                    UserName = userName
+                });
+
+                _authenticationService.CurrentUser = user;
+            }
+            
             await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
         }
         else
