@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
+using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
+using FocusCore.Commands.User;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace FocusApp.Client.Views.Shop
@@ -14,14 +16,16 @@ namespace FocusApp.Client.Views.Shop
         StackLayout _popupContentStack;
         IAuthenticationService _authenticationService;
         IFocusAppContext _localContext;
+        IAPIClient _client;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext)
+        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
+            _client = client;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -179,7 +183,16 @@ namespace FocusApp.Client.Views.Shop
                         UserId = _authenticationService.CurrentUser.Id,
                         Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
                     });
-                    
+
+                    // Add the user's pet to the server database
+                    // Note: This endpoint additionally updates the user's balance on the server
+                    await _client.AddUserPet(new AddUserPetCommand
+                    { 
+                        UserId = _authenticationService.CurrentUser.Id,
+                        PetId = _currentItem.Id,
+                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                    });
+
                     break;
 
                 case ShopItemType.Furniture:
@@ -202,6 +215,15 @@ namespace FocusApp.Client.Views.Shop
                     {
                         UserId = _authenticationService.CurrentUser.Id,
                         Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
+                    });
+
+                    // Add the user's furniture to the server database
+                    // Note: This endpoint additionally updates the user's balance on the server
+                    await _client.AddUserFurniture(new AddUserFurnitureCommand
+                    {
+                        UserId = _authenticationService.CurrentUser.Id,
+                        FurnitureId = _currentItem.Id,
+                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
                     });
 
                     break;
@@ -227,6 +249,18 @@ namespace FocusApp.Client.Views.Shop
                         UserId = _authenticationService.CurrentUser.Id,
                         Sound = _localContext.Sounds.First(s => s.Id == _currentItem.Id)
                     });
+
+                    // Add the user's sound to the server database
+                    // Note: This endpoint additionally updates the user's balance on the server
+                    // Note: Maybe this endpoint should return the sound as well? Would be less API calls overall
+                    await _client.AddUserSound(new AddUserSoundCommand
+                    {
+                        UserId = _authenticationService.CurrentUser.Id,
+                        SoundId = _currentItem.Id,
+                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                    });
+                    
+                    // TODO: Retreive the sound file from the server database, and store locally (or handle above?)
 
                     break;
                 default:

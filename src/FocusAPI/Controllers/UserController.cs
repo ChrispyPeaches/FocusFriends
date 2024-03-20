@@ -36,5 +36,26 @@ namespace FocusAPI.Controllers
         {
             await _mediator.Send(command);
         }
+
+        [HttpPost]
+        [Route("Pet")]
+        public async Task AddUserPet(AddUserPetCommand command)
+        {
+            await _mediator.Send(command);
+        }
+
+        [HttpPost]
+        [Route("Furniture")]
+        public async Task AddUserFurniture(AddUserFurnitureCommand command)
+        {
+            await _mediator.Send(command);
+        }
+
+        [HttpPost]
+        [Route("Sound")]
+        public async Task AddUserSound(AddUserSoundCommand command)
+        {
+            await _mediator.Send(command);
+        }
     }
 }
