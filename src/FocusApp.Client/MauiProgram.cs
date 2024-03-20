@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
+using FocusApp.Client.DevHttp;
 
 namespace FocusApp.Client
 {
@@ -73,9 +74,11 @@ namespace FocusApp.Client
 
         private static IServiceCollection RegisterRefitClient(this IServiceCollection services)
         {
-            services
+            /*services
                 .AddRefitClient<IAPIClient>()
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));*/
+
+            services.AddDevHttpClient("webapi", 7282);
 
             return services;
         }
