@@ -180,7 +180,7 @@ namespace FocusApp.Client.Views.Shop
                     // Add the user's new pet to the local database
                     _localContext.UserPets.Add(new UserPet
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
+                        User = (User)_authenticationService.CurrentUser,
                         Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
                     });
 
@@ -213,7 +213,7 @@ namespace FocusApp.Client.Views.Shop
                     // Add the user's new furniture to the local database
                     _localContext.UserFurniture.Add(new UserFurniture
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
+                        User = (User)_authenticationService.CurrentUser,
                         Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
                     });
 
@@ -246,7 +246,7 @@ namespace FocusApp.Client.Views.Shop
                     // Add the user's new sound to the local database
                     _localContext.UserSounds.Add(new UserSound
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
+                        User = (User)_authenticationService.CurrentUser,
                         Sound = _localContext.Sounds.First(s => s.Id == _currentItem.Id)
                     });
 
