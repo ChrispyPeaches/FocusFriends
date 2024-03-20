@@ -9,15 +9,38 @@ using FocusCore.Extensions;
 using MediatR;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.LifecycleEvents;
+using FocusApp.Client.Helpers;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FocusApp.Client.Views.Mindfulness
 {
 
-    internal class MindfulnessTipPopupInterface : BasePopup
+    internal class MindfulnessTipPopupInterface : BasePopup, INotifyPropertyChanged
     {
         private Helpers.PopupService _popupService;
         Grid _popupContent;
         private readonly IMediator _mediator;
+
+        private HtmlWebViewSource _tipHtmlSource;
+        public HtmlWebViewSource TipHtmlSource
+        {
+            get => _tipHtmlSource;
+            private set => SetProperty(ref _tipHtmlSource, value);
+        }
+
+        /// <summary>
+        /// Determines whether to show the loading spinner or not.
+        /// </summary>
+        private bool isBusy;
+        public bool IsBusy
+        {
+            get => isBusy;
+            private set => SetProperty(ref isBusy, value);
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         enum Row { TopBar, TipDisplay}
 
@@ -29,33 +52,11 @@ namespace FocusApp.Client.Views.Mindfulness
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
+
             Color = Colors.Transparent;
 
-            _popupContent = new Grid()
-            {
-                RowDefinitions = GridRowsColumns.Rows.Define(
-                    (Row.TopBar, 50),
-                    (Row.TipDisplay, GridRowsColumns.Stars(1))
-                ),
-                Children =
-                {
-                    // Dismiss Popup Button
-                    new Button
-                        {
-                            Text = SolidIcons.x,
-                            TextColor = Colors.Black,
-                            FontFamily = nameof(SolidIcons),
-                            FontSize = 20,
-                            BackgroundColor = Colors.Transparent
-                        }
-                        .Right()
-                        .CenterVertical()
-                        .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                        .Row(Row.TopBar)
-                        // When clicked, close the popup
-                        .Invoke(button => button.Released += OnDismissPopup),
-                }
-            };
+            TipHtmlSource = new HtmlWebViewSource() { Html = "" };
+            IsBusy = true;
 
             Content = new Border
             {
@@ -64,16 +65,53 @@ namespace FocusApp.Client.Views.Mindfulness
                 BackgroundColor = Colors.White,
                 WidthRequest = 360,
                 HeightRequest = 460,
-                Content = _popupContent
-            };
+                Content = new Grid()
+                {
+                    RowDefinitions = GridRowsColumns.Rows.Define(
+                        (Row.TopBar, 50),
+                        (Row.TipDisplay, GridRowsColumns.Stars(1))
+                    ),
+                    Children =
+                    {
+                        // Dismiss Popup Button
+                        new Button
+                            {
+                                Text = SolidIcons.x,
+                                TextColor = Colors.Black,
+                                FontFamily = nameof(SolidIcons),
+                                FontSize = 20,
+                                BackgroundColor = Colors.Transparent
+                            }
+                            .ZIndex(1)
+                            .Right()
+                            .CenterVertical()
+                            .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                            .Row(Row.TopBar)
+                            // When clicked, close the popup
+                            .Invoke(button => button.Released += OnDismissPopup),
+                        new WebView()
+                            .ZIndex(1)
+                            .Row(Row.TipDisplay)
+                            .Bind(WebView.SourceProperty,
+                                getter: (MindfulnessTipPopupInterface popup) => popup.TipHtmlSource, source: this),
+                        new ActivityIndicator()
+                            {
+                                Color = AppStyles.Palette.OrchidPink
+                            }
+                            .ZIndex(2)
+                            .RowSpan(typeof(Row).GetEnumNames().Length)
+                            .Center()
+                            .Bind(ActivityIndicator.IsRunningProperty,
+                                getter: (MindfulnessTipPopupInterface popup) => popup.IsBusy, source: this)
+                    }
+                }
+        };
         }
 
         public async Task PopulatePopup(
             MindfulnessTipExtensions.FocusSessionRating sessionRating,
             CancellationToken cancellationToken)
         {
-            // Display loading icon
-
             // Get tip
             MindfulnessTip? tip = null;
             try
@@ -86,23 +124,14 @@ namespace FocusApp.Client.Views.Mindfulness
             {
                 // Handle exception
             }
-
-            // Stop displaying loading icon
-
-
-            // Display tip
+            Thread.Sleep(1000);
+            // Display tip or close popup if tip retrieval failed
             if (tip != null)
             {
-                WebView tipContent = new WebView()
-                    {
-                        Source = new HtmlWebViewSource() { Html = tip.Content }
-                    }
-                    .Row(Row.TipDisplay);
+                TipHtmlSource = new HtmlWebViewSource() { Html = tip.Content };
 
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    _popupContent.Children.Add(tipContent);
-                });
+                // Stop displaying loading icon
+                IsBusy = false;
             }
             else
             {
@@ -115,5 +144,25 @@ namespace FocusApp.Client.Views.Mindfulness
         {
             _popupService.HidePopup();
         }
+
+        #region Property Changed Notification Logic
+
+        private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
+        {
+            if (EqualityComparer<T>.Default.Equals(backingStore, value))
+            {
+                return;
+            }
+
+            backingStore = value;
+
+            OnPropertyChanged(propertyname);
+        }
+
+        void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        #endregion
+
     }
 }
