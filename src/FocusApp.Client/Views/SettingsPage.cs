@@ -6,6 +6,7 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using SimpleToolkit.SimpleShell.Extensions;
+using Microsoft.Maui.Storage;
 
 namespace FocusApp.Client.Views;
 
@@ -16,9 +17,11 @@ internal sealed class SettingsPage : BasePage
     {
         _client = client;
 
-        // Defualt volume values for the sliders
-        double sfxVolume = 50;
-        double ambianceVolume = 50;
+        // Defualt values for preferences
+        double sfxVolume = Preferences.Get("sfx_volume", 50.00);
+        double ambianceVolume = Preferences.Get("ambiance_volume", 50.00);
+        var isNotificationsEnabled = Preferences.Get("notifications_enabled", false);
+        var isDarkmodeEnabled = Preferences.Get("darkmode_enabled", false);
 
         // Using grids
         Content = new Grid
@@ -98,7 +101,8 @@ internal sealed class SettingsPage : BasePage
                 .CenterVertical()
                 .ColumnSpan(3)
                 // When the value is changed, save it & print for debug
-                .Invoke(s => s.ValueChanged += (sender, e) => {sfxVolume = e.NewValue; Console.WriteLine($"SFX volume is {sfxVolume})");}),
+                //.Invoke(s => s.ValueChanged += (sender, e) => {sfxVolume = e.NewValue; Console.WriteLine($"SFX volume is {sfxVolume})");}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Set("sfx_volume",e.NewValue);}),
 
 
                 // Ambiance
@@ -126,7 +130,8 @@ internal sealed class SettingsPage : BasePage
                 .CenterVertical()
                 .ColumnSpan(3)
                 // When the value is changed, save it & print for debug
-                .Invoke(s => s.ValueChanged += (sender, e) => {ambianceVolume = e.NewValue; Console.WriteLine($"New volume is {ambianceVolume})");}),
+                //.Invoke(s => s.ValueChanged += (sender, e) => {ambianceVolume = e.NewValue; Console.WriteLine($"New volume is {ambianceVolume})");}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Set("ambiance_volume", e.NewValue);}),
 
 
                 // Notifications
@@ -146,14 +151,15 @@ internal sealed class SettingsPage : BasePage
                 new Switch
                 {
                     ThumbColor = Colors.SlateGrey,
-                    OnColor = Colors.Green
+                    OnColor = Colors.Green,
+                    IsToggled = Preferences.Get("notifications_enabled", false)
                 }
                 .Row(3)
                 .Column(3)
                 .Left()
                 .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Notifications Switch Tapped"); }),
-
+                //.Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Notifications Switch Tapped"); }),
+                .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("notifications_enabled", e.Value); }),
 
                 // Dark Mode
                 new Label
@@ -172,13 +178,15 @@ internal sealed class SettingsPage : BasePage
                 new Switch
                 {
                     ThumbColor = Colors.SlateGrey,
-                    OnColor = Colors.Green
+                    OnColor = Colors.Green,
+                    IsToggled = Preferences.Get("darkmode_enabled", false)
                 }
                 .Row(4)
                 .Column(3)
                 .Left()
                 .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Dark Mode Switch Tapped"); }),
+                //.Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Dark Mode Switch Tapped"); }),
+                .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("darkmode_enabled", e.Value); }),
 
 
                 // Languages
@@ -254,6 +262,11 @@ internal sealed class SettingsPage : BasePage
         // Back navigation reverses animation so can keep right to left
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync("..");
+    }
+
+    private void SaveSwitchState(string key, bool val)
+    {
+        Preferences.Set(key, val);
     }
 
     protected override async void OnAppearing()
