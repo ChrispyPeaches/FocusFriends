@@ -27,7 +27,7 @@ internal sealed class SettingsPage : BasePage
         Content = new Grid
         {
             // Define the length of the rows & columns
-            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, 70, Star),
+            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, Star),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
@@ -77,33 +77,6 @@ internal sealed class SettingsPage : BasePage
                 .ColumnSpan(5),
 
 
-                // SFX
-                new Label
-                {
-                    Text = "SFX",
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(1)
-                .Column(0)
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .CenterVertical()
-                .ColumnSpan(3),
-
-                // SFX Slider
-                new Slider
-                {
-                    Maximum = 100,
-                    Value = sfxVolume,
-                    WidthRequest = 200,
-                }
-                .Row(1)
-                .Column(2)
-                .CenterVertical()
-                .ColumnSpan(3)
-                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Set("sfx_volume",e.NewValue);}),
-
-
                 // Ambiance
                 new Label
                 {
@@ -111,7 +84,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(2)
+                .Row(1)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -124,7 +97,7 @@ internal sealed class SettingsPage : BasePage
                     Value = ambianceVolume,
                     WidthRequest = 200
                 }
-                .Row(2)
+                .Row(1)
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
@@ -138,7 +111,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(3)
+                .Row(2)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -151,7 +124,7 @@ internal sealed class SettingsPage : BasePage
                     OnColor = Colors.Green,
                     IsToggled = isNotificationsEnabled
                 }
-                .Row(3)
+                .Row(2)
                 .Column(5)
                 .Left()
                 .CenterVertical()
@@ -165,7 +138,7 @@ internal sealed class SettingsPage : BasePage
                         TextColor = Colors.Black,
                         FontSize = 30
                     }
-                    .Row(4)
+                    .Row(3)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -178,7 +151,7 @@ internal sealed class SettingsPage : BasePage
                         OnColor = Colors.Green,
                         IsToggled = isSessionRatingEnabled
                     }
-                    .Row(4)
+                    .Row(3)
                     .Column(5)
                     .Left()
                     .CenterVertical()
@@ -192,7 +165,7 @@ internal sealed class SettingsPage : BasePage
                         TextColor = Colors.Black,
                         FontSize = 30
                     }
-                    .Row(5)
+                    .Row(4)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -205,7 +178,7 @@ internal sealed class SettingsPage : BasePage
                         OnColor = Colors.Green,
                         IsToggled = isStartupTipsEnabled
                     }
-                    .Row(5)
+                    .Row(4)
                     .Column(5)
                     .Left()
                     .CenterVertical()
@@ -220,7 +193,7 @@ internal sealed class SettingsPage : BasePage
                         TextColor = Colors.Black,
                         FontSize = 30
                     }
-                    .Row(6)
+                    .Row(5)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -231,7 +204,7 @@ internal sealed class SettingsPage : BasePage
                     {
                         Opacity = 0
                     }
-                    .Row(6)
+                    .Row(5)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -247,7 +220,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(7)
+                .Row(6)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -258,7 +231,7 @@ internal sealed class SettingsPage : BasePage
                 {
                     Opacity = 0
                 }
-                .Row(7)
+                .Row(6)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -271,7 +244,7 @@ internal sealed class SettingsPage : BasePage
                 {
                     Source = "logo.png"
                 }
-                .Row(8)
+                .Row(7)
                 .Column(2)
                 .Center()
             }
