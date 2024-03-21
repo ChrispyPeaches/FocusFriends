@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
+using FocusApp.Client.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -65,10 +66,24 @@ internal class SocialPage : BasePage
                 .Column(0)
                 .Padding(15, 15),
 
+                new Button
+                {
+                    BackgroundColor = Colors.Transparent,
+                    FontFamily = nameof(SolidIcons),
+                    TextColor = Colors.Black,
+                    Text = SolidIcons.PersonCirclePlus,
+                    FontSize = 35
+                }
+                .Row(0)
+                .Column(1)
+                .Left()
+                .Padding(15, 15)
+                .Invoke(b => b.Clicked += (s,e) => OnClickShowAddFriendsPopup(s,e)),
+
                 // Horizontal Divider
                 new BoxView
                 {
-                    Color = Color.Parse("Black"),
+                    Color = Colors.Black,
                     WidthRequest = 400,
                     HeightRequest = 2
                 }
@@ -92,7 +107,7 @@ internal class SocialPage : BasePage
                 .Right()
                 .Column(1)
                 .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
-                .Invoke(b => b.Clicked += (s,e) => OnClickShowPopup(s,e)),
+                .Invoke(b => b.Clicked += (s,e) => OnClickShowProfileInterfacePopup(s,e)),
 
                 // Friends List
                 new ListView
@@ -114,8 +129,14 @@ internal class SocialPage : BasePage
     }
 
     // Display navigation popup on hit
-    private void OnClickShowPopup(object sender, EventArgs e)
+    private void OnClickShowProfileInterfacePopup(object sender, EventArgs e)
     {
         _popupService.ShowPopup<ProfilePopupInterface>();
+    }
+
+    // Display new friend popup on hit
+    private void OnClickShowAddFriendsPopup(object sender, EventArgs e)
+    {
+        _popupService.ShowPopup<AddFriendPopupInterface>();
     }
 }
