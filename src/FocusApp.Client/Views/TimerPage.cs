@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Dtos;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
@@ -18,9 +17,8 @@ internal class TimerPage : BasePage
     private IDispatcherTimer? _timeStepperTimer;
     private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
-    IAPIClient _client;
     private bool loggedIn;
-    private string selectedText;
+    private string _selectedText;
     Button LogButton;
     Helpers.PopupService _popupService;
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
@@ -29,10 +27,9 @@ internal class TimerPage : BasePage
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(IAPIClient client, ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService)
+    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService)
     {
-        string selectedText = "";
-        _client = client;
+        _selectedText = "";
         _authenticationService = authenticationService;
         _timerService = timerService;
         auth0Client = authClient;
@@ -285,8 +282,8 @@ internal class TimerPage : BasePage
     {
         base.OnAppearing();
         loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
-        selectedText = loggedIn ? "Logout" : "Login";
-        LogButton.Text = selectedText;
+        _selectedText = loggedIn ? "Logout" : "Login";
+        LogButton.Text = _selectedText;
         if (_showMindfulnessTipPopupOnStartSettingPlaceholder)
         {
             await Task.Run(ShowMindfulnessTipPopup);
