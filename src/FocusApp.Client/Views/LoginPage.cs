@@ -5,6 +5,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using Auth0.OidcClient;
+using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Helpers;
 
 namespace FocusApp.Client.Views;
@@ -14,7 +15,8 @@ internal class LoginPage : BasePage
     IAPIClient _client;
     private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
-
+    private readonly IAudioService _audioService;
+    
     public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService)
     {
         _client = client;
@@ -80,7 +82,7 @@ internal class LoginPage : BasePage
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
                 .Invoke(button => button.Released += (sender, eventArgs) =>
                     SkipButtonClicked(sender, eventArgs)),
-
+                
                 // Logo 
                 new Image
                 {
@@ -89,6 +91,17 @@ internal class LoginPage : BasePage
                     HeightRequest = 75,
                 }
                 .Row(5)
+                .Center(),
+                
+                new MediaElement
+                {
+                    Source = MediaSource.FromResource("ambiance_placeholder.mp3"),
+                    IsVisible = false,
+                    ShouldAutoPlay = true,
+                    ShouldLoopPlayback = true,
+                    Volume = (Preferences.Get("ambiance_volume", 50.00) / 100)
+                }
+                .Row(0)
                 .Center()
             }
         };
@@ -98,7 +111,7 @@ internal class LoginPage : BasePage
     {
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
-
+    
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         var loginResult = await auth0Client.LoginAsync();

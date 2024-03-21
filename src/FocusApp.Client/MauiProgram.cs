@@ -80,7 +80,7 @@ namespace FocusApp.Client
 
             return services;
         }
-
+        
         private static IServiceCollection RegisterServices(this IServiceCollection services)
         {
             // Registered as a singleton so the timer is not reset by page navigation
@@ -89,6 +89,9 @@ namespace FocusApp.Client
 
             // Singleton User Data
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
+            
+            // Audio service
+            services.AddSingleton<IAudioService, AudioService>();
 
             return services;
         }
