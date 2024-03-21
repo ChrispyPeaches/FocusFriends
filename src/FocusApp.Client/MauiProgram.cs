@@ -80,7 +80,7 @@ namespace FocusApp.Client
             // This should connect to server hosted api once it is deployed under https
             services.AddHttpClient("webapi", client =>
             {
-                client.BaseAddress = new Uri("https://test.zenpxl.com:25566");
+                client.BaseAddress = new Uri("https://test.zenpxl.com:25565");
             });
 #endif
 
