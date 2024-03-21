@@ -50,7 +50,7 @@ internal class SocialPage : BasePage
             // Define rows and columns (Star means that row/column will take up the remaining space)
             RowDefinitions = Rows.Define(80, Star, Star, Star),
             ColumnDefinitions = Columns.Define(Star, Star),
-            BackgroundColor = Colors.LightGreen,
+            BackgroundColor = AppStyles.Palette.Celeste,
             Opacity = 0.9,
 
             Children =
