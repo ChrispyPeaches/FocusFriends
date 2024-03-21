@@ -13,7 +13,9 @@ public interface IAPIClient
     Task<User> GetUserByAuth0Id(GetUserQuery query);
 
     [Get("/Shop")]
-    Task<List<ShopItem>> GetAllShopItems(GetAllShopItemsQuery query, CancellationToken cancellationToken);
+    Task<List<ShopItem>> GetAllShopItems(
+        GetAllShopItemsQuery query,
+        CancellationToken cancellationToken);
 
     [Post("/User/Pet")]
     Task AddUserPet(AddUserPetCommand command);

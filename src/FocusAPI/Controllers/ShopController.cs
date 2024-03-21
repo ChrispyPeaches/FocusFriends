@@ -20,7 +20,7 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<ShopItem>> GetAllShopItems()
+        public async Task<List<ShopItem>> GetAllShopItems(CancellationToken cancellationToken)
         {
             return await _mediator.Send(new GetAllShopItemsQuery());
         }
