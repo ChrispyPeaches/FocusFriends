@@ -35,15 +35,17 @@ namespace FocusApp.Client.Views.Shop
             _soundsCarouselView = BuildBaseCarouselView();
             _furnitureCarouselView = BuildBaseCarouselView();
 
+
             // Currency text
             _balanceLabel = new Label
             {
-                Text = _authenticationService.CurrentUser.Balance.ToString(),
+                Text = _authenticationService.CurrentUser?.Balance.ToString(),
                 FontSize = 20,
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center,
             }
             .Margins(left: 10, right: 10);
+
 
             Content = new StackLayout
             {
@@ -203,8 +205,14 @@ namespace FocusApp.Client.Views.Shop
 
         protected override async void OnAppearing()
         {
+            if (_authenticationService.CurrentUser == null)
+            {
+                var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
+                loginPopup.OriginPage = nameof(ShopPage);
+            }
+
             // Update user balance upon showing shop page
-            _balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
+            _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
 
             // Note: This is temporary - will be made obsolete by shop item sync update
             List<ShopItem> shopItems;

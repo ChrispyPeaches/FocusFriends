@@ -98,6 +98,8 @@ internal class LoginPage : BasePage
 
     private async void SkipButtonClicked(object sender, EventArgs e)
     {
+        // If user skips login, set current user to null
+        _authenticationService.CurrentUser = null;
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
