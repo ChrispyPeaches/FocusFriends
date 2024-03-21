@@ -192,7 +192,7 @@ namespace FocusApp.Client.Views.Shop
         #region Backend
         protected override async void OnAppearing()
         {
-            List<ShopItem> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery());
+            List<ShopItem> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery(), default);
 
             shopItems = shopItems.OrderBy(p => p.Price).ToList();
 
