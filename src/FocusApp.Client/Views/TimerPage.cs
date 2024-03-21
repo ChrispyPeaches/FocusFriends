@@ -1,13 +1,13 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Dtos;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
-using FocusCore.Queries.User;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
+using FocusApp.Client.Views.Mindfulness;
+using FocusCore.Extensions;
 
 namespace FocusApp.Client.Views;
 
@@ -17,22 +17,24 @@ internal class TimerPage : BasePage
     private IDispatcherTimer? _timeStepperTimer;
     private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
-    IAPIClient _client;
     private bool loggedIn;
-    private string selectedText;
+    private string _selectedText;
     Button LogButton;
+    Helpers.PopupService _popupService;
+    private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
 
     enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(IAPIClient client, ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService)
+    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService)
     {
-        string selectedText = "";
-        _client = client;
+        _selectedText = "";
         _authenticationService = authenticationService;
         _timerService = timerService;
         auth0Client = authClient;
+        _popupService = popupService;
+        _showMindfulnessTipPopupOnStartSettingPlaceholder = true;
 
         Island islandPlaceholder = new Island()
         {
@@ -52,7 +54,7 @@ internal class TimerPage : BasePage
         //  can be dynamically updated
         LogButton = new Button
         {
-            Text = selectedText,
+            Text = _selectedText,
             BackgroundColor = AppStyles.Palette.Celeste,
             TextColor = Colors.Black,
             CornerRadius = 20
@@ -257,7 +259,7 @@ internal class TimerPage : BasePage
         }
     }
 
-        private async void SettingsButtonClicked(object sender, EventArgs e)
+    private async void SettingsButtonClicked(object sender, EventArgs e)
         {
             Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
             await Shell.Current.GoToAsync($"///{nameof(TimerPage)}/{nameof(SettingsPage)}");
@@ -280,8 +282,23 @@ internal class TimerPage : BasePage
     {
         base.OnAppearing();
         loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
-        selectedText = loggedIn ? "Logout" : "Login";
-        LogButton.Text = selectedText;
+        _selectedText = loggedIn ? "Logout" : "Login";
+        LogButton.Text = _selectedText;
+        if (_showMindfulnessTipPopupOnStartSettingPlaceholder)
+        {
+            await Task.Run(ShowMindfulnessTipPopup);
+        }
     }
 
+    /// <summary>
+    /// Remove subscription to the Content.Loaded event so that the popup is only shown once on app startup,
+    /// then show and populate the mindfulness tip popup.
+    /// </summary>
+    private async void ShowMindfulnessTipPopup()
+    {
+        Thread.Sleep(1000);
+        MindfulnessTipPopupInterface tipPopup =
+            (MindfulnessTipPopupInterface)_popupService.ShowAndGetPopup<MindfulnessTipPopupInterface>();
+        await tipPopup?.PopulatePopup(MindfulnessTipExtensions.FocusSessionRating.Good, default)!;
+    }
 }

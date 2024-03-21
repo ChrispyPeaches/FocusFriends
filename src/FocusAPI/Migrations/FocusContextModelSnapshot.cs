@@ -81,6 +81,29 @@ namespace FocusAPI.Migrations
                     b.ToTable("Furniture");
                 });
 
+            modelBuilder.Entity("FocusAPI.Models.MindfulnessTip", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SessionRatingLevel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MindfulnessTips");
+                });
+
             modelBuilder.Entity("FocusAPI.Models.Pet", b =>
                 {
                     b.Property<Guid>("Id")
