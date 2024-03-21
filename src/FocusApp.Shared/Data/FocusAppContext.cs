@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using FocusApp.Shared.Models;
+﻿using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Shared.Data;
 
@@ -21,6 +18,8 @@ public interface IFocusAppContext
     public DbSet<Sound> Sounds { get; set; }
     public DbSet<UserFurniture> UserFurniture { get; set; }
     public DbSet<UserSound> UserSounds { get; set; }
+    public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
+
 
     #endregion
 
@@ -42,6 +41,7 @@ public class FocusAppContext : DbContext, IFocusAppContext
     public DbSet<Sound> Sounds { get; set; }
     public DbSet<UserFurniture> UserFurniture { get; set; }
     public DbSet<UserSound> UserSounds { get; set; }
+    public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
 
     #endregion
 

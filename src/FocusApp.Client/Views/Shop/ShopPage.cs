@@ -222,7 +222,7 @@ namespace FocusApp.Client.Views.Shop
             }
             else
             {
-                shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery());
+                shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery(), default);
             }
             
             // TODO: Replace above logic with fetch from local database

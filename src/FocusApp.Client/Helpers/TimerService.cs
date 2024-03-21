@@ -8,6 +8,7 @@ using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using FocusApp.Client.Views.Mindfulness;
 
 namespace FocusApp.Client.Helpers;
 
@@ -68,6 +69,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
     private FocusAppContext _context;
     private DateTimeOffset? _currentSessionStartTime;
     private User _currentUser;
+    private Helpers.PopupService _popupService;
 
     #endregion
 
@@ -131,9 +133,10 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         };
     }
 
-    public TimerService(FocusAppContext context)
+    public TimerService(FocusAppContext context, Helpers.PopupService popupService)
     {
         _context = context;
+        _popupService = popupService;
 
         _timerDisplay = new TimerDto();
         _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
@@ -199,6 +202,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
                 ToggleTimerButtonText = "Start Break";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
                 AreStepperButtonsVisible = true;
+                ShowSessionRatingPopup();
                 break;
 
             case TimerState.BreakCountdown:
@@ -257,6 +261,12 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         currencyEarned = currencyEarned <= 0 ? 0 : currencyEarned;
 
         return currencyEarned;
+    }
+
+
+    public async void ShowSessionRatingPopup()
+    {
+        _popupService.ShowPopup<SessionRatingPopupInterface>();
     }
 
     /// <summary>
