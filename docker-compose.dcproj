@@ -10,8 +10,6 @@
     <DockerServiceName>focusapi</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="certs\domain.cert.pem" />
-    <None Include="certs\private.key.pem" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>

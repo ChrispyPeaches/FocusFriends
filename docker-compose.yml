@@ -22,10 +22,6 @@ services:
       ASPNETCORE_HTTPS_PORTS: 8081
     env_file:
       - stack.env
-    command:
-      --ssl
-      --sslcert /certs/domain.cert.pem 
-      --sslkey /certs/private.key.pem
   FocusApiDb:
     container_name: FocusApiDbContainer
     image: mcr.microsoft.com/mssql/server:2022-latest
