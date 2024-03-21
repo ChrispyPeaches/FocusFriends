@@ -101,7 +101,8 @@ namespace FocusApp.Client.Views.Mindfulness
                                 getter: (MindfulnessTipPopupInterface popup) => popup.IsBusy, source: this)
                     }
                 }
-        };
+            }
+            .Padding(horizontalSize: 10, verticalSize: 0);
         }
 
         public async Task PopulatePopup(
