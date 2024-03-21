@@ -16,10 +16,8 @@ internal sealed class SettingsPage : BasePage
         _client = client;
 
         // Default values for preferences
-        double sfxVolume = Preferences.Get("sfx_volume", 50.00);
         double ambianceVolume = Preferences.Get("ambiance_volume", 50.00);
         var isNotificationsEnabled = Preferences.Get("notifications_enabled", false);
-        //var isDarkmodeEnabled = Preferences.Get("darkmode_enabled", false);
         var isStartupTipsEnabled = Preferences.Get("startup_tips_enabled", true);
         var isSessionRatingEnabled = Preferences.Get("session_rating_enabled", true);
 
