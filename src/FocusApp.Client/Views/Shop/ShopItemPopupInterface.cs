@@ -159,11 +159,7 @@ namespace FocusApp.Client.Views.Shop
 
                     // If the local database currently does not have the pet, store it now
 
-                    //  Note: This is not ideal - I think on first login, we should cache all this info
-                    //        and pull these items from the local database.
-                    //        This would mean calling the GetAllShopItems api endpoint once on first login
-                    //        or if the database does not have the shop items after login.
-                    //        (Story for another day)
+                    // Note: This check will be made obsolete after the shop item sync update
                     if (!_localContext.Pets.Any(p => p.Id == _currentItem.Id))
                     {
                         _localContext.Pets.Add(new Pet
@@ -197,6 +193,7 @@ namespace FocusApp.Client.Views.Shop
 
                 case ShopItemType.Furniture:
 
+                    // Note: This check will be made obsolete after the shop item sync update
                     if (!_localContext.Furniture.Any(f => f.Id == _currentItem.Id))
                     {
                         _localContext.Furniture.Add(new Furniture
@@ -230,6 +227,7 @@ namespace FocusApp.Client.Views.Shop
 
                 case ShopItemType.Sounds:
 
+                    // Note: This check will be made obsolete after the shop item sync update
                     if (!_localContext.Sounds.Any(s => s.Id == _currentItem.Id))
                     {
                         _localContext.Sounds.Add(new Sound
@@ -252,15 +250,13 @@ namespace FocusApp.Client.Views.Shop
 
                     // Add the user's sound to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
-                    // Note: Maybe this endpoint should return the sound as well? Would be less API calls overall
+                    // If time allows, we will store the sound files on the server, and fetch/store them after purchase
                     await _client.AddUserSound(new AddUserSoundCommand
                     {
                         UserId = _authenticationService.CurrentUser.Id,
                         SoundId = _currentItem.Id,
                         UpdatedBalance = _authenticationService.CurrentUser.Balance,
                     });
-                    
-                    // TODO: Retreive the sound file from the server database, and store locally (or handle above?)
 
                     break;
                 default:
