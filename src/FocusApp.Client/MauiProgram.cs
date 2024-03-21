@@ -19,6 +19,7 @@ using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
+using FocusApp.Client.Methods.Sync;
 
 namespace FocusApp.Client
 {
@@ -59,6 +60,8 @@ namespace FocusApp.Client
                 PostLogoutRedirectUri = "myapp://callback",
                 Scope = "openid profile email"
             }));
+
+            Task.Run(() => StartupSync(builder.Services));
 
             return builder.Build();
         }
@@ -137,6 +140,28 @@ namespace FocusApp.Client
             }
 
             return services;
+        }
+
+        private static async Task StartupSync(IServiceCollection services)
+        {
+            try
+            {
+                var serviceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                FocusAppContext context = serviceProvider.GetRequiredService<FocusAppContext>();
+                IAPIClient client = serviceProvider.GetRequiredService<IAPIClient>();
+
+                var syncMindfulnessTips = new SyncMindfulnessTips.Handler(context, client);
+
+                await syncMindfulnessTips.Handle(new SyncMindfulnessTips.Query(), new CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                Console.Write(ex);
+            }
         }
     }
 }
