@@ -6,6 +6,8 @@ using FocusApp.Client.Clients;
 using FocusCore.Queries.User;
 using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
+using Plugin.Maui.Audio;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 
 namespace FocusApp.Client.Views;
 
@@ -14,12 +16,15 @@ internal class LoginPage : BasePage
     IAPIClient _client;
     private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
+    private readonly IAudioManager audioManager;
 
-    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService)
+    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService, IAudioManager audioManager)
     {
         _client = client;
         auth0Client = authClient;
         _authenticationService = authenticationService;
+
+        this.audioManager = audioManager;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
@@ -118,7 +123,12 @@ internal class LoginPage : BasePage
 
     protected override async void OnAppearing()
     {
+        double ambiantVolume = Preferences.Get("ambience_volume", 50);
         base.OnAppearing();
+        var player = audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("ambience_placeholder.mp3"));
+        player.Volume = (ambiantVolume / 100);
+        //player.Loop = true;
+        player.Play();
     }
 }
 

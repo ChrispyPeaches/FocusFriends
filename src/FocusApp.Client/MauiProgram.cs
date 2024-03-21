@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
+using Plugin.Maui.Audio;
 
 namespace FocusApp.Client
 {
@@ -88,6 +89,9 @@ namespace FocusApp.Client
 
             // Singleton User Data
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
+
+            // Maui Audio
+            services.AddSingleton(AudioManager.Current);
 
             return services;
         }
