@@ -13,31 +13,18 @@ namespace FocusApp.Client.DevHttp
         /// Adds the <see cref="IHttpClientFactory"/> and related services to the <see cref="IServiceCollection"/> and configures
         /// a named <see cref="HttpClient"/> to use localhost or 10.0.2.2 and bypass certificate checking on Android.
         /// </summary>
-        /// <param name="name">name</param>
         /// <param name="sslPort">Development server port</param>
         /// <returns>The IServiceCollection</returns>
-        /// <remarks>
-        /// <para>
-        /// https://github.com/dotnet/maui/discussions/8131
-        /// </para>
-        /// <para>
-        /// https://gist.github.com/Eilon/49e3c5216abfa3eba81e453d45cba2d4
-        /// by https://gist.github.com/Eilon
-        /// </para>
-        /// <para>
-        /// https://gist.github.com/EdCharbeneau/ed3d44d8298319c201f276de7a0580f1
-        /// by https://gist.github.com/EdCharbeneau
-        /// </para>
-        /// </remarks>
-        public static IServiceCollection AddDevHttpClient(this IServiceCollection services, string name, int sslPort)
+        public static IServiceCollection AddDevHttpClient(this IServiceCollection services, int sslPort)
         {
             var devServerRootUrl = new UriBuilder("https", DevServerName, sslPort).Uri.ToString();
 
 #if WINDOWS
-            services.AddHttpClient(name, client =>
-            {
-                client.BaseAddress = new UriBuilder("https", DevServerName, sslPort).Uri;
-            }); 
+            services.AddRefitClient<IAPIClient>()
+                .ConfigureHttpClient(client =>
+                {
+                    client.BaseAddress = new UriBuilder("https", DevServerName, sslPort).Uri;
+                }); 
             
             return services;
 #endif
@@ -67,6 +54,7 @@ namespace FocusApp.Client.DevHttp
 #endif
         }
 
+        // Configure the host name (Android always use 10.0.2.2, which is an alias to the host's loopback interface aka 127.0.0.1 or localhost)
         public static string DevServerName =>
 #if WINDOWS
         "localhost";

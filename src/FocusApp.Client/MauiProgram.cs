@@ -74,11 +74,15 @@ namespace FocusApp.Client
 
         private static IServiceCollection RegisterRefitClient(this IServiceCollection services)
         {
-            /*services
-                .AddRefitClient<IAPIClient>()
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://10.0.2.2:5223"));*/
-
-            services.AddDevHttpClient("webapi", 7282);
+#if DEBUG
+            services.AddDevHttpClient(7282);
+#else
+            // This should connect to server hosted api once it is deployed under https
+            services.AddHttpClient("webapi", client =>
+            {
+                client.BaseAddress = new Uri("https://test.zenpxl.com:25565");
+            });
+#endif
 
             return services;
         }
