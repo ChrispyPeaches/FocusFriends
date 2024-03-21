@@ -5,7 +5,6 @@ using FocusAPI.Data;
 using FocusCore.Validators.Users;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace FocusAPI;
 
