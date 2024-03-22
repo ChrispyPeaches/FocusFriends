@@ -24,3 +24,10 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "FocusAPI.dll"]
+
+# Copy SSL certificate and private key
+COPY ["certs/domain.cert.pem", "/app/certs/"]
+COPY ["certs/private.key.pem", "/app/certs/"]
+
+# Set entrypoint with SSL certificate and private key paths
+ENTRYPOINT ["dotnet", "FocusAPI.dll", "--ssl-cert=/app/certs/domain.cert.pem", "--ssl-key=/app/certs/private.key.pem"]
