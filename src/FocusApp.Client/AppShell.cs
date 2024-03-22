@@ -17,7 +17,7 @@ namespace FocusApp.Client;
 
 public class AppShell : SimpleShell
 {
-    List<Button> tabButtons;
+    public List<Button> tabButtons { get; set; }
     public AppShell()
     {
         // Register routes to any side pages

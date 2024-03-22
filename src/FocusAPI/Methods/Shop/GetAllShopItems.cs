@@ -17,37 +17,34 @@ public class GetAllShopItems
 
         public async Task<List<ShopItem>> Handle(GetAllShopItemsQuery query, CancellationToken cancellationToken)
         {
-            List<BasePet> pets = _context.Pets.OfType<BasePet>().ToList();
-            List<BaseFurniture> furniture = _context.Furniture.OfType<BaseFurniture>().ToList();
-            List<BaseSound> sounds = _context.Sounds.OfType<BaseSound>().ToList();
-
-            var petItems = pets.Select(p => new ShopItem
+            List<ShopItem> pets = _context.Pets.OfType<BasePet>().Select(p => new ShopItem
             {
+                Id = p.Id,
                 Name = p.Name,
                 Price = p.Price,
                 ImageSource = p.Image,
-                Type = ShopItemType.Pets
-            })
-            .ToList();
+                Type = ShopItemType.Pets,
+            }).ToList();
 
-            var furnitureItems = furniture.Select(f => new ShopItem
+            List<ShopItem> furniture = _context.Furniture.OfType<BaseFurniture>().Select(f => new ShopItem
             {
+                Id = f.Id,
                 Name = f.Name,
                 Price = f.Price,
                 ImageSource = f.Image,
                 Type = ShopItemType.Furniture
-            })
-            .ToList();
+            }).ToList();
 
-            var soundItems = sounds.Select(s => new ShopItem
+            List<ShopItem> sounds = _context.Sounds.OfType<BaseSound>().Select(s => new ShopItem
             {
+                Id = s.Id,
                 Name = s.Name,
                 Price = s.Price,
                 ImageSource = s.Image,
                 Type = ShopItemType.Sounds
             }).ToList();
 
-            return petItems.Concat(furnitureItems).Concat(soundItems).ToList();
+            return pets.Concat(furniture).Concat(sounds).ToList();
         }
     }
 }
