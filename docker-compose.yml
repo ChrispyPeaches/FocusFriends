@@ -10,6 +10,12 @@ services:
     ports:
       - 25565:8080
       - 25566:8081
+      - 443:9443 
+    volumes:
+      - '~/local-certs:/certs'
+    command:
+      --sslcert /certs/domain.cert.pem
+      --sslkey /certs/private.key.pem
     build:
       context: .
       dockerfile: src/FocusAPI/Dockerfile
