@@ -16,11 +16,11 @@ internal sealed class SettingsPage : BasePage
         _client = client;
 
         // Default values for preferences
-        double ambianceVolume = Preferences.Get("ambiance_volume", 50.00);
-        var isNotificationsEnabled = Preferences.Get("notifications_enabled", false);
-        var isStartupTipsEnabled = Preferences.Get("startup_tips_enabled", true);
-        var isSessionRatingEnabled = Preferences.Get("session_rating_enabled", true);
-
+        double ambianceVolume = Preferences.Default.Get("ambiance_volume", 50.00);
+        var isNotificationsEnabled = Preferences.Default.Get("notifications_enabled", false);
+        var isStartupTipsEnabled = Preferences.Default.Get("startup_tips_enabled", true);
+        var isSessionRatingEnabled = Preferences.Default.Get("session_rating_enabled", true);
+        
         // Using grids
         Content = new Grid
         {
@@ -99,7 +99,7 @@ internal sealed class SettingsPage : BasePage
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Set("ambiance_volume", e.NewValue);}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Default.Set("ambiance_volume", e.NewValue);}),
 
 
                 // Notifications
@@ -258,7 +258,7 @@ internal sealed class SettingsPage : BasePage
 
     private void SaveSwitchState(string key, bool val)
     {
-        Preferences.Set(key, val);
+        Preferences.Default.Set(key, val);
     }
 
     protected override async void OnAppearing()
