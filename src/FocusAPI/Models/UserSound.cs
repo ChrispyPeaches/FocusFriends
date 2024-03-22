@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 namespace FocusAPI.Models;
-public class UserPet : FocusCore.Models.BaseUserPet
+public class UserSound : FocusCore.Models.BaseUserSound
 {
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new User? User { get; set; }
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public new Pet? Pet { get; set; }
+    public new Sound? Sound { get; set; }
 }

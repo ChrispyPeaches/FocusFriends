@@ -8,6 +8,7 @@ namespace FocusCore.Models
 {
     public class ShopItem
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public byte[] ImageSource { get; set; }
         public ShopItemType Type { get; set; }

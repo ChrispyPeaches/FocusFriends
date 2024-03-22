@@ -1,34 +1,51 @@
 ﻿using System.Diagnostics;
-using System.Xml;
 using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
+using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Queries.Shop;
-using FocusCore.Queries.User;
-using Microsoft.Maui.Controls;
 
 namespace FocusApp.Client.Views.Shop
 {
     internal class ShopPage : BasePage
     {
         IAPIClient _client;
+        IAuthenticationService _authenticationService;
+        FocusAppContext _localContext;
         Helpers.PopupService _popupService;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
         CarouselView _furnitureCarouselView { get; set; }
 
+        public Label _balanceLabel { get; set; }
+
         #region Frontend
-        public ShopPage(IAPIClient client, Helpers.PopupService popupService)
+
+        public ShopPage(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService, FocusAppContext localContext)
         {
             _client = client;
             _popupService = popupService;
+            _authenticationService = authenticationService;
+            _localContext = localContext;
 
             _petsCarouselView = BuildBaseCarouselView();
             _soundsCarouselView = BuildBaseCarouselView();
             _furnitureCarouselView = BuildBaseCarouselView();
+
+
+            // Currency text
+            _balanceLabel = new Label
+            {
+                Text = _authenticationService.CurrentUser?.Balance.ToString(),
+                FontSize = 20,
+                HorizontalOptions = LayoutOptions.Start,
+                VerticalOptions = LayoutOptions.Center,
+            }
+            .Margins(left: 10, right: 10);
+
 
             Content = new StackLayout
             {
@@ -40,14 +57,7 @@ namespace FocusApp.Client.Views.Shop
                         Children =
                         { 
                             // Currency text
-                            new Label
-                            { 
-                                Text = "20",
-                                FontSize = 20,
-                                HorizontalOptions = LayoutOptions.Start,
-                                VerticalOptions = LayoutOptions.Center,
-                            }
-                            .Margins(left: 10, right: 10),
+                            _balanceLabel,
                             // Currency icon
                             new Image
                             { 
@@ -60,7 +70,7 @@ namespace FocusApp.Client.Views.Shop
                                 HorizontalOptions = LayoutOptions.Start,
                                 VerticalOptions = LayoutOptions.Center,
                             }
-                            .Margins(left:40, right:40),
+                            .Margins(left:60, right:40),
                             // Header
                             new Label
                             {
@@ -184,15 +194,39 @@ namespace FocusApp.Client.Views.Shop
             var shopItem = (ShopItem)itemButton.BindingContext;
 
             var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
+            // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
+            itemPopup.ShopPage = this;
             itemPopup.PopulatePopup(shopItem);
         }
 
         #endregion
 
         #region Backend
+
         protected override async void OnAppearing()
         {
-            List<ShopItem> shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery(), default);
+            if (_authenticationService.CurrentUser == null)
+            {
+                var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
+                loginPopup.OriginPage = nameof(ShopPage);
+            }
+
+            // Update user balance upon showing shop page
+            _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
+
+            // Note: This is temporary - will be made obsolete by shop item sync update
+            List<ShopItem> shopItems;
+            if (ShopItemsFetched())
+            {
+                shopItems = GetLocalShopItems();
+            }
+            else
+            {
+                shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery(), default);
+            }
+            
+            // TODO: Replace above logic with fetch from local database
+            //List<ShopItem> shopItems = GetAllShopItems();
 
             shopItems = shopItems.OrderBy(p => p.Price).ToList();
 
@@ -201,6 +235,48 @@ namespace FocusApp.Client.Views.Shop
             _furnitureCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Furniture);
 
             base.OnAppearing();
+        }
+
+        // Note: This is temporary - will be made obsolete by shop item sync update
+        private bool ShopItemsFetched()
+        {
+            return 
+                   _localContext.Pets.Count() == 6
+                && _localContext.Furniture.Count() == 6
+                && _localContext.Sounds.Count() == 6;
+        }
+
+        // Gather shop items from local database, and convert to ShopItem objects
+        private List<ShopItem> GetLocalShopItems()
+        {
+            List<ShopItem> pets = _localContext.Pets.Select(p => new ShopItem
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                ImageSource = p.Image,
+                Type = ShopItemType.Pets,
+            }).ToList();
+
+            List<ShopItem> furniture = _localContext.Furniture.Select(f => new ShopItem
+            {
+                Id = f.Id,
+                Name = f.Name,
+                Price = f.Price,
+                ImageSource = f.Image,
+                Type = ShopItemType.Furniture
+            }).ToList();
+
+            List<ShopItem> sounds = _localContext.Sounds.Select(s => new ShopItem
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Price = s.Price,
+                ImageSource = s.Image,
+                Type = ShopItemType.Sounds
+            }).ToList();
+
+            return pets.Concat(furniture).Concat(sounds).ToList();
         }
 
         #endregion

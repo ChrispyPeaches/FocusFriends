@@ -133,10 +133,13 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         };
     }
 
-    public TimerService(FocusAppContext context, Helpers.PopupService popupService)
+    IAuthenticationService _authenticationService;
+
+    public TimerService(FocusAppContext context, Helpers.PopupService popupService, IAuthenticationService authenticationService)
     {
         _context = context;
         _popupService = popupService;
+        _authenticationService = authenticationService;
 
         _timerDisplay = new TimerDto();
         _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
@@ -149,7 +152,8 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
             UserName = "TestUser",
             Id = Guid.Parse("d77aa5fc-eed4-495e-b568-85ed7c8d7e64"),
             Balance = 0,
-            Email = "testemail@test.com"
+            Email = "testemail@test.com",
+            Auth0Id = "auth0epic"
         };
 
         TimeLeft = _lastFocusTimerDuration;
@@ -224,11 +228,12 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         DateTimeOffset? endTime = _currentSessionStartTime + TimeSpan.FromMinutes(_lastFocusTimerDuration);
 
         int currencyEarned = CalculateCurrencyEarned(endTime);
+
         
         User? user = await _context.Users
             .Include(u => u.UserSessions)
             .FirstOrDefaultAsync(u => u.Id == _currentUser.Id);
-
+        
         // Temporarily used only for testing purposes
         if (user == null)
         {

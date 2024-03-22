@@ -12,7 +12,11 @@ public class User : FocusCore.Models.BaseUser
 
 	public new ICollection<UserPet>? Pets { get; set; }
 
-	public new ICollection<UserBadge>? Badges { get; set; }
+    public new ICollection<UserFurniture>? Furniture { get; set; }
+
+    public new ICollection<UserSound>? Sounds { get; set; }
+
+    public new ICollection<UserBadge>? Badges { get; set; }
 
 	public new ICollection<UserSession>? UserSessions { get; set; }
 }
