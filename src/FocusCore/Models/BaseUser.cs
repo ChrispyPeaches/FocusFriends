@@ -11,6 +11,7 @@ public abstract class BaseUser
 {
 	[Key]
 	public Guid Id { get; set; }
+    public string Auth0Id { get; set; }
 
     [MaxLength(50)]
     public required string UserName { get; set; } = null!;
@@ -39,7 +40,11 @@ public abstract class BaseUser
 
 	public ICollection<BaseUserPet>? Pets { get; set; }
 
-	public ICollection<BaseUserBadge>? Badges { get; set; }
+    public ICollection<BaseUserFurniture>? Furniture { get; set; }
+
+    public ICollection<BaseUserSound>? Sounds { get; set; }
+
+    public ICollection<BaseUserBadge>? Badges { get; set; }
 
 	public ICollection<BaseUserSession>? UserSessions { get; set; }
 }

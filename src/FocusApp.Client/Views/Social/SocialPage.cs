@@ -12,18 +12,21 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
+using FocusApp.Client.Views.Shop;
+using FocusApp.Client.Helpers;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class SocialPage : BasePage
 {
     private Helpers.PopupService _popupService;
-
+    IAuthenticationService _authenticationService;
     IAPIClient _client { get; set; }
-	public SocialPage(IAPIClient client, Helpers.PopupService popupService)
+	public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
 	{
         _popupService = popupService;
         _client = client;
+        _authenticationService = authenticationService;
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
         for (int i = 0; i < 5; i++)
@@ -110,6 +113,12 @@ internal class SocialPage : BasePage
 
     protected override async void OnAppearing()
     {
+        if (_authenticationService.CurrentUser == null)
+        {
+            var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
+            loginPopup.OriginPage = nameof(SocialPage);
+        }
+
         base.OnAppearing();
     }
 

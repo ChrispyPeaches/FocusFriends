@@ -6,7 +6,7 @@ public class GetUserValidator : AbstractValidator<GetUserQuery>
 {
     public GetUserValidator()
     {
-        RuleFor(user => user.Id)
+        RuleFor(user => user.Auth0Id)
             .NotNull()
             .NotEmpty();
     }
