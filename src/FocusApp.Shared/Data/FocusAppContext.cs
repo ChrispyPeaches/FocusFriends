@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using FocusApp.Shared.Models;
+﻿using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Shared.Data;
 
@@ -19,6 +16,8 @@ public interface IFocusAppContext
     public DbSet<Friendship> Friends { get; set; }
     public DbSet<Furniture> Furniture { get; set; }
     public DbSet<Sound> Sounds { get; set; }
+    public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
+
 
     #endregion
 
@@ -38,6 +37,7 @@ public class FocusAppContext : DbContext, IFocusAppContext
     public DbSet<Friendship> Friends { get; set; }
     public DbSet<Furniture> Furniture { get; set; }
     public DbSet<Sound> Sounds { get; set; }
+    public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
 
     #endregion
 

@@ -32,7 +32,7 @@ namespace FocusApp.Client.Helpers
         {
             var mainPage = App.Current?.MainPage ?? throw new MissingMethodException("Main page is null");
             var popup = _services.GetRequiredService<T>();
-            mainPage.ShowPopup<T>(popup);
+            MainThread.BeginInvokeOnMainThread(() => mainPage.ShowPopup<T>(popup));
             _popups.Push(popup);
         }
 
@@ -47,21 +47,24 @@ namespace FocusApp.Client.Helpers
         {
             var mainPage = App.Current?.MainPage ?? throw new MissingMethodException("Main page is null");
             var popup = _services.GetRequiredService<T>();
-            mainPage.ShowPopup<T>(popup);
+            MainThread.BeginInvokeOnMainThread(() => mainPage.ShowPopup<T>(popup));
             _popups.Push(popup);
             return popup;
         }
 
         public void HidePopup()
         {
-            _popups.Pop().Close();
+            if (_popups.Count > 0)
+            {
+                MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
+            }
         }
 
         public void HideAllPopups()
         {
             while (_popups.Count > 0)
             {
-                _popups.Pop().Close();
+                MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
             }
         }
     }
