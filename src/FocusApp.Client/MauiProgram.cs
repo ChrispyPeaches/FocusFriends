@@ -7,6 +7,7 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Views;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,9 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
+using FluentValidation;
+using FocusApp.Client.Configuration.PipelineBehaviors;
+using FocusApp.Client.Methods.Sync;
 using FocusApp.Client.DevHttp;
 
 namespace FocusApp.Client
@@ -42,7 +46,8 @@ namespace FocusApp.Client
                 .RegisterRefitClient()
                 .RegisterServices()
                 .RegisterPages()
-                .RegisterPopups();
+                .RegisterPopups()
+                .RegisterMediatR();
 
 #if DEBUG
             builder.Logging.AddDebug();
@@ -57,8 +62,19 @@ namespace FocusApp.Client
                 Scope = "openid profile email"
             }));
 
+            Task.Run(() => StartupSync(builder.Services));
 
             return builder.Build();
+        }
+
+        /// <summary>Registers all the handlers, validators, and behaviors.</summary>
+        public static IServiceCollection RegisterMediatR(this IServiceCollection services, params Assembly[] assemblies)
+        {
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            return services;
         }
 
         private static IServiceCollection RegisterDatabaseContext(this IServiceCollection services)
@@ -131,6 +147,28 @@ namespace FocusApp.Client
             }
 
             return services;
+        }
+
+        private static async Task StartupSync(IServiceCollection services)
+        {
+            try
+            {
+                var serviceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                FocusAppContext context = serviceProvider.GetRequiredService<FocusAppContext>();
+                IAPIClient client = serviceProvider.GetRequiredService<IAPIClient>();
+
+                var syncMindfulnessTips = new SyncMindfulnessTips.Handler(context, client);
+
+                await syncMindfulnessTips.Handle(new SyncMindfulnessTips.Query(), new CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                Console.Write(ex);
+            }
         }
     }
 }

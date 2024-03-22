@@ -16,6 +16,7 @@ public class FocusContext : DbContext
     public DbSet<Friendship> Friends { get; set; }
     public DbSet<Furniture> Furniture { get; set; }
     public DbSet<Sound> Sounds { get; set; }
+    public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
 
     /// <summary>
     /// If the database isn't created, create it.
