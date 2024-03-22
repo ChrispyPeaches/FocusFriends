@@ -63,6 +63,8 @@ namespace FocusApp.Client
 
             Task.Run(() => StartupSync(builder.Services));
 
+            PreferenceRequest();
+
             return builder.Build();
         }
 
@@ -161,6 +163,22 @@ namespace FocusApp.Client
             {
                 Console.WriteLine("Error occurred when syncing mindfulness tips.");
                 Console.Write(ex);
+            }
+        }
+
+        private static void PreferenceRequest()
+        {
+            var keys = new List<string> { "ambiance_volume", "notifications_enabled", "startup_tips_enabled", "session_rating_enabled" };
+            var vals = new List<dynamic> { 50.00, false, true, true };
+
+            var pairs = keys.Zip(vals);
+
+            foreach (var pair in pairs)
+            {
+                if (!Preferences.Default.ContainsKey(pair.First))
+                {
+                    Preferences.Default.Set(pair.First, pair.Second);
+                }
             }
         }
     }
