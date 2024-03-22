@@ -284,10 +284,13 @@ internal class TimerPage : BasePage
         loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
         _selectedText = loggedIn ? "Logout" : "Login";
         LogButton.Text = _selectedText;
+
+        /*
         if (_showMindfulnessTipPopupOnStartSettingPlaceholder)
         {
             await Task.Run(ShowMindfulnessTipPopup);
         }
+        */
     }
 
     /// <summary>
