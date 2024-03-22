@@ -8,6 +8,7 @@ using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
 using FocusApp.Client.Views.Mindfulness;
 using FocusCore.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views;
 
@@ -22,19 +23,23 @@ internal class TimerPage : BasePage
     Button LogButton;
     Helpers.PopupService _popupService;
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
+    private readonly ILogger<TimerPage> _logger;
 
     enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService)
+    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService, ILogger<TimerPage> logger)
     {
         _selectedText = "";
         _authenticationService = authenticationService;
         _timerService = timerService;
         auth0Client = authClient;
         _popupService = popupService;
+        _logger = logger;
+
         _showMindfulnessTipPopupOnStartSettingPlaceholder = true;
+        Appearing += ShowMindfulnessTipPopup;
 
         Island islandPlaceholder = new Island()
         {
@@ -284,24 +289,29 @@ internal class TimerPage : BasePage
         loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
         _selectedText = loggedIn ? "Logout" : "Login";
         LogButton.Text = _selectedText;
-
-        /*
-        if (_showMindfulnessTipPopupOnStartSettingPlaceholder)
-        {
-            await Task.Run(ShowMindfulnessTipPopup);
-        }
-        */
     }
 
     /// <summary>
-    /// Remove subscription to the Content.Loaded event so that the popup is only shown once on app startup,
+    /// Remove subscription to the this.Appearing event so that the popup is only shown once on app startup,
     /// then show and populate the mindfulness tip popup.
     /// </summary>
-    private async void ShowMindfulnessTipPopup()
+    private async void ShowMindfulnessTipPopup(object? sender, EventArgs eventArgs)
     {
-        Thread.Sleep(1000);
-        MindfulnessTipPopupInterface tipPopup =
-            (MindfulnessTipPopupInterface)_popupService.ShowAndGetPopup<MindfulnessTipPopupInterface>();
-        await tipPopup?.PopulatePopup(MindfulnessTipExtensions.FocusSessionRating.Good, default)!;
+        try
+        {
+            await Task.Run(async () =>
+            {
+                Appearing -= ShowMindfulnessTipPopup;
+                Thread.Sleep(1000);
+                MindfulnessTipPopupInterface tipPopup =
+                    (MindfulnessTipPopupInterface)_popupService.ShowAndGetPopup<MindfulnessTipPopupInterface>();
+                await tipPopup?.PopulatePopup(MindfulnessTipExtensions.FocusSessionRating.Good, default)!;
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occured when showing and populating startup mindfulness tip.");
+        }
+        
     }
 }
