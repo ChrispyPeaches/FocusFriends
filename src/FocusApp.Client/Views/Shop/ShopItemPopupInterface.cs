@@ -155,7 +155,6 @@ namespace FocusApp.Client.Views.Shop
         {
             _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
-
             switch (_currentItem.Type)
             {
                 case ShopItemType.Pets:
@@ -187,12 +186,16 @@ namespace FocusApp.Client.Views.Shop
 
                     // Add the user's pet to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
-                    await _client.AddUserPet(new AddUserPetCommand
-                    { 
-                        UserId = _authenticationService.CurrentUser.Id,
-                        PetId = _currentItem.Id,
-                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                    });
+                    try
+                    {
+                        await _client.AddUserPet(new AddUserPetCommand
+                        {
+                            UserId = _authenticationService.CurrentUser.Id,
+                            PetId = _currentItem.Id,
+                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                        });
+                    }
+                    catch (Exception ex) { }
 
                     break;
 
@@ -224,12 +227,16 @@ namespace FocusApp.Client.Views.Shop
 
                     // Add the user's furniture to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
-                    await _client.AddUserFurniture(new AddUserFurnitureCommand
+                    try
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
-                        FurnitureId = _currentItem.Id,
-                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                    });
+                        await _client.AddUserFurniture(new AddUserFurnitureCommand
+                        {
+                            UserId = _authenticationService.CurrentUser.Id,
+                            FurnitureId = _currentItem.Id,
+                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                        });
+                    }
+                    catch (Exception ex) { }
 
                     break;
 
@@ -262,12 +269,16 @@ namespace FocusApp.Client.Views.Shop
                     // Add the user's sound to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
                     // If time allows, we will store the sound files on the server, and fetch/store them after purchase
-                    await _client.AddUserSound(new AddUserSoundCommand
+                    try
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
-                        SoundId = _currentItem.Id,
-                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                    });
+                        await _client.AddUserSound(new AddUserSoundCommand
+                        {
+                            UserId = _authenticationService.CurrentUser.Id,
+                            SoundId = _currentItem.Id,
+                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                        });
+                    }
+                    catch (Exception ex) { }
 
                     break;
                 default:
