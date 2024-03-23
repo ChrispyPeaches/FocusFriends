@@ -155,8 +155,6 @@ namespace FocusApp.Client.Views.Shop
         {
             _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
-            //User currentUser = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-            //User currentUser;
 
             switch (_currentItem.Type)
             {
@@ -179,11 +177,13 @@ namespace FocusApp.Client.Views.Shop
 
                     // Add the user's new pet to the local database
                     User user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-
-                    user.Pets.Add(new UserPet 
+                    user.Pets?.Add(new UserPet 
                     { 
                         Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
                     });
+
+                    // Update the user's balance on the local database
+                    user.Balance = _authenticationService.CurrentUser.Balance;
 
                     // Add the user's pet to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
@@ -214,11 +214,13 @@ namespace FocusApp.Client.Views.Shop
 
                     // Add the user's new furniture to the local database
                     user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-
-                    user.Furniture.Add(new UserFurniture
+                    user.Furniture?.Add(new UserFurniture
                     {
                         Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
                     });
+
+                    // Update the user's balance on the local database
+                    user.Balance = _authenticationService.CurrentUser.Balance;
 
                     // Add the user's furniture to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
@@ -249,11 +251,13 @@ namespace FocusApp.Client.Views.Shop
 
                     // Add the user's new sound to the local database
                     user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-
-                    user.Sounds.Add(new UserSound
+                    user.Sounds?.Add(new UserSound
                     {
                         Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
                     });
+
+                    // Update the user's balance on the local database
+                    user.Balance = _authenticationService.CurrentUser.Balance;
 
                     // Add the user's sound to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
