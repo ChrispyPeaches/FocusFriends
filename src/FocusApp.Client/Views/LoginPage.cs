@@ -10,6 +10,8 @@ using System.Security.Claims;
 using FocusCore.Models;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
+using Microsoft.Extensions.Logging;
+using IdentityModel.OidcClient;
 
 namespace FocusApp.Client.Views;
 
@@ -19,13 +21,15 @@ internal class LoginPage : BasePage
     private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
     FocusAppContext _localContext;
+    ILogger<LoginPage> _logger;
 
-    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService, FocusAppContext localContext)
+    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService, FocusAppContext localContext, ILogger<LoginPage> logger)
     {
         _client = client;
         auth0Client = authClient;
         _authenticationService = authenticationService;
         _localContext = localContext;
+        _logger = logger;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
@@ -109,43 +113,60 @@ internal class LoginPage : BasePage
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        var loginResult = await auth0Client.LoginAsync();
-
-        if (!loginResult.IsError)
+        try
         {
-            _authenticationService.AuthToken = loginResult.AccessToken;
-            Console.WriteLine("Login Page: " + _authenticationService.AuthToken);
+            // Initiate Auth0 login process
+            var loginResult = await auth0Client.LoginAsync();
 
-            var userIdentity = loginResult.User.Identity as ClaimsIdentity;
-            if (userIdentity != null)
+            if (!loginResult.IsError)
             {
-                IEnumerable<Claim> claims = userIdentity.Claims;
+                _authenticationService.AuthToken = loginResult.AccessToken;
 
-                string auth0UserId = claims.First(c => c.Type == "sub").Value;
-                string userEmail = claims.First(c => c.Type == "email").Value;
-                string userName = claims.First(c => c.Type == "name").Value;
-
-                User user = await _client.GetUserByAuth0Id(new GetUserQuery
+                var userIdentity = loginResult.User.Identity as ClaimsIdentity;
+                if (userIdentity != null)
                 {
-                    Auth0Id = auth0UserId,
-                    Email = userEmail,
-                    UserName = userName
-                });
+                    IEnumerable<Claim> claims = userIdentity.Claims;
 
-                _authenticationService.CurrentUser = user;
+                    string auth0UserId = claims.First(c => c.Type == "sub").Value;
+                    string userEmail = claims.First(c => c.Type == "email").Value;
+                    string userName = claims.First(c => c.Type == "name").Value;
 
-                if (!_localContext.Users.Any(u => u.Id == user.Id))
-                {
-                    _localContext.Users.Add(user);
-                    await _localContext.SaveChangesAsync();
+                    try
+                    {
+                        // Fetch user data from the server
+                        User user = await _client.GetUserByAuth0Id(new GetUserQuery
+                        {
+                            Auth0Id = auth0UserId,
+                            Email = userEmail,
+                            UserName = userName
+                        });
+
+                        // Set application's current user to user fetched from server
+                        _authenticationService.CurrentUser = user;
+
+                        // Add user to the local database if the user doesn't exist in the local database
+                        if (!_localContext.Users.Any(u => u.Id == user.Id))
+                        {
+                            _localContext.Users.Add(user);
+                            await _localContext.SaveChangesAsync();
+                        }
+                    }
+                    catch (Exception ex) 
+                    {
+                        _logger.Log(LogLevel.Error, "Error fetching user from server.");
+                    }
                 }
+
+                await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
             }
-            
-            await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+            else
+            {
+                await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
+            }
         }
-        else
+        catch (Exception ex) 
         {
-            await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
+            _logger.Log(LogLevel.Error, "Error during login process.");
         }
     }
 
