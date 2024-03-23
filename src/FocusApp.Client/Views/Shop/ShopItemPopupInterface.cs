@@ -32,6 +32,8 @@ namespace FocusApp.Client.Views.Shop
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
             Color = Colors.Transparent;
 
+            CanBeDismissedByTappingOutsideOfPopup = false;
+
             _popupContentStack = new StackLayout();
 
             Content = new Border
@@ -153,12 +155,14 @@ namespace FocusApp.Client.Views.Shop
         {
             _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
+            //User currentUser = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
+            //User currentUser;
+
             switch (_currentItem.Type)
             {
                 case ShopItemType.Pets:
 
                     // If the local database currently does not have the pet, store it now
-
                     // Note: This check will be made obsolete after the shop item sync update
                     if (!_localContext.Pets.Any(p => p.Id == _currentItem.Id))
                     {
@@ -172,11 +176,12 @@ namespace FocusApp.Client.Views.Shop
 
                         await _localContext.SaveChangesAsync();
                     }
-                    
+
                     // Add the user's new pet to the local database
-                    _localContext.UserPets.Add(new UserPet
-                    {
-                        User = (User)_authenticationService.CurrentUser,
+                    User user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
+
+                    user.Pets.Add(new UserPet 
+                    { 
                         Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
                     });
 
@@ -208,9 +213,10 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     // Add the user's new furniture to the local database
-                    _localContext.UserFurniture.Add(new UserFurniture
+                    user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
+
+                    user.Furniture.Add(new UserFurniture
                     {
-                        User = (User)_authenticationService.CurrentUser,
                         Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
                     });
 
@@ -242,10 +248,11 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     // Add the user's new sound to the local database
-                    _localContext.UserSounds.Add(new UserSound
+                    user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
+
+                    user.Sounds.Add(new UserSound
                     {
-                        User = (User)_authenticationService.CurrentUser,
-                        Sound = _localContext.Sounds.First(s => s.Id == _currentItem.Id)
+                        Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
                     });
 
                     // Add the user's sound to the server database

@@ -2,7 +2,6 @@
 using FocusAPI.Models;
 using MediatR;
 using FocusAPI.Data;
-using FocusCore.Models;
 
 namespace FocusApi.Methods.User;
 public class AddUserPet
@@ -18,13 +17,12 @@ public class AddUserPet
         public async Task<Unit> Handle(AddUserPetCommand command, CancellationToken cancellationToken)
         {
             FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
-            FocusAPI.Models.Pet pet = _context.Pets.First(p => p.Id == command.PetId);
+            Pet pet = _context.Pets.First(p => p.Id == command.PetId);
 
-            _context.UserPets.Add(new UserPet
-            { 
-                User = user,
+            user.Pets.Add(new UserPet
+            {
                 Pet = pet,
-                DateAcquired = DateTime.UtcNow,
+                DateAcquired = DateTime.UtcNow
             });
 
             user.Balance = command.UpdatedBalance;

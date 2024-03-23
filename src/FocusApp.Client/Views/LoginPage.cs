@@ -8,6 +8,8 @@ using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
 using System.Security.Claims;
 using FocusCore.Models;
+using FocusApp.Shared.Data;
+using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Views;
 
@@ -16,12 +18,14 @@ internal class LoginPage : BasePage
     IAPIClient _client;
     private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
+    FocusAppContext _localContext;
 
-    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService)
+    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService, FocusAppContext localContext)
     {
         _client = client;
         auth0Client = authClient;
         _authenticationService = authenticationService;
+        _localContext = localContext;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
@@ -121,7 +125,7 @@ internal class LoginPage : BasePage
                 string userEmail = claims.First(c => c.Type == "email").Value;
                 string userName = claims.First(c => c.Type == "name").Value;
 
-                BaseUser user = await _client.GetUserByAuth0Id(new GetUserQuery
+                User user = await _client.GetUserByAuth0Id(new GetUserQuery
                 {
                     Auth0Id = auth0UserId,
                     Email = userEmail,
@@ -129,6 +133,12 @@ internal class LoginPage : BasePage
                 });
 
                 _authenticationService.CurrentUser = user;
+
+                if (!_localContext.Users.Any(u => u.Id == user.Id))
+                {
+                    _localContext.Users.Add(user);
+                    await _localContext.SaveChangesAsync();
+                }
             }
             
             await Shell.Current.GoToAsync($"///" + nameof(TimerPage));

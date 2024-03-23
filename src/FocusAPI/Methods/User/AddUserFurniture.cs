@@ -19,11 +19,10 @@ public class AddUserFurniture
             FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
             FocusAPI.Models.Furniture furniture = _context.Furniture.First(f => f.Id == command.FurnitureId);
 
-            _context.UserFurniture.Add(new UserFurniture
+            user.Furniture.Add(new UserFurniture
             {
-                User = user,
                 Furniture = furniture,
-                DateAcquired = DateTime.UtcNow,
+                DateAcquired = DateTime.UtcNow
             });
 
             user.Balance = command.UpdatedBalance;
