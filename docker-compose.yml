@@ -23,7 +23,9 @@ services:
     env_file:
       - stack.env
   FocusApiDb:
-    container_name: FocusApiDbContainer
+    container_name: focusapidb
+    hostname: focusapidb
+    user: root
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
       - 8002:1433
@@ -32,7 +34,7 @@ services:
     env_file:
       - stack.env
     volumes: 
-      - focusapidb_data:/var/opt/focusapidb_data:rw
+      - focusapidb_data:/var/opt/focusapidb:rw
 
 volumes:
   focusapidb_data:
