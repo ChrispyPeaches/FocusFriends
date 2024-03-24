@@ -9,25 +9,34 @@ public class AddUserSound
     public class Handler : IRequestHandler<AddUserSoundCommand, Unit>
     {
         FocusContext _context;
-        public Handler(FocusContext context)
+        ILogger<Handler> _logger;
+        public Handler(FocusContext context, ILogger<Handler> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(AddUserSoundCommand command, CancellationToken cancellationToken)
         {
-            FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
-            FocusAPI.Models.Sound sound = _context.Sounds.First(s => s.Id == command.SoundId);
-
-            user.Sounds.Add(new UserSound
+            try
             {
-                Sound = sound,
-                DateAcquired = DateTime.UtcNow
-            });
+                FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
+                FocusAPI.Models.Sound sound = _context.Sounds.First(s => s.Id == command.SoundId);
 
-            user.Balance = command.UpdatedBalance;
+                user.Sounds.Add(new UserSound
+                {
+                    Sound = sound,
+                    DateAcquired = DateTime.UtcNow
+                });
 
-            await _context.SaveChangesAsync();
+                user.Balance = command.UpdatedBalance;
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex) 
+            {
+                _logger.Log(LogLevel.Error, "Error adding UserSound to database. Exception: " + ex.Message);
+            }
 
             return Unit.Value;
         }
