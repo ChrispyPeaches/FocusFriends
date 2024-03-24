@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using Microsoft.Maui.Controls.Shapes;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
+using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
-using FocusCore.Queries.User;
 using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
@@ -16,16 +15,19 @@ internal sealed class SettingsPage : BasePage
     {
         _client = client;
 
-        // Defualt volume values for the sliders
-        double sfxVolume = 50;
-        double ambianceVolume = 50;
-
+        // Default values for preferences
+        double ambianceVolume = Preferences.Default.Get("ambiance_volume", 50.00);
+        var isNotificationsEnabled = Preferences.Default.Get("notifications_enabled", false);
+        var isStartupTipsEnabled = Preferences.Default.Get("startup_tips_enabled", true);
+        var isSessionRatingEnabled = Preferences.Default.Get("session_rating_enabled", true);
+        
         // Using grids
         Content = new Grid
         {
-            // Define the lenth of the rows & columns
+            // Define the length of the rows & columns
             RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, Star),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
+            BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
             Children =
             {
@@ -73,34 +75,6 @@ internal sealed class SettingsPage : BasePage
                 .ColumnSpan(5),
 
 
-                // SFX
-                new Label
-                {
-                    Text = "SFX",
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(1)
-                .Column(0)
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .CenterVertical()
-                .ColumnSpan(3),
-
-                // SFX Slider
-                new Slider
-                {
-                    Maximum = 100,
-                    Value = sfxVolume,
-                    WidthRequest = 200,
-                }
-                .Row(1)
-                .Column(2)
-                .CenterVertical()
-                .ColumnSpan(3)
-                // When the value is changed, save it & print for debug
-                .Invoke(s => s.ValueChanged += (sender, e) => {sfxVolume = e.NewValue; Console.WriteLine($"SFX volume is {sfxVolume})");}),
-
-
                 // Ambiance
                 new Label
                 {
@@ -108,7 +82,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(2)
+                .Row(1)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -121,12 +95,11 @@ internal sealed class SettingsPage : BasePage
                     Value = ambianceVolume,
                     WidthRequest = 200
                 }
-                .Row(2)
+                .Row(1)
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                // When the value is changed, save it & print for debug
-                .Invoke(s => s.ValueChanged += (sender, e) => {ambianceVolume = e.NewValue; Console.WriteLine($"New volume is {ambianceVolume})");}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Default.Set("ambiance_volume", e.NewValue);}),
 
 
                 // Notifications
@@ -136,7 +109,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(3)
+                .Row(2)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -146,69 +119,96 @@ internal sealed class SettingsPage : BasePage
                 new Switch
                 {
                     ThumbColor = Colors.SlateGrey,
-                    OnColor = Colors.Green
+                    OnColor = Colors.Green,
+                    IsToggled = isNotificationsEnabled
                 }
-                .Row(3)
-                .Column(3)
+                .Row(2)
+                .Column(5)
                 .Left()
                 .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Notifications Switch Tapped"); }),
-
-
-                // Dark Mode
+                .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("notifications_enabled", e.Value); }),
+                
+                
+                // Show Mindful Tips on Startup
                 new Label
-                {
-                    Text = "Dark Mode",
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(4)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
+                    {
+                        Text = "Show Tips on Startup",
+                        TextColor = Colors.Black,
+                        FontSize = 30
+                    }
+                    .Row(3)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(5),
 
-                // Dark Mode Switch
+                // Show Mindful Tips on Startup Switch
                 new Switch
-                {
-                    ThumbColor = Colors.SlateGrey,
-                    OnColor = Colors.Green
-                }
-                .Row(4)
-                .Column(3)
-                .Left()
-                .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { Console.WriteLine("Dark Mode Switch Tapped"); }),
-
-
-                // Languages
+                    {
+                        ThumbColor = Colors.SlateGrey,
+                        OnColor = Colors.Green,
+                        IsToggled = isSessionRatingEnabled
+                    }
+                    .Row(3)
+                    .Column(5)
+                    .Left()
+                    .CenterVertical()
+                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("startup_tips_enabled", e.Value); }),
+                
+                
+                // Show Session Rating
                 new Label
-                {
-                    Text = "Languages",
-                    TextDecorations = TextDecorations.Underline,
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(5)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
+                    {
+                        Text = "Show Session Rating",
+                        TextColor = Colors.Black,
+                        FontSize = 30
+                    }
+                    .Row(4)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(5),
 
-                // There should be a way to transform this later into a hyperlink
-                // Invisible button for languages functionality
+                // Show Session Rating Switch
+                new Switch
+                    {
+                        ThumbColor = Colors.SlateGrey,
+                        OnColor = Colors.Green,
+                        IsToggled = isStartupTipsEnabled
+                    }
+                    .Row(4)
+                    .Column(5)
+                    .Left()
+                    .CenterVertical()
+                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("session_rating_enabled", e.Value); }),
+                
+                
+                // Tutorial
+                new Label
+                    {
+                        Text = "Tutorial", 
+                        TextDecorations = TextDecorations.Underline,
+                        TextColor = Colors.Black,
+                        FontSize = 30
+                    }
+                    .Row(5)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(3),
+
+                // Tutorial Button
                 new Button
-                {
-                    Opacity = 0
-                }
-                .Row(5)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3)
-                // When the button is pressed, print for debug
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Languages Button Tapped");}),
-
+                    {
+                        Opacity = 0
+                    }
+                    .Row(5)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(2)
+                    .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Tutorial Button Tapped");}),
+                
 
                 // About
                 new Label
@@ -223,9 +223,8 @@ internal sealed class SettingsPage : BasePage
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
-
-                // There should be a way to transform this later into a hyperlink
-                // Invisible button for languages functionality
+                
+                // About Button
                 new Button
                 {
                     Opacity = 0
@@ -237,6 +236,7 @@ internal sealed class SettingsPage : BasePage
                 .ColumnSpan(2)
                 .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");}),
 
+                
                 // Logo
                 new Image
                 {
@@ -254,6 +254,11 @@ internal sealed class SettingsPage : BasePage
         // Back navigation reverses animation so can keep right to left
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync("..");
+    }
+
+    private void SaveSwitchState(string key, bool val)
+    {
+        Preferences.Default.Set(key, val);
     }
 
     protected override async void OnAppearing()
