@@ -31,3 +31,10 @@ services:
       - ACCEPT_EULA=Y
     env_file:
       - stack.env
+    volumes: 
+      - focusapidb_data:/var/opt/focusapidb_data:rw
+
+volumes:
+  focusapidb_data:
+    name: focusapidb_data
+    external: false
