@@ -38,4 +38,3 @@ volumes:
   focusapidb_data:
     name: focusapidb_data
     external: false
-    
