@@ -6,6 +6,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace FocusApp.Client.Views.Shop
@@ -17,15 +18,17 @@ namespace FocusApp.Client.Views.Shop
         IAuthenticationService _authenticationService;
         IFocusAppContext _localContext;
         IAPIClient _client;
+        ILogger<ShopItemPopupInterface> _logger;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client)
+        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<ShopItemPopupInterface> logger)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
             _client = client;
+            _logger = logger;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -195,7 +198,10 @@ namespace FocusApp.Client.Views.Shop
                             UpdatedBalance = _authenticationService.CurrentUser.Balance,
                         });
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex) 
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserPet to server database. Exception: " + ex.Message);
+                    }
 
                     break;
 
@@ -236,7 +242,10 @@ namespace FocusApp.Client.Views.Shop
                             UpdatedBalance = _authenticationService.CurrentUser.Balance,
                         });
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to server database. Exception: " + ex.Message);
+                    }
 
                     break;
 
@@ -278,7 +287,10 @@ namespace FocusApp.Client.Views.Shop
                             UpdatedBalance = _authenticationService.CurrentUser.Balance,
                         });
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserSound to server database. Exception: " + ex.Message);
+                    }
 
                     break;
                 default:

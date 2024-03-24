@@ -153,7 +153,7 @@ internal class LoginPage : BasePage
                     }
                     catch (Exception ex) 
                     {
-                        _logger.Log(LogLevel.Error, "Error fetching user from server.");
+                        _logger.Log(LogLevel.Error, "Error fetching user from server. Exception: " + ex.Message);
                     }
                 }
 
@@ -166,7 +166,7 @@ internal class LoginPage : BasePage
         }
         catch (Exception ex) 
         {
-            _logger.Log(LogLevel.Error, "Error during login process.");
+            _logger.Log(LogLevel.Error, "Error during login process. Exception: " + ex.Message);
         }
     }
 
