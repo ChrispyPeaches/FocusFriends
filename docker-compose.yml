@@ -37,6 +37,6 @@ services:
       - focusapidb_data:/var/opt/mssql:rw
 
 volumes:
-  FocusApiDbData:
+  focusapidb_data:
     name: focusapidb_data
     external: false
