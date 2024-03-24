@@ -2,6 +2,7 @@
 using FocusAPI.Models;
 using MediatR;
 using FocusAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.User;
 public class AddUserFurniture
@@ -20,8 +21,8 @@ public class AddUserFurniture
         {
             try
             {
-                FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
-                FocusAPI.Models.Furniture furniture = _context.Furniture.First(f => f.Id == command.FurnitureId);
+                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                FocusAPI.Models.Furniture furniture = await _context.Furniture.FirstOrDefaultAsync(f => f.Id == command.FurnitureId);
 
                 user.Furniture.Add(new UserFurniture
                 {

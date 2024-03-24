@@ -3,6 +3,7 @@ using FocusCore.Models;
 using MediatR;
 using FocusAPI.Data;
 using FocusAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.User;
 public class GetUser
@@ -30,7 +31,8 @@ public class GetUser
                     Id = Guid.NewGuid(),
                     UserName = query.UserName,
                     Email = query.Email,
-                    Balance = 0
+                    Balance = 0,
+                    DateCreated = DateTime.UtcNow
                 };
 
                 _context.Users.Add((FocusAPI.Models.User) user);

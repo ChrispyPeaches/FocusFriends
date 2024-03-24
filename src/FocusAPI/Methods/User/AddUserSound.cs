@@ -2,6 +2,7 @@
 using FocusAPI.Models;
 using MediatR;
 using FocusAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.User;
 public class AddUserSound
@@ -20,8 +21,8 @@ public class AddUserSound
         {
             try
             {
-                FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
-                FocusAPI.Models.Sound sound = _context.Sounds.First(s => s.Id == command.SoundId);
+                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                FocusAPI.Models.Sound sound = await _context.Sounds.FirstOrDefaultAsync(s => s.Id == command.SoundId);
 
                 user.Sounds.Add(new UserSound
                 {

@@ -1,35 +1,27 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Markup.LeftToRight;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
-using FocusCore.Queries.User;
 using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
-using System.Security.Claims;
-using FocusCore.Models;
 using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
 using Microsoft.Extensions.Logging;
-using IdentityModel.OidcClient;
+using MediatR;
+using FocusApp.Client.Methods.User;
 
 namespace FocusApp.Client.Views;
 
 internal class LoginPage : BasePage
 {
-    IAPIClient _client;
-    private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
-    FocusAppContext _localContext;
     ILogger<LoginPage> _logger;
+    IMediator _mediator;
 
-    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService, FocusAppContext localContext, ILogger<LoginPage> logger)
+    public LoginPage(IAuthenticationService authenticationService, ILogger<LoginPage> logger, IMediator mediator)
     {
-        _client = client;
-        auth0Client = authClient;
         _authenticationService = authenticationService;
-        _localContext = localContext;
         _logger = logger;
+        _mediator = mediator;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
@@ -106,8 +98,9 @@ internal class LoginPage : BasePage
 
     private async void SkipButtonClicked(object sender, EventArgs e)
     {
-        // If user skips login, set current user to null
+        // If user skips login, set current user / auth token to null
         _authenticationService.CurrentUser = null;
+        _authenticationService.AuthToken = null;
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
@@ -115,48 +108,13 @@ internal class LoginPage : BasePage
     {
         try
         {
-            // Initiate Auth0 login process
-            var loginResult = await auth0Client.LoginAsync();
+            // Handle login process
+            GetUserLogin.Result loginResult = await _mediator.Send(new GetUserLogin.Query());
 
-            if (!loginResult.IsError)
+            if (loginResult.IsSuccessful)
             {
-                _authenticationService.AuthToken = loginResult.AccessToken;
-
-                var userIdentity = loginResult.User.Identity as ClaimsIdentity;
-                if (userIdentity != null)
-                {
-                    IEnumerable<Claim> claims = userIdentity.Claims;
-
-                    string auth0UserId = claims.First(c => c.Type == "sub").Value;
-                    string userEmail = claims.First(c => c.Type == "email").Value;
-                    string userName = claims.First(c => c.Type == "name").Value;
-
-                    try
-                    {
-                        // Fetch user data from the server
-                        User user = await _client.GetUserByAuth0Id(new GetUserQuery
-                        {
-                            Auth0Id = auth0UserId,
-                            Email = userEmail,
-                            UserName = userName
-                        });
-
-                        // Set application's current user to user fetched from server
-                        _authenticationService.CurrentUser = user;
-
-                        // Add user to the local database if the user doesn't exist in the local database
-                        if (!_localContext.Users.Any(u => u.Id == user.Id))
-                        {
-                            _localContext.Users.Add(user);
-                            await _localContext.SaveChangesAsync();
-                        }
-                    }
-                    catch (Exception ex) 
-                    {
-                        _logger.Log(LogLevel.Error, "Error fetching user from server. Exception: " + ex.Message);
-                    }
-                }
-
+                _authenticationService.AuthToken = loginResult.AuthToken;
+                _authenticationService.CurrentUser = loginResult.CurrentUser;
                 await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
             }
             else

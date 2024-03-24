@@ -2,6 +2,7 @@
 using FocusAPI.Models;
 using MediatR;
 using FocusAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.User;
 public class AddUserPet
@@ -20,8 +21,8 @@ public class AddUserPet
         {
             try
             {
-                FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
-                Pet pet = _context.Pets.First(p => p.Id == command.PetId);
+                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                Pet pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == command.PetId);
 
                 user.Pets?.Add(new UserPet
                 {
