@@ -40,4 +40,3 @@ volumes:
   FocusApiDbData:
     name: focusapidb_data
     external: false
-    
