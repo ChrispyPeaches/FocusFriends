@@ -6,6 +6,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 
@@ -177,15 +178,22 @@ namespace FocusApp.Client.Views.Shop
                         await _localContext.SaveChangesAsync();
                     }
 
-                    // Add the user's new pet to the local database
-                    User user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-                    user.Pets?.Add(new UserPet 
-                    { 
-                        Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
-                    });
+                    try
+                    {
+                        // Add the user's new pet to the local database
+                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Pets?.Add(new UserPet
+                        {
+                            Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
+                        });
 
-                    // Update the user's balance on the local database
-                    user.Balance = _authenticationService.CurrentUser.Balance;
+                        // Update the user's balance on the local database
+                        user.Balance = _authenticationService.CurrentUser.Balance;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserPet to local database. Exception: " + ex.Message);
+                    }
 
                     // Add the user's pet to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
@@ -222,14 +230,21 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     // Add the user's new furniture to the local database
-                    user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-                    user.Furniture?.Add(new UserFurniture
+                    try
                     {
-                        Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
-                    });
+                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Furniture?.Add(new UserFurniture
+                        {
+                            Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
+                        });
 
-                    // Update the user's balance on the local database
-                    user.Balance = _authenticationService.CurrentUser.Balance;
+                        // Update the user's balance on the local database
+                        user.Balance = _authenticationService.CurrentUser.Balance;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to local database. Exception: " + ex.Message);
+                    }
 
                     // Add the user's furniture to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
@@ -265,15 +280,22 @@ namespace FocusApp.Client.Views.Shop
                         await _localContext.SaveChangesAsync();
                     }
 
-                    // Add the user's new sound to the local database
-                    user = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-                    user.Sounds?.Add(new UserSound
+                    try
                     {
-                        Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
-                    });
+                        // Add the user's new sound to the local database
+                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Sounds?.Add(new UserSound
+                        {
+                            Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
+                        });
 
-                    // Update the user's balance on the local database
-                    user.Balance = _authenticationService.CurrentUser.Balance;
+                        // Update the user's balance on the local database
+                        user.Balance = _authenticationService.CurrentUser.Balance;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserSound to local database. Exception: " + ex.Message);
+                    }
 
                     // Add the user's sound to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
@@ -297,7 +319,14 @@ namespace FocusApp.Client.Views.Shop
                     break;
             }
 
-            await _localContext.SaveChangesAsync();
+            try
+            {
+                await _localContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, "Error saving changes to local database. Exception: " + ex.Message);
+            }
 
             // After purchasing item, update the user balance display on the shop page
             ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
