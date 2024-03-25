@@ -54,6 +54,8 @@ namespace FocusApp.Client.Views.Mindfulness
             TipHtmlSource = new HtmlWebViewSource() { Html = "" };
             IsBusy = true;
 
+            CanBeDismissedByTappingOutsideOfPopup = false;
+
             Content = new Border
             {
                 StrokeThickness = 1,

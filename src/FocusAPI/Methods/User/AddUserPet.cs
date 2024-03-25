@@ -2,7 +2,7 @@
 using FocusAPI.Models;
 using MediatR;
 using FocusAPI.Data;
-using FocusCore.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.User;
 public class AddUserPet
@@ -10,27 +10,35 @@ public class AddUserPet
     public class Handler : IRequestHandler<AddUserPetCommand, Unit>
     {
         FocusContext _context;
-        public Handler(FocusContext context)
+        ILogger<Handler> _logger;
+        public Handler(FocusContext context, ILogger<Handler> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<Unit> Handle(AddUserPetCommand command, CancellationToken cancellationToken)
         {
-            FocusAPI.Models.User user = _context.Users.First(u => u.Id == command.UserId);
-            FocusAPI.Models.Pet pet = _context.Pets.First(p => p.Id == command.PetId);
+            try
+            {
+                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                Pet pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == command.PetId);
 
-            _context.UserPets.Add(new UserPet
-            { 
-                User = user,
-                Pet = pet,
-                DateAcquired = DateTime.UtcNow,
-            });
+                user.Pets?.Add(new UserPet
+                {
+                    Pet = pet,
+                    DateAcquired = DateTime.UtcNow
+                });
 
-            user.Balance = command.UpdatedBalance;
+                user.Balance = command.UpdatedBalance;
 
-            await _context.SaveChangesAsync();
-
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex) 
+            {
+                _logger.Log(LogLevel.Error, "Error adding UserPet to database. Exception: " + ex.Message);
+            }
+            
             return Unit.Value;
         }
     }

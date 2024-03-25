@@ -1,27 +1,27 @@
 ﻿using CommunityToolkit.Maui.Markup;
-using CommunityToolkit.Maui.Markup.LeftToRight;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
-using FocusCore.Queries.User;
 using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
-using System.Security.Claims;
-using FocusCore.Models;
+using FocusApp.Shared.Data;
+using Microsoft.Extensions.Logging;
+using MediatR;
+using FocusApp.Client.Methods.User;
 
 namespace FocusApp.Client.Views;
 
 internal class LoginPage : BasePage
 {
-    IAPIClient _client;
-    private readonly Auth0Client auth0Client;
     IAuthenticationService _authenticationService;
+    ILogger<LoginPage> _logger;
+    IMediator _mediator;
 
-    public LoginPage(IAPIClient client, Auth0Client authClient, IAuthenticationService authenticationService)
+    public LoginPage(IAuthenticationService authenticationService, ILogger<LoginPage> logger, IMediator mediator)
     {
-        _client = client;
-        auth0Client = authClient;
         _authenticationService = authenticationService;
+        _logger = logger;
+        _mediator = mediator;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
@@ -98,44 +98,33 @@ internal class LoginPage : BasePage
 
     private async void SkipButtonClicked(object sender, EventArgs e)
     {
-        // If user skips login, set current user to null
+        // If user skips login, set current user / auth token to null
         _authenticationService.CurrentUser = null;
+        _authenticationService.AuthToken = null;
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
-        var loginResult = await auth0Client.LoginAsync();
-
-        if (!loginResult.IsError)
+        try
         {
-            _authenticationService.AuthToken = loginResult.AccessToken;
-            Console.WriteLine("Login Page: " + _authenticationService.AuthToken);
+            // Handle login process on non-UI thread
+            GetUserLogin.Result loginResult = await Task.Run(async () => await _mediator.Send(new GetUserLogin.Query()));
 
-            var userIdentity = loginResult.User.Identity as ClaimsIdentity;
-            if (userIdentity != null)
+            if (loginResult.IsSuccessful)
             {
-                IEnumerable<Claim> claims = userIdentity.Claims;
-
-                string auth0UserId = claims.First(c => c.Type == "sub").Value;
-                string userEmail = claims.First(c => c.Type == "email").Value;
-                string userName = claims.First(c => c.Type == "name").Value;
-
-                BaseUser user = await _client.GetUserByAuth0Id(new GetUserQuery
-                {
-                    Auth0Id = auth0UserId,
-                    Email = userEmail,
-                    UserName = userName
-                });
-
-                _authenticationService.CurrentUser = user;
+                _authenticationService.AuthToken = loginResult.AuthToken;
+                _authenticationService.CurrentUser = loginResult.CurrentUser;
+                await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
             }
-            
-            await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+            else
+            {
+                await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
+            }
         }
-        else
+        catch (Exception ex) 
         {
-            await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
+            _logger.Log(LogLevel.Error, "Error during login process. Exception: " + ex.Message);
         }
     }
 

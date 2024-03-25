@@ -25,6 +25,8 @@ internal class SessionRatingPopupInterface : BasePopup
         VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
         Color = Colors.Transparent;
 
+        CanBeDismissedByTappingOutsideOfPopup = false;
+
         _popupContent = new Grid()
         {
             RowDefinitions = GridRowsColumns.Rows.Define(

@@ -10,11 +10,11 @@ public class User : FocusCore.Models.BaseUser
     [InverseProperty(nameof(Friendship.Friend))]
     public new ICollection<Friendship>? Invitees { get; set; }
 
-	public new ICollection<UserPet>? Pets { get; set; }
+    public new ICollection<UserPet>? Pets { get; set; } = new List<UserPet>();
 
-    public new ICollection<UserFurniture>? Furniture { get; set; }
+    public new ICollection<UserFurniture>? Furniture { get; set; } = new List<UserFurniture>();
 
-    public new ICollection<UserSound>? Sounds { get; set; }
+    public new ICollection<UserSound>? Sounds { get; set; } = new List<UserSound>();
 
     public new ICollection<UserBadge>? Badges { get; set; }
 
