@@ -8,28 +8,32 @@ using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views.Social
 {
     internal class LeaderboardsPage : BasePage
     {
-        enum Row { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, BottomWhiteSpace }
-        enum Column { DailyLeadboardButton, WeeklyLeaderboardButton }
+        enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, BottomWhiteSpace }
+        enum PageColumn { DailyLeadboardButton, WeeklyLeaderboardButton }
+
+        enum TopThreeRow { TopProfilePicture, GoldPillar, SilverPillar, BronzePillar }
+        enum TopThreeColumn { Left, Center, Right}
         public LeaderboardsPage()
         {
             Content = new Grid
             {
                 RowDefinitions = GridRowsColumns.Rows.Define(
-                    (Row.PageHeader, GridRowsColumns.Stars(1)),
-                    (Row.LeaderboardSelectors, GridRowsColumns.Stars(1)),
-                    (Row.TopThreeFriendsDisplay, GridRowsColumns.Stars(4)),
-                    (Row.RemainingFriendsDisplay, GridRowsColumns.Stars(4)),
-                    (Row.BottomWhiteSpace, GridRowsColumns.Stars(1.25))
+                    (PageRow.PageHeader, GridRowsColumns.Stars(1)),
+                    (PageRow.LeaderboardSelectors, GridRowsColumns.Stars(1)),
+                    (PageRow.TopThreeFriendsDisplay, GridRowsColumns.Stars(4.5)),
+                    (PageRow.RemainingFriendsDisplay, GridRowsColumns.Stars(3.5)),
+                    (PageRow.BottomWhiteSpace, GridRowsColumns.Stars(1.25))
                     ),
                 ColumnDefinitions = GridRowsColumns.Columns.Define(
-                    (Column.DailyLeadboardButton, GridRowsColumns.Stars(1)),
-                    (Column.WeeklyLeaderboardButton, GridRowsColumns.Stars(1))
+                    (PageColumn.DailyLeadboardButton, GridRowsColumns.Stars(1)),
+                    (PageColumn.WeeklyLeaderboardButton, GridRowsColumns.Stars(1))
                     ),
                 BackgroundColor = AppStyles.Palette.OrchidPink,
                 Children =
@@ -43,7 +47,7 @@ namespace FocusApp.Client.Views.Social
                         FontSize = 40,
                         BackgroundColor = Colors.Transparent
                     }
-                    .Row(Row.PageHeader)
+                    .Row(PageRow.PageHeader)
                     .Left()
                     .CenterVertical()
 				    // When clicked, go to social view
@@ -58,9 +62,9 @@ namespace FocusApp.Client.Views.Social
                         FontSize = 30,
                         FontAttributes = FontAttributes.Bold
                     }
-                    .Row(Row.PageHeader)
+                    .Row(PageRow.PageHeader)
                     .Top()
-                    .ColumnSpan(typeof(Column).GetEnumNames().Length)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                     .CenterHorizontal()
                     .CenterVertical(),
 
@@ -70,8 +74,8 @@ namespace FocusApp.Client.Views.Social
                         Color = Color.Parse("Black"),
                         HeightRequest = 2,
                     }
-                    .Row(Row.PageHeader)
-                    .ColumnSpan(typeof(Column).GetEnumNames().Length)
+                    .Row(PageRow.PageHeader)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                     .Bottom(),
 
                     // Daily Leaderboards Button
@@ -80,8 +84,8 @@ namespace FocusApp.Client.Views.Social
                         Text = "Daily",
                         Margin = 15
                     }
-                    .Row(Row.LeaderboardSelectors)
-                    .Column(Column.DailyLeadboardButton),
+                    .Row(PageRow.LeaderboardSelectors)
+                    .Column(PageColumn.DailyLeadboardButton),
 
                     // Weekly Leaderboards Button
                     new Button
@@ -89,24 +93,113 @@ namespace FocusApp.Client.Views.Social
                         Text = "Weekly",
                         Margin = 15
                     }
-                    .Row(Row.LeaderboardSelectors)
-                    .Column(Column.WeeklyLeaderboardButton),
+                    .Row(PageRow.LeaderboardSelectors)
+                    .Column(PageColumn.WeeklyLeaderboardButton),
 
                     // Top Three Friends Leaderboard Display
-                    new Frame
-                    { 
-                        BorderColor = Colors.Black,
+                    new Grid
+                    {
+                        RowDefinitions = GridRowsColumns.Rows.Define(
+                            (TopThreeRow.TopProfilePicture, GridRowsColumns.Stars(1)),
+                            (TopThreeRow.GoldPillar, GridRowsColumns.Stars(1)),
+                            (TopThreeRow.SilverPillar, GridRowsColumns.Stars(1)),
+                            (TopThreeRow.BronzePillar, GridRowsColumns.Stars(1))
+                            ),
+                        ColumnDefinitions = GridRowsColumns.Columns.Define(
+                            (TopThreeColumn.Left, GridRowsColumns.Stars(1)),
+                            (TopThreeColumn.Center, GridRowsColumns.Stars(1)),
+                            (TopThreeColumn.Right, GridRowsColumns.Stars(1))
+                            ),
+                        Children = 
+                        {
+                            // Bronze Pillar
+                            new Frame
+                            { 
+                                BackgroundColor = Colors.RosyBrown
+                            }
+                            .Row(TopThreeRow.BronzePillar)
+                            .Column(TopThreeColumn.Left),
+
+                            // Third Place Friend
+                            new Image
+                            {
+                                Source = new FileImageSource
+                                {
+                                    // Add logic that gets profile picture from user data
+                                    File = "dotnet_bot.png"
+                                },
+                            }
+                            // Note: Center denotes where within the grid cell the image will be centered
+                            //       Find a way to do this programatically
+                            .Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+                            .Row(TopThreeRow.SilverPillar)
+                            .Column(TopThreeColumn.Left)
+                            .CenterHorizontal()
+                            .CenterVertical(),
+
+                            // Silver Pillar
+                            new Frame
+                            {
+                                BackgroundColor = Colors.Silver
+                            }
+                            .Row(TopThreeRow.SilverPillar)
+                            .Column(TopThreeColumn.Right)
+                            .RowSpan(2),
+
+                            // Second Place Friend
+                            new Image
+                            {
+                                Source = new FileImageSource
+                                {
+                                    // Add logic that gets profile picture from user data
+                                    File = "dotnet_bot.png"
+                                },
+                            }
+                            // Note: Center denotes where within the grid cell the image will be centered
+                            //       Find a way to do this programatically
+                            .Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+                            .Row(TopThreeRow.GoldPillar)
+                            .Column(TopThreeColumn.Right)
+                            .CenterHorizontal()
+                            .CenterVertical(),
+
+                            // Gold Pillar
+                            new Frame
+                            {
+                                BackgroundColor = Colors.Gold
+                            }
+                            .Row(TopThreeRow.GoldPillar)
+                            .Column(TopThreeColumn.Center)
+                            .RowSpan(3),
+
+                            // First Place Friend
+                            new Image
+                            {
+                                Source = new FileImageSource
+                                {
+                                    // Add logic that gets profile picture from user data
+                                    File = "dotnet_bot.png"
+                                },
+                            }
+                            // Note: Center denotes where within the grid cell the image will be centered
+                            //       Find a way to do this programatically
+                            .Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+                            .Row(TopThreeRow.TopProfilePicture)
+                            .Column(TopThreeColumn.Center)
+                            .CenterHorizontal()
+                            .CenterVertical(),
+                        }
                     }
-                    .Row(Row.TopThreeFriendsDisplay)
-                    .ColumnSpan(typeof(Column).GetEnumNames().Length),
+                    .Row(PageRow.TopThreeFriendsDisplay)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
 
                     // Remaining Friends Leaderboard Display
-                    new Frame 
-                    { 
-                        BorderColor = Colors.Black, 
+                    new Grid 
+                    {
+                        BackgroundColor = AppStyles.Palette.DarkPeriwinkle
                     }
-                    .Row(Row.RemainingFriendsDisplay)
-                    .ColumnSpan(typeof(Column).GetEnumNames().Length)
+                    .Row(PageRow.RemainingFriendsDisplay)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 }
             };
         }
