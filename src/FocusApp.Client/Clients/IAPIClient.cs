@@ -31,4 +31,8 @@ public interface IAPIClient
         [Body] SyncMindfulnessTipsQuery query,
         CancellationToken cancellationToken);
 
+    [Post("/Sync/InitialData")]
+    Task<SyncInitialDataResponse> SyncInitialData(
+        [Body] SyncInitialDataQuery query,
+        CancellationToken cancellationToken);
 }

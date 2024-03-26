@@ -46,5 +46,26 @@ namespace FocusAPI.Controllers
                 return StatusCode(500);
             }
         }
+
+        [HttpPost]
+        [Route("InitialData")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<SyncInitialDataResponse>> InitialData(
+            [FromBody] SyncInitialDataQuery query,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                SyncInitialDataResponse result = await _mediator.Send(query, cancellationToken);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting initial data");
+                return StatusCode(500);
+            }
+        }
     }
 }

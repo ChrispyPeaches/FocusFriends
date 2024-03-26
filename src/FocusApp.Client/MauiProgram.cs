@@ -20,6 +20,7 @@ using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
 using FocusApp.Client.Methods.Sync;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FocusApp.Client
 {
@@ -61,7 +62,12 @@ namespace FocusApp.Client
                 Scope = "openid profile email"
             }));
 
+            #region Logic Run on Startup
+
             Task.Run(() => StartupSync(builder.Services));
+            Task.Run(() => InitialPopulateDatabase(builder.Services));
+
+            #endregion
 
             PreferenceRequest();
 
@@ -152,16 +158,36 @@ namespace FocusApp.Client
                     .BuildServiceProvider()
                     .CreateScope()
                     .ServiceProvider;
-                FocusAppContext context = serviceProvider.GetRequiredService<FocusAppContext>();
-                IAPIClient client = serviceProvider.GetRequiredService<IAPIClient>();
+                IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
 
-                var syncMindfulnessTips = new SyncMindfulnessTips.Handler(context, client);
-
-                await syncMindfulnessTips.Handle(new SyncMindfulnessTips.Query(), new CancellationToken());
+                var mindfulnessTipsTask = mediator.Send(new SyncMindfulnessTips.Query());
+                await mindfulnessTipsTask;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                Console.Write(ex);
+            }
+        }
+
+        /// <summary>
+        /// Populates the database with initial data requested from the API.
+        /// </summary>
+        private static async Task InitialPopulateDatabase(IServiceCollection services)
+        {
+            try
+            {
+                var scopedServiceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                IMediator mediator = scopedServiceProvider.GetRequiredService<IMediator>();
+
+                await mediator.Send(new SyncInitialData.Query());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error when instantiating and seeding database");
                 Console.Write(ex);
             }
         }
