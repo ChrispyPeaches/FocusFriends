@@ -37,7 +37,7 @@ public class FocusContext : DbContext
 
             if (!dbCreator.HasTables())
             {
-                dbCreator.CreateTables();
+                Database.Migrate();
             }
         }
     }
