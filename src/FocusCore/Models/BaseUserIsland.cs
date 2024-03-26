@@ -5,7 +5,7 @@ namespace FocusCore.Models;
 
 [Table("UserIslands")]
 [PrimaryKey(nameof(UserId), nameof(IslandId))]
-public abstract class BaseUserIsland
+public class BaseUserIsland
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }

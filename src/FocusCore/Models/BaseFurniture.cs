@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models;
 
 [Table("Furniture")]
-public abstract class BaseFurniture
+public class BaseFurniture
 {
     [Key]
     public Guid Id { get; set; }

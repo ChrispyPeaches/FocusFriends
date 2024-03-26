@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace FocusCore.Models;
 
 [Table("Users")]
-public abstract class BaseUser
+public class BaseUser
 {
 	[Key]
 	public Guid Id { get; set; }

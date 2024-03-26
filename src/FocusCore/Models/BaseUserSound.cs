@@ -5,7 +5,7 @@ namespace FocusCore.Models;
 
 [Table("UserSounds")]
 [PrimaryKey(nameof(UserId), nameof(SoundId))]
-public abstract class BaseUserSound
+public class BaseUserSound
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }

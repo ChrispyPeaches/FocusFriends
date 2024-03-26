@@ -63,9 +63,8 @@ namespace FocusApp.Client
             }));
 
             #region Logic Run on Startup
-
-            Task.Run(() => StartupSync(builder.Services));
-            Task.Run(() => InitialPopulateDatabase(builder.Services));
+            
+            Task.Run(() => RunStartupLogic(builder.Services));
 
             #endregion
 
@@ -148,6 +147,32 @@ namespace FocusApp.Client
             }
 
             return services;
+        }
+
+        /// <summary>
+        /// Ensure the database is created and migrations are applied, then run the startup logic.
+        /// </summary>
+        private static async Task RunStartupLogic(IServiceCollection services)
+        {
+            try
+            {
+                var scopedServiceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                _ = scopedServiceProvider.GetRequiredService<FocusAppContext>();
+
+                var startupSyncTask = Task.Run(() => StartupSync(services));
+                var initialDatabasePopulateTask = Task.Run(() => InitialPopulateDatabase(services));
+
+                await Task.WhenAll([startupSyncTask, initialDatabasePopulateTask]);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error running startup logic");
+                Console.Write(ex);
+            }
+
         }
 
         private static async Task StartupSync(IServiceCollection services)

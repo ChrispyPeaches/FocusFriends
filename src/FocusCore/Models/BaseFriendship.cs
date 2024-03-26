@@ -5,7 +5,7 @@ namespace FocusCore.Models;
 
 [Table("Friendships")]
 [PrimaryKey(nameof(UserId), nameof(FriendId), nameof(Status))]
-public abstract class BaseFriendship
+public class BaseFriendship
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }
