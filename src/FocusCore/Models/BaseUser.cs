@@ -49,4 +49,28 @@ public class BaseUser
     public ICollection<BaseUserIsland>? Islands { get; set; } = new List<BaseUserIsland>();
 
 	public ICollection<BaseUserSession>? UserSessions { get; set; }
+
+    [ForeignKey(nameof(SelectedIsland))]
+    public Guid? SelectedIslandId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BaseIsland? SelectedIsland { get; set; }
+
+    [ForeignKey(nameof(SelectedPet))]
+    public Guid? SelectedPetId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BasePet? SelectedPet { get; set; }
+
+    [ForeignKey(nameof(SelectedFurniture))]
+    public Guid? SelectedFurnitureId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BaseFurniture? SelectedFurniture { get; set; }
+
+    [ForeignKey(nameof(SelectedBadge))]
+    public Guid? SelectedBadgeId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BaseBadge? SelectedBadge { get; set; }
 }

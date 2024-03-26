@@ -201,12 +201,32 @@ namespace FocusApp.Shared.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SelectedBadgeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SelectedFurnitureId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SelectedIslandId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SelectedPetId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SelectedBadgeId");
+
+                    b.HasIndex("SelectedFurnitureId");
+
+                    b.HasIndex("SelectedIslandId");
+
+                    b.HasIndex("SelectedPetId");
 
                     b.ToTable("Users");
                 });
@@ -343,6 +363,37 @@ namespace FocusApp.Shared.Migrations
                     b.Navigation("Friend");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FocusApp.Shared.Models.User", b =>
+                {
+                    b.HasOne("FocusApp.Shared.Models.Badge", "SelectedBadge")
+                        .WithMany()
+                        .HasForeignKey("SelectedBadgeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusApp.Shared.Models.Furniture", "SelectedFurniture")
+                        .WithMany()
+                        .HasForeignKey("SelectedFurnitureId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusApp.Shared.Models.Island", "SelectedIsland")
+                        .WithMany()
+                        .HasForeignKey("SelectedIslandId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusApp.Shared.Models.Pet", "SelectedPet")
+                        .WithMany()
+                        .HasForeignKey("SelectedPetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("SelectedBadge");
+
+                    b.Navigation("SelectedFurniture");
+
+                    b.Navigation("SelectedIsland");
+
+                    b.Navigation("SelectedPet");
                 });
 
             modelBuilder.Entity("FocusApp.Shared.Models.UserBadge", b =>

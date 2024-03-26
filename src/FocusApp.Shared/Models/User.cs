@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using FocusCore.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusApp.Shared.Models;
 
@@ -24,4 +24,16 @@ public class User : FocusCore.Models.BaseUser
     public new ICollection<UserIsland>? Islands { get; set; } = new List<UserIsland>();
 
 	public new ICollection<UserSession>? UserSessions { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Island? SelectedIsland { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Pet? SelectedPet { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Furniture? SelectedFurniture { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Badge? SelectedBadge { get; set; }
 }
