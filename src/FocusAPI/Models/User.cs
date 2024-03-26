@@ -18,5 +18,7 @@ public class User : FocusCore.Models.BaseUser
 
     public new ICollection<UserBadge>? Badges { get; set; }
 
+    public new ICollection<UserIsland>? Islands { get; set; } = new List<UserIsland>();
+
 	public new ICollection<UserSession>? UserSessions { get; set; }
 }

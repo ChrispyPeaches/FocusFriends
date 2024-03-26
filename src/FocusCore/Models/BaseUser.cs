@@ -46,5 +46,7 @@ public abstract class BaseUser
 
     public ICollection<BaseUserBadge>? Badges { get; set; }
 
+    public ICollection<BaseUserIsland>? Islands { get; set; } = new List<BaseUserIsland>();
+
 	public ICollection<BaseUserSession>? UserSessions { get; set; }
 }
