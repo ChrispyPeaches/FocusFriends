@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FocusAPI.Data;
+using FocusAPI.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using FocusCore.Queries.Sync;
@@ -12,10 +13,12 @@ namespace FocusAPI.Methods.Sync
         public class Handler : IRequestHandler<SyncInitialDataQuery, SyncInitialDataResponse>
         {
             private readonly FocusContext _context;
+            private readonly ISyncService _syncService;
 
-            public Handler(FocusContext context)
+            public Handler(FocusContext context, ISyncService syncService)
             {
                 _context = context;
+                _syncService = syncService;
             }
 
             public async Task<SyncInitialDataResponse> Handle(
@@ -26,18 +29,14 @@ namespace FocusAPI.Methods.Sync
 
                 if (query.SyncInitialIsland)
                 {
-                    response.Island = await GetInitialItem(
-                        _context.Islands, 
-                        island => island.Name == "Tropical",
-                        cancellationToken);
+                    response.Island = await _syncService.GetInitialIslandQuery()
+                        .FirstOrDefaultAsync(cancellationToken);
                 }
 
                 if (query.SyncInitialPet)
                 {
-                    response.Pet = await GetInitialItem(
-                        _context.Pets,
-                        pet => pet.Name == "Cool Cat",
-                        cancellationToken);
+                    response.Pet = await _syncService.GetInitialPetQuery()
+                        .FirstOrDefaultAsync(cancellationToken);
                 }
 
                 return response;
@@ -62,7 +61,7 @@ namespace FocusAPI.Methods.Sync
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Error when gathering current tips from API and/or local db.", ex);
+                    throw new Exception("Error when retrieving item from API and/or local db.", ex);
                 }
             }
         }

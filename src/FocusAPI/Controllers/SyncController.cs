@@ -1,5 +1,4 @@
 using FocusAPI.Methods.Sync;
-using FocusAPI.Models;
 using FocusCore.Queries.Sync;
 using FocusCore.Responses.Sync;
 using Microsoft.AspNetCore.Mvc;
