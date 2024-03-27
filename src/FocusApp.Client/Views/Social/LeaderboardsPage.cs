@@ -1,28 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui.Markup;
+﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
+using CommunityToolkit.Maui.Converters;
+using FocusApp.Client.Clients;
 
 namespace FocusApp.Client.Views.Social
 {
     internal class LeaderboardsPage : BasePage
     {
+        // Row / Column structure for entire page
         enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, BottomWhiteSpace }
         enum PageColumn { DailyLeadboardButton, WeeklyLeaderboardButton }
 
+        // Row / Column structure for top three friends grid
         enum TopThreeRow { TopProfilePicture, GoldPillar, SilverPillar, BronzePillar }
         enum TopThreeColumn { Left, Center, Right }
-        public LeaderboardsPage()
+
+        // Row / Column structure for remaining friends entries
+        enum RemainingFriendsColumn { Picture, Name, Score }
+
+        Grid _topThreeFriendsGrid { get; set; }
+        ScrollView _remainingFriendsScrollView { get; set; }
+
+        // Top three friends image, score, and username references
+        Image _firstPlacePicture { get; set; }
+        Label _firstPlaceScore { get; set; }
+        Label _firstPlaceUsername { get; set; }
+        Image _secondPlacePicture { get; set; }
+        Label _secondPlaceScore { get; set; }
+        Label _secondPlaceUsername { get; set; }
+        Image _thirdPlacePicture { get; set; }
+        Label _thirdPlaceScore { get; set; }
+        Label _thirdPlaceUsername { get; set; }
+
+        IAPIClient _client { get; set; }
+        public LeaderboardsPage(IAPIClient client)
         {
-            Grid TopThreeFriendsGrid = GetTopThreeFriendsGrid();
+            _client = client;
+            _topThreeFriendsGrid = GetTopThreeFriendsGrid();
+            _remainingFriendsScrollView = GetRemainingFriendsScrollView();
 
             Content = new Grid
             {
@@ -87,7 +106,9 @@ namespace FocusApp.Client.Views.Social
                         Margin = 15
                     }
                     .Row(PageRow.LeaderboardSelectors)
-                    .Column(PageColumn.DailyLeadboardButton),
+                    .Column(PageColumn.DailyLeadboardButton)
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                        GetDailyLeaderboards(sender, eventArgs)),
 
                     // Weekly Leaderboards Button
                     new Button
@@ -96,27 +117,27 @@ namespace FocusApp.Client.Views.Social
                         Margin = 15
                     }
                     .Row(PageRow.LeaderboardSelectors)
-                    .Column(PageColumn.WeeklyLeaderboardButton),
+                    .Column(PageColumn.WeeklyLeaderboardButton)
+                    .Invoke(button => button.Released += (sender, eventArgs) =>
+                        GetWeeklyLeaderboards(sender, eventArgs)),
 
                     // Top Three Friends Leaderboard Display
-                    TopThreeFriendsGrid
+                    _topThreeFriendsGrid
                     .Row(PageRow.TopThreeFriendsDisplay)
                     .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
 
                     // Remaining Friends Leaderboard Display
-                    new Grid 
-                    {
-                        BackgroundColor = AppStyles.Palette.DarkPeriwinkle
-                    }
+                    _remainingFriendsScrollView
                     .Row(PageRow.RemainingFriendsDisplay)
                     .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 }
             };
         }
 
-        // TODO: Make this dynamic
         private Grid GetTopThreeFriendsGrid()
         {
+            SetTopThreeDynamicElements();
+
             // Top Three Friends Leaderboard Display
             Grid topThreeFriendsGrid = new Grid
             {
@@ -133,118 +154,305 @@ namespace FocusApp.Client.Views.Social
                     ),
                 Children =
                 {
-                    // Bronze Pillar
+                    // Bronze Pillar / Third Place Information
                     new Frame
                     {
                         BackgroundColor = Colors.RosyBrown,
-                        Content = 
-                            // Third Place Points
-                            new Label
-                            {
-                                Text = "10"
-                            }
-                            .Row(TopThreeRow.BronzePillar)
-                            .Column(TopThreeColumn.Left)
-                            .CenterHorizontal()
+                        Content = new StackLayout 
+                        {
+                            _thirdPlaceScore,
+                            _thirdPlaceUsername
+                        }
                     }
                     .Row(TopThreeRow.BronzePillar)
                     .Column(TopThreeColumn.Left),
 
-                    // Third Place Friend
-                    new Image
-                    {
-                        Source = new FileImageSource
-                        {
-                            // Add logic that gets profile picture from user data
-                            File = "dotnet_bot.png"
-                        },
-                    }
-                    // Note: Center denotes where within the grid cell the image will be centered
-                    //       Find a way to do this programatically
-                    .Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+                    // Third Place Friend Picture
+                    _thirdPlacePicture
                     .Row(TopThreeRow.SilverPillar)
-                    .Column(TopThreeColumn.Left)
-                    .CenterHorizontal()
-                    .CenterVertical(),
+                    .Column(TopThreeColumn.Left),
 
-                    // Silver Pillar
+                    // Silver Pillar / Second Place Information
                     new Frame
                     {
                         BackgroundColor = Colors.Silver,
-                        Content =
-                            // Second Place Points
-                            new Label
-                            {
-                                Text = "20"
-                            }
-                            .Row(TopThreeRow.SilverPillar)
-                            .Column(TopThreeColumn.Right)
-                            .CenterHorizontal()
+                        Content = new StackLayout
+                        { 
+                            _secondPlaceScore,
+                            _secondPlaceUsername
+                        }
                     }
                     .Row(TopThreeRow.SilverPillar)
                     .Column(TopThreeColumn.Right)
                     .RowSpan(2),
 
-                    // Second Place Friend
-                    new Image
-                    {
-                        Source = new FileImageSource
-                        {
-                            // Add logic that gets profile picture from user data
-                            File = "dotnet_bot.png"
-                        },
-                    }
-                    // Note: Center denotes where within the grid cell the image will be centered
-                    //       Find a way to do this programatically
-                    .Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+                    // Second Place Friend Picture
+                    _secondPlacePicture
                     .Row(TopThreeRow.GoldPillar)
-                    .Column(TopThreeColumn.Right)
-                    .CenterHorizontal()
-                    .CenterVertical(),
+                    .Column(TopThreeColumn.Right),
 
                     // Gold Pillar
                     new Frame
                     {
                         BackgroundColor = Colors.Gold,
-                        Content =                             
-                            // First Place Points
-                            new Label
-                            {
-                                Text = "30",
-                                TextColor = Colors.Black
-                            }
-                            .Row(TopThreeRow.GoldPillar)
-                            .Column(TopThreeColumn.Center)
-                            .CenterHorizontal()
+                        Content = new StackLayout
+                        { 
+                            _firstPlaceScore,
+                            _firstPlaceUsername
+                        }
                     }
                     .Row(TopThreeRow.GoldPillar)
                     .Column(TopThreeColumn.Center)
                     .RowSpan(3),
 
                     // First Place Friend
-                    new Image
-                    {
-                        Source = new FileImageSource
-                        {
-                            // Add logic that gets profile picture from user data
-                            File = "dotnet_bot.png"
-                        },
-                    }
-                    // Note: Center denotes where within the grid cell the image will be centered
-                    //       Find a way to do this programatically
-                    .Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+                    _firstPlacePicture
                     .Row(TopThreeRow.TopProfilePicture)
-                    .Column(TopThreeColumn.Center)
-                    .CenterHorizontal()
-                    .CenterVertical(),
+                    .Column(TopThreeColumn.Center),
                 }
             };
 
             return topThreeFriendsGrid;
         }
 
+        private ScrollView GetRemainingFriendsScrollView()
+        {
+            List<TestFriend> testFriends = new List<TestFriend>
+            {
+                new TestFriend { Name = "Richard 1", Score = 10, Rank = 4 },
+                new TestFriend { Name = "Richard 2", Score = 10 ,Rank = 5},
+                new TestFriend { Name = "Richard 3", Score = 10 ,Rank= 6},
+                new TestFriend { Name = "Richard 4", Score = 10 ,Rank = 7},
+                new TestFriend { Name = "Richard 5", Score = 10 ,Rank = 8},
+                new TestFriend { Name = "Richard 6" , Score = 10,Rank = 9},
+                new TestFriend { Name = "Richard 7" , Score = 10,Rank = 10},
+                new TestFriend { Name = "Richard 8" , Score = 10,Rank = 11},
+                new TestFriend { Name = "Richard 9" , Score = 10,Rank = 12},
+                new TestFriend { Name = "Richard 10" , Score = 10,Rank = 13},
+                new TestFriend { Name = "Richard 11" , Score = 10,Rank = 14},
+                new TestFriend { Name = "Richard 12" , Score = 10,Rank = 15},
+                new TestFriend { Name = "Richard 13" , Score = 10,Rank = 16},
+                new TestFriend { Name = "Richard 14" , Score = 10,Rank = 17},
+                new TestFriend { Name = "Richard 15" , Score = 10,Rank = 18}
+            };
+
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                /* For when data is fetched from API
+                Image friendPicture = new Image
+                {
+                    HeightRequest = 32,
+                    WidthRequest = 32,
+                    VerticalOptions = LayoutOptions.Center,
+                };
+                friendPicture.SetBinding(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
+                */
+
+                Image friendPicture = new Image
+                {
+                    HeightRequest = 64,
+                    WidthRequest = 64,
+                    VerticalOptions = LayoutOptions.Center,
+                    Source = new FileImageSource
+                    { 
+                        File = "dotnet_bot.png"
+                    }
+                }
+                .Column(RemainingFriendsColumn.Picture);
+
+                Label friendName = new Label
+                {
+                    FontSize = 24,
+                    VerticalOptions = LayoutOptions.Center,
+                }
+                .Column(RemainingFriendsColumn.Name);
+                friendName.SetBinding(Label.TextProperty, "Name");
+
+                Label friendScore = new Label
+                {
+                    FontSize = 24,
+                    HorizontalOptions = LayoutOptions.Center,
+                };
+                friendScore.SetBinding(Label.TextProperty, "Score");
+
+                Label friendRank = new Label
+                {
+                    FontSize = 12,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                }
+                .Margins(20,10,0,0);
+                friendRank.SetBinding(Label.TextProperty, "Rank");
+
+                StackLayout friendScoreAndRank = new StackLayout().Column(RemainingFriendsColumn.Score);
+                friendScoreAndRank.Add(friendScore);
+                friendScoreAndRank.Add(friendRank);
+
+                Grid friendGrid = new Grid
+                {
+                    ColumnDefinitions = GridRowsColumns.Columns.Define(
+                        (RemainingFriendsColumn.Picture, GridRowsColumns.Stars(1)),
+                        (RemainingFriendsColumn.Name, GridRowsColumns.Stars(3)),
+                        (RemainingFriendsColumn.Score, GridRowsColumns.Stars(1))),
+                    BackgroundColor = Colors.LightGray,
+                };
+                friendGrid.Add(friendPicture);
+                friendGrid.Add(friendName);
+                friendGrid.Add(friendScoreAndRank);
+
+                Frame friendContainer = new Frame
+                {
+                    Content = friendGrid,
+                    BackgroundColor = Colors.DarkGray,
+                }
+                .ColumnSpan(typeof(RemainingFriendsColumn).GetEnumNames().Length);
+
+                return friendContainer;
+            });
+
+            StackLayout stackLayout = new StackLayout();
+            BindableLayout.SetItemsSource(stackLayout, testFriends);
+            BindableLayout.SetItemTemplate(stackLayout, dataTemplate);
+            
+            var scrollView = new ScrollView
+            { 
+                Content = stackLayout
+            };
+            
+            return scrollView;
+        }
+
+        void SetTopThreeDynamicElements()
+        {
+            // Set third place dynamic elements
+            _thirdPlacePicture = new Image
+            {
+                Source = new FileImageSource { File = "dotnet_bot.jpg" } // <-- Temp
+            }
+            //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+            .CenterHorizontal()
+            .CenterVertical();
+
+            _thirdPlaceScore = new Label
+            {
+                Text = "10"
+            }
+            .CenterHorizontal();
+
+            _thirdPlaceUsername = new Label
+            {
+                Text = "Username"
+            }
+            .CenterHorizontal();
+
+            // Bind third place properties to friend fields
+            _thirdPlacePicture.Bind(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
+            _thirdPlaceScore.Bind(Label.TextProperty, "Score");
+            _thirdPlaceUsername.Bind(Label.TextProperty, "Name");
+
+            // Set second place dynamic elements
+            _secondPlacePicture = new Image
+            {
+                Source = new FileImageSource { File = "dotnet_bot.jpg" } // <-- Temp
+            }
+            //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+            .CenterHorizontal()
+            .CenterVertical();
+
+            _secondPlaceScore = new Label
+            {
+                Text = "20",
+                TextColor = Colors.Black
+            }
+            .CenterHorizontal();
+
+            _secondPlaceUsername = new Label
+            {
+                Text = "Username",
+                TextColor = Colors.Black
+            }
+            .CenterHorizontal();
+
+            // Bind second place properties to friend fields
+            _secondPlacePicture.Bind(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
+            _secondPlaceScore.Bind(Label.TextProperty, "Score");
+            _secondPlaceUsername.Bind(Label.TextProperty, "Name");
+
+            // Set first place dynamic elements
+            _firstPlacePicture = new Image
+            {
+                Source = new FileImageSource { File = "dotnet_bot.jpg" } // <-- Temp
+            }
+            //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+            .CenterHorizontal()
+            .CenterVertical();
+
+            _firstPlaceScore = new Label
+            {
+                Text = "30",
+                TextColor = Colors.Black
+            }
+            .CenterHorizontal();
+
+            _firstPlaceUsername = new Label
+            {
+                Text = "Username",
+                TextColor = Colors.Black
+            }
+            .CenterHorizontal();
+
+            _firstPlacePicture.Bind(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
+            _firstPlaceScore.Bind(Label.TextProperty, "Score");
+            _firstPlaceUsername.Bind(Label.TextProperty, "Name");
+        }
+
+        public class TestFriend
+        { 
+            public string Name { get; set; }
+            public byte[] Picture { get; set; }
+            public int Score { get; set; }
+            public int Rank { get; set; }
+        }
+
+        // Prototype: Link to data fetched from API
+        void GetDailyLeaderboards(object sender, EventArgs e)
+        {
+            _firstPlacePicture.Source = new FileImageSource { File = "logo.png" };
+            _firstPlaceScore.Text = "100";
+            _secondPlacePicture.Source = new FileImageSource { File = "pet_beans.png" };
+            _secondPlaceScore.Text = "80";
+            _thirdPlacePicture.Source = new FileImageSource { File = "pet_bob.png" };
+            _thirdPlaceScore.Text = "50";
+        }
+
+        void GetWeeklyLeaderboards(object sender, EventArgs e)
+        {
+            _firstPlacePicture.Source = new FileImageSource { File = "pet_wurmy.png" };
+            _firstPlaceScore.Text = "600";
+            _secondPlacePicture.Source = new FileImageSource { File = "pet_greg.png" };
+            _secondPlaceScore.Text = "400";
+            _thirdPlacePicture.Source = new FileImageSource { File = "pet_danole.png" };
+            _thirdPlaceScore.Text = "200";
+        }
+
         private async void BackButtonClicked(object sender, EventArgs e)
         {
+            // Test code for dynamic top three
+            var q = await _client.GetAllShopItems(new FocusCore.Queries.Shop.GetAllShopItemsQuery(), default);
+            var kylepic = q.First(s => s.Name == "Kyle").ImageSource;
+
+            TestFriend test = new TestFriend { Name = "YourFriend3", Rank = 3, Score = 500, Picture = kylepic };
+            _thirdPlacePicture.BindingContext = test;
+            _thirdPlaceScore.BindingContext = test;
+            _thirdPlaceUsername.BindingContext = test;
+            _secondPlacePicture.BindingContext = test;
+            _secondPlaceScore.BindingContext = test;
+            _secondPlaceUsername.BindingContext = test;
+            _firstPlacePicture.BindingContext = test;
+            _firstPlaceScore.BindingContext = test;
+            _firstPlaceUsername.BindingContext = test;
+
+
             // Back navigation reverses animation so can keep right to left
             Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
