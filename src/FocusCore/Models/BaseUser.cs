@@ -38,11 +38,11 @@ public abstract class BaseUser
 
 	public ICollection<BaseFriendship>? Invitees { get; set; }
 
-	public ICollection<BaseUserPet>? Pets { get; set; }
+    public ICollection<BaseUserPet>? Pets { get; set; } = new List<BaseUserPet>();
 
-    public ICollection<BaseUserFurniture>? Furniture { get; set; }
+    public ICollection<BaseUserFurniture>? Furniture { get; set; } = new List<BaseUserFurniture>();
 
-    public ICollection<BaseUserSound>? Sounds { get; set; }
+    public ICollection<BaseUserSound>? Sounds { get; set; } = new List<BaseUserSound>();
 
     public ICollection<BaseUserBadge>? Badges { get; set; }
 

@@ -6,6 +6,8 @@ using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace FocusApp.Client.Views.Shop
@@ -17,20 +19,24 @@ namespace FocusApp.Client.Views.Shop
         IAuthenticationService _authenticationService;
         IFocusAppContext _localContext;
         IAPIClient _client;
+        ILogger<ShopItemPopupInterface> _logger;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client)
+        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<ShopItemPopupInterface> logger)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
             _client = client;
+            _logger = logger;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
             Color = Colors.Transparent;
+
+            CanBeDismissedByTappingOutsideOfPopup = false;
 
             _popupContentStack = new StackLayout();
 
@@ -158,7 +164,6 @@ namespace FocusApp.Client.Views.Shop
                 case ShopItemType.Pets:
 
                     // If the local database currently does not have the pet, store it now
-
                     // Note: This check will be made obsolete after the shop item sync update
                     if (!_localContext.Pets.Any(p => p.Id == _currentItem.Id))
                     {
@@ -172,22 +177,39 @@ namespace FocusApp.Client.Views.Shop
 
                         await _localContext.SaveChangesAsync();
                     }
-                    
-                    // Add the user's new pet to the local database
-                    _localContext.UserPets.Add(new UserPet
+
+                    try
                     {
-                        User = (User)_authenticationService.CurrentUser,
-                        Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
-                    });
+                        // Add the user's new pet to the local database
+                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Pets?.Add(new UserPet
+                        {
+                            Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
+                        });
+
+                        // Update the user's balance on the local database
+                        user.Balance = _authenticationService.CurrentUser.Balance;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserPet to local database. Exception: " + ex.Message);
+                    }
 
                     // Add the user's pet to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
-                    await _client.AddUserPet(new AddUserPetCommand
-                    { 
-                        UserId = _authenticationService.CurrentUser.Id,
-                        PetId = _currentItem.Id,
-                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                    });
+                    try
+                    {
+                        await _client.AddUserPet(new AddUserPetCommand
+                        {
+                            UserId = _authenticationService.CurrentUser.Id,
+                            PetId = _currentItem.Id,
+                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                        });
+                    }
+                    catch (Exception ex) 
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserPet to server database. Exception: " + ex.Message);
+                    }
 
                     break;
 
@@ -208,20 +230,37 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     // Add the user's new furniture to the local database
-                    _localContext.UserFurniture.Add(new UserFurniture
+                    try
                     {
-                        User = (User)_authenticationService.CurrentUser,
-                        Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
-                    });
+                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Furniture?.Add(new UserFurniture
+                        {
+                            Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
+                        });
+
+                        // Update the user's balance on the local database
+                        user.Balance = _authenticationService.CurrentUser.Balance;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to local database. Exception: " + ex.Message);
+                    }
 
                     // Add the user's furniture to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
-                    await _client.AddUserFurniture(new AddUserFurnitureCommand
+                    try
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
-                        FurnitureId = _currentItem.Id,
-                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                    });
+                        await _client.AddUserFurniture(new AddUserFurnitureCommand
+                        {
+                            UserId = _authenticationService.CurrentUser.Id,
+                            FurnitureId = _currentItem.Id,
+                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to server database. Exception: " + ex.Message);
+                    }
 
                     break;
 
@@ -241,29 +280,53 @@ namespace FocusApp.Client.Views.Shop
                         await _localContext.SaveChangesAsync();
                     }
 
-                    // Add the user's new sound to the local database
-                    _localContext.UserSounds.Add(new UserSound
+                    try
                     {
-                        User = (User)_authenticationService.CurrentUser,
-                        Sound = _localContext.Sounds.First(s => s.Id == _currentItem.Id)
-                    });
+                        // Add the user's new sound to the local database
+                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Sounds?.Add(new UserSound
+                        {
+                            Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
+                        });
+
+                        // Update the user's balance on the local database
+                        user.Balance = _authenticationService.CurrentUser.Balance;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserSound to local database. Exception: " + ex.Message);
+                    }
 
                     // Add the user's sound to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
                     // If time allows, we will store the sound files on the server, and fetch/store them after purchase
-                    await _client.AddUserSound(new AddUserSoundCommand
+                    try
                     {
-                        UserId = _authenticationService.CurrentUser.Id,
-                        SoundId = _currentItem.Id,
-                        UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                    });
+                        await _client.AddUserSound(new AddUserSoundCommand
+                        {
+                            UserId = _authenticationService.CurrentUser.Id,
+                            SoundId = _currentItem.Id,
+                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Error, "Error adding UserSound to server database. Exception: " + ex.Message);
+                    }
 
                     break;
                 default:
                     break;
             }
 
-            await _localContext.SaveChangesAsync();
+            try
+            {
+                await _localContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, "Error saving changes to local database. Exception: " + ex.Message);
+            }
 
             // After purchasing item, update the user balance display on the shop page
             ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
