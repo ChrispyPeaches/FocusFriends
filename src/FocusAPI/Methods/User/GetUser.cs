@@ -1,14 +1,16 @@
-﻿using FocusCore.Queries.User;
+﻿using System.Net;
+using FocusCore.Queries.User;
 using FocusCore.Models;
 using MediatR;
 using FocusAPI.Data;
-using FocusAPI.Models;
+using FocusCore.Responses;
+using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.User;
 public class GetUser
 {
-    public class Handler : IRequestHandler<GetUserQuery, BaseUser>
+    public class Handler : IRequestHandler<GetUserQuery, MediatrResultWrapper<GetUserResponse>>
     {
         FocusContext _context;
         public Handler(FocusContext context) 
@@ -16,37 +18,44 @@ public class GetUser
             _context = context;
         }
 
-        public async Task<BaseUser> Handle(GetUserQuery query, CancellationToken cancellationToken)
+        public async Task<MediatrResultWrapper<GetUserResponse>> Handle(
+            GetUserQuery query,
+            CancellationToken cancellationToken = default)
         {
-            BaseUser user;
+            BaseUser? user = await GetUser(query, cancellationToken);
 
-            List<BaseUser> users = _context.Users.OfType<BaseUser>().Where(u => u.Auth0Id == query.Auth0Id).ToList();
-
-            // If the user does not yet exist in the database, create the user
-            if (!users.Any())
+            if (user != null)
             {
-                user = new FocusAPI.Models.User
+                return new()
                 {
-                    Auth0Id = query.Auth0Id,
-                    Id = Guid.NewGuid(),
-                    UserName = query.UserName,
-                    Email = query.Email,
-                    Balance = 0,
-                    DateCreated = DateTime.UtcNow
+                    HttpStatusCode = HttpStatusCode.OK,
+                    Data = new GetUserResponse { User = user }
                 };
-
-                _context.Users.Add((FocusAPI.Models.User) user);
-
-                await _context.SaveChangesAsync();
             }
-
-            // If the user exists in the database, return the user
             else
             {
-                user = users.First(u => u.Auth0Id == query.Auth0Id);
+                return new()
+                {
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    Message = $"User not found with Auth0Id: {query.Auth0Id}"
+                };
             }
+        }
 
-            return user;
+        private async Task<BaseUser?> GetUser(
+            GetUserQuery query,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await _context.Users
+                    .Where(u => u.Auth0Id == query.Auth0Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error getting user: {e.Message}");
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using FocusAPI.Configuration.PipelineBehaviors;
 using FocusAPI.Data;
-using FocusCore.Validators.Users;
+using FocusAPI.Helpers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +29,7 @@ internal class Program
             options.UseSqlServer(builder.Configuration["DefaultConnectionString"]);
         });
 
+        builder.Services.AddScoped<ISyncService, SyncService>();
         builder.Services.AddTransient<Seeder>();
 
         var app = builder.Build();

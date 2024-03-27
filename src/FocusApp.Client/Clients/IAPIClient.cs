@@ -4,18 +4,23 @@ using FocusCore.Queries.Shop;
 using FocusCore.Queries.Sync;
 using FocusCore.Queries.User;
 using FocusCore.Responses.Sync;
+using FocusCore.Responses.User;
 using Refit;
 
 namespace FocusApp.Client.Clients;
 public interface IAPIClient
 {
-    [Get("/User")]
-    Task<User> GetUserByAuth0Id(GetUserQuery query);
+    #region User
 
-    [Get("/Shop")]
-    Task<List<ShopItem>> GetAllShopItems(
-        GetAllShopItemsQuery query,
-        CancellationToken cancellationToken);
+    [Get("/User/GetUser")]
+    Task<GetUserResponse> GetUserByAuth0Id(
+        GetUserQuery query,
+        CancellationToken cancellationToken = default);
+
+    [Post("/User/CreateUser")]
+    Task<CreateUserResponse> CreateUser(
+        CreateUserCommand command,
+        CancellationToken cancellationToken = default);
 
     [Post("/User/Pet")]
     Task AddUserPet(AddUserPetCommand command);
@@ -26,6 +31,19 @@ public interface IAPIClient
     [Post("/User/Sound")]
     Task AddUserSound(AddUserSoundCommand command);
 
+    #endregion
+
+    #region Shop
+
+    [Get("/Shop")]
+    Task<List<ShopItem>> GetAllShopItems(
+        GetAllShopItemsQuery query,
+        CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Sync
+
     [Post("/Sync/MindfulnessTips")]
     Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
         [Body] SyncMindfulnessTipsQuery query,
@@ -35,4 +53,6 @@ public interface IAPIClient
     Task<SyncInitialDataResponse> SyncInitialData(
         [Body] SyncInitialDataQuery query,
         CancellationToken cancellationToken);
+
+    #endregion
 }

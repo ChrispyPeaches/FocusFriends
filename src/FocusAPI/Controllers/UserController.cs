@@ -1,9 +1,10 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using FocusCore.Commands.User;
 using FocusCore.Queries.User;
-using FocusAPI.Models;
-using FocusCore.Models;
+using FocusCore.Responses;
+using FocusCore.Responses.User;
 
 namespace FocusAPI.Controllers
 {
@@ -21,20 +22,69 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<BaseUser> GetUserByAuth0Id([FromQuery] GetUserQuery query)
+        [Route("GetUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GetUserResponse>> GetUserByAuth0Id(
+            [FromQuery] GetUserQuery query,
+            CancellationToken cancellationToken)
         {
-            return await _mediator.Send(new GetUserQuery
+            MediatrResultWrapper<GetUserResponse> result = new();
+
+            try
             {
-                Auth0Id = query.Auth0Id,
-                Email = query.Email,
-                UserName = query.UserName
-            });
+                result = await _mediator.Send(query, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[500]: Error getting user");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            switch (result.HttpStatusCode)
+            {
+                case null:
+                    return StatusCode((int)HttpStatusCode.InternalServerError);
+                case HttpStatusCode.OK:
+                    return Ok(result.Data);
+                default:
+                    _logger.LogError($"[{(int)result.HttpStatusCode}] {result.Message}");
+                    return StatusCode((int)result.HttpStatusCode);
+            }
         }
 
         [HttpPost]
-        public async Task CreateUser(CreateUserCommand command)
+        [Route("CreateUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<CreateUserResponse>> CreateUser(
+            CreateUserCommand command,
+            CancellationToken cancellationToken)
         {
-            await _mediator.Send(command);
+            MediatrResultWrapper<CreateUserResponse> result = new();
+
+            try
+            {
+                result = await _mediator.Send(command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[500]: Error creating user");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            switch (result.HttpStatusCode)
+            {
+                case null:
+                    return StatusCode((int)HttpStatusCode.InternalServerError);
+                case HttpStatusCode.OK:
+                    return Ok(result.Data);
+                default:
+                    _logger.LogError($"[{(int)result.HttpStatusCode}]: {result.Message}");
+                    return StatusCode((int)result.HttpStatusCode);
+            }
         }
 
         [HttpPost]
