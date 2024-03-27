@@ -21,13 +21,7 @@ internal class Program
         builder.Services.AddSwaggerGen();
 
         // Configure MediatR
-        Assembly[] assemblies = [Assembly.GetExecutingAssembly()];
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assemblies));
-
-        // Configure FluentValidation and ValidationPipeline
-        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        // Register FocusCore assembly containing validators with FluentValidation
-        builder.Services.AddValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator)));
+        RegisterMediatR(builder.Services);
 
         // Register DbContext
         builder.Services.AddDbContext<FocusContext>(options =>
@@ -55,6 +49,13 @@ internal class Program
         app.MapControllers();
 
         app.Run();
+    }
+
+    public static void RegisterMediatR(IServiceCollection services)
+    {
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
     }
 
     /// <summary>
@@ -86,3 +87,6 @@ internal class Program
 
     }
 }
+
+/// <summary>Registers all the handlers, validators, and behaviors.</summary>
+
