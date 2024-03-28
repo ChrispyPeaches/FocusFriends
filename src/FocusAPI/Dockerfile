@@ -6,6 +6,9 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# Set environment variable for ASP.NET Core environment
+ENV ASPNETCORE_ENVIRONMENT=https
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -24,3 +27,10 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "FocusAPI.dll"]
+
+# Copy SSL certificate and private key
+COPY ["certs/domain.cert.pem", "/app/certs/"]
+COPY ["certs/private.key.pem", "/app/certs/"]
+
+# Set entrypoint with SSL certificate and private key paths
+ENTRYPOINT ["dotnet", "FocusAPI.dll", "--ssl-cert=/app/certs/domain.cert.pem", "--ssl-key=/app/certs/private.key.pem"]
