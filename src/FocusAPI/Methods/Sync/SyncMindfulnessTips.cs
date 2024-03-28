@@ -14,8 +14,7 @@ namespace FocusAPI.Methods.Sync
             public Validator()
             {
                 RuleFor(query => query.MindfulnessTipIds)
-                    .NotNull()
-                    .NotEmpty();
+                    .NotNull();
             }
         }
 

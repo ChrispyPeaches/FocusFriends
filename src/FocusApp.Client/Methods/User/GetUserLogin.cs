@@ -1,10 +1,18 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Net;
+using System.Security.Claims;
 using Auth0.OidcClient;
 using FocusApp.Client.Clients;
 using FocusApp.Shared.Data;
+using FocusApp.Shared.Models;
+using FocusCore.Commands.User;
 using FocusCore.Queries.User;
+using FocusCore.Responses.User;
+using IdentityModel.OidcClient;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Refit;
 
 namespace FocusApp.Client.Methods.User
 {
@@ -36,7 +44,10 @@ namespace FocusApp.Client.Methods.User
 
             public async Task<Result> Handle(Query query, CancellationToken cancellationToken)
             {
-                var loginResult = await _auth0Client.LoginAsync();
+                LoginResult? loginResult = await MainThread
+                    .InvokeOnMainThreadAsync(() => _auth0Client.LoginAsync(cancellationToken: cancellationToken));
+
+                Shared.Models.User? user = null;
 
                 if (!loginResult.IsError)
                 {
@@ -52,18 +63,20 @@ namespace FocusApp.Client.Methods.User
                         try
                         {
                             // Fetch user data from the server
-                            Shared.Models.User user = await _client.GetUserByAuth0Id(new GetUserQuery
-                            {
-                                Auth0Id = auth0UserId,
-                                Email = userEmail,
-                                UserName = userName
-                            });
+                            ApiResponse<GetUserResponse>? response = await _client.GetUserByAuth0Id(
+                                new GetUserQuery
+                                {
+                                    Auth0Id = auth0UserId
+                                },
+                                cancellationToken);
 
-                            // Add user to the local database if the user doesn't exist in the local database
-                            if (!_localContext.Users.Any(u => u.Id == user.Id))
+                            switch (response.StatusCode)
                             {
-                                _localContext.Users.Add(user);
-                                await _localContext.SaveChangesAsync();
+                                case HttpStatusCode.NotFound:
+                                    user = await CreateUser(auth0UserId, userEmail, userName, cancellationToken);
+                                    break;
+                                case HttpStatusCode.InternalServerError:
+                                    throw new Exception("Error fetching user from server.");
                             }
 
                             return new Result
@@ -76,7 +89,12 @@ namespace FocusApp.Client.Methods.User
                         }
                         catch (Exception ex)
                         {
-                            _logger.Log(LogLevel.Error, "Error fetching user from server. Exception: " + ex.Message);
+                            _logger.LogError(ex, "Error getting or creating user.");
+                            return new Result
+                            {
+                                IsSuccessful = false,
+                                ErrorDescription = ex.Message
+                            };
                         }
                     }
                 }
@@ -88,6 +106,85 @@ namespace FocusApp.Client.Methods.User
                     IsSuccessful = false,
                     ErrorDescription = loginResult.ErrorDescription
                 };
+            }
+
+            private async Task<Shared.Models.User> CreateUser(
+                string auth0UserId,
+                string userEmail,
+                string userName,
+                CancellationToken cancellationToken = default)
+            {
+                Shared.Models.User user;
+
+                // Create a new user if the user doesn't exist in the server database
+                CreateUserResponse createUserResponse = await _client.CreateUser(
+                    new CreateUserCommand
+                    {
+                        Auth0Id = auth0UserId,
+                        Email = userEmail,
+                        UserName = userName
+                    },
+                    cancellationToken);
+
+                user = await GatherUserData(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
+
+                bool userExistsLocally = await _localContext.Users
+                    .AnyAsync(u => u.Auth0Id == auth0UserId, cancellationToken);
+
+                // Add user to the local database if the user doesn't exist locally
+                if (!userExistsLocally)
+                {
+                    await _localContext.Users.AddAsync(user, cancellationToken);
+
+                    await _localContext.SaveChangesAsync();
+
+                    return user;
+                }
+
+                return user;
+            }
+
+            private async Task<Shared.Models.User> GatherUserData(
+                CreateUserResponse createUserResponse,
+                string auth0UserId,
+                string userEmail,
+                string userName,
+                CancellationToken cancellationToken = default)
+            {
+                List<Island> islands = await _localContext.Islands
+                    .Where(island => createUserResponse.User.UserIslandIds.Contains(island.Id))
+                    .ToListAsync(cancellationToken);
+
+                List<Pet> pets = await _localContext.Pets
+                    .Where(pet => createUserResponse.User.UserPetIds.Contains(pet.Id))
+                    .ToListAsync(cancellationToken);
+
+                Shared.Models.User user = new()
+                {
+                    Id = createUserResponse.User.Id,
+                    Auth0Id = auth0UserId,
+                    Email = userEmail,
+                    UserName = userName,
+                    Balance = createUserResponse.User.Balance
+                };
+
+                foreach (Island? island in islands)
+                {
+                    user.Islands?.Add(new UserIsland()
+                    {
+                        Island = island
+                    });
+                }
+
+                foreach (Pet? pet in pets)
+                {
+                    user.Pets?.Add(new UserPet()
+                    {
+                        Pet = pet
+                    });
+                }
+
+                return user;
             }
         }
     }

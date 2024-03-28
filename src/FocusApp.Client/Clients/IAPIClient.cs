@@ -13,7 +13,7 @@ public interface IAPIClient
     #region User
 
     [Get("/User/GetUser")]
-    Task<GetUserResponse> GetUserByAuth0Id(
+    Task<ApiResponse<GetUserResponse>> GetUserByAuth0Id(
         GetUserQuery query,
         CancellationToken cancellationToken = default);
 

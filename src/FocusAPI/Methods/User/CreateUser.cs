@@ -37,12 +37,23 @@ public class CreateUser
                 Island? initialIsland = await GetInitialIsland(cancellationToken);
                 Pet? initialPet = await GetInitialPet(cancellationToken);
 
-                BaseUser? newUser = await CreateUser(command, initialPet, initialIsland, cancellationToken);
+                FocusAPI.Models.User? newUser = await CreateUser(command, initialPet, initialIsland, cancellationToken);
 
                 return new MediatrResultWrapper<CreateUserResponse>()
                 {
                     HttpStatusCode = HttpStatusCode.OK,
-                    Data = new CreateUserResponse { User = newUser }
+                    Data = new CreateUserResponse
+                    {
+                        User = new UserDto()
+                        {
+                            Id = newUser.Id,
+                            Balance = newUser.Balance,
+                            SelectedIslandId = newUser.SelectedIslandId,
+                            SelectedPetId = newUser.SelectedPetId,
+                            UserIslandIds = newUser.Islands.Select(userIsland => userIsland.IslandId).ToList(),
+                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList()
+                        }
+                    }
                 };
             }
             else
@@ -53,8 +64,6 @@ public class CreateUser
                     Message = $"User already exists with Auth0Id: {command.Auth0Id}",
                 };
             }
-
-            
         }
 
         private async Task<FocusAPI.Models.User?> GetUser(
@@ -101,7 +110,7 @@ public class CreateUser
             }
         }
 
-        private async Task<BaseUser> CreateUser(
+        private async Task<FocusAPI.Models.User?> CreateUser(
             CreateUserCommand command,
             Pet? initialPet,
             Island? initialIsland,
@@ -120,11 +129,13 @@ public class CreateUser
             if (initialPet != null)
             {
                 user.Pets?.Add(new UserPet() { Pet = initialPet });
+                user.SelectedPet = initialPet;
             }
 
             if (initialIsland != null)
             {
                 user.Islands?.Add(new UserIsland() { Island = initialIsland });
+                user.SelectedIsland = initialIsland;
             }
 
             _context.Users.Add(user);

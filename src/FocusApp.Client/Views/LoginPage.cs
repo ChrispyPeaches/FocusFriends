@@ -109,7 +109,7 @@ internal class LoginPage : BasePage
         try
         {
             // Handle login process on non-UI thread
-            GetUserLogin.Result loginResult = await Task.Run(async () => await _mediator.Send(new GetUserLogin.Query()));
+            GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
 
             if (loginResult.IsSuccessful)
             {
