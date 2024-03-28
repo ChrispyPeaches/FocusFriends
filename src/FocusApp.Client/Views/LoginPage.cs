@@ -101,6 +101,8 @@ internal class LoginPage : BasePage
         // If user skips login, set current user / auth token to null
         _authenticationService.CurrentUser = null;
         _authenticationService.AuthToken = null;
+
+        // Todo: If user skips login, set selected pet and island to defaults
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
@@ -110,6 +112,8 @@ internal class LoginPage : BasePage
         {
             // Handle login process on non-UI thread
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
+
+            // Todo: If user exists, sync user data with server including islands, pets, etc.
 
             if (loginResult.IsSuccessful)
             {
@@ -124,7 +128,7 @@ internal class LoginPage : BasePage
         }
         catch (Exception ex) 
         {
-            _logger.Log(LogLevel.Error, "Error during login process. Exception: " + ex.Message);
+            _logger.LogError(ex, "Error during login process.");
         }
     }
 

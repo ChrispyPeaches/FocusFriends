@@ -4,7 +4,7 @@ using MediatR;
 using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace FocusApi.Methods.User;
+namespace FocusAPI.Methods.User;
 public class AddUserPet
 {
     public class Handler : IRequestHandler<AddUserPetCommand, Unit>

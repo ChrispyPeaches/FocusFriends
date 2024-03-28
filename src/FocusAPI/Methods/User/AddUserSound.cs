@@ -4,7 +4,7 @@ using MediatR;
 using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace FocusApi.Methods.User;
+namespace FocusAPI.Methods.User;
 public class AddUserSound
 {
     public class Handler : IRequestHandler<AddUserSoundCommand, Unit>

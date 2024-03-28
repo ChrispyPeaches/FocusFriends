@@ -9,7 +9,7 @@ using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
 using FocusCore.Responses;
 
-namespace FocusApi.Methods.User;
+namespace FocusAPI.Methods.User;
 public class CreateUser
 {
     public class Handler : IRequestHandler<CreateUserCommand, MediatrResultWrapper<CreateUserResponse>>
