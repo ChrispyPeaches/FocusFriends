@@ -32,9 +32,9 @@ public class BaseUser
 
 	public byte[]? ProfilePicture { get; set; }
 
-	public ICollection<BaseFriendship>? Inviters { get; set; }
+	public ICollection<BaseFriendship>? Inviters { get; set; } = new List<BaseFriendship>();
 
-	public ICollection<BaseFriendship>? Invitees { get; set; }
+	public ICollection<BaseFriendship>? Invitees { get; set; } = new List<BaseFriendship>();
 
     public ICollection<BaseUserPet>? Pets { get; set; } = new List<BaseUserPet>();
 
@@ -42,11 +42,11 @@ public class BaseUser
 
     public ICollection<BaseUserSound>? Sounds { get; set; } = new List<BaseUserSound>();
 
-    public ICollection<BaseUserBadge>? Badges { get; set; }
+    public ICollection<BaseUserBadge>? Badges { get; set; } = new List<BaseUserBadge>();
 
     public ICollection<BaseUserIsland>? Islands { get; set; } = new List<BaseUserIsland>();
 
-	public ICollection<BaseUserSession>? UserSessions { get; set; }
+    public ICollection<BaseUserSession>? UserSessions { get; set; } = new List<BaseUserSession>();
 
     [ForeignKey(nameof(SelectedIsland))]
     public Guid? SelectedIslandId { get; set; }
