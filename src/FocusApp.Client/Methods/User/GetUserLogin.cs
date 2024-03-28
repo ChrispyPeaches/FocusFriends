@@ -11,6 +11,7 @@ using FocusCore.Responses.User;
 using IdentityModel.OidcClient;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Logging;
 using Refit;
 
@@ -168,6 +169,7 @@ namespace FocusApp.Client.Methods.User
                     Balance = createUserResponse.User.Balance
                 };
 
+                // Replicate island and pet ownership from server
                 foreach (Island? island in islands)
                 {
                     user.Islands?.Add(new UserIsland()
@@ -184,7 +186,25 @@ namespace FocusApp.Client.Methods.User
                     });
                 }
 
+                user.SelectedIsland = await GetInitialIslandQuery()
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                user.SelectedPet = await GetInitialPetQuery()
+                    .FirstOrDefaultAsync(cancellationToken);
+
                 return user;
+            }
+
+            public IQueryable<Island> GetInitialIslandQuery()
+            {
+                return _localContext.Islands
+                    .Where(island => island.Name == FocusCore.Consts.NameOfInitialIsland);
+            }
+
+            public IQueryable<Pet> GetInitialPetQuery()
+            {
+                return _localContext.Pets
+                    .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
             }
         }
     }
