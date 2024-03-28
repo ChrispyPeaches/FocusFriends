@@ -129,13 +129,14 @@ internal class TimerPage : BasePage
                     Island = authenticationService.SelectedIsland,
                     Pet = authenticationService.SelectedPet
                 }
+                .Center()
                 .Row(Row.IslandView)
                 .ColumnSpan(typeof(Column).GetEnumNames().Length)
                 .Bind(
                     IslandDisplayView.IslandProperty,
                     getter: static (IAuthenticationService authService) => authService.SelectedIsland)
                 .Bind(
-                    IslandDisplayView.IslandProperty,
+                    IslandDisplayView.PetProperty,
                     getter: static (IAuthenticationService authService) => authService.SelectedPet),
 
                 // Increase Time Button
