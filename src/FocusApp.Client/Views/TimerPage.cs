@@ -6,7 +6,9 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
+using FocusApp.Client.Views.Controls;
 using FocusApp.Client.Views.Mindfulness;
+using FocusApp.Shared.Data;
 using FocusCore.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -25,11 +27,11 @@ internal class TimerPage : BasePage
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
 
-    enum Row { TopBar, TimerDisplay, Island, PetAndIsland, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
+    enum Row { TopBar, TimerDisplay, IslandView, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, Helpers.PopupService popupService, ILogger<TimerPage> logger)
+    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, PopupService popupService, ILogger<TimerPage> logger, FocusAppContext context)
     {
         _selectedText = "";
         _authenticationService = authenticationService;
@@ -40,19 +42,6 @@ internal class TimerPage : BasePage
 
         _showMindfulnessTipPopupOnStartSettingPlaceholder = true;
         Appearing += ShowMindfulnessTipPopup;
-
-        Island islandPlaceholder = new Island()
-        {
-            Name = "Default",
-            ImagePath = "island_zero.png"
-        };
-
-        Pet petPlaceholder = new Pet()
-        {
-            Name = "Cat",
-            ImagePath = "pet_cat_zero.png",
-            HeightRequest = 90
-        };
 
         // Login/Logout Button
         // This is placed here and not in the grid so the text
@@ -88,8 +77,7 @@ internal class TimerPage : BasePage
             RowDefinitions = GridRowsColumns.Rows.Define(
                 (Row.TopBar, GridRowsColumns.Stars(1)),
                 (Row.TimerDisplay, GridRowsColumns.Stars(1)),
-                (Row.Island, GridRowsColumns.Stars(3)),
-                (Row.PetAndIsland, GridRowsColumns.Stars(1)),
+                (Row.IslandView, GridRowsColumns.Stars(4)),
                 (Row.MiddleWhiteSpace, GridRowsColumns.Stars(1)),
                 (Row.TimerButtons, GridRowsColumns.Stars(1)),
                 (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
@@ -135,27 +123,20 @@ internal class TimerPage : BasePage
                         getter: static (ITimerService th) => th.TimerDisplay),
 
                 // Island
-                new Image
+                new IslandDisplayView()
                 {
-                    Source = islandPlaceholder.ImagePath,
+                    BindingContext = _authenticationService,
+                    Island = authenticationService.SelectedIsland,
+                    Pet = authenticationService.SelectedPet
                 }
-                .Row(Row.Island)
-                .RowSpan(3)
+                .Row(Row.IslandView)
                 .ColumnSpan(typeof(Column).GetEnumNames().Length)
-                .Margins(left: 10, right: 10),
-
-                // Pet
-                new Image
-                {
-                    Source = petPlaceholder.ImagePath,
-                    MaximumHeightRequest = 200,
-                    HeightRequest = petPlaceholder.HeightRequest
-                }
-                .Row(Row.PetAndIsland)
-                .Column(Column.TimerAmount)
-                .Margins(bottom: 60)
-                .Bottom()
-                .End(),
+                .Bind(
+                    IslandDisplayView.IslandProperty,
+                    getter: static (IAuthenticationService authService) => authService.SelectedIsland)
+                .Bind(
+                    IslandDisplayView.IslandProperty,
+                    getter: static (IAuthenticationService authService) => authService.SelectedPet),
 
                 // Increase Time Button
                 new Button
@@ -314,4 +295,5 @@ internal class TimerPage : BasePage
         }
         
     }
+
 }
