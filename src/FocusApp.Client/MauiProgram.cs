@@ -21,6 +21,7 @@ using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
 using FocusApp.Client.Methods.Sync;
 using Microsoft.Extensions.DependencyInjection;
+using Maui.FreakyControls.Extensions;
 
 namespace FocusApp.Client
 {
@@ -33,6 +34,7 @@ namespace FocusApp.Client
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMarkup()
                 .UseSimpleShell()
+                .InitializeFreakyControls()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
