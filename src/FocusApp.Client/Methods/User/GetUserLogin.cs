@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using Auth0.OidcClient;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Models.Extensions;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
@@ -11,7 +11,6 @@ using FocusCore.Responses.User;
 using IdentityModel.OidcClient;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Logging;
 using Refit;
 
@@ -43,11 +42,12 @@ namespace FocusApp.Client.Methods.User
                 _logger = logger;
             }
 
-            public async Task<Result> Handle(Query query, CancellationToken cancellationToken)
+            public async Task<Result> Handle(
+                Query query,
+                CancellationToken cancellationToken = default)
             {
                 LoginResult? loginResult = await MainThread
                     .InvokeOnMainThreadAsync(() => _auth0Client.LoginAsync(cancellationToken: cancellationToken));
-
                 Shared.Models.User? user = null;
 
                 if (!loginResult.IsError)
@@ -73,6 +73,9 @@ namespace FocusApp.Client.Methods.User
 
                             switch (response.StatusCode)
                             {
+                                case HttpStatusCode.OK:
+                                    user = await GatherExistingUserData(response.Content, auth0UserId, cancellationToken);
+                                    break;
                                 case HttpStatusCode.NotFound:
                                     user = await CreateUser(auth0UserId, userEmail, userName, cancellationToken);
                                     break;
@@ -127,7 +130,7 @@ namespace FocusApp.Client.Methods.User
                     },
                     cancellationToken);
 
-                user = await GatherUserData(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
+                user = await GatherUserDataFromCreateUser(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
 
                 bool userExistsLocally = await _localContext.Users
                     .AnyAsync(u => u.Auth0Id == auth0UserId, cancellationToken);
@@ -145,21 +148,13 @@ namespace FocusApp.Client.Methods.User
                 return user;
             }
 
-            private async Task<Shared.Models.User> GatherUserData(
+            private async Task<Shared.Models.User> GatherUserDataFromCreateUser(
                 CreateUserResponse createUserResponse,
                 string auth0UserId,
                 string userEmail,
                 string userName,
                 CancellationToken cancellationToken = default)
             {
-                List<Island> islands = await _localContext.Islands
-                    .Where(island => createUserResponse.User.UserIslandIds.Contains(island.Id))
-                    .ToListAsync(cancellationToken);
-
-                List<Pet> pets = await _localContext.Pets
-                    .Where(pet => createUserResponse.User.UserPetIds.Contains(pet.Id))
-                    .ToListAsync(cancellationToken);
-
                 Shared.Models.User user = new()
                 {
                     Id = createUserResponse.User.Id,
@@ -168,23 +163,6 @@ namespace FocusApp.Client.Methods.User
                     UserName = userName,
                     Balance = createUserResponse.User.Balance
                 };
-
-                // Replicate island and pet ownership from server
-                foreach (Island? island in islands)
-                {
-                    user.Islands?.Add(new UserIsland()
-                    {
-                        Island = island
-                    });
-                }
-
-                foreach (Pet? pet in pets)
-                {
-                    user.Pets?.Add(new UserPet()
-                    {
-                        Pet = pet
-                    });
-                }
 
                 user.SelectedIsland = await GetInitialIslandQuery()
                     .FirstOrDefaultAsync(cancellationToken);
@@ -195,13 +173,55 @@ namespace FocusApp.Client.Methods.User
                 return user;
             }
 
-            public IQueryable<Island> GetInitialIslandQuery()
+            /// <summary>
+            /// Gather the existing user's data from either the mobile database
+            /// or the server if it isn't found in the local database.
+            /// </summary>
+            private async Task<Shared.Models.User?> GatherExistingUserData(
+                GetUserResponse? getUserResponse,
+                string auth0Id,
+                CancellationToken cancellationToken = default)
+            {
+                Shared.Models.User? user;
+
+                Shared.Models.User? localUser = await _localContext.Users
+                    .Where(u => u.Auth0Id == auth0Id)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (getUserResponse?.User is null)
+                {
+                    user = localUser;
+                }
+                else
+                {
+                    user = UserExtensions.ProjectFromBaseUser(getUserResponse.User);
+
+                    // Gather the user's selected island and pet or get the defaults if one isn't selected
+                    user.SelectedIsland = await _localContext.Islands
+                        .Where(island => island.Id == getUserResponse.SelectedIslandId)
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                    user.SelectedIsland ??= await GetInitialIslandQuery()
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                    user.SelectedPet = await _localContext.Pets
+                        .Where(pet => pet.Id == getUserResponse.SelectedPetId)
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                    user.SelectedPet ??= await GetInitialPetQuery()
+                        .FirstOrDefaultAsync(cancellationToken);
+                }
+
+                return user;
+            }
+
+            private IQueryable<Island> GetInitialIslandQuery()
             {
                 return _localContext.Islands
                     .Where(island => island.Name == FocusCore.Consts.NameOfInitialIsland);
             }
 
-            public IQueryable<Pet> GetInitialPetQuery()
+            private IQueryable<Pet> GetInitialPetQuery()
             {
                 return _localContext.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
