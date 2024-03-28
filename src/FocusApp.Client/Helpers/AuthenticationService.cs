@@ -10,7 +10,7 @@ internal interface IAuthenticationService
     string Id { get; set; }
     string Email { get; set; }
     string AuthToken { get; set; }
-    Shared.Models.User? CurrentUser { get; set; }
+    User? CurrentUser { get; set; }
     Island? SelectedIsland { get; }
     Pet? SelectedPet { get; }
     Badge? SelectedBadge { get; }

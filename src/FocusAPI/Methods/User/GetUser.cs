@@ -7,7 +7,7 @@ using FocusCore.Responses;
 using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
 
-namespace FocusApi.Methods.User;
+namespace FocusAPI.Methods.User;
 public class GetUser
 {
     public class Handler : IRequestHandler<GetUserQuery, MediatrResultWrapper<GetUserResponse>>
