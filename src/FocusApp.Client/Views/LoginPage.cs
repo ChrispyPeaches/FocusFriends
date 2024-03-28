@@ -8,6 +8,7 @@ using FocusApp.Shared.Data;
 using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;
+using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Views;
 
@@ -98,9 +99,17 @@ internal class LoginPage : BasePage
 
     private async void SkipButtonClicked(object sender, EventArgs e)
     {
-        // If user skips login, set current user / auth token to null
-        _authenticationService.CurrentUser = null;
-        _authenticationService.AuthToken = null;
+        // If user skips login, initialize empty user and set selected pet and island to defaults
+        try
+        {
+            await Task.Run(InitializeEmptyUser);
+            _authenticationService.AuthToken = null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error initializing empty user.");
+        }
+
 
         // Todo: If user skips login, set selected pet and island to defaults
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
@@ -129,6 +138,36 @@ internal class LoginPage : BasePage
         catch (Exception ex) 
         {
             _logger.LogError(ex, "Error during login process.");
+        }
+
+        // If any issues occured while logging in, initialize empty user and set selected pet and island to defaults
+        try
+        {
+            await Task.Run(InitializeEmptyUser);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error initializing empty user.");
+        }
+
+    }
+
+    private async Task InitializeEmptyUser()
+    {
+        _authenticationService.CurrentUser ??= new User()
+        {
+            Auth0Id = "",
+            Email = "",
+            UserName = "",
+            Balance = 0
+        };
+
+        if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
+        {
+            GetDefaultPetAndIsland.Result result = await _mediator.Send(new GetDefaultPetAndIsland.Query());
+
+            _authenticationService.CurrentUser.SelectedIsland ??= result.Island;
+            _authenticationService.CurrentUser.SelectedPet ??= result.Pet;
         }
     }
 

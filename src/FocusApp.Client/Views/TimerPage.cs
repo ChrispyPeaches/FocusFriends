@@ -6,10 +6,13 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
+using FocusApp.Client.Methods.User;
 using FocusApp.Client.Views.Controls;
 using FocusApp.Client.Views.Mindfulness;
 using FocusApp.Shared.Data;
+using FocusApp.Shared.Models;
 using FocusCore.Extensions;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views;
@@ -31,7 +34,7 @@ internal class TimerPage : BasePage
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
-    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, PopupService popupService, ILogger<TimerPage> logger, FocusAppContext context)
+    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, PopupService popupService, ILogger<TimerPage> logger)
     {
         _selectedText = "";
         _authenticationService = authenticationService;
@@ -77,7 +80,7 @@ internal class TimerPage : BasePage
             RowDefinitions = GridRowsColumns.Rows.Define(
                 (Row.TopBar, GridRowsColumns.Stars(1)),
                 (Row.TimerDisplay, GridRowsColumns.Stars(1)),
-                (Row.IslandView, GridRowsColumns.Stars(4)),
+                (Row.IslandView, GridRowsColumns.Stars(5)),
                 (Row.MiddleWhiteSpace, GridRowsColumns.Stars(1)),
                 (Row.TimerButtons, GridRowsColumns.Stars(1)),
                 (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
@@ -130,6 +133,7 @@ internal class TimerPage : BasePage
                     Pet = authenticationService.SelectedPet
                 }
                 .Center()
+                .FillHorizontal()
                 .Row(Row.IslandView)
                 .ColumnSpan(typeof(Column).GetEnumNames().Length)
                 .Bind(
