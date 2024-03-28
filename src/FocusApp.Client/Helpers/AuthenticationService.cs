@@ -1,4 +1,9 @@
-﻿namespace FocusApp.Client.Helpers;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
+using FocusApp.Shared.Models;
+
+namespace FocusApp.Client.Helpers;
 
 internal interface IAuthenticationService
 {
@@ -6,12 +11,27 @@ internal interface IAuthenticationService
     string Email { get; set; }
     string AuthToken { get; set; }
     Shared.Models.User? CurrentUser { get; set; }
+    Island? SelectedIsland { get; }
+    Pet? SelectedPet { get; }
+    Badge? SelectedBadge { get; }
+    Furniture? SelectedFurniture { get; }
 }
 
-public class AuthenticationService : IAuthenticationService
+public partial class AuthenticationService : ObservableObject, IAuthenticationService
 {
     public string Id { get; set; } = "";
     public string Email { get; set; } = "";
     public string AuthToken { get; set; } = "";
-    public Shared.Models.User? CurrentUser { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedIsland))]
+    [NotifyPropertyChangedFor(nameof(SelectedPet))]
+    [NotifyPropertyChangedFor(nameof(SelectedBadge))]
+    [NotifyPropertyChangedFor(nameof(SelectedFurniture))]
+    private User? _currentUser;
+
+    public Island? SelectedIsland => CurrentUser?.SelectedIsland;
+    public Pet? SelectedPet => CurrentUser?.SelectedPet;
+    public Badge? SelectedBadge => CurrentUser?.SelectedBadge;
+    public Furniture? SelectedFurniture => CurrentUser?.SelectedFurniture;
 }
