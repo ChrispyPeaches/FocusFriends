@@ -3,6 +3,7 @@ using FocusCore.Queries.User;
 using FocusCore.Models;
 using MediatR;
 using FocusAPI.Data;
+using FocusAPI.Models.Extensions;
 using FocusCore.Responses;
 using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,14 @@ public class GetUser
                 return new()
                 {
                     HttpStatusCode = HttpStatusCode.OK,
-                    Data = new GetUserResponse { User = user }
+                    Data = new GetUserResponse
+                    {
+                        User = user,
+                        SelectedIslandId = user.SelectedIsland?.Id,
+                        SelectedPetId = user.SelectedPet?.Id,
+                        UserIslandIds = user.Islands?.Select(ui => ui.IslandId).ToList() ?? new(),
+                        UserPetIds = user.Pets?.Select(up => up.PetId).ToList() ?? new()
+                    }
                 };
             }
             else
@@ -50,6 +58,11 @@ public class GetUser
             {
                 return await _context.Users
                     .Where(u => u.Auth0Id == query.Auth0Id)
+                    .Include(user => user.Islands)
+                    .Include(user => user.Pets)
+                    .Include(user => user.Furniture)
+                    .Include(user => user.Badges)
+                    .Select(user => UserExtensions.ProjectToBaseUser(user))
                     .FirstOrDefaultAsync(cancellationToken);
             }
             catch (Exception e)
