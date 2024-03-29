@@ -25,9 +25,14 @@ namespace FocusApp.Client.Views.Social
 
         // Column structure for remaining friends entries
         enum RemainingFriendsColumn { Picture, Name, Score }
+
+
+        Button _dailyLeaderboardButton { get; set; }
+        Button _weeklyLeaderboardButton { get; set; }
+
         StackLayout _remainingFriendsContent { get; set; }
 
-        // Top three friends image, score, and username references
+        // Top three friends image, score, and username references (Gross)
         Image _firstPlacePicture { get; set; }
         Label _firstPlaceScore { get; set; }
         Label _firstPlaceUsername { get; set; }
@@ -47,6 +52,30 @@ namespace FocusApp.Client.Views.Social
 
             Grid topThreeFriendsGrid = GetTopThreeFriendsGrid();
             ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
+
+            // Daily Leaderboards Button
+            _dailyLeaderboardButton = new Button
+            {
+                Text = "Daily",
+                Margin = 15,
+                // Disable button initially because daily leaderboard is fetched on page load
+                IsEnabled = false
+            }
+            .Row(PageRow.LeaderboardSelectors)
+            .Column(PageColumn.DailyLeadboardButton)
+            .Invoke(button => button.Released += (sender, eventArgs) =>
+                GetDailyLeaderboards(sender, eventArgs));
+
+            _weeklyLeaderboardButton = new Button
+            {
+                Text = "Weekly",
+                Margin = 15,
+                IsEnabled = true
+            }
+            .Row(PageRow.LeaderboardSelectors)
+            .Column(PageColumn.WeeklyLeaderboardButton)
+            .Invoke(button => button.Released += (sender, eventArgs) =>
+                GetWeeklyLeaderboards(sender, eventArgs));
 
             Content = new Grid
             {
@@ -104,27 +133,9 @@ namespace FocusApp.Client.Views.Social
                     .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                     .Bottom(),
 
-                    // Daily Leaderboards Button
-                    new Button
-                    {
-                        Text = "Daily",
-                        Margin = 15
-                    }
-                    .Row(PageRow.LeaderboardSelectors)
-                    .Column(PageColumn.DailyLeadboardButton)
-                    .Invoke(button => button.Released += (sender, eventArgs) =>
-                        GetDailyLeaderboards(sender, eventArgs)),
+                    _dailyLeaderboardButton,
 
-                    // Weekly Leaderboards Button
-                    new Button
-                    {
-                        Text = "Weekly",
-                        Margin = 15
-                    }
-                    .Row(PageRow.LeaderboardSelectors)
-                    .Column(PageColumn.WeeklyLeaderboardButton)
-                    .Invoke(button => button.Released += (sender, eventArgs) =>
-                        GetWeeklyLeaderboards(sender, eventArgs)),
+                    _weeklyLeaderboardButton,
 
                     // Top Three Friends Leaderboard Display
                     topThreeFriendsGrid
@@ -327,6 +338,7 @@ namespace FocusApp.Client.Views.Social
             return scrollView;
         }
 
+        // Gross
         void SetTopThreeDynamicElements()
         {
             // Set third place dynamic elements
@@ -413,18 +425,26 @@ namespace FocusApp.Client.Views.Social
 
         async void GetDailyLeaderboards(object sender, EventArgs e)
         {
+            // Disable the daily leaderboards button, and enable the weekly leaderboards button
+            _dailyLeaderboardButton.IsEnabled = false;
+            _weeklyLeaderboardButton.IsEnabled = true;
+
             List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
             PopulateLeaderboard(leaderboard);
         }
 
         async void GetWeeklyLeaderboards(object sender, EventArgs e)
         {
+            // Disable the weekly leaderboards button, and enable the daily leaderboards button
+            _weeklyLeaderboardButton.IsEnabled = false;
+            _dailyLeaderboardButton.IsEnabled = true;
+
             // Change to weekly
             List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
             PopulateLeaderboard(leaderboard);
         }
 
-        // This needs to be reworked
+        // Gross
         void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
         {
             _thirdPlacePicture.BindingContext = leaderboard[2];
@@ -449,9 +469,9 @@ namespace FocusApp.Client.Views.Social
 
         protected override async void OnAppearing()
         {
+            // On page load, fetch daily leaderboards
             List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
             PopulateLeaderboard(leaderboard);
-            
             base.OnAppearing();
         }
     }
