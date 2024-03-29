@@ -8,6 +8,8 @@ using CommunityToolkit.Maui.Converters;
 using FocusApp.Client.Clients;
 using FocusCore.Queries.Leaderboard;
 using FocusApp.Client.Helpers;
+using FocusCore.Models;
+//using static System.Net.Mime.MediaTypeNames;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -21,7 +23,7 @@ namespace FocusApp.Client.Views.Social
         enum TopThreeRow { TopProfilePicture, GoldPillar, SilverPillar, BronzePillar }
         enum TopThreeColumn { Left, Center, Right }
 
-        // Row / Column structure for remaining friends entries
+        // Column structure for remaining friends entries
         enum RemainingFriendsColumn { Picture, Name, Score }
 
         Grid _topThreeFriendsGrid { get; set; }
@@ -221,23 +223,23 @@ namespace FocusApp.Client.Views.Social
 
         ScrollView GetRemainingFriendsScrollView()
         {
-            List<TestFriend> testFriends = new List<TestFriend>
+            List<LeaderboardDto> LeaderboardDtos = new List<LeaderboardDto>
             {
-                new TestFriend { Name = "Richard 1", Score = 10, Rank = 4 },
-                new TestFriend { Name = "Richard 2", Score = 10 ,Rank = 5},
-                new TestFriend { Name = "Richard 3", Score = 10 ,Rank= 6},
-                new TestFriend { Name = "Richard 4", Score = 10 ,Rank = 7},
-                new TestFriend { Name = "Richard 5", Score = 10 ,Rank = 8},
-                new TestFriend { Name = "Richard 6" , Score = 10,Rank = 9},
-                new TestFriend { Name = "Richard 7" , Score = 10,Rank = 10},
-                new TestFriend { Name = "Richard 8" , Score = 10,Rank = 11},
-                new TestFriend { Name = "Richard 9" , Score = 10,Rank = 12},
-                new TestFriend { Name = "Richard 10" , Score = 10,Rank = 13},
-                new TestFriend { Name = "Richard 11" , Score = 10,Rank = 14},
-                new TestFriend { Name = "Richard 12" , Score = 10,Rank = 15},
-                new TestFriend { Name = "Richard 13" , Score = 10,Rank = 16},
-                new TestFriend { Name = "Richard 14" , Score = 10,Rank = 17},
-                new TestFriend { Name = "Richard 15" , Score = 10,Rank = 18}
+                new LeaderboardDto { UserName = "Richard 1", CurrencyEarned = 10, Rank = 4 },
+                new LeaderboardDto { UserName = "Richard 2", CurrencyEarned = 10 ,Rank = 5},
+                new LeaderboardDto { UserName = "Richard 3", CurrencyEarned = 10 ,Rank= 6},
+                new LeaderboardDto { UserName = "Richard 4", CurrencyEarned = 10 ,Rank = 7},
+                new LeaderboardDto { UserName = "Richard 5", CurrencyEarned = 10 ,Rank = 8},
+                new LeaderboardDto { UserName = "Richard 6" , CurrencyEarned = 10,Rank = 9},
+                new LeaderboardDto { UserName = "Richard 7" , CurrencyEarned = 10,Rank = 10},
+                new LeaderboardDto { UserName = "Richard 8" , CurrencyEarned = 10,Rank = 11},
+                new LeaderboardDto { UserName = "Richard 9" , CurrencyEarned = 10,Rank = 12},
+                new LeaderboardDto { UserName = "Richard 10" , CurrencyEarned = 10,Rank = 13},
+                new LeaderboardDto { UserName = "Richard 11" , CurrencyEarned = 10,Rank = 14},
+                new LeaderboardDto { UserName = "Richard 12" , CurrencyEarned = 10,Rank = 15},
+                new LeaderboardDto { UserName = "Richard 13" , CurrencyEarned = 10,Rank = 16},
+                new LeaderboardDto { UserName = "Richard 14" , CurrencyEarned = 10,Rank = 17},
+                new LeaderboardDto { UserName = "Richard 15" , CurrencyEarned = 10,Rank = 18}
             };
 
             DataTemplate dataTemplate = new DataTemplate(() =>
@@ -270,14 +272,14 @@ namespace FocusApp.Client.Views.Social
                     VerticalOptions = LayoutOptions.Center,
                 }
                 .Column(RemainingFriendsColumn.Name);
-                friendName.SetBinding(Label.TextProperty, "Name");
+                friendName.SetBinding(Label.TextProperty, "UserName");
 
                 Label friendScore = new Label
                 {
                     FontSize = 24,
                     HorizontalOptions = LayoutOptions.Center,
                 };
-                friendScore.SetBinding(Label.TextProperty, "Score");
+                friendScore.SetBinding(Label.TextProperty, "CurrencyEarned");
 
                 Label friendRank = new Label
                 {
@@ -315,7 +317,7 @@ namespace FocusApp.Client.Views.Social
             });
 
             _remainingFriendsContent = new StackLayout();
-            BindableLayout.SetItemsSource(_remainingFriendsContent, testFriends);
+            BindableLayout.SetItemsSource(_remainingFriendsContent, LeaderboardDtos);
             BindableLayout.SetItemTemplate(_remainingFriendsContent, dataTemplate);
 
             var scrollView = new ScrollView
@@ -350,9 +352,9 @@ namespace FocusApp.Client.Views.Social
             .CenterHorizontal();
 
             // Bind third place properties to friend fields
-            _thirdPlacePicture.Bind(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
-            _thirdPlaceScore.Bind(Label.TextProperty, "Score");
-            _thirdPlaceUsername.Bind(Label.TextProperty, "Name");
+            _thirdPlacePicture.Bind(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+            _thirdPlaceScore.Bind(Label.TextProperty, "CurrencyEarned");
+            _thirdPlaceUsername.Bind(Label.TextProperty, "UserName");
 
             // Set second place dynamic elements
             _secondPlacePicture = new Image
@@ -378,9 +380,9 @@ namespace FocusApp.Client.Views.Social
             .CenterHorizontal();
 
             // Bind second place properties to friend fields
-            _secondPlacePicture.Bind(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
-            _secondPlaceScore.Bind(Label.TextProperty, "Score");
-            _secondPlaceUsername.Bind(Label.TextProperty, "Name");
+            _secondPlacePicture.Bind(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+            _secondPlaceScore.Bind(Label.TextProperty, "CurrencyEarned");
+            _secondPlaceUsername.Bind(Label.TextProperty, "UserName");
 
             // Set first place dynamic elements
             _firstPlacePicture = new Image
@@ -405,20 +407,11 @@ namespace FocusApp.Client.Views.Social
             }
             .CenterHorizontal();
 
-            _firstPlacePicture.Bind(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
-            _firstPlaceScore.Bind(Label.TextProperty, "Score");
-            _firstPlaceUsername.Bind(Label.TextProperty, "Name");
+            _firstPlacePicture.Bind(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+            _firstPlaceScore.Bind(Label.TextProperty, "CurrencyEarned");
+            _firstPlaceUsername.Bind(Label.TextProperty, "UserName");
         }
 
-        public class TestFriend
-        {
-            public string Name { get; set; }
-            public byte[] Picture { get; set; }
-            public int Score { get; set; }
-            public int Rank { get; set; }
-        }
-
-        // Prototype: Link to data fetched from API
         void GetDailyLeaderboards(object sender, EventArgs e)
         {
             _firstPlacePicture.Source = new FileImageSource { File = "logo.png" };
@@ -441,31 +434,30 @@ namespace FocusApp.Client.Views.Social
 
         async void BackButtonClicked(object sender, EventArgs e)
         {
-            // Test code for dynamic top three
-            /*
-            var q = await _client.GetAllShopItems(new FocusCore.Queries.Shop.GetAllShopItemsQuery(), default);
-            var kylepic = q.First(s => s.Name == "Kyle").ImageSource;
-
-            TestFriend test = new TestFriend { Name = "YourFriend3", Rank = 3, Score = 500, Picture = kylepic };
-            _thirdPlacePicture.BindingContext = test;
-            _thirdPlaceScore.BindingContext = test;
-            _thirdPlaceUsername.BindingContext = test;
-            _secondPlacePicture.BindingContext = test;
-            _secondPlaceScore.BindingContext = test;
-            _secondPlaceUsername.BindingContext = test;
-            _firstPlacePicture.BindingContext = test;
-            _firstPlaceScore.BindingContext = test;
-            _firstPlaceUsername.BindingContext = test;
-            */
-
             // Back navigation reverses animation so can keep right to left
             Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
         }
 
+        void UpdateDisplay(List<LeaderboardDto> leaderboard)
+        {
+            _thirdPlacePicture.BindingContext = leaderboard[2];
+            _thirdPlaceScore.BindingContext = leaderboard[2];
+            _thirdPlaceUsername.BindingContext = leaderboard[2];
+
+            _secondPlacePicture.BindingContext = leaderboard[1];
+            _secondPlaceScore.BindingContext = leaderboard[1];
+            _secondPlaceUsername.BindingContext = leaderboard[1];
+
+            _firstPlacePicture.BindingContext = leaderboard[0];
+            _firstPlaceScore.BindingContext = leaderboard[0];
+            _firstPlaceUsername.BindingContext = leaderboard[0];
+        }
+
         protected override async void OnAppearing()
         {
-            var leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+            List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+            UpdateDisplay(leaderboard);
             base.OnAppearing();
         }
     }
