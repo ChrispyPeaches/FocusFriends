@@ -37,7 +37,7 @@ public class GetDailyLeaderboard
                     && s.SessionEndTime <= DateTime.UtcNow
                     && s.SessionEndTime > DateTime.UtcNow.AddDays(-1))
                 .ToListAsync(cancellationToken);
-          
+
             // Aggregate daily stats for users
             int currencyEarned;
             List<LeaderboardDto> leaderboard = new List<LeaderboardDto>();
@@ -56,10 +56,13 @@ public class GetDailyLeaderboard
             }
 
             // Rank users by currency earned
-            leaderboard.OrderBy(l => l.CurrencyEarned);
+            leaderboard = leaderboard.OrderByDescending(l => l.CurrencyEarned).ToList();
+
+            int rank;
             for (int i = 0; i < leaderboard.Count; i++)
             {
-                leaderboard[i].Rank = ++i;
+                rank = i + 1;
+                leaderboard[i].Rank = rank;
             }
 
             return leaderboard;

@@ -6,6 +6,8 @@ using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
 using CommunityToolkit.Maui.Converters;
 using FocusApp.Client.Clients;
+using FocusCore.Queries.Leaderboard;
+using FocusApp.Client.Helpers;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -37,9 +39,11 @@ namespace FocusApp.Client.Views.Social
         Label _thirdPlaceUsername { get; set; }
 
         IAPIClient _client { get; set; }
-        public LeaderboardsPage(IAPIClient client)
+        IAuthenticationService _authenticationService { get; set; }
+        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService)
         {
             _client = client;
+            _authenticationService = authenticationService;
             _topThreeFriendsGrid = GetTopThreeFriendsGrid();
             ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
 
@@ -77,7 +81,7 @@ namespace FocusApp.Client.Views.Social
 
                     // Page Header
                     new Label
-                    { 
+                    {
                         Text = "Leaderboards",
                         TextColor = Colors.Black,
                         FontSize = 30,
@@ -101,7 +105,7 @@ namespace FocusApp.Client.Views.Social
 
                     // Daily Leaderboards Button
                     new Button
-                    { 
+                    {
                         Text = "Daily",
                         Margin = 15
                     }
@@ -158,7 +162,7 @@ namespace FocusApp.Client.Views.Social
                     new Frame
                     {
                         BackgroundColor = Colors.RosyBrown,
-                        Content = new StackLayout 
+                        Content = new StackLayout
                         {
                             _thirdPlaceScore,
                             _thirdPlaceUsername
@@ -177,7 +181,7 @@ namespace FocusApp.Client.Views.Social
                     {
                         BackgroundColor = Colors.Silver,
                         Content = new StackLayout
-                        { 
+                        {
                             _secondPlaceScore,
                             _secondPlaceUsername
                         }
@@ -196,7 +200,7 @@ namespace FocusApp.Client.Views.Social
                     {
                         BackgroundColor = Colors.Gold,
                         Content = new StackLayout
-                        { 
+                        {
                             _firstPlaceScore,
                             _firstPlaceUsername
                         }
@@ -254,7 +258,7 @@ namespace FocusApp.Client.Views.Social
                     WidthRequest = 64,
                     VerticalOptions = LayoutOptions.Center,
                     Source = new FileImageSource
-                    { 
+                    {
                         File = "dotnet_bot.png"
                     }
                 }
@@ -281,7 +285,7 @@ namespace FocusApp.Client.Views.Social
                     HorizontalOptions = LayoutOptions.Center,
                     VerticalOptions = LayoutOptions.Center
                 }
-                .Margins(20,10,0,0);
+                .Margins(20, 10, 0, 0);
                 friendRank.SetBinding(Label.TextProperty, "Rank");
 
                 StackLayout friendScoreAndRank = new StackLayout().Column(RemainingFriendsColumn.Score);
@@ -313,12 +317,12 @@ namespace FocusApp.Client.Views.Social
             _remainingFriendsContent = new StackLayout();
             BindableLayout.SetItemsSource(_remainingFriendsContent, testFriends);
             BindableLayout.SetItemTemplate(_remainingFriendsContent, dataTemplate);
-            
+
             var scrollView = new ScrollView
-            { 
+            {
                 Content = _remainingFriendsContent
             };
-            
+
             return scrollView;
         }
 
@@ -407,7 +411,7 @@ namespace FocusApp.Client.Views.Social
         }
 
         public class TestFriend
-        { 
+        {
             public string Name { get; set; }
             public byte[] Picture { get; set; }
             public int Score { get; set; }
@@ -438,6 +442,7 @@ namespace FocusApp.Client.Views.Social
         async void BackButtonClicked(object sender, EventArgs e)
         {
             // Test code for dynamic top three
+            /*
             var q = await _client.GetAllShopItems(new FocusCore.Queries.Shop.GetAllShopItemsQuery(), default);
             var kylepic = q.First(s => s.Name == "Kyle").ImageSource;
 
@@ -451,10 +456,17 @@ namespace FocusApp.Client.Views.Social
             _firstPlacePicture.BindingContext = test;
             _firstPlaceScore.BindingContext = test;
             _firstPlaceUsername.BindingContext = test;
+            */
 
             // Back navigation reverses animation so can keep right to left
             Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
+        }
+
+        protected override async void OnAppearing()
+        {
+            var leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+            base.OnAppearing();
         }
     }
 }
