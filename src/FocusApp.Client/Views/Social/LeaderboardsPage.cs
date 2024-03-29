@@ -23,7 +23,7 @@ namespace FocusApp.Client.Views.Social
         enum RemainingFriendsColumn { Picture, Name, Score }
 
         Grid _topThreeFriendsGrid { get; set; }
-        ScrollView _remainingFriendsScrollView { get; set; }
+        StackLayout _remainingFriendsContent { get; set; }
 
         // Top three friends image, score, and username references
         Image _firstPlacePicture { get; set; }
@@ -41,7 +41,7 @@ namespace FocusApp.Client.Views.Social
         {
             _client = client;
             _topThreeFriendsGrid = GetTopThreeFriendsGrid();
-            _remainingFriendsScrollView = GetRemainingFriendsScrollView();
+            ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
 
             Content = new Grid
             {
@@ -127,14 +127,14 @@ namespace FocusApp.Client.Views.Social
                     .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
 
                     // Remaining Friends Leaderboard Display
-                    _remainingFriendsScrollView
+                    remainingFriendsScrollView
                     .Row(PageRow.RemainingFriendsDisplay)
                     .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 }
             };
         }
 
-        private Grid GetTopThreeFriendsGrid()
+        Grid GetTopThreeFriendsGrid()
         {
             SetTopThreeDynamicElements();
 
@@ -215,7 +215,7 @@ namespace FocusApp.Client.Views.Social
             return topThreeFriendsGrid;
         }
 
-        private ScrollView GetRemainingFriendsScrollView()
+        ScrollView GetRemainingFriendsScrollView()
         {
             List<TestFriend> testFriends = new List<TestFriend>
             {
@@ -310,13 +310,13 @@ namespace FocusApp.Client.Views.Social
                 return friendContainer;
             });
 
-            StackLayout stackLayout = new StackLayout();
-            BindableLayout.SetItemsSource(stackLayout, testFriends);
-            BindableLayout.SetItemTemplate(stackLayout, dataTemplate);
+            _remainingFriendsContent = new StackLayout();
+            BindableLayout.SetItemsSource(_remainingFriendsContent, testFriends);
+            BindableLayout.SetItemTemplate(_remainingFriendsContent, dataTemplate);
             
             var scrollView = new ScrollView
             { 
-                Content = stackLayout
+                Content = _remainingFriendsContent
             };
             
             return scrollView;
@@ -435,7 +435,7 @@ namespace FocusApp.Client.Views.Social
             _thirdPlaceScore.Text = "200";
         }
 
-        private async void BackButtonClicked(object sender, EventArgs e)
+        async void BackButtonClicked(object sender, EventArgs e)
         {
             // Test code for dynamic top three
             var q = await _client.GetAllShopItems(new FocusCore.Queries.Shop.GetAllShopItemsQuery(), default);
@@ -451,7 +451,6 @@ namespace FocusApp.Client.Views.Social
             _firstPlacePicture.BindingContext = test;
             _firstPlaceScore.BindingContext = test;
             _firstPlaceUsername.BindingContext = test;
-
 
             // Back navigation reverses animation so can keep right to left
             Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
