@@ -25,8 +25,6 @@ namespace FocusApp.Client.Views.Social
 
         // Column structure for remaining friends entries
         enum RemainingFriendsColumn { Picture, Name, Score }
-
-        Grid _topThreeFriendsGrid { get; set; }
         StackLayout _remainingFriendsContent { get; set; }
 
         // Top three friends image, score, and username references
@@ -46,7 +44,8 @@ namespace FocusApp.Client.Views.Social
         {
             _client = client;
             _authenticationService = authenticationService;
-            _topThreeFriendsGrid = GetTopThreeFriendsGrid();
+
+            Grid topThreeFriendsGrid = GetTopThreeFriendsGrid();
             ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
 
             Content = new Grid
@@ -128,7 +127,7 @@ namespace FocusApp.Client.Views.Social
                         GetWeeklyLeaderboards(sender, eventArgs)),
 
                     // Top Three Friends Leaderboard Display
-                    _topThreeFriendsGrid
+                    topThreeFriendsGrid
                     .Row(PageRow.TopThreeFriendsDisplay)
                     .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
 
@@ -412,34 +411,21 @@ namespace FocusApp.Client.Views.Social
             _firstPlaceUsername.Bind(Label.TextProperty, "UserName");
         }
 
-        void GetDailyLeaderboards(object sender, EventArgs e)
+        async void GetDailyLeaderboards(object sender, EventArgs e)
         {
-            _firstPlacePicture.Source = new FileImageSource { File = "logo.png" };
-            _firstPlaceScore.Text = "100";
-            _secondPlacePicture.Source = new FileImageSource { File = "pet_beans.png" };
-            _secondPlaceScore.Text = "80";
-            _thirdPlacePicture.Source = new FileImageSource { File = "pet_bob.png" };
-            _thirdPlaceScore.Text = "50";
+            List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+            PopulateLeaderboard(leaderboard);
         }
 
-        void GetWeeklyLeaderboards(object sender, EventArgs e)
+        async void GetWeeklyLeaderboards(object sender, EventArgs e)
         {
-            _firstPlacePicture.Source = new FileImageSource { File = "pet_wurmy.png" };
-            _firstPlaceScore.Text = "600";
-            _secondPlacePicture.Source = new FileImageSource { File = "pet_greg.png" };
-            _secondPlaceScore.Text = "400";
-            _thirdPlacePicture.Source = new FileImageSource { File = "pet_danole.png" };
-            _thirdPlaceScore.Text = "200";
+            // Change to weekly
+            List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+            PopulateLeaderboard(leaderboard);
         }
 
-        async void BackButtonClicked(object sender, EventArgs e)
-        {
-            // Back navigation reverses animation so can keep right to left
-            Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
-            await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
-        }
-
-        void UpdateDisplay(List<LeaderboardDto> leaderboard)
+        // This needs to be reworked
+        void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
         {
             _thirdPlacePicture.BindingContext = leaderboard[2];
             _thirdPlaceScore.BindingContext = leaderboard[2];
@@ -454,10 +440,18 @@ namespace FocusApp.Client.Views.Social
             _firstPlaceUsername.BindingContext = leaderboard[0];
         }
 
+        async void BackButtonClicked(object sender, EventArgs e)
+        {
+            // Back navigation reverses animation so can keep right to left
+            Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
+            await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
+        }
+
         protected override async void OnAppearing()
         {
             List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-            UpdateDisplay(leaderboard);
+            PopulateLeaderboard(leaderboard);
+            
             base.OnAppearing();
         }
     }
