@@ -128,8 +128,9 @@ internal class TimerPage : BasePage
                 new IslandDisplayView()
                 {
                     BindingContext = _authenticationService,
-                    Island = authenticationService.SelectedIsland,
-                    Pet = authenticationService.SelectedPet
+                    Island = _authenticationService.SelectedIsland,
+                    Pet = _authenticationService.SelectedPet,
+                    Decor = _authenticationService.SelectedFurniture
                 }
                 .Center()
                 .FillHorizontal()
@@ -140,7 +141,10 @@ internal class TimerPage : BasePage
                     getter: static (IAuthenticationService authService) => authService.SelectedIsland)
                 .Bind(
                     IslandDisplayView.PetProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedPet),
+                    getter: static (IAuthenticationService authService) => authService.SelectedPet)
+                .Bind(
+                    IslandDisplayView.DecorProperty,
+                    getter: static (IAuthenticationService authService) => authService.SelectedFurniture),
 
                 // Increase Time Button
                 new Button
