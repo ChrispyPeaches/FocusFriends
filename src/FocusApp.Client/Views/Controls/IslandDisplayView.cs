@@ -65,7 +65,6 @@ internal class IslandDisplayView : Grid
             (Column.Pet, GridRowsColumns.Stars(6)),
             (Column.RightWhiteSpace, GridRowsColumns.Stars(2))
         );
-        BackgroundColor = Color.FromRgba(255, 0, 0, 0.3);
 
         Children.Add(GetIslandView());
         Children.Add(GetDecorView());
@@ -91,7 +90,6 @@ internal class IslandDisplayView : Grid
     {
         FlexLayout petContainer = new FlexLayout()
             {
-                BackgroundColor = Color.FromRgba(0, 255, 255, 0.8),
                 JustifyContent = FlexJustify.End,
                 Direction = FlexDirection.Column
             }
@@ -101,7 +99,6 @@ internal class IslandDisplayView : Grid
         petContainer.Children
             .Add(new Image()
                 {
-                    BackgroundColor = Color.FromRgba(255, 0, 255, 0.3),
                     HorizontalOptions = LayoutOptions.Center,
                     MaximumWidthRequest = petContainer.Width,
                     MaximumHeightRequest = petContainer.Height
@@ -137,7 +134,6 @@ internal class IslandDisplayView : Grid
     {
         FlexLayout decorContainer = new FlexLayout()
             {
-                BackgroundColor = Color.FromRgba(255, 255, 0, 0.8),
                 JustifyContent = FlexJustify.End,
                 Direction = FlexDirection.Column
         }
@@ -147,7 +143,6 @@ internal class IslandDisplayView : Grid
         decorContainer.Children
             .Add(new Image()
                 {
-                    BackgroundColor = Color.FromRgba(0, 255, 0, 0.3),
                     HorizontalOptions = LayoutOptions.Center,
                     MaximumWidthRequest = decorContainer.Width,
                     MaximumHeightRequest = decorContainer.Height
