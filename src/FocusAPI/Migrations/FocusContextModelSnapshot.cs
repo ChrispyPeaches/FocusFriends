@@ -132,6 +132,9 @@ namespace FocusAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("HeightRequest")
+                        .HasColumnType("int");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");

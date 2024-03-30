@@ -8,9 +8,8 @@ public class BasePet
 {
     [Key]
     public Guid Id { get; set; }
-
     public required int Price { get; set; }
-
     public required string Name { get; set; } = null!;
     public byte[] Image { get; set; }
+    public int HeightRequest { get; set; }
 }
