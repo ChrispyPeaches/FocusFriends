@@ -30,7 +30,7 @@ internal class TimerPage : BasePage
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
 
-    enum Row { TopBar, TimerDisplay, IslandView, MiddleWhiteSpace, TimerButtons, BottomWhiteSpace }
+    enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     public enum TimerButton { Up, Down }
 
@@ -80,8 +80,7 @@ internal class TimerPage : BasePage
             RowDefinitions = GridRowsColumns.Rows.Define(
                 (Row.TopBar, GridRowsColumns.Stars(1)),
                 (Row.TimerDisplay, GridRowsColumns.Stars(1)),
-                (Row.IslandView, GridRowsColumns.Stars(5)),
-                (Row.MiddleWhiteSpace, GridRowsColumns.Stars(1)),
+                (Row.IslandView, GridRowsColumns.Stars(6)),
                 (Row.TimerButtons, GridRowsColumns.Stars(1)),
                 (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
                 ),

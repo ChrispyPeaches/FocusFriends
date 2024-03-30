@@ -4,7 +4,6 @@ using FocusCore.Models;
 using MediatR;
 using FocusAPI.Data;
 using FocusAPI.Helpers;
-using FocusAPI.Models.Extensions;
 using FocusCore.Responses;
 using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
