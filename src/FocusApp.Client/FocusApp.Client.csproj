@@ -89,11 +89,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Models\" />
+		<ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
+	  <Folder Include="Models\Extensions\" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">

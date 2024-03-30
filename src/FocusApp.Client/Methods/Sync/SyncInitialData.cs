@@ -8,6 +8,8 @@ using FocusCore.Queries.Sync;
 using FocusCore.Responses.Sync;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using FocusApp.Client.Helpers;
+using FocusCore.Models;
 
 namespace FocusApp.Client.Methods.Sync
 {
@@ -50,29 +52,20 @@ namespace FocusApp.Client.Methods.Sync
                             },
                             cancellationToken);
 
-                        if (response.Island != null)
+                        if (response.Island is not null)
                         {
-                            Island islandToAdd = new()
-                            {
-                                Id = response.Island.Id,
-                                Price = response.Island.Price,
-                                Name = response.Island.Name,
-                                Image = response.Island.Image
-                            };
-
-                            await AddItemToMobileDb(_context.Islands, islandToAdd, cancellationToken);
+                            await AddItemToMobileDb(
+                                _context.Islands,
+                                ProjectionHelper.ProjectFromBaseIsland(response.Island),
+                                cancellationToken);
                         }
-                        if (response.Pet != null)
-                        {
-                            Pet petToAdd = new()
-                            {
-                                Id = response.Pet.Id,
-                                Price = response.Pet.Price,
-                                Name = response.Pet.Name,
-                                Image = response.Pet.Image
-                            };
 
-                            await AddItemToMobileDb(_context.Pets, petToAdd, cancellationToken);
+                        if (response.Pet is not null)
+                        {
+                            await AddItemToMobileDb(
+                                _context.Pets,
+                                ProjectionHelper.ProjectFromBasePet(response.Pet),
+                                cancellationToken);
                         }
 
                         if (_context.ChangeTracker.HasChanges())

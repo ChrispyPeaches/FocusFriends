@@ -1,10 +1,9 @@
-﻿using System.Linq.Expressions;
-using FocusApp.Shared.Models;
+﻿using FocusAPI.Models;
 using FocusCore.Models;
 
-namespace FocusApp.Client.Models.Extensions;
+namespace FocusAPI.Helpers;
 
-public static class UserExtensions
+public static class ProjectionHelper
 {
     public static BaseUser ProjectToBaseUser(User user) =>
         new()
@@ -13,7 +12,7 @@ public static class UserExtensions
             Auth0Id = user.Auth0Id,
             UserName = user.UserName,
             Email = user.Email,
-            DateCreated = new DateTimeOffset(user.DateCreated, TimeZoneInfo.Utc.GetUtcOffset(user.DateCreated)),
+            DateCreated = user.DateCreated,
             Balance = user.Balance,
             FirstName = user.FirstName,
             LastName = user.LastName,
@@ -44,7 +43,7 @@ public static class UserExtensions
             Auth0Id = user.Auth0Id,
             UserName = user.UserName,
             Email = user.Email,
-            DateCreated = user.DateCreated.UtcDateTime,
+            DateCreated = user.DateCreated,
             Balance = user.Balance,
             FirstName = user.FirstName,
             LastName = user.LastName,
@@ -66,6 +65,44 @@ public static class UserExtensions
             SelectedFurniture = user.SelectedFurniture as Furniture,
             SelectedBadgeId = user.SelectedBadgeId,
             SelectedBadge = user.SelectedBadge as Badge
+        };
+
+    public static BasePet ProjectToBasePet(Pet pet) =>
+        new BasePet
+        {
+            Id = pet.Id,
+            Name = pet.Name,
+            Image = pet.Image,
+            Price = pet.Price,
+            HeightRequest = pet.HeightRequest
+        };
+
+    public static Pet ProjectFromBasePet(BasePet pet) =>
+        new Pet
+        {
+            Id = pet.Id,
+            Name = pet.Name,
+            Image = pet.Image,
+            Price = pet.Price,
+            HeightRequest = pet.HeightRequest
+        };
+
+    public static BaseIsland ProjectToBaseIsland(Island island) =>
+        new BaseIsland
+        {
+            Id = island.Id,
+            Name = island.Name,
+            Image = island.Image,
+            Price = island.Price
+        };
+
+    public static Island ProjectFromBaseIsland(BaseIsland island) =>
+        new Island
+        {
+            Id = island.Id,
+            Name = island.Name,
+            Image = island.Image,
+            Price = island.Price
         };
 }
 

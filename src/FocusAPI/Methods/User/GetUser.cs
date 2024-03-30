@@ -3,6 +3,7 @@ using FocusCore.Queries.User;
 using FocusCore.Models;
 using MediatR;
 using FocusAPI.Data;
+using FocusAPI.Helpers;
 using FocusAPI.Models.Extensions;
 using FocusCore.Responses;
 using FocusCore.Responses.User;
@@ -62,7 +63,7 @@ public class GetUser
                     .Include(user => user.Pets)
                     .Include(user => user.Furniture)
                     .Include(user => user.Badges)
-                    .Select(user => UserExtensions.ProjectToBaseUser(user))
+                    .Select(user => ProjectionHelper.ProjectToBaseUser(user))
                     .FirstOrDefaultAsync(cancellationToken);
             }
             catch (Exception e)

@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using Auth0.OidcClient;
 using FocusApp.Client.Clients;
-using FocusApp.Client.Models.Extensions;
+using FocusApp.Client.Helpers;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
@@ -194,7 +194,7 @@ namespace FocusApp.Client.Methods.User
                 }
                 else
                 {
-                    user = UserExtensions.ProjectFromBaseUser(getUserResponse.User);
+                    user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
 
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
                     user.SelectedIsland = await _localContext.Islands
