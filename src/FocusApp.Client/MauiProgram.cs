@@ -4,24 +4,17 @@ using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Clients;
 using FocusApp.Shared.Data;
 using FocusApp.Client.Helpers;
-using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Views;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Refit;
 using SimpleToolkit.SimpleShell;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using FocusApp.Client.Views.Shop;
-using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
 using FocusApp.Client.Methods.Sync;
-using Microsoft.Extensions.DependencyInjection;
-using Maui.FreakyControls.Extensions;
 
 namespace FocusApp.Client
 {
@@ -34,7 +27,6 @@ namespace FocusApp.Client
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMarkup()
                 .UseSimpleShell()
-                .InitializeFreakyControls()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

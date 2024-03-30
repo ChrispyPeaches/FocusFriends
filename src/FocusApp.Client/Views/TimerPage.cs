@@ -1,45 +1,45 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using FocusApp.Client.Dtos;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
-using FocusApp.Client.Methods.User;
 using FocusApp.Client.Views.Controls;
 using FocusApp.Client.Views.Mindfulness;
-using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
 using FocusCore.Extensions;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views;
 
 internal class TimerPage : BasePage
 {
-    private ITimerService _timerService;
+    private readonly ITimerService _timerService;
     private IDispatcherTimer? _timeStepperTimer;
-    private readonly Auth0Client auth0Client;
-    IAuthenticationService _authenticationService;
-    private bool loggedIn;
+    private readonly Auth0Client _auth0Client;
+    private readonly IAuthenticationService _authenticationService;
+    private bool _loggedIn;
     private string _selectedText;
-    Button LogButton;
-    Helpers.PopupService _popupService;
+    private readonly Button _logButton;
+    private readonly Helpers.PopupService _popupService;
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
 
     enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, BottomWhiteSpace }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
-    public enum TimerButton { Up, Down }
+    private enum TimerButton { Up, Down }
 
-    public TimerPage(ITimerService timerService, Auth0Client authClient, IAuthenticationService authenticationService, PopupService popupService, ILogger<TimerPage> logger)
+    public TimerPage(
+        ITimerService timerService,
+        Auth0Client authClient,
+        IAuthenticationService authenticationService,
+        PopupService popupService,
+        ILogger<TimerPage> logger)
     {
         _selectedText = "";
         _authenticationService = authenticationService;
         _timerService = timerService;
-        auth0Client = authClient;
+        _auth0Client = authClient;
         _popupService = popupService;
         _logger = logger;
 
@@ -49,7 +49,7 @@ internal class TimerPage : BasePage
         // Login/Logout Button
         // This is placed here and not in the grid so the text
         //  can be dynamically updated
-        LogButton = new Button
+        _logButton = new Button
         {
             Text = _selectedText,
             BackgroundColor = AppStyles.Palette.Celeste,
@@ -65,7 +65,7 @@ internal class TimerPage : BasePage
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
         .Invoke(button => button.Released += (sender, eventArgs) =>
         {
-        if (loggedIn)
+        if (_loggedIn)
         {
             OnLogoutClicked(sender, eventArgs);
         }
@@ -106,8 +106,7 @@ internal class TimerPage : BasePage
                 .Left()
                 .Bind(IsVisibleProperty,
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                        SettingsButtonClicked(sender, eventArgs)),
+                .Invoke(button => button.Released += SettingsButtonClicked),
                         
 
                 // Time Left Display
@@ -162,11 +161,11 @@ internal class TimerPage : BasePage
                 .Bind(IsVisibleProperty,
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
                 .Invoke(button => button.Clicked += (sender, eventArgs) => 
-                        onTimeStepperButtonClick(TimerButton.Up))
+                        OnTimeStepperButtonClick(TimerButton.Up))
                 .Invoke(button => button.Pressed += (sender, eventArgs) =>
-                        onTimeStepperButtonPressed(TimerButton.Up))
+                        OnTimeStepperButtonPressed(TimerButton.Up))
                 .Invoke(button => button.Released += (sender, eventArgs) =>
-                        onTimeStepperButtonReleased()),
+                        OnTimeStepperButtonReleased()),
 
                 // Toggle Timer Button
                 new Button
@@ -202,13 +201,13 @@ internal class TimerPage : BasePage
                 .Bind(IsVisibleProperty, 
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService )
                 .Invoke(button => button.Clicked += (sender, eventArgs) =>
-                        onTimeStepperButtonClick(TimerButton.Down))
+                        OnTimeStepperButtonClick(TimerButton.Down))
                 .Invoke(button => button.Pressed += (sender, eventArgs) =>
-                        onTimeStepperButtonPressed(TimerButton.Down))
+                        OnTimeStepperButtonPressed(TimerButton.Down))
                 .Invoke(button => button.Released += (sender, eventArgs) =>
-                        onTimeStepperButtonReleased()),
+                        OnTimeStepperButtonReleased()),
 
-                LogButton
+                _logButton
             }
         };
     }
@@ -216,16 +215,16 @@ internal class TimerPage : BasePage
     /// <summary>
     /// Increment or decrement the timer duration.
     /// </summary>
-    public void onTimeStepperButtonClick(TimerButton clickedButton)
+    private void OnTimeStepperButtonClick(TimerButton clickedButton)
     {
-        int _stepRate = (int)TimeSpan.FromMinutes(1).TotalSeconds;
+        int stepRate = (int)TimeSpan.FromMinutes(1).TotalSeconds;
 
         _timerService.TimeLeft = clickedButton switch
         {
-            TimerButton.Up => _timerService.TimeLeft + _stepRate,
-            TimerButton.Down => (_timerService.TimeLeft > _stepRate) ?
-                                                _timerService.TimeLeft - _stepRate
-                                                : _stepRate,
+            TimerButton.Up => _timerService.TimeLeft + stepRate,
+            TimerButton.Down => (_timerService.TimeLeft > stepRate) ?
+                                                _timerService.TimeLeft - stepRate
+                                                : stepRate,
             _ => 0
         };
     }
@@ -233,18 +232,18 @@ internal class TimerPage : BasePage
     /// <summary>
     /// Start the time duration stepper timer while the user holds the button.
     /// </summary>
-    public void onTimeStepperButtonPressed(TimerButton clickedButton)
+    private void OnTimeStepperButtonPressed(TimerButton clickedButton)
     {
         _timeStepperTimer = Application.Current!.Dispatcher.CreateTimer();
         _timeStepperTimer.Interval = TimeSpan.FromMilliseconds(200);
-        _timeStepperTimer.Tick += (sender, e) => onTimeStepperButtonClick(clickedButton);
+        _timeStepperTimer.Tick += (sender, e) => OnTimeStepperButtonClick(clickedButton);
         _timeStepperTimer.Start();
     }
 
     /// <summary>
     /// Stop the time duration stepper timer.
     /// </summary>
-    public void onTimeStepperButtonReleased()
+    private void OnTimeStepperButtonReleased()
     {
         if (_timeStepperTimer is not null)
         {
@@ -253,7 +252,7 @@ internal class TimerPage : BasePage
         }
     }
 
-    private async void SettingsButtonClicked(object sender, EventArgs e)
+    private async void SettingsButtonClicked(object? sender, EventArgs e)
         {
             Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
             await Shell.Current.GoToAsync($"///{nameof(TimerPage)}/{nameof(SettingsPage)}");
@@ -266,7 +265,7 @@ internal class TimerPage : BasePage
 
     private async void OnLogoutClicked(object sender, EventArgs e)
     {
-        var logoutResult = await auth0Client.LogoutAsync();
+        var logoutResult = await _auth0Client.LogoutAsync();
         _authenticationService.AuthToken = "";
 
         await Shell.Current.GoToAsync($"///" + nameof(LoginPage));
@@ -275,9 +274,9 @@ internal class TimerPage : BasePage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
-        _selectedText = loggedIn ? "Logout" : "Login";
-        LogButton.Text = _selectedText;
+        _loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
+        _selectedText = _loggedIn ? "Logout" : "Login";
+        _logButton.Text = _selectedText;
     }
 
     /// <summary>
