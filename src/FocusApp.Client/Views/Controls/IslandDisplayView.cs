@@ -50,37 +50,74 @@ internal class IslandDisplayView : Grid
 
     #endregion
 
-    enum Row {PetAndDecor, BottomSpacer}
-    enum Column {LeftWhiteSpace, Decor, Pet, RightWhiteSpace }
+    enum Column {LeftWhiteSpace, PetAndDecor, RightWhiteSpace }
 
     public IslandDisplayView()
     {
         RowDefinitions = GridRowsColumns.Rows.Define(
-            (Row.PetAndDecor, GridRowsColumns.Stars(7)),
-            (Row.BottomSpacer, GridRowsColumns.Stars(3))
+            GridRowsColumns.Auto
         );
         ColumnDefinitions = GridRowsColumns.Columns.Define(
-            (Column.LeftWhiteSpace, GridRowsColumns.Stars(2)),
-            (Column.Decor, GridRowsColumns.Stars(6)),
-            (Column.Pet, GridRowsColumns.Stars(6)),
-            (Column.RightWhiteSpace, GridRowsColumns.Stars(2))
+            (Column.LeftWhiteSpace, GridRowsColumns.Stars(1)),
+            (Column.PetAndDecor, GridRowsColumns.Stars(6)),
+            (Column.RightWhiteSpace, GridRowsColumns.Stars(1))
         );
 
-        Children.Add(GetIslandView());
-        Children.Add(GetDecorView());
-        Children.Add(GetPetView());
+        Image islandView = GetIslandView();
+
+        Children.Add(islandView);
+        Children.Add(GetPetAndDecorLayout(islandView));
     }
 
-    public View GetIslandView() =>
+    public Image GetIslandView() =>
         new Image()
+            {
+                ZIndex = 0
+            }
             .Bind(
                 Image.SourceProperty,
                 getter: static (view) => view.Island,
                 convert: static (island) => new ByteArrayToImageSourceConverter().ConvertFrom(island?.Image),
                 source: this)
-            .RowSpan(typeof(Row).GetEnumNames().Length)
             .ColumnSpan(typeof(Column).GetEnumNames().Length)
             .Margins(left: 10, right: 10);
+
+    /// <summary>
+    /// Create a layout for vertical spacing and a container for horizontal distribution
+    /// with the pet and decor items displayed inside.
+    /// </summary>
+    /// <param name="islandView">The island view which will be used to determine the height of the layout.</param>
+    /// <returns>The layout.</returns>
+    public FlexLayout GetPetAndDecorLayout(Image islandView)
+    {
+        FlexLayout petAndDecorLayout = new FlexLayout()
+            {
+                Direction = FlexDirection.Column,
+                JustifyContent = FlexJustify.Start,
+                MaximumHeightRequest = islandView.Height,
+                ZIndex = 1
+            }
+            .Bind(
+                FlexLayout.MaximumHeightRequestProperty,
+                getter: (Image island) => island.Height,
+                source: islandView)
+            .Row(0)
+            .Column(Column.PetAndDecor);
+
+        {
+            FlexLayout petAndDecorContainer = new FlexLayout()
+                {
+                    Direction = FlexDirection.Row
+                }
+                .Basis(new FlexBasis(0.8f, true));
+            petAndDecorContainer.Children.Add(GetDecorView());
+            petAndDecorContainer.Children.Add(GetPetView());
+
+            petAndDecorLayout.Children.Add(petAndDecorContainer);
+        }
+
+        return petAndDecorLayout;
+    }
 
     /// <summary>
     /// Create a container specifying an area which a pet can occupy
@@ -93,8 +130,7 @@ internal class IslandDisplayView : Grid
                 JustifyContent = FlexJustify.End,
                 Direction = FlexDirection.Column
             }
-            .Row(Row.PetAndDecor)
-            .Column(Column.Pet);
+            .Basis(new FlexBasis(0.5f, true));
 
         petContainer.Children
             .Add(new Image()
@@ -102,7 +138,7 @@ internal class IslandDisplayView : Grid
                     HorizontalOptions = LayoutOptions.Center,
                     MaximumWidthRequest = petContainer.Width,
                     MaximumHeightRequest = petContainer.Height
-            }
+                }
                 .Bind(
                     Image.SourceProperty,
                     getter: static (view) => view.Pet,
@@ -137,15 +173,15 @@ internal class IslandDisplayView : Grid
                 JustifyContent = FlexJustify.End,
                 Direction = FlexDirection.Column
         }
-            .Row(Row.PetAndDecor)
-            .Column(Column.Decor);
+            .Basis(new FlexBasis(0.5f, true));
 
         decorContainer.Children
             .Add(new Image()
                 {
                     HorizontalOptions = LayoutOptions.Center,
                     MaximumWidthRequest = decorContainer.Width,
-                    MaximumHeightRequest = decorContainer.Height
+                    MaximumHeightRequest = decorContainer.Height,
+
                 }
                 .Bind(
                     Image.SourceProperty,
@@ -169,5 +205,4 @@ internal class IslandDisplayView : Grid
 
         return decorContainer;
     }
-
 }
