@@ -372,7 +372,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         {
             TimeSpan? totalSessionTime = DateTimeOffset.Now - _currentSessionStartTime;
 
-            TimeLeft = (int)totalSessionTime.Value.TotalSeconds;
+            TimeLeft -= (int)totalSessionTime.Value.TotalSeconds;
             if (TimeLeft <= 0) 
             {
                 TransitionToNextState();
