@@ -60,6 +60,9 @@ namespace FocusApp.Shared.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("HeightRequest")
+                        .HasColumnType("INTEGER");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("BLOB");

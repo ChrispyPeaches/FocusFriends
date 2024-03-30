@@ -13,4 +13,5 @@ public class BaseFurniture
 
     public required string Name { get; set; } = null!;
     public byte[] Image { get; set; }
+    public int HeightRequest { get; set; }
 }
