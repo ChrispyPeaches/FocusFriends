@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FocusApp.Client.Methods.User
 {
-    internal class GetDefaultPetAndIsland
+    internal class GetDefaultItems
     {
         internal class Query : IRequest<Result> { }
 
@@ -19,11 +19,11 @@ namespace FocusApp.Client.Methods.User
 
         internal class Handler : IRequestHandler<Query, Result>
         {
-            FocusAppContext _localContext;
+            FocusAppContext _context;
 
-            public Handler(FocusAppContext localContext)
+            public Handler(FocusAppContext context)
             {
-                _localContext = localContext;
+                _context = context;
             }
 
             public async Task<Result> Handle(
@@ -32,31 +32,31 @@ namespace FocusApp.Client.Methods.User
             {
                 Island? island = await GetInitialIslandQuery().FirstOrDefaultAsync(cancellationToken);
                 Pet? pet = await GetInitialPetQuery().FirstOrDefaultAsync(cancellationToken);
-                Furniture? furn = await GetInitialDecorQuery().FirstOrDefaultAsync(cancellationToken);
+                Furniture? decorItem = await GetInitialDecorQuery().FirstOrDefaultAsync(cancellationToken);
 
                 return new Result
                 {
                     Island = island,
                     Pet = pet,
-                    Decor = furn
+                    Decor = decorItem
                 };
             }
 
             private IQueryable<Island> GetInitialIslandQuery()
             {
-                return _localContext.Islands
+                return _context.Islands
                     .Where(island => island.Name == FocusCore.Consts.NameOfInitialIsland);
             }
 
             private IQueryable<Pet> GetInitialPetQuery()
             {
-                return _localContext.Pets
+                return _context.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
             }
 
             private IQueryable<Furniture> GetInitialDecorQuery()
             {
-                return _localContext.Furniture;
+                return _context.Furniture;
             }
 
 

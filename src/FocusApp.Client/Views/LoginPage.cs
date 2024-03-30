@@ -164,11 +164,11 @@ internal class LoginPage : BasePage
 
         if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
         {
-            GetDefaultPetAndIsland.Result result = await _mediator.Send(new GetDefaultPetAndIsland.Query());
+            GetDefaultItems.Result result = await _mediator.Send(new GetDefaultItems.Query());
 
             _authenticationService.CurrentUser.SelectedIsland ??= result.Island;
             _authenticationService.CurrentUser.SelectedPet ??= result.Pet;
-            _authenticationService.CurrentUser.SelectedFurniture ??= ProjectionHelper.ProjectionFromBaseDecor(result.Decor);
+            _authenticationService.CurrentUser.SelectedFurniture ??= result.Decor;
         }
     }
 
