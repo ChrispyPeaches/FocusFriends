@@ -169,6 +169,9 @@ namespace FocusApp.Client
 
         }
 
+        /// <summary>
+        /// Syncs mindfulness tips between the API and mobile database each time the app starts.
+        /// </summary>
         private static async Task StartupSync(IServiceCollection services)
         {
             try
@@ -190,7 +193,8 @@ namespace FocusApp.Client
         }
 
         /// <summary>
-        /// Populates the database with initial data requested from the API.
+        /// Populates the database with initial data requested from the API for any of
+        /// the island, pets, or furniture tables if they don't have any entries.
         /// </summary>
         private static async Task InitialPopulateDatabase(IServiceCollection services)
         {
