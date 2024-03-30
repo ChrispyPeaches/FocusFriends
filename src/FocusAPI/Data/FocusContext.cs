@@ -30,12 +30,7 @@ public class FocusContext : DbContext
     {
         if (Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator dbCreator)
         {
-            if (!dbCreator.CanConnect())
-            {
-                dbCreator.Create();
-            }
-
-            if (!dbCreator.HasTables())
+            if (!dbCreator.CanConnect() || !dbCreator.HasTables())
             {
                 Database.Migrate();
             }

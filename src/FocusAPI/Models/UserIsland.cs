@@ -8,6 +8,4 @@ public class UserIsland : FocusCore.Models.BaseUserIsland
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new Island? Island { get; set; }
-
-    public new DateTime DateAcquired { get; set; }
 }
