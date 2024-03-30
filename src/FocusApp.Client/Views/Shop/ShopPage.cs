@@ -205,7 +205,7 @@ namespace FocusApp.Client.Views.Shop
 
         protected override async void OnAppearing()
         {
-            if (!string.IsNullOrEmpty(_authenticationService.AuthToken))
+            if (string.IsNullOrEmpty(_authenticationService.AuthToken))
             {
                 var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
                 loginPopup.OriginPage = nameof(ShopPage);
