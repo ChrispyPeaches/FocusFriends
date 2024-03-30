@@ -168,6 +168,7 @@ internal class LoginPage : BasePage
 
             _authenticationService.CurrentUser.SelectedIsland ??= result.Island;
             _authenticationService.CurrentUser.SelectedPet ??= result.Pet;
+            _authenticationService.CurrentUser.SelectedFurniture ??= ProjectionHelper.ProjectionFromBaseDecor(result.Decor);
         }
     }
 

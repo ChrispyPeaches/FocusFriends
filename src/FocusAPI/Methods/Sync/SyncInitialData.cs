@@ -39,32 +39,14 @@ namespace FocusAPI.Methods.Sync
                         .FirstOrDefaultAsync(cancellationToken);
                 }
 
+                if (query.SyncInitialDecor)
+                {
+                    response.Decor = await _context.Furniture
+                        .FirstOrDefaultAsync(cancellationToken);
+                }
+
                 return response;
             }
-
-            private async Task<T?> GetInitialItem<T>(
-                DbSet<T> dbSet,
-                Expression<Func<T, bool>>? filterExpression = null,
-                CancellationToken cancellationToken = default)
-                where T : class
-            {
-                try
-                {
-                    IQueryable<T> query = dbSet;
-
-                    if (filterExpression != null)
-                    {
-                        query = query.Where(filterExpression);
-                    }
-
-                    return await query.FirstOrDefaultAsync(cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Error when retrieving item from API and/or local db.", ex);
-                }
-            }
         }
-
     }
 }

@@ -14,6 +14,7 @@ namespace FocusApp.Client.Methods.User
         {
             public Island? Island { get; set; }
             public Pet? Pet { get; set; }
+            public Furniture? Decor { get; set; }
         }
 
         internal class Handler : IRequestHandler<Query, Result>
@@ -31,11 +32,13 @@ namespace FocusApp.Client.Methods.User
             {
                 Island? island = await GetInitialIslandQuery().FirstOrDefaultAsync(cancellationToken);
                 Pet? pet = await GetInitialPetQuery().FirstOrDefaultAsync(cancellationToken);
+                Furniture? furn = await GetInitialDecorQuery().FirstOrDefaultAsync(cancellationToken);
 
                 return new Result
                 {
                     Island = island,
-                    Pet = pet
+                    Pet = pet,
+                    Decor = furn
                 };
             }
 
@@ -50,6 +53,13 @@ namespace FocusApp.Client.Methods.User
                 return _localContext.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
             }
+
+            private IQueryable<Furniture> GetInitialDecorQuery()
+            {
+                return _localContext.Furniture;
+            }
+
+
         }
     }
 }

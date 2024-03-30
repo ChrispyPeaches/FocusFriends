@@ -88,7 +88,7 @@ public static class ProjectionHelper
         };
 
     public static BaseIsland ProjectToBaseIsland(Island island) =>
-        new BaseIsland
+        new()
         {
             Id = island.Id,
             Name = island.Name,
@@ -97,12 +97,32 @@ public static class ProjectionHelper
         };
 
     public static Island ProjectFromBaseIsland(BaseIsland island) =>
-        new Island
+        new()
         {
             Id = island.Id,
             Name = island.Name,
             Image = island.Image,
             Price = island.Price
+        };
+
+    public static Furniture ProjectionFromBaseDecor(BaseFurniture furniture) =>
+        new()
+        {
+            Id = furniture.Id,
+            Name = furniture.Name,
+            Image = furniture.Image,
+            Price = furniture.Price,
+            HeightRequest = furniture.HeightRequest
+        };
+
+    public static BaseFurniture ProjectToBaseDecor(Furniture furniture) =>
+        new()
+        {
+            Id = furniture.Id,
+            Name = furniture.Name,
+            Image = furniture.Image,
+            Price = furniture.Price,
+            HeightRequest = furniture.HeightRequest
         };
 }
 
