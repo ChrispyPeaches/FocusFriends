@@ -16,7 +16,7 @@ internal sealed class SettingsPage : BasePage
         _client = client;
 
         // Default values for preferences
-        double ambianceVolume = Preferences.Default.Get("ambiance_volume", 50.00);
+        double timerVolume = Preferences.Default.Get("timer_volume", 50.00);
         var isNotificationsEnabled = Preferences.Default.Get("notifications_enabled", false);
         var isStartupTipsEnabled = Preferences.Default.Get("startup_tips_enabled", true);
         var isSessionRatingEnabled = Preferences.Default.Get("session_rating_enabled", true);
@@ -75,10 +75,10 @@ internal sealed class SettingsPage : BasePage
                 .ColumnSpan(5),
 
 
-                // Ambiance
+                // Timer Volume
                 new Label
                 {
-                    Text = "Ambiance",
+                    Text = "Timer Volume",
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
@@ -88,18 +88,18 @@ internal sealed class SettingsPage : BasePage
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(3),
 
-                // Ambiance Slider
+                // Timer Volume Slider
                 new Slider
                 {
                     Maximum = 100,
-                    Value = ambianceVolume,
+                    Value = timerVolume,
                     WidthRequest = 200
                 }
                 .Row(1)
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Default.Set("ambiance_volume", e.NewValue);}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Default.Set("timer_volume", e.NewValue);}),
 
 
                 // Notifications

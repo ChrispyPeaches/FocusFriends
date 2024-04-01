@@ -19,6 +19,7 @@ using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
+using Plugin.Maui.Audio;
 using FocusApp.Client.Methods.Sync;
 
 namespace FocusApp.Client
@@ -46,6 +47,7 @@ namespace FocusApp.Client
                 .RegisterServices()
                 .RegisterPages()
                 .RegisterPopups()
+                .RegisterAudio()
                 .RegisterMediatR();
 
 #if DEBUG
@@ -144,6 +146,14 @@ namespace FocusApp.Client
             return services;
         }
 
+        private static IServiceCollection RegisterAudio(this IServiceCollection services)
+        {
+            services.AddSingleton(AudioManager.Current);
+            services.AddTransient<TimerService>();
+
+            return services;
+        }
+
         private static async Task StartupSync(IServiceCollection services)
         {
             try
@@ -168,7 +178,7 @@ namespace FocusApp.Client
 
         private static void PreferenceRequest()
         {
-            var keys = new List<string> { "ambiance_volume", "notifications_enabled", "startup_tips_enabled", "session_rating_enabled" };
+            var keys = new List<string> { "timer_volume", "notifications_enabled", "startup_tips_enabled", "session_rating_enabled" };
             var vals = new List<dynamic> { 50.00, false, true, true };
 
             var pairs = keys.Zip(vals);

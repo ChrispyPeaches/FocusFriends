@@ -9,6 +9,7 @@ using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using FocusApp.Client.Views.Mindfulness;
+using Plugin.Maui.Audio;
 
 namespace FocusApp.Client.Helpers;
 
@@ -70,6 +71,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
     private DateTimeOffset? _currentSessionStartTime;
     private User _currentUser;
     private Helpers.PopupService _popupService;
+    private readonly IAudioManager _audioManager;
 
     #endregion
 
@@ -135,11 +137,12 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
 
     IAuthenticationService _authenticationService;
 
-    public TimerService(FocusAppContext context, Helpers.PopupService popupService, IAuthenticationService authenticationService)
+    public TimerService(FocusAppContext context, Helpers.PopupService popupService, IAuthenticationService authenticationService, IAudioManager audioManager)
     {
         _context = context;
         _popupService = popupService;
         _authenticationService = authenticationService;
+        _audioManager = audioManager;
 
         _timerDisplay = new TimerDto();
         _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
