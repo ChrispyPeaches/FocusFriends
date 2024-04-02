@@ -9,7 +9,7 @@ using FocusApp.Client.Clients;
 using FocusCore.Queries.Leaderboard;
 using FocusApp.Client.Helpers;
 using FocusCore.Models;
-//using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -29,7 +29,6 @@ namespace FocusApp.Client.Views.Social
 
         Button _dailyLeaderboardButton { get; set; }
         Button _weeklyLeaderboardButton { get; set; }
-
         StackLayout _remainingFriendsContent { get; set; }
 
         // Top three friends image, score, and username references (Gross)
@@ -45,15 +44,17 @@ namespace FocusApp.Client.Views.Social
 
         IAPIClient _client { get; set; }
         IAuthenticationService _authenticationService { get; set; }
-        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService)
+        ILogger<LeaderboardsPage> _logger { get; set; }
+        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService, ILogger<LeaderboardsPage> logger)
         {
             _client = client;
             _authenticationService = authenticationService;
+            _logger = logger;
 
             Grid topThreeFriendsGrid = GetTopThreeFriendsGrid();
             ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
 
-            // Daily Leaderboards Button
+            // Daily Leaderboard Button
             _dailyLeaderboardButton = new Button
             {
                 Text = "Daily",
@@ -66,6 +67,7 @@ namespace FocusApp.Client.Views.Social
             .Invoke(button => button.Released += (sender, eventArgs) =>
                 GetDailyLeaderboards(sender, eventArgs));
 
+            // Weekly Leaderboard Button
             _weeklyLeaderboardButton = new Button
             {
                 Text = "Weekly",
@@ -254,28 +256,15 @@ namespace FocusApp.Client.Views.Social
 
             DataTemplate dataTemplate = new DataTemplate(() =>
             {
-                /* For when data is fetched from API
-                Image friendPicture = new Image
-                {
-                    HeightRequest = 32,
-                    WidthRequest = 32,
-                    VerticalOptions = LayoutOptions.Center,
-                };
-                friendPicture.SetBinding(Image.SourceProperty, "Picture", converter: new ByteArrayToImageSourceConverter());
-                */
-
                 Image friendPicture = new Image
                 {
                     HeightRequest = 64,
                     WidthRequest = 64,
                     VerticalOptions = LayoutOptions.Center,
-                    Source = new FileImageSource
-                    {
-                        File = "dotnet_bot.png"
-                    }
                 }
                 .Column(RemainingFriendsColumn.Picture);
-
+                friendPicture.SetBinding(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+                
                 Label friendName = new Label
                 {
                     FontSize = 24,
@@ -342,10 +331,7 @@ namespace FocusApp.Client.Views.Social
         void SetTopThreeDynamicElements()
         {
             // Set third place dynamic elements
-            _thirdPlacePicture = new Image
-            {
-                Source = new FileImageSource { File = "dotnet_bot.jpg" } // <-- Temp
-            }
+            _thirdPlacePicture = new Image()
             //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
             .CenterHorizontal()
             .CenterVertical();
@@ -368,10 +354,7 @@ namespace FocusApp.Client.Views.Social
             _thirdPlaceUsername.Bind(Label.TextProperty, "UserName");
 
             // Set second place dynamic elements
-            _secondPlacePicture = new Image
-            {
-                Source = new FileImageSource { File = "dotnet_bot.jpg" } // <-- Temp
-            }
+            _secondPlacePicture = new Image()
             //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
             .CenterHorizontal()
             .CenterVertical();
@@ -396,10 +379,7 @@ namespace FocusApp.Client.Views.Social
             _secondPlaceUsername.Bind(Label.TextProperty, "UserName");
 
             // Set first place dynamic elements
-            _firstPlacePicture = new Image
-            {
-                Source = new FileImageSource { File = "dotnet_bot.jpg" } // <-- Temp
-            }
+            _firstPlacePicture = new Image()
             //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
             .CenterHorizontal()
             .CenterVertical();
@@ -425,39 +405,92 @@ namespace FocusApp.Client.Views.Social
 
         async void GetDailyLeaderboards(object sender, EventArgs e)
         {
-            // Disable the daily leaderboards button, and enable the weekly leaderboards button
-            _dailyLeaderboardButton.IsEnabled = false;
-            _weeklyLeaderboardButton.IsEnabled = true;
+            try
+            {
+                List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                PopulateLeaderboard(leaderboard);
 
-            List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-            PopulateLeaderboard(leaderboard);
+                // Disable the daily leaderboards button, and enable the weekly leaderboards button
+                _dailyLeaderboardButton.IsEnabled = false;
+                _weeklyLeaderboardButton.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards. Message: " + ex.Message);
+            }
         }
 
         async void GetWeeklyLeaderboards(object sender, EventArgs e)
         {
-            // Disable the weekly leaderboards button, and enable the daily leaderboards button
-            _weeklyLeaderboardButton.IsEnabled = false;
-            _dailyLeaderboardButton.IsEnabled = true;
+            try
+            {
+                List<LeaderboardDto> leaderboard = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                PopulateLeaderboard(leaderboard);
 
-            // Change to weekly
-            List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-            PopulateLeaderboard(leaderboard);
+                // Disable the weekly leaderboards button, and enable the daily leaderboards button
+                _weeklyLeaderboardButton.IsEnabled = false;
+                _dailyLeaderboardButton.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, "Error retreiving weekly leaderboards. Message: " + ex.Message);
+            }
         }
 
         // Gross
         void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
         {
-            _thirdPlacePicture.BindingContext = leaderboard[2];
-            _thirdPlaceScore.BindingContext = leaderboard[2];
-            _thirdPlaceUsername.BindingContext = leaderboard[2];
+            ClearLeaderboard();
 
-            _secondPlacePicture.BindingContext = leaderboard[1];
-            _secondPlaceScore.BindingContext = leaderboard[1];
-            _secondPlaceUsername.BindingContext = leaderboard[1];
+            for (int i = 0; i < leaderboard.Count; i++)
+            {
+                switch (i)
+                { 
+                    case 0:
+                        LeaderboardDto firstPlace = leaderboard[i];
+                        _firstPlacePicture.BindingContext = firstPlace;
+                        _firstPlaceScore.BindingContext = firstPlace;
+                        _firstPlaceUsername.BindingContext = firstPlace;
+                        break;
+                    case 1:
+                        LeaderboardDto secondPlace = leaderboard[i];
+                        _secondPlacePicture.BindingContext = secondPlace;
+                        _secondPlaceScore.BindingContext = secondPlace;
+                        _secondPlaceUsername.BindingContext = secondPlace;
+                        break;
+                    case 2:
+                        LeaderboardDto thirdPlace = leaderboard[i];
+                        _thirdPlacePicture.BindingContext = thirdPlace;
+                        _thirdPlaceScore.BindingContext = thirdPlace;
+                        _thirdPlaceUsername.BindingContext = thirdPlace;
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            _firstPlacePicture.BindingContext = leaderboard[0];
-            _firstPlaceScore.BindingContext = leaderboard[0];
-            _firstPlaceUsername.BindingContext = leaderboard[0];
+            if (leaderboard.Count > 3)
+            {
+                List<LeaderboardDto> remainingFriends = leaderboard.Where(l => leaderboard.IndexOf(l) > 2).ToList();
+                BindableLayout.SetItemsSource(_remainingFriendsContent, remainingFriends);
+            }
+        }
+
+        void ClearLeaderboard()
+        {
+            // Clear remaining friends dynamic elements
+            _remainingFriendsContent.Clear();
+
+            // Clear top three dynamic elements
+            _firstPlacePicture.BindingContext = null; 
+            _firstPlaceScore.BindingContext = null;
+            _firstPlaceUsername.BindingContext = null;
+            _secondPlacePicture.BindingContext = null;
+            _secondPlaceScore.BindingContext = null;
+            _secondPlaceUsername.BindingContext = null;
+            _thirdPlacePicture.BindingContext = null;
+            _thirdPlaceScore.BindingContext = null;
+            _thirdPlaceUsername.BindingContext = null;
         }
 
         async void BackButtonClicked(object sender, EventArgs e)
@@ -470,8 +503,15 @@ namespace FocusApp.Client.Views.Social
         protected override async void OnAppearing()
         {
             // On page load, fetch daily leaderboards
-            List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-            PopulateLeaderboard(leaderboard);
+            try
+            {
+                List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                PopulateLeaderboard(leaderboard);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards on page load. Message: " + ex.Message);
+            }
             base.OnAppearing();
         }
     }

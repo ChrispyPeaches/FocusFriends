@@ -19,7 +19,15 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
+        [Route("Daily")]
         public async Task<List<LeaderboardDto>> GetDailyLeaderboard([FromQuery] GetDailyLeaderboardQuery query, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(query, cancellationToken);
+        }
+
+        [HttpGet]
+        [Route("Weekly")]
+        public async Task<List<LeaderboardDto>> GetWeeklyLeaderboard([FromQuery] GetWeeklyLeaderboardQuery query, CancellationToken cancellationToken)
         {
             return await _mediator.Send(query, cancellationToken);
         }

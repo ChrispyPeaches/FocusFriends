@@ -19,9 +19,14 @@ public interface IAPIClient
         GetAllShopItemsQuery query,
         CancellationToken cancellationToken);
 
-    [Get("/Leaderboard")]
+    [Get("/Leaderboard/Daily")]
     Task<List<LeaderboardDto>> GetDailyLeaderboard(
         GetDailyLeaderboardQuery query,
+        CancellationToken cancellationToken);
+
+    [Get("/Leaderboard/Weekly")]
+    Task<List<LeaderboardDto>> GetWeeklyLeaderboard(
+        GetWeeklyLeaderboardQuery query,
         CancellationToken cancellationToken);
 
     [Post("/User/Pet")]

@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using FocusCore.Models;
 
 namespace FocusApi.Methods.Leaderboard;
-public class GetDailyLeaderboard
+public class GetWeeklyLeaderboard
 {
-    public class Handler : IRequestHandler<GetDailyLeaderboardQuery, List<LeaderboardDto>>
+    public class Handler : IRequestHandler<GetWeeklyLeaderboardQuery, List<LeaderboardDto>>
     {
         FocusContext _context;
         public Handler(FocusContext context)
@@ -16,7 +16,7 @@ public class GetDailyLeaderboard
             _context = context;
         }
 
-        public async Task<List<LeaderboardDto>> Handle(GetDailyLeaderboardQuery query, CancellationToken cancellationToken)
+        public async Task<List<LeaderboardDto>> Handle(GetWeeklyLeaderboardQuery query, CancellationToken cancellationToken)
         {
             // Grab friend Ids from database
             List<Guid> userIds = await _context.Friends
@@ -32,7 +32,7 @@ public class GetDailyLeaderboard
                 .Where(s =>
                        userIds.Contains(s.UserId)
                     && s.SessionEndTime <= DateTime.UtcNow
-                    && s.SessionEndTime > DateTime.UtcNow.AddDays(-1))
+                    && s.SessionEndTime > DateTime.UtcNow.AddDays(-7))
                 .ToListAsync(cancellationToken);
 
             // If there are no sessions from today, return empty list
