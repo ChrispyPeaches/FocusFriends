@@ -166,9 +166,9 @@ internal class LoginPage : BasePage
         {
             GetDefaultItems.Result result = await _mediator.Send(new GetDefaultItems.Query());
 
-            _authenticationService.CurrentUser.SelectedIsland ??= result.Island;
-            _authenticationService.CurrentUser.SelectedPet ??= result.Pet;
-            _authenticationService.CurrentUser.SelectedFurniture ??= result.Decor;
+            _authenticationService.SelectedIsland ??= result.Island;
+            _authenticationService.SelectedPet ??= result.Pet;
+            _authenticationService.SelectedFurniture ??= result.Decor;
         }
     }
 

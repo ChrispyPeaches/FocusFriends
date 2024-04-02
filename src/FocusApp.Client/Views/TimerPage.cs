@@ -5,8 +5,10 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using SimpleToolkit.SimpleShell.Extensions;
 using Auth0.OidcClient;
+using CommunityToolkit.Maui.Converters;
 using FocusApp.Client.Views.Controls;
 using FocusApp.Client.Views.Mindfulness;
+using FocusApp.Shared.Models;
 using FocusCore.Extensions;
 using Microsoft.Extensions.Logging;
 
@@ -61,8 +63,10 @@ internal class TimerPage : BasePage
         .Top()
         .Right()
         .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
-        .Bind(IsVisibleProperty,
-                        getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
+        .Bind(
+            IsVisibleProperty,
+            getter: (ITimerService th) => th.AreStepperButtonsVisible,
+            source: _timerService)
         .Invoke(button => button.Released += (sender, eventArgs) =>
         {
         if (_loggedIn)
@@ -80,7 +84,7 @@ internal class TimerPage : BasePage
             RowDefinitions = GridRowsColumns.Rows.Define(
                 (Row.TopBar, GridRowsColumns.Stars(1)),
                 (Row.TimerDisplay, GridRowsColumns.Stars(1)),
-                (Row.IslandView, GridRowsColumns.Stars(6)),
+                (Row.IslandView, GridRowsColumns.Stars(4)),
                 (Row.TimerButtons, GridRowsColumns.Stars(1)),
                 (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
                 ),
@@ -122,14 +126,21 @@ internal class TimerPage : BasePage
                 .ColumnSpan(typeof(Column).GetEnumNames().Length)
                 .Bind(Label.TextProperty,
                         getter: static (ITimerService th) => th.TimerDisplay),
-
+                new Image()
+                {
+                    ZIndex = 2,
+                    Source = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.SelectedFurniture?.Image)
+                }
+                .ColumnSpan(typeof(Column).GetEnumNames().Length).RowSpan(typeof(Row).GetEnumNames().Length)
+                    .Bind(
+                    IslandDisplayView.IslandProperty,
+                    getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
+                    convert: static (Furniture furn) => new ByteArrayToImageSourceConverter().ConvertFrom(furn.Image),
+                    source: _authenticationService),
                 // Island
                 new IslandDisplayView()
                 {
-                    BindingContext = _authenticationService,
-                    Island = _authenticationService.SelectedIsland,
-                    Pet = _authenticationService.SelectedPet,
-                    Decor = _authenticationService.SelectedFurniture
+                    BindingContext = _authenticationService
                 }
                 .Center()
                 .FillHorizontal()
@@ -137,13 +148,16 @@ internal class TimerPage : BasePage
                 .ColumnSpan(typeof(Column).GetEnumNames().Length)
                 .Bind(
                     IslandDisplayView.IslandProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedIsland)
+                    getter: static (IAuthenticationService authService) => authService.SelectedIsland,
+                    source: _authenticationService)
                 .Bind(
                     IslandDisplayView.PetProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedPet)
+                    getter: static (IAuthenticationService authService) => authService.SelectedPet,
+                    source: _authenticationService)
                 .Bind(
                     IslandDisplayView.DecorProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedFurniture),
+                    getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
+                    source: _authenticationService),
 
                 // Increase Time Button
                 new Button

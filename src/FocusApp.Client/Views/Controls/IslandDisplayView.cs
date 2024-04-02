@@ -19,8 +19,7 @@ internal class IslandDisplayView : Grid
     public static readonly BindableProperty IslandProperty = BindableProperty.Create(
         propertyName: nameof(Island),
         returnType: typeof(Island),
-        declaringType: typeof(IslandDisplayView),
-        validateValue: (_, value) => value != null);
+        declaringType: typeof(IslandDisplayView));
 
     public Pet Pet
     {
@@ -32,8 +31,7 @@ internal class IslandDisplayView : Grid
     public static readonly BindableProperty PetProperty = BindableProperty.Create(
         propertyName: nameof(Pet),
         returnType: typeof(Pet),
-        declaringType: typeof(IslandDisplayView),
-        validateValue: (_, value) => value != null);
+        declaringType: typeof(IslandDisplayView));
 
     public Furniture Decor
     {
@@ -45,8 +43,7 @@ internal class IslandDisplayView : Grid
     public static readonly BindableProperty DecorProperty = BindableProperty.Create(
         propertyName: nameof(Decor),
         returnType: typeof(Furniture),
-        declaringType: typeof(IslandDisplayView),
-        validateValue: (_, value) => value != null);
+        declaringType: typeof(IslandDisplayView));
 
     #endregion
 
@@ -99,7 +96,7 @@ internal class IslandDisplayView : Grid
             }
             .Bind(
                 FlexLayout.MaximumHeightRequestProperty,
-                getter: (Image island) => island.Height,
+                getter: static (Image island) => island.Height,
                 source: islandView)
             .Row(0)
             .Column(Column.PetAndDecor);
@@ -142,20 +139,20 @@ internal class IslandDisplayView : Grid
                 .Bind(
                     Image.SourceProperty,
                     getter: static (view) => view.Pet,
-                    convert: (pet) => new ByteArrayToImageSourceConverter().ConvertFrom(pet?.Image),
+                    convert: static (pet) => new ByteArrayToImageSourceConverter().ConvertFrom(pet?.Image),
                     source: this)
                 .Bind(
                     Image.HeightRequestProperty,
                     getter: static (view) => view.Pet,
-                    convert: (pet) => pet?.HeightRequest,
+                    convert: static (pet) => pet?.HeightRequest,
                     source: this)
                 .Bind(
                     Image.MaximumHeightRequestProperty,
-                    getter: (FlexLayout container) => container.Height,
+                    getter: static (FlexLayout container) => container.Height,
                     source: petContainer)
                 .Bind(
                     Image.MaximumWidthRequestProperty,
-                    getter: (FlexLayout container) => container.Width,
+                    getter: static (FlexLayout container) => container.Width,
                     source: petContainer)
             );
 
@@ -186,20 +183,20 @@ internal class IslandDisplayView : Grid
                 .Bind(
                     Image.SourceProperty,
                     getter: static (view) => view.Decor,
-                    convert: (decor) => new ByteArrayToImageSourceConverter().ConvertFrom(decor?.Image),
+                    convert: static (decor) => new ByteArrayToImageSourceConverter().ConvertFrom(decor?.Image),
                     source: this)
                 .Bind(
                     Image.HeightRequestProperty,
                     getter: static (view) => view.Decor,
-                    convert: (decor) => decor?.HeightRequest,
+                    convert: static (decor) => decor?.HeightRequest,
                     source: this)
                 .Bind(
                     Image.MaximumHeightRequestProperty,
-                    getter: (FlexLayout container) => container.Height,
+                    getter: static (FlexLayout container) => container.Height,
                     source: decorContainer)
                 .Bind(
                     Image.MaximumWidthRequestProperty,
-                    getter: (FlexLayout container) => container.Width,
+                    getter: static (FlexLayout container) => container.Width,
                     source: decorContainer)
             );
 
