@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FocusCore.Commands.Social;
-public class CreateFriendshipCommand : IRequest<Unit>
+public class CreateFriendRequestCommand : IRequest<Unit>
 {
-    public string Name { get; set; }
+    public Guid UserId { get; set; }
+    public Guid FriendId { get; set; }
 }

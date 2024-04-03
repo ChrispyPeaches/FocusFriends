@@ -1,4 +1,5 @@
 ﻿using FocusApp.Shared.Models;
+using FocusCore.Commands.Social;
 using FocusCore.Commands.User;
 using FocusCore.Queries.Shop;
 using FocusCore.Queries.Sync;
@@ -30,5 +31,20 @@ public interface IAPIClient
     Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
         [Body] SyncMindfulnessTipsQuery query,
         CancellationToken cancellationToken);
+
+    //[Get("/Social/FriendRequest")]
+    //Task GetAllFriendRequests(GetAllFriendRequestsQuery query);
+
+    //[Get("/Social/Friend")]
+    //Task GetAllFriends(GetAllFriendsQuery query);
+
+    //[Post("/Social/FriendRequest")]
+    //Task CreateFriendRequest(CreateFriendRequestCommand command);
+
+    //[Put("/Social/FriendRequest")]
+    //Task AcceptFriendRequest(AcceptFriendRequestCommand command);
+
+    //[Del("/Social/FriendRequest")]
+    //Task CancelFriendRequest(CancelFriendRequestCommand command);
 
 }
