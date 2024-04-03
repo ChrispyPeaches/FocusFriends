@@ -5,31 +5,31 @@ using Microsoft.Maui.Layouts;
 
 namespace FocusApp.Client.Views.Controls;
 
-internal class IslandDisplayView : Grid
+internal class IslandDisplayView : ContentView
 {
     #region Bindable Properties
 
-    public Island Island
+    public Island DisplayIsland
     {
         get => (Island)GetValue(IslandProperty);
         set => SetValue(IslandProperty, value);
     }
 
-    /// <summary>Bindable property for <see cref="Island"/>.</summary>
+    /// <summary>Bindable property for <see cref="DisplayIsland"/>.</summary>
     public static readonly BindableProperty IslandProperty = BindableProperty.Create(
-        propertyName: nameof(Island),
+        propertyName: nameof(DisplayIsland),
         returnType: typeof(Island),
         declaringType: typeof(IslandDisplayView));
 
-    public Pet Pet
+    public Pet DisplayPet
     {
         get => (Pet)GetValue(PetProperty);
         set => SetValue(PetProperty, value);
     }
 
-    /// <summary>Bindable property for <see cref="Pet"/>.</summary>
+    /// <summary>Bindable property for <see cref="DisplayPet"/>.</summary>
     public static readonly BindableProperty PetProperty = BindableProperty.Create(
-        propertyName: nameof(Pet),
+        propertyName: nameof(DisplayPet),
         returnType: typeof(Pet),
         declaringType: typeof(IslandDisplayView));
 
@@ -47,33 +47,55 @@ internal class IslandDisplayView : Grid
 
     #endregion
 
+    /// <summary>When the parent appears, generate the content for this view. </summary>
+    public Action ParentAppearing { get; set; }
+
     enum Column {LeftWhiteSpace, PetAndDecor, RightWhiteSpace }
 
-    public IslandDisplayView()
+    /// <summary>
+    /// Attach the parent's appearing event to the <see cref="ParentAppearing"/> event,
+    /// Attach the <see cref="ParentAppearing"/> event to the <see cref="GenerateContent"/> method, and
+    /// generate the initial content.
+    /// </summary>
+    public IslandDisplayView(ContentPage parentPage)
     {
-        RowDefinitions = GridRowsColumns.Rows.Define(
-            GridRowsColumns.Auto
-        );
-        ColumnDefinitions = GridRowsColumns.Columns.Define(
-            (Column.LeftWhiteSpace, GridRowsColumns.Stars(1)),
-            (Column.PetAndDecor, GridRowsColumns.Stars(6)),
-            (Column.RightWhiteSpace, GridRowsColumns.Stars(1))
-        );
+        parentPage.Appearing += (_, _) => ParentAppearing.Invoke();
 
-        Image islandView = GetIslandView();
+        ParentAppearing += GenerateContent;
+        GenerateContent();
+    }
 
-        Children.Add(islandView);
-        Children.Add(GetPetAndDecorLayout(islandView));
+    public void GenerateContent()
+    {
+        var islandView = GetIslandView();
+
+        Content = new Grid()
+        {
+            RowDefinitions = GridRowsColumns.Rows.Define(
+                GridRowsColumns.Auto
+            ),
+            ColumnDefinitions = GridRowsColumns.Columns.Define(
+                (Column.LeftWhiteSpace, GridRowsColumns.Stars(1)),
+                (Column.PetAndDecor, GridRowsColumns.Stars(6)),
+                (Column.RightWhiteSpace, GridRowsColumns.Stars(1))
+            ),
+            Children =
+            {
+                islandView,
+                GetPetAndDecorLayout(islandView)
+            }
+        };
     }
 
     public Image GetIslandView() =>
         new Image()
             {
-                ZIndex = 0
+                ZIndex = 0,
+                BindingContext = this
             }
             .Bind(
                 Image.SourceProperty,
-                getter: static (view) => view.Island,
+                getter: static (view) => view.DisplayIsland,
                 convert: static (island) => new ByteArrayToImageSourceConverter().ConvertFrom(island?.Image),
                 source: this)
             .ColumnSpan(typeof(Column).GetEnumNames().Length)
@@ -83,7 +105,7 @@ internal class IslandDisplayView : Grid
     /// Create a layout for vertical spacing and a container for horizontal distribution
     /// with the pet and decor items displayed inside.
     /// </summary>
-    /// <param name="islandView">The island view which will be used to determine the height of the layout.</param>
+    /// <param name="_islandView">The island view which will be used to determine the height of the layout.</param>
     /// <returns>The layout.</returns>
     public FlexLayout GetPetAndDecorLayout(Image islandView)
     {
@@ -138,12 +160,12 @@ internal class IslandDisplayView : Grid
                 }
                 .Bind(
                     Image.SourceProperty,
-                    getter: static (view) => view.Pet,
+                    getter: static (view) => view.DisplayPet,
                     convert: static (pet) => new ByteArrayToImageSourceConverter().ConvertFrom(pet?.Image),
                     source: this)
                 .Bind(
                     Image.HeightRequestProperty,
-                    getter: static (view) => view.Pet,
+                    getter: static (view) => view.DisplayPet,
                     convert: static (pet) => pet?.HeightRequest,
                     source: this)
                 .Bind(

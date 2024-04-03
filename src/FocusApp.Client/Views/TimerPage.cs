@@ -79,6 +79,7 @@ internal class TimerPage : BasePage
         };
         });
 
+
         Content = new Grid
         {
             RowDefinitions = GridRowsColumns.Rows.Define(
@@ -126,38 +127,9 @@ internal class TimerPage : BasePage
                 .ColumnSpan(typeof(Column).GetEnumNames().Length)
                 .Bind(Label.TextProperty,
                         getter: static (ITimerService th) => th.TimerDisplay),
-                new Image()
-                {
-                    ZIndex = 2,
-                    Source = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.SelectedFurniture?.Image)
-                }
-                .ColumnSpan(typeof(Column).GetEnumNames().Length).RowSpan(typeof(Row).GetEnumNames().Length)
-                    .Bind(
-                    IslandDisplayView.IslandProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
-                    convert: static (Furniture furn) => new ByteArrayToImageSourceConverter().ConvertFrom(furn.Image),
-                    source: _authenticationService),
+
                 // Island
-                new IslandDisplayView()
-                {
-                    BindingContext = _authenticationService
-                }
-                .Center()
-                .FillHorizontal()
-                .Row(Row.IslandView)
-                .ColumnSpan(typeof(Column).GetEnumNames().Length)
-                .Bind(
-                    IslandDisplayView.IslandProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedIsland,
-                    source: _authenticationService)
-                .Bind(
-                    IslandDisplayView.PetProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedPet,
-                    source: _authenticationService)
-                .Bind(
-                    IslandDisplayView.DecorProperty,
-                    getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
-                    source: _authenticationService),
+                SetupIslandDisplayView(),
 
                 // Increase Time Button
                 new Button
@@ -226,6 +198,30 @@ internal class TimerPage : BasePage
         };
     }
 
+    private IslandDisplayView SetupIslandDisplayView()
+    {
+        return new IslandDisplayView(parentPage: this)
+            {
+                BindingContext = _authenticationService,
+            }
+            .Center()
+            .FillHorizontal()
+            .Row(Row.IslandView)
+            .ColumnSpan(typeof(Column).GetEnumNames().Length)
+            .Bind(
+                IslandDisplayView.IslandProperty,
+                getter: static (IAuthenticationService authService) => authService.SelectedIsland,
+                source: _authenticationService)
+            .Bind(
+                IslandDisplayView.PetProperty,
+                getter: static (IAuthenticationService authService) => authService.SelectedPet,
+                source: _authenticationService)
+            .Bind(
+                IslandDisplayView.DecorProperty,
+                getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
+                source: _authenticationService);
+    }
+
     /// <summary>
     /// Increment or decrement the timer duration.
     /// </summary>
@@ -267,10 +263,10 @@ internal class TimerPage : BasePage
     }
 
     private async void SettingsButtonClicked(object? sender, EventArgs e)
-        {
-            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-            await Shell.Current.GoToAsync($"///{nameof(TimerPage)}/{nameof(SettingsPage)}");
-        }
+    {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync(nameof(SettingsPage));
+    }
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {
