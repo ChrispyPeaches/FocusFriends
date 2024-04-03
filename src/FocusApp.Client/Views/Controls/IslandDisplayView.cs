@@ -33,15 +33,15 @@ internal class IslandDisplayView : ContentView
         returnType: typeof(Pet),
         declaringType: typeof(IslandDisplayView));
 
-    public Furniture Decor
+    public Furniture DisplayDecor
     {
-        get => (Furniture)GetValue(DecorProperty);
-        set => SetValue(DecorProperty, value);
+        get => (Furniture)GetValue(DisplayDecorProperty);
+        set => SetValue(DisplayDecorProperty, value);
     }
 
-    /// <summary>Bindable property for <see cref="Decor"/>.</summary>
-    public static readonly BindableProperty DecorProperty = BindableProperty.Create(
-        propertyName: nameof(Decor),
+    /// <summary>Bindable property for <see cref="DisplayDecor"/>.</summary>
+    public static readonly BindableProperty DisplayDecorProperty = BindableProperty.Create(
+        propertyName: nameof(DisplayDecor),
         returnType: typeof(Furniture),
         declaringType: typeof(IslandDisplayView));
 
@@ -68,23 +68,26 @@ internal class IslandDisplayView : ContentView
     public void GenerateContent()
     {
         var islandView = GetIslandView();
-
-        Content = new Grid()
+        var petAndDecorLayout = GetPetAndDecorLayout(islandView);
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            RowDefinitions = GridRowsColumns.Rows.Define(
-                GridRowsColumns.Auto
-            ),
-            ColumnDefinitions = GridRowsColumns.Columns.Define(
-                (Column.LeftWhiteSpace, GridRowsColumns.Stars(1)),
-                (Column.PetAndDecor, GridRowsColumns.Stars(6)),
-                (Column.RightWhiteSpace, GridRowsColumns.Stars(1))
-            ),
-            Children =
+            Content = new Grid()
             {
-                islandView,
-                GetPetAndDecorLayout(islandView)
-            }
-        };
+                RowDefinitions = GridRowsColumns.Rows.Define(
+                    GridRowsColumns.Auto
+                ),
+                ColumnDefinitions = GridRowsColumns.Columns.Define(
+                    (Column.LeftWhiteSpace, GridRowsColumns.Stars(1)),
+                    (Column.PetAndDecor, GridRowsColumns.Stars(6)),
+                    (Column.RightWhiteSpace, GridRowsColumns.Stars(1))
+                ),
+                Children =
+                {
+                    islandView,
+                    petAndDecorLayout
+                }
+            };
+        });
     }
 
     public Image GetIslandView() =>
@@ -105,7 +108,8 @@ internal class IslandDisplayView : ContentView
     /// Create a layout for vertical spacing and a container for horizontal distribution
     /// with the pet and decor items displayed inside.
     /// </summary>
-    /// <param name="_islandView">The island view which will be used to determine the height of the layout.</param>
+    /// <remarks>The height of the container is determined by the height of the island image displayed </remarks>
+    /// <param name="islandView">The island view which will be used to determine the height of the layout.</param>
     /// <returns>The layout.</returns>
     public FlexLayout GetPetAndDecorLayout(Image islandView)
     {
@@ -204,12 +208,12 @@ internal class IslandDisplayView : ContentView
                 }
                 .Bind(
                     Image.SourceProperty,
-                    getter: static (view) => view.Decor,
+                    getter: static (view) => view.DisplayDecor,
                     convert: static (decor) => new ByteArrayToImageSourceConverter().ConvertFrom(decor?.Image),
                     source: this)
                 .Bind(
                     Image.HeightRequestProperty,
-                    getter: static (view) => view.Decor,
+                    getter: static (view) => view.DisplayDecor,
                     convert: static (decor) => decor?.HeightRequest,
                     source: this)
                 .Bind(

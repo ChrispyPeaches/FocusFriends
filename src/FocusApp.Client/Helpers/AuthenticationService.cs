@@ -61,7 +61,6 @@ public class AuthenticationService : INotifyPropertyChanged, IAuthenticationServ
         set => SetProperty(ref _selectedFurniture, value);
     }
 
-
     #region Property Changed Notification Logic
 
     private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")

@@ -217,7 +217,7 @@ internal class TimerPage : BasePage
                 getter: static (IAuthenticationService authService) => authService.SelectedPet,
                 source: _authenticationService)
             .Bind(
-                IslandDisplayView.DecorProperty,
+                IslandDisplayView.DisplayDecorProperty,
                 getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
                 source: _authenticationService);
     }
