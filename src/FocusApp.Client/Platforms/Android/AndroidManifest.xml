@@ -1,13 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.ZenPxl.FocusFriends" android:versionCode="1" android:versionName="Development Test">
-	<application android:allowBackup="true" 
-				 android:icon="@mipmap/appicon" 
-				 android:supportsRtl="true" 
-				 android:usesCleartextTraffic="true" 
-				 android:label="FocusApp"></application>
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true" android:usesCleartextTraffic="true" android:label="FocusApp"></application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
-
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 	<queries>
 		<intent>
 			<action android:name="android.support.customtabs.action.CustomTabsService" />
