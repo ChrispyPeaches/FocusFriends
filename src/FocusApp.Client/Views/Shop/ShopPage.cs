@@ -234,17 +234,6 @@ namespace FocusApp.Client.Views.Shop
             _soundsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Sounds);
             _furnitureCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Furniture);
 
-            var item = shopItems.Where(p => p.Type == ShopItemType.Pets)
-                .Where(f => f.ImageSource != _authenticationService.SelectedFurniture?.Image)
-                .First();
-            _authenticationService.SelectedFurniture = new Furniture()
-            {
-                HeightRequest = 80,
-                Image = item.ImageSource,
-                Name = item.Name,
-                Price = item.Price,
-            };
-
             base.OnAppearing();
         }
        

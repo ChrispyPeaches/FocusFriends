@@ -7,7 +7,6 @@ namespace FocusApp.Client.Helpers;
 
 internal interface IAuthenticationService
 {
-    static AuthenticationService Instance { get; }
     string Id { get; set; }
     string Email { get; set; }
     string AuthToken { get; set; }
@@ -20,11 +19,8 @@ internal interface IAuthenticationService
     event PropertyChangedEventHandler? PropertyChanged;
 }
 
-public partial class AuthenticationService : INotifyPropertyChanged, IAuthenticationService
+public class AuthenticationService : INotifyPropertyChanged, IAuthenticationService
 {
-    private static AuthenticationService? _instance;
-    public static AuthenticationService Instance => _instance ??= new AuthenticationService();
-
     public event PropertyChangedEventHandler? PropertyChanged;
     public string Id { get; set; } = "";
     public string Email { get; set; } = "";
@@ -85,35 +81,4 @@ public partial class AuthenticationService : INotifyPropertyChanged, IAuthentica
 
     #endregion
 
-}
-
-partial class ObservableUser : ObservableObject
-{
-    [ObservableProperty]
-    private User? _user;
-    public ObservableUser(User? user) => this._user = user;
-
-    public Island? SelectedIsland
-    {
-        get => _user.SelectedIsland;
-        set => SetProperty(_user.SelectedIsland, value, _user, (u, n) => u.SelectedIsland = n);
-    }
-
-    public Pet? SelectedPet
-    {
-        get => _user.SelectedPet;
-        set => SetProperty(_user.SelectedPet, value, _user, (u, n) => u.SelectedPet = n);
-    }
-
-    public Badge? SelectedBadge
-    {
-        get => _user.SelectedBadge;
-        set => SetProperty(_user.SelectedBadge, value, _user, (u, n) => u.SelectedBadge = n);
-    }
-
-    public Furniture? SelectedFurniture
-    {
-        get => _user.SelectedFurniture;
-        set => SetProperty(_user.SelectedFurniture, value, _user, (u, n) => u.SelectedFurniture = n);
-    }
 }
