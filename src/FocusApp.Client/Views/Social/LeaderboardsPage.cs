@@ -2,7 +2,6 @@
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
-using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
 using CommunityToolkit.Maui.Converters;
 using FocusApp.Client.Clients;
@@ -10,6 +9,7 @@ using FocusCore.Queries.Leaderboard;
 using FocusApp.Client.Helpers;
 using FocusCore.Models;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui.Views;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -26,21 +26,23 @@ namespace FocusApp.Client.Views.Social
         // Column structure for remaining friends entries
         enum RemainingFriendsColumn { Picture, Name, Score }
 
-
+        // References for button enabling/disabling
         Button _dailyLeaderboardButton { get; set; }
         Button _weeklyLeaderboardButton { get; set; }
-        StackLayout _remainingFriendsContent { get; set; }
 
-        // Top three friends image, score, and username references (Gross)
-        Image _firstPlacePicture { get; set; }
+        // Top three friends image, score, and username references
+        AvatarView _firstPlacePicture { get; set; }
         Label _firstPlaceScore { get; set; }
         Label _firstPlaceUsername { get; set; }
-        Image _secondPlacePicture { get; set; }
+        AvatarView _secondPlacePicture { get; set; }
         Label _secondPlaceScore { get; set; }
         Label _secondPlaceUsername { get; set; }
-        Image _thirdPlacePicture { get; set; }
+        AvatarView _thirdPlacePicture { get; set; }
         Label _thirdPlaceScore { get; set; }
         Label _thirdPlaceUsername { get; set; }
+
+        // Remaining friends data
+        StackLayout _remainingFriendsContent { get; set; }
 
         IAPIClient _client { get; set; }
         IAuthenticationService _authenticationService { get; set; }
@@ -235,35 +237,24 @@ namespace FocusApp.Client.Views.Social
 
         ScrollView GetRemainingFriendsScrollView()
         {
-            List<LeaderboardDto> LeaderboardDtos = new List<LeaderboardDto>
-            {
-                new LeaderboardDto { UserName = "Richard 1", CurrencyEarned = 10, Rank = 4 },
-                new LeaderboardDto { UserName = "Richard 2", CurrencyEarned = 10 ,Rank = 5},
-                new LeaderboardDto { UserName = "Richard 3", CurrencyEarned = 10 ,Rank= 6},
-                new LeaderboardDto { UserName = "Richard 4", CurrencyEarned = 10 ,Rank = 7},
-                new LeaderboardDto { UserName = "Richard 5", CurrencyEarned = 10 ,Rank = 8},
-                new LeaderboardDto { UserName = "Richard 6" , CurrencyEarned = 10,Rank = 9},
-                new LeaderboardDto { UserName = "Richard 7" , CurrencyEarned = 10,Rank = 10},
-                new LeaderboardDto { UserName = "Richard 8" , CurrencyEarned = 10,Rank = 11},
-                new LeaderboardDto { UserName = "Richard 9" , CurrencyEarned = 10,Rank = 12},
-                new LeaderboardDto { UserName = "Richard 10" , CurrencyEarned = 10,Rank = 13},
-                new LeaderboardDto { UserName = "Richard 11" , CurrencyEarned = 10,Rank = 14},
-                new LeaderboardDto { UserName = "Richard 12" , CurrencyEarned = 10,Rank = 15},
-                new LeaderboardDto { UserName = "Richard 13" , CurrencyEarned = 10,Rank = 16},
-                new LeaderboardDto { UserName = "Richard 14" , CurrencyEarned = 10,Rank = 17},
-                new LeaderboardDto { UserName = "Richard 15" , CurrencyEarned = 10,Rank = 18}
-            };
-
             DataTemplate dataTemplate = new DataTemplate(() =>
             {
-                Image friendPicture = new Image
+                Image friendImage = new Image();
+                friendImage.SetBinding(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+
+                Frame friendPictureFrame = new Frame
                 {
-                    HeightRequest = 64,
-                    WidthRequest = 64,
+                    CornerRadius = 28,
+                    HeightRequest = 56,
+                    WidthRequest = 56,
+                    BackgroundColor = Colors.Transparent,
+                    BorderColor = Colors.White,
                     VerticalOptions = LayoutOptions.Center,
+                    Padding = 0,
+                    IsClippedToBounds = true,
+                    Content = friendImage
                 }
                 .Column(RemainingFriendsColumn.Picture);
-                friendPicture.SetBinding(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
                 
                 Label friendName = new Label
                 {
@@ -301,7 +292,7 @@ namespace FocusApp.Client.Views.Social
                         (RemainingFriendsColumn.Score, GridRowsColumns.Stars(1))),
                     BackgroundColor = Colors.LightGray,
                 };
-                friendGrid.Add(friendPicture);
+                friendGrid.Add(friendPictureFrame);
                 friendGrid.Add(friendName);
                 friendGrid.Add(friendScoreAndRank);
 
@@ -316,7 +307,6 @@ namespace FocusApp.Client.Views.Social
             });
 
             _remainingFriendsContent = new StackLayout();
-            BindableLayout.SetItemsSource(_remainingFriendsContent, LeaderboardDtos);
             BindableLayout.SetItemTemplate(_remainingFriendsContent, dataTemplate);
 
             var scrollView = new ScrollView
@@ -327,12 +317,15 @@ namespace FocusApp.Client.Views.Social
             return scrollView;
         }
 
-        // Gross
         void SetTopThreeDynamicElements()
         {
             // Set third place dynamic elements
-            _thirdPlacePicture = new Image()
-            //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+            _thirdPlacePicture = new AvatarView
+            {
+                CornerRadius = 36,
+                WidthRequest = 72,
+                HeightRequest = 72
+            }
             .CenterHorizontal()
             .CenterVertical();
 
@@ -349,13 +342,17 @@ namespace FocusApp.Client.Views.Social
             .CenterHorizontal();
 
             // Bind third place properties to friend fields
-            _thirdPlacePicture.Bind(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+            _thirdPlacePicture.Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
             _thirdPlaceScore.Bind(Label.TextProperty, "CurrencyEarned");
             _thirdPlaceUsername.Bind(Label.TextProperty, "UserName");
 
             // Set second place dynamic elements
-            _secondPlacePicture = new Image()
-            //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+            _secondPlacePicture = new AvatarView
+            {
+                CornerRadius = 36,
+                WidthRequest = 72,
+                HeightRequest = 72
+            }
             .CenterHorizontal()
             .CenterVertical();
 
@@ -374,13 +371,17 @@ namespace FocusApp.Client.Views.Social
             .CenterHorizontal();
 
             // Bind second place properties to friend fields
-            _secondPlacePicture.Bind(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+            _secondPlacePicture.Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
             _secondPlaceScore.Bind(Label.TextProperty, "CurrencyEarned");
             _secondPlaceUsername.Bind(Label.TextProperty, "UserName");
 
             // Set first place dynamic elements
-            _firstPlacePicture = new Image()
-            //.Clip(new EllipseGeometry { Center = new Point(64, 35), RadiusX = 27, RadiusY = 27 })
+            _firstPlacePicture = new AvatarView
+            {
+                CornerRadius = 36,
+                WidthRequest = 72,
+                HeightRequest = 72
+            }
             .CenterHorizontal()
             .CenterVertical();
 
@@ -398,7 +399,7 @@ namespace FocusApp.Client.Views.Social
             }
             .CenterHorizontal();
 
-            _firstPlacePicture.Bind(Image.SourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+            _firstPlacePicture.Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
             _firstPlaceScore.Bind(Label.TextProperty, "CurrencyEarned");
             _firstPlaceUsername.Bind(Label.TextProperty, "UserName");
         }
@@ -437,38 +438,36 @@ namespace FocusApp.Client.Views.Social
             }
         }
 
-        // Gross
         void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
         {
             ClearLeaderboard();
 
+            // Populate top three friend data
             for (int i = 0; i < leaderboard.Count; i++)
             {
                 switch (i)
                 { 
                     case 0:
-                        LeaderboardDto firstPlace = leaderboard[i];
-                        _firstPlacePicture.BindingContext = firstPlace;
-                        _firstPlaceScore.BindingContext = firstPlace;
-                        _firstPlaceUsername.BindingContext = firstPlace;
+                        _firstPlacePicture.BindingContext = leaderboard[i];
+                        _firstPlaceScore.BindingContext = leaderboard[i];
+                        _firstPlaceUsername.BindingContext = leaderboard[i];
                         break;
                     case 1:
-                        LeaderboardDto secondPlace = leaderboard[i];
-                        _secondPlacePicture.BindingContext = secondPlace;
-                        _secondPlaceScore.BindingContext = secondPlace;
-                        _secondPlaceUsername.BindingContext = secondPlace;
+                        _secondPlacePicture.BindingContext = leaderboard[i];
+                        _secondPlaceScore.BindingContext = leaderboard[i];
+                        _secondPlaceUsername.BindingContext = leaderboard[i];
                         break;
                     case 2:
-                        LeaderboardDto thirdPlace = leaderboard[i];
-                        _thirdPlacePicture.BindingContext = thirdPlace;
-                        _thirdPlaceScore.BindingContext = thirdPlace;
-                        _thirdPlaceUsername.BindingContext = thirdPlace;
+                        _thirdPlacePicture.BindingContext = leaderboard[i];
+                        _thirdPlaceScore.BindingContext = leaderboard[i];
+                        _thirdPlaceUsername.BindingContext = leaderboard[i];
                         break;
                     default:
                         break;
                 }
             }
 
+            // Populate remaining friend data
             if (leaderboard.Count > 3)
             {
                 List<LeaderboardDto> remainingFriends = leaderboard.Where(l => leaderboard.IndexOf(l) > 2).ToList();
@@ -513,6 +512,21 @@ namespace FocusApp.Client.Views.Social
                 _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards on page load. Message: " + ex.Message);
             }
             base.OnAppearing();
+        }
+
+        // Clear leaderboard and reset daily/weekly buttons upon leaving page
+        protected override async void OnDisappearing()
+        {
+            ClearLeaderboard();
+
+            // Reset daily/weekly buttons for next visit
+            if (_dailyLeaderboardButton.IsEnabled)
+            {
+                _dailyLeaderboardButton.IsEnabled = false;
+                _weeklyLeaderboardButton.IsEnabled = true;
+            }
+
+            base.OnDisappearing();
         }
     }
 }
