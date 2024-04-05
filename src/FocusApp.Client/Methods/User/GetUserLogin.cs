@@ -80,6 +80,7 @@ namespace FocusApp.Client.Methods.User
                                     user = await CreateUser(auth0UserId, userEmail, userName, cancellationToken);
                                     break;
                                 case HttpStatusCode.InternalServerError:
+                                default:
                                     throw new Exception("Error fetching user from server.");
                             }
 

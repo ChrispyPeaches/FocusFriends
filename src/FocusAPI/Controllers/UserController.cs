@@ -21,6 +21,9 @@ namespace FocusAPI.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Feature: <see cref="Methods.User.GetUser"/>
+        /// </summary>
         [HttpGet]
         [Route("GetUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -54,6 +57,9 @@ namespace FocusAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Feature: <see cref="Methods.User.CreateUser"/>
+        /// </summary>
         [HttpPost]
         [Route("CreateUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
