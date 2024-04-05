@@ -5,7 +5,7 @@ namespace FocusCore.Models;
 
 [Table("UserBadges")]
 [PrimaryKey(nameof(UserId), nameof(BadgeId))]
-public abstract class BaseUserBadge
+public class BaseUserBadge
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }

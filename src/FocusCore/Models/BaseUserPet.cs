@@ -5,7 +5,7 @@ namespace FocusCore.Models;
 
 [Table("UserPets")]
 [PrimaryKey(nameof(UserId), nameof(PetId))]
-public abstract class BaseUserPet
+public class BaseUserPet
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }
