@@ -1,15 +1,14 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using CommunityToolkit.Mvvm.ComponentModel;
 using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Helpers;
 
 internal interface IAuthenticationService
 {
-    string Id { get; set; }
-    string Email { get; set; }
-    string AuthToken { get; set; }
+    string? Auth0Id { get; set; }
+    string? Email { get; set; }
+    string? AuthToken { get; set; }
     User? CurrentUser { get; set; }
     Island? SelectedIsland { get; set; }
     Pet? SelectedPet { get; set; }
@@ -22,9 +21,9 @@ internal interface IAuthenticationService
 public class AuthenticationService : INotifyPropertyChanged, IAuthenticationService
 {
     public event PropertyChangedEventHandler? PropertyChanged;
-    public string Id { get; set; } = "";
-    public string Email { get; set; } = "";
-    public string AuthToken { get; set; } = "";
+    public string? Auth0Id { get; set; } = "";
+    public string? Email { get; set; } = "";
+    public string? AuthToken { get; set; } = "";
 
     private User? _currentUser;
     public User? CurrentUser
