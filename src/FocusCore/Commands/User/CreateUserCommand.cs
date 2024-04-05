@@ -1,12 +1,13 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FocusCore.Responses;
+using FocusCore.Responses.User;
+using MediatR;
 
 namespace FocusCore.Commands.User;
-public class CreateUserCommand : IRequest<Unit>
+
+public class CreateUserCommand : IRequest<MediatrResultWrapper<CreateUserResponse>>
 {
-    public string Name { get; set; }
+    public Guid Id { get; set; }
+    public string Auth0Id { get; set; }
+    public string Email { get; set; }
+    public string UserName { get; set; }
 }

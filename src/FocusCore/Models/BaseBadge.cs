@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models;
 
 [Table("Badges")]
-public abstract class BaseBadge
+public class BaseBadge
 {
     [Key]
     public Guid Id { get; set; }

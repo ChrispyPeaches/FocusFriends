@@ -19,6 +19,8 @@ public class FocusContext : DbContext
     public DbSet<UserFurniture> UserFurniture { get; set; }
     public DbSet<UserSound> UserSounds { get; set; }
     public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
+    public DbSet<Island> Islands { get; set; }
+    public DbSet<UserIsland> UserIslands { get; set; }
 
     /// <summary>
     /// If the database isn't created, create it.
@@ -28,14 +30,9 @@ public class FocusContext : DbContext
     {
         if (Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator dbCreator)
         {
-            if (!dbCreator.CanConnect())
+            if (!dbCreator.CanConnect() || !dbCreator.HasTables())
             {
-                dbCreator.Create();
-            }
-
-            if (!dbCreator.HasTables())
-            {
-                dbCreator.CreateTables();
+                Database.Migrate();
             }
         }
     }
