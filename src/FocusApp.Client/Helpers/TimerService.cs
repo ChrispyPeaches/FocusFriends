@@ -352,7 +352,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         {
             _timer.Stop();
         }
-        _lastKnownTime = DateTimeOffset.Now;
+        _lastKnownTime = DateTimeOffset.UtcNow;
     }
     
     /// <summary>
@@ -370,9 +370,16 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         
         if (_currentSessionStartTime != null)
         {
-            TimeSpan? totalSessionTime = DateTimeOffset.Now - _currentSessionStartTime;
+            TimeSpan? timeLaspedWhileMinimized = DateTimeOffset.UtcNow - _lastKnownTime;
+            if (timeLaspedWhileMinimized.HasValue)
+            {
+                TimeLeft -= (int)timeLaspedWhileMinimized.Value.TotalSeconds;
+            }
+            else
+            {
+                TimeLeft = _lastFocusTimerDuration - (int)DateTimeOffset.UtcNow.Subtract(_currentSessionStartTime.Value).TotalSeconds;
+            }
 
-            TimeLeft -= (int)totalSessionTime.Value.TotalSeconds;
             if (TimeLeft <= 0) 
             {
                 TransitionToNextState();
