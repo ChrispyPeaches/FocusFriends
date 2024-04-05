@@ -131,7 +131,7 @@ namespace FocusApp.Client.Methods.User
                     },
                     cancellationToken);
 
-                user = await GatherUserDataFromCreateUser(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
+                user = await GatherUserDataForCreatedUser(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
 
                 bool userExistsLocally = await _localContext.Users
                     .AnyAsync(u => u.Auth0Id == auth0UserId, cancellationToken);
@@ -149,7 +149,7 @@ namespace FocusApp.Client.Methods.User
                 return user;
             }
 
-            private async Task<Shared.Models.User> GatherUserDataFromCreateUser(
+            private async Task<Shared.Models.User> GatherUserDataForCreatedUser(
                 CreateUserResponse createUserResponse,
                 string auth0UserId,
                 string userEmail,
