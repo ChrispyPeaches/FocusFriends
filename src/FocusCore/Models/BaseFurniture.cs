@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models;
 
 [Table("Furniture")]
-public abstract class BaseFurniture
+public class BaseFurniture
 {
     [Key]
     public Guid Id { get; set; }
@@ -13,4 +13,5 @@ public abstract class BaseFurniture
 
     public required string Name { get; set; } = null!;
     public byte[] Image { get; set; }
+    public int HeightRequest { get; set; }
 }

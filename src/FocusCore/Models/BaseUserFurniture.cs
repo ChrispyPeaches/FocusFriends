@@ -10,7 +10,7 @@ namespace FocusCore.Models;
 
 [Table("UserFurniture")]
 [PrimaryKey(nameof(UserId), nameof(FurnitureId))]
-public abstract class BaseUserFurniture
+public class BaseUserFurniture
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }

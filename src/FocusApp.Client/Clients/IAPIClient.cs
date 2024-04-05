@@ -5,27 +5,31 @@ using FocusCore.Queries.Shop;
 using FocusCore.Queries.Sync;
 using FocusCore.Queries.User;
 using FocusCore.Responses.Sync;
-using FocusCore.Models;
+using FocusCore.Responses.User;
 using Refit;
 
 namespace FocusApp.Client.Clients;
 public interface IAPIClient
 {
-    [Get("/User")]
-    Task<User> GetUserByAuth0Id(GetUserQuery query);
+    #region User
 
-    [Get("/Shop")]
-    Task<List<Shared.Models.ShopItem>> GetAllShopItems(
-        GetAllShopItemsQuery query,
-        CancellationToken cancellationToken);
+    [Get("/User/GetUser")]
+    Task<ApiResponse<GetUserResponse>> GetUserByAuth0Id(
+        GetUserQuery query,
+        CancellationToken cancellationToken = default);
+
+    [Post("/User/CreateUser")]
+    Task<CreateUserResponse> CreateUser(
+        CreateUserCommand command,
+        CancellationToken cancellationToken = default);
 
     [Get("/Leaderboard/Daily")]
-    Task<List<LeaderboardDto>> GetDailyLeaderboard(
+    Task<List<FocusCore.Models.LeaderboardDto>> GetDailyLeaderboard(
         GetDailyLeaderboardQuery query,
         CancellationToken cancellationToken);
 
     [Get("/Leaderboard/Weekly")]
-    Task<List<LeaderboardDto>> GetWeeklyLeaderboard(
+    Task<List<FocusCore.Models.LeaderboardDto>> GetWeeklyLeaderboard(
         GetWeeklyLeaderboardQuery query,
         CancellationToken cancellationToken);
 
@@ -38,9 +42,28 @@ public interface IAPIClient
     [Post("/User/Sound")]
     Task AddUserSound(AddUserSoundCommand command);
 
+    #endregion
+
+    #region Shop
+
+    [Get("/Shop")]
+    Task<List<ShopItem>> GetAllShopItems(
+        GetAllShopItemsQuery query,
+        CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Sync
+
     [Post("/Sync/MindfulnessTips")]
     Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
         [Body] SyncMindfulnessTipsQuery query,
         CancellationToken cancellationToken);
 
+    [Post("/Sync/InitialData")]
+    Task<SyncInitialDataResponse> SyncInitialData(
+        [Body] SyncInitialDataQuery query,
+        CancellationToken cancellationToken);
+
+    #endregion
 }

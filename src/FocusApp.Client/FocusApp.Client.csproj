@@ -78,7 +78,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 		<PackageReference Include="Refit" Version="7.0.0" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
-		<PackageReference Include="Sharpnado.Tabs.Maui" Version="3.0.1" />
 		<PackageReference Include="SimpleToolkit.Core" Version="4.0.0" />
 		<PackageReference Include="SimpleToolkit.SimpleShell" Version="4.0.0" />
 	</ItemGroup>
@@ -88,11 +87,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Models\" />
+		<ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
+	  <Folder Include="Models\Extensions\" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">

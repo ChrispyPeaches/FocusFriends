@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models;
 
 [Table("UserSessionHistory")]
-public abstract class BaseUserSession
+public class BaseUserSession
 {
     [Key]
     public Guid Id { get; set; }

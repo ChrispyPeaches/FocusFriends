@@ -8,6 +8,7 @@ using FocusApp.Shared.Data;
 using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;
+using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Views;
 
@@ -98,9 +99,19 @@ internal class LoginPage : BasePage
 
     private async void SkipButtonClicked(object sender, EventArgs e)
     {
-        // If user skips login, set current user / auth token to null
-        _authenticationService.CurrentUser = null;
-        _authenticationService.AuthToken = null;
+        // If user skips login, initialize empty user and set selected pet and island to defaults
+        try
+        {
+            await Task.Run(InitializeEmptyUser);
+            _authenticationService.AuthToken = null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error initializing empty user.");
+        }
+
+
+        // Todo: If user skips login, set selected pet and island to defaults
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
@@ -109,13 +120,19 @@ internal class LoginPage : BasePage
         try
         {
             // Handle login process on non-UI thread
-            GetUserLogin.Result loginResult = await Task.Run(async () => await _mediator.Send(new GetUserLogin.Query()));
+            GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
+
+            // Todo: If user exists, sync user data with server including islands, pets, etc.
 
             if (loginResult.IsSuccessful)
             {
                 _authenticationService.AuthToken = loginResult.AuthToken;
                 _authenticationService.CurrentUser = loginResult.CurrentUser;
-                await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+
+                _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
+                _authenticationService.SelectedFurniture = loginResult.CurrentUser?.SelectedFurniture;
+                _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
+                _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
             }
             else
             {
@@ -124,7 +141,39 @@ internal class LoginPage : BasePage
         }
         catch (Exception ex) 
         {
-            _logger.Log(LogLevel.Error, "Error during login process. Exception: " + ex.Message);
+            _logger.LogError(ex, "Error during login process.");
+        }
+
+        // If any issues occured while logging in, initialize empty user and set selected pet and island to defaults
+        try
+        {
+            await Task.Run(InitializeEmptyUser);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error initializing empty user.");
+        }
+
+        await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+    }
+
+    private async Task InitializeEmptyUser()
+    {
+        _authenticationService.CurrentUser ??= new User()
+        {
+            Auth0Id = "",
+            Email = "",
+            UserName = "",
+            Balance = 0
+        };
+
+        if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
+        {
+            GetDefaultItems.Result result = await _mediator.Send(new GetDefaultItems.Query());
+
+            _authenticationService.SelectedIsland ??= result.Island;
+            _authenticationService.SelectedPet ??= result.Pet;
+            _authenticationService.SelectedFurniture ??= result.Decor;
         }
     }
 
