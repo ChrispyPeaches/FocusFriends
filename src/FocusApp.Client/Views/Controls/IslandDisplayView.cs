@@ -71,6 +71,8 @@ internal class IslandDisplayView : ContentView
         var petAndDecorLayout = GetPetAndDecorLayout(islandView);
         MainThread.BeginInvokeOnMainThread(() =>
         {
+            Opacity = 0;
+
             Content = new Grid()
             {
                 RowDefinitions = GridRowsColumns.Rows.Define(
@@ -87,6 +89,8 @@ internal class IslandDisplayView : ContentView
                     petAndDecorLayout
                 }
             };
+
+            this.FadeTo(opacity: 1, length: 750);
         });
     }
 
