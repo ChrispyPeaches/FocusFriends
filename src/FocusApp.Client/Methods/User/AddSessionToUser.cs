@@ -104,7 +104,7 @@ internal class AddSessionToUser
                     SessionId = sessionId,
                     SessionStartTime = query.SessionStartTime,
                     SessionEndTime = query.SessionEndTime,
-                    CurrencyEarned = query.CurrencyEarned
+                    CurrencyEarned = currencyEarned
                 }, cancellationToken);
             }
             catch (Exception ex)
