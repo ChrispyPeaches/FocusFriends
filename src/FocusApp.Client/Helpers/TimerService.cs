@@ -197,7 +197,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
                 ToggleTimerButtonText = "Stop";
                 ToggleTimerButtonBackgroudColor = AppStyles.Palette.OrchidPink;
                 AreStepperButtonsVisible = false;
-                _currentSessionStartTime = DateTimeOffset.Now;
+                _currentSessionStartTime = DateTimeOffset.UtcNow;
                 break;
 
             case TimerState.StoppedPreBreak:
