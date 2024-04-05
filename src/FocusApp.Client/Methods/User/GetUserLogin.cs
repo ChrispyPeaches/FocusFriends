@@ -186,6 +186,8 @@ namespace FocusApp.Client.Methods.User
                 Shared.Models.User? user;
 
                 Shared.Models.User? localUser = await _localContext.Users
+                    .Include(u => u.SelectedIsland)
+                    .Include(u => u.SelectedPet)
                     .Where(u => u.Auth0Id == auth0Id)
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -198,15 +200,7 @@ namespace FocusApp.Client.Methods.User
                     user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
 
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
-                    user.SelectedIsland = await _localContext.Islands
-                        .Where(island => island.Id == getUserResponse.SelectedIslandId)
-                        .FirstOrDefaultAsync(cancellationToken);
-
                     user.SelectedIsland ??= await GetInitialIslandQuery()
-                        .FirstOrDefaultAsync(cancellationToken);
-
-                    user.SelectedPet = await _localContext.Pets
-                        .Where(pet => pet.Id == getUserResponse.SelectedPetId)
                         .FirstOrDefaultAsync(cancellationToken);
 
                     user.SelectedPet ??= await GetInitialPetQuery()
