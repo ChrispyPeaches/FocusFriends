@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace FocusCore.Models;
 
 [Table("Users")]
-public abstract class BaseUser
+public class BaseUser
 {
 	[Key]
 	public Guid Id { get; set; }
@@ -34,9 +32,9 @@ public abstract class BaseUser
 
 	public byte[]? ProfilePicture { get; set; }
 
-	public ICollection<BaseFriendship>? Inviters { get; set; }
+	public ICollection<BaseFriendship>? Inviters { get; set; } = new List<BaseFriendship>();
 
-	public ICollection<BaseFriendship>? Invitees { get; set; }
+	public ICollection<BaseFriendship>? Invitees { get; set; } = new List<BaseFriendship>();
 
     public ICollection<BaseUserPet>? Pets { get; set; } = new List<BaseUserPet>();
 
@@ -44,7 +42,33 @@ public abstract class BaseUser
 
     public ICollection<BaseUserSound>? Sounds { get; set; } = new List<BaseUserSound>();
 
-    public ICollection<BaseUserBadge>? Badges { get; set; }
+    public ICollection<BaseUserBadge>? Badges { get; set; } = new List<BaseUserBadge>();
 
-	public ICollection<BaseUserSession>? UserSessions { get; set; }
+    public ICollection<BaseUserIsland>? Islands { get; set; } = new List<BaseUserIsland>();
+
+    public ICollection<BaseUserSession>? UserSessions { get; set; } = new List<BaseUserSession>();
+
+    [ForeignKey(nameof(SelectedIsland))]
+    public Guid? SelectedIslandId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BaseIsland? SelectedIsland { get; set; }
+
+    [ForeignKey(nameof(SelectedPet))]
+    public Guid? SelectedPetId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BasePet? SelectedPet { get; set; }
+
+    [ForeignKey(nameof(SelectedFurniture))]
+    public Guid? SelectedFurnitureId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BaseFurniture? SelectedFurniture { get; set; }
+
+    [ForeignKey(nameof(SelectedBadge))]
+    public Guid? SelectedBadgeId { get; set; }
+
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public BaseBadge? SelectedBadge { get; set; }
 }

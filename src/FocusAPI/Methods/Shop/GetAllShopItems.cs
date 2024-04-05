@@ -4,7 +4,7 @@ using FocusCore.Models;
 using FocusCore.Queries.Shop;
 using MediatR;
 
-namespace FocusApi.Methods.Shop;
+namespace FocusAPI.Methods.Shop;
 public class GetAllShopItems
 {
     public class Handler : IRequestHandler<GetAllShopItemsQuery, List<ShopItem>>
