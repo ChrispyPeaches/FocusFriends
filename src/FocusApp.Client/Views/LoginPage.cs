@@ -128,7 +128,11 @@ internal class LoginPage : BasePage
             {
                 _authenticationService.AuthToken = loginResult.AuthToken;
                 _authenticationService.CurrentUser = loginResult.CurrentUser;
-                await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+
+                _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
+                _authenticationService.SelectedFurniture = loginResult.CurrentUser?.SelectedFurniture;
+                _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
+                _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
             }
             else
             {
@@ -150,6 +154,7 @@ internal class LoginPage : BasePage
             _logger.LogError(ex, "Error initializing empty user.");
         }
 
+        await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
     }
 
     private async Task InitializeEmptyUser()
