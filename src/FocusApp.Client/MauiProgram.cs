@@ -4,18 +4,13 @@ using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Clients;
 using FocusApp.Shared.Data;
 using FocusApp.Client.Helpers;
-using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Views;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Refit;
 using SimpleToolkit.SimpleShell;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using FocusApp.Client.Views.Shop;
-using FocusApp.Client.Views.Social;
 using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
@@ -61,7 +56,11 @@ namespace FocusApp.Client
                 Scope = "openid profile email"
             }));
 
-            Task.Run(() => StartupSync(builder.Services));
+            #region Logic Run on Startup
+            
+            Task.Run(() => RunStartupLogic(builder.Services));
+
+            #endregion
 
             PreferenceRequest();
 
@@ -144,6 +143,35 @@ namespace FocusApp.Client
             return services;
         }
 
+        /// <summary>
+        /// Ensure the database is created and migrations are applied, then run the startup logic.
+        /// </summary>
+        private static async Task RunStartupLogic(IServiceCollection services)
+        {
+            try
+            {
+                var scopedServiceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                _ = scopedServiceProvider.GetRequiredService<FocusAppContext>();
+
+                var startupSyncTask = Task.Run(() => StartupSync(services));
+                var initialDatabasePopulateTask = Task.Run(() => InitialPopulateDatabase(services));
+
+                await Task.WhenAll([startupSyncTask, initialDatabasePopulateTask]);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error running startup logic");
+                Console.Write(ex);
+            }
+
+        }
+
+        /// <summary>
+        /// Syncs mindfulness tips between the API and mobile database each time the app starts.
+        /// </summary>
         private static async Task StartupSync(IServiceCollection services)
         {
             try
@@ -152,16 +180,37 @@ namespace FocusApp.Client
                     .BuildServiceProvider()
                     .CreateScope()
                     .ServiceProvider;
-                FocusAppContext context = serviceProvider.GetRequiredService<FocusAppContext>();
-                IAPIClient client = serviceProvider.GetRequiredService<IAPIClient>();
+                IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
 
-                var syncMindfulnessTips = new SyncMindfulnessTips.Handler(context, client);
-
-                await syncMindfulnessTips.Handle(new SyncMindfulnessTips.Query(), new CancellationToken());
+                var mindfulnessTipsTask = mediator.Send(new SyncMindfulnessTips.Query());
+                await mindfulnessTipsTask;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                Console.Write(ex);
+            }
+        }
+
+        /// <summary>
+        /// Populates the database with initial data requested from the API for any of
+        /// the island, pets, or furniture tables if they don't have any entries.
+        /// </summary>
+        private static async Task InitialPopulateDatabase(IServiceCollection services)
+        {
+            try
+            {
+                var scopedServiceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                IMediator mediator = scopedServiceProvider.GetRequiredService<IMediator>();
+
+                await mediator.Send(new SyncInitialData.Query());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error when instantiating and seeding database");
                 Console.Write(ex);
             }
         }

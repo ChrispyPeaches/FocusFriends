@@ -60,6 +60,9 @@ namespace FocusApp.Shared.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("HeightRequest")
+                        .HasColumnType("INTEGER");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("BLOB");
@@ -74,6 +77,28 @@ namespace FocusApp.Shared.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Furniture");
+                });
+
+            modelBuilder.Entity("FocusApp.Shared.Models.Island", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Islands");
                 });
 
             modelBuilder.Entity("FocusApp.Shared.Models.MindfulnessTip", b =>
@@ -104,6 +129,9 @@ namespace FocusApp.Shared.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("HeightRequest")
+                        .HasColumnType("INTEGER");
 
                     b.Property<byte[]>("Image")
                         .IsRequired()
@@ -179,12 +207,32 @@ namespace FocusApp.Shared.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SelectedBadgeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SelectedFurnitureId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SelectedIslandId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SelectedPetId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SelectedBadgeId");
+
+                    b.HasIndex("SelectedFurnitureId");
+
+                    b.HasIndex("SelectedIslandId");
+
+                    b.HasIndex("SelectedPetId");
 
                     b.ToTable("Users");
                 });
@@ -223,6 +271,24 @@ namespace FocusApp.Shared.Migrations
                     b.HasIndex("FurnitureId");
 
                     b.ToTable("UserFurniture");
+                });
+
+            modelBuilder.Entity("FocusApp.Shared.Models.UserIsland", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("IslandId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateAcquired")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "IslandId");
+
+                    b.HasIndex("IslandId");
+
+                    b.ToTable("UserIslands");
                 });
 
             modelBuilder.Entity("FocusApp.Shared.Models.UserPet", b =>
@@ -305,6 +371,37 @@ namespace FocusApp.Shared.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FocusApp.Shared.Models.User", b =>
+                {
+                    b.HasOne("FocusApp.Shared.Models.Badge", "SelectedBadge")
+                        .WithMany()
+                        .HasForeignKey("SelectedBadgeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusApp.Shared.Models.Furniture", "SelectedFurniture")
+                        .WithMany()
+                        .HasForeignKey("SelectedFurnitureId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusApp.Shared.Models.Island", "SelectedIsland")
+                        .WithMany()
+                        .HasForeignKey("SelectedIslandId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusApp.Shared.Models.Pet", "SelectedPet")
+                        .WithMany()
+                        .HasForeignKey("SelectedPetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("SelectedBadge");
+
+                    b.Navigation("SelectedFurniture");
+
+                    b.Navigation("SelectedIsland");
+
+                    b.Navigation("SelectedPet");
+                });
+
             modelBuilder.Entity("FocusApp.Shared.Models.UserBadge", b =>
                 {
                     b.HasOne("FocusApp.Shared.Models.Badge", "Badge")
@@ -339,6 +436,25 @@ namespace FocusApp.Shared.Migrations
                         .IsRequired();
 
                     b.Navigation("Furniture");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FocusApp.Shared.Models.UserIsland", b =>
+                {
+                    b.HasOne("FocusApp.Shared.Models.Island", "Island")
+                        .WithMany()
+                        .HasForeignKey("IslandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FocusApp.Shared.Models.User", "User")
+                        .WithMany("Islands")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Island");
 
                     b.Navigation("User");
                 });
@@ -401,6 +517,8 @@ namespace FocusApp.Shared.Migrations
                     b.Navigation("Invitees");
 
                     b.Navigation("Inviters");
+
+                    b.Navigation("Islands");
 
                     b.Navigation("Pets");
 
