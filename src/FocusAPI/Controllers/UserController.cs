@@ -1,4 +1,5 @@
 using System.Net;
+using FocusAPI.Methods.User;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using FocusCore.Commands.User;
@@ -92,6 +93,44 @@ namespace FocusAPI.Controllers
                     return StatusCode((int)result.HttpStatusCode);
             }
         }
+
+        /// <summary>
+        /// Feature: <see cref="Methods.User.AddSessionToUser"/>
+        /// </summary>
+        [HttpPost]
+        [Route("AddSession")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> AddSessionToUser(
+            [FromBody] CreateSessionCommand query,
+            CancellationToken cancellationToken = default)
+        {
+            MediatrResult result = new();
+
+            try
+            {
+                result = await _mediator.Send(query, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[500]: Error getting user");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            switch (result.HttpStatusCode)
+            {
+                case null:
+                    _logger.LogError($"[500] {result.Message}");
+                    return StatusCode((int)HttpStatusCode.InternalServerError);
+                case HttpStatusCode.OK:
+                    return Ok();
+                default:
+                    _logger.LogError($"[{(int)result.HttpStatusCode}] {result.Message}");
+                    return StatusCode((int)result.HttpStatusCode);
+            }
+        }
+
 
         [HttpPost]
         [Route("Pet")]
