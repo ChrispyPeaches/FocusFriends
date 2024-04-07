@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
+using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
@@ -16,11 +17,16 @@ namespace FocusApp.Client.Views.Social
 {
     internal class ProfilePopupInterface : BasePopup
     {
-        private Helpers.PopupService _popupService;
+        Helpers.PopupService _popupService;
+        IAuthenticationService _authenticationService;
 
-        public ProfilePopupInterface(Helpers.PopupService popupService)
+        public ProfilePopupInterface(IAuthenticationService authenticationService, Helpers.PopupService popupService)
         {
+            _authenticationService = authenticationService;
             _popupService = popupService;
+
+            // Fetch current user's username
+            string username = _authenticationService.CurrentUser.UserName;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;
@@ -64,7 +70,7 @@ namespace FocusApp.Client.Views.Social
                                 VerticalOptions = LayoutOptions.Center,
 
                                 // Add logic to fetch username
-                                Text = "Username"
+                                Text = username
                             }
                         },
 
