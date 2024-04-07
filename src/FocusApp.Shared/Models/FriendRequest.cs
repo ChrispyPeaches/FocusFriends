@@ -13,9 +13,8 @@ namespace FocusApp.Shared.Models
         public string FriendUserName { get; set; }
         public required string FriendEmail { get; set; } = null!;
         public byte[] FriendProfilePicture { get; set; }
-        public int FriendStatus { get; set; }
 
-        // True if User is Inviter
-        public bool userInitiated { get; set; }
+        // Bool to determine whether to display accept/reject or cancel button
+        public bool UserInitiated { get; set; }
     }
 }

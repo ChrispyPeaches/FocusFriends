@@ -16,6 +16,6 @@ namespace FocusCore.Models
         public int FriendStatus { get; set; }
 
         // True if User is Inviter
-        public bool userInitiated { get; set; }
+        public bool UserInitiated { get; set; }
     }
 }

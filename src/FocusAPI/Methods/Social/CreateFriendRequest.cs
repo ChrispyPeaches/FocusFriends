@@ -25,22 +25,19 @@ public class CreateFriendRequest
         {
             try
             {
-                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                FocusAPI.Models.User friend = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.FriendId);
+                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == command.UserEmail);
+                FocusAPI.Models.User friend = await _context.Users.FirstOrDefaultAsync(u => u.Email == command.FriendEmail);
 
-                user.Invitees?.Add(new Friendship
+                Friendship friendship = new Friendship
                 {
                     User = user,
                     Friend = friend,
                     Status = 0
-                });
+                };
 
-                friend.Inviters?.Add(new Friendship
-                {
-                    User = friend,
-                    Friend = user,
-                    Status = 0
-                });
+                user.Inviters?.Add(friendship);
+
+                friend.Invitees?.Add(friendship);
 
                 await _context.SaveChangesAsync();
             }

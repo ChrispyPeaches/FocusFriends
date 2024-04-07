@@ -3,9 +3,12 @@ using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Models;
+using FocusCore.Commands.Social;
 using FocusCore.Models;
+using FocusCore.Queries.Social;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
@@ -24,17 +27,28 @@ namespace FocusApp.Client.Views.Social
     internal class AddFriendPopupInterface : BasePopup
     {
         IAPIClient _client;
+        IAuthenticationService _authenticationService;
         Helpers.PopupService _popupService;
         ListView _friendrequestView { get; set; }
 
-        public AddFriendPopupInterface(IAPIClient client, Helpers.PopupService popupService)
+        public AddFriendPopupInterface(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService)
         {
             _client = client;
             _popupService = popupService;
+            _authenticationService = authenticationService;
 
             _friendrequestView = BuildFriendRequestListView();
 
             Color = Colors.Transparent;
+
+            Entry emailEntry = new Entry
+            {
+                Placeholder = "Enter friend's email",
+                FontSize = 20,
+                TextColor = Colors.Black,
+                ClearButtonVisibility = ClearButtonVisibility.Never,
+                Keyboard = Keyboard.Plain
+            };
 
             Content = new Border
             {
@@ -85,23 +99,17 @@ namespace FocusApp.Client.Views.Social
                             {
                                 Children =
                                 {
-                                    new Entry
-                                    {
-                                        Placeholder = "Enter friend's username",
-                                        FontSize = 20,
-                                        TextColor = Colors.Black,
-                                        ClearButtonVisibility = ClearButtonVisibility.Never,
-                                        Keyboard = Keyboard.Plain
-                                    }
-                                    .Fill(),
+                                    emailEntry.Fill(),
 
                                     new Button
                                     {
                                         Text = "Send",
                                         WidthRequest = 100,
                                         HeightRequest = 50,
-                                        FontSize = 20
+                                        FontSize = 20,
+                                        BindingContext = emailEntry
                                     }
+                                    .Invoke(b => b.Clicked += (s,e) => OnClickSendFriendRequest(s,e))
                                 }
                             }
                         },
@@ -150,13 +158,13 @@ namespace FocusApp.Client.Views.Social
                 ViewCell cell = new ViewCell();
                 HorizontalStackLayout stackLayout = new HorizontalStackLayout();
 
-                /*// Friend profile picture
+                // Friend profile picture
                 Image friendImage = new Image
                 {
                 };
                 friendImage.SetBinding(
                     Image.SourceProperty, "ImageSource",
-                    converter: new ByteArrayToImageSourceConverter());*/
+                    converter: new ByteArrayToImageSourceConverter());
 
                 // Friend username
                 Label friendUsername = new Label
@@ -165,18 +173,19 @@ namespace FocusApp.Client.Views.Social
                 };
                 friendUsername.SetBinding(Label.TextProperty, "FriendUserName");
 
-                // Accept button
+                // Accept button (Invitee Only)
                 Button buttonAccept = new Button
                 {
                     Text = "Accept",
                     WidthRequest = 80,
                     HeightRequest = 40,
                     FontSize = 15,
-                    BackgroundColor = Colors.Green
+                    BackgroundColor = Colors.Green,
                 };
+                buttonAccept.SetBinding(Button.IsVisibleProperty, "UserInitiated", converter: new InvertedBoolConverter());
                 buttonAccept.HorizontalOptions = LayoutOptions.End;
 
-                // Reject Button
+                // Reject Button (Invitee Only)
                 Button buttonReject = new Button
                 {
                     Text = "Reject",
@@ -185,12 +194,26 @@ namespace FocusApp.Client.Views.Social
                     FontSize = 15,
                     BackgroundColor = Colors.Red
                 };
+                buttonReject.SetBinding(Button.IsVisibleProperty, "UserInitiated", converter: new InvertedBoolConverter());
                 buttonReject.HorizontalOptions = LayoutOptions.End;
+
+                // Cancel Button (Inviter Only)
+                Button buttonCancel = new Button
+                {
+                    Text = "Cancel",
+                    WidthRequest = 80,
+                    HeightRequest = 40,
+                    FontSize = 15,
+                    BackgroundColor = Colors.Red
+                };
+                buttonCancel.SetBinding(Button.IsVisibleProperty, "UserInitiated");
+                buttonCancel.HorizontalOptions = LayoutOptions.End;
 
                 //stackLayout.Children.Add(friendImage);
                 stackLayout.Children.Add(friendUsername);
                 stackLayout.Children.Add(buttonAccept);
                 stackLayout.Children.Add(buttonReject);
+                stackLayout.Children.Add(buttonCancel);
                 cell.View = stackLayout;
 
                 return cell;
@@ -203,28 +226,72 @@ namespace FocusApp.Client.Views.Social
         {
             List<FriendRequest> pendingFriends = new List<FriendRequest>();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
+                bool init = true;
+                if (i % 2 == 0)
+                {
+                    init = false;
+                }
+
                 FriendRequest fakeFriend = new FriendRequest
                 {
                     FriendUserName = "Test" + i,
                     FriendEmail = "Test" + i,
-                    FriendStatus = 0,
-                    userInitiated = true
+                    UserInitiated = init,
                 };
                 pendingFriends.Add(fakeFriend);
             };
 
-            return pendingFriends;
+            return pendingFriends.OrderBy(pf => pf.UserInitiated).ToList();
         }
 
-        public void PopulatePopup()
+        public async void PopulatePopup()
         {
             List<FriendRequest> pendingFriendRequests;
-            pendingFriendRequests = seedFakeFriendRequests();
-            //pendingFriendRequests = await _client.
+            //pendingFriendRequests = seedFakeFriendRequests();
+
+            // Fetch all pending friend requests
+            var query = new GetAllFriendRequestsQuery
+            {
+                UserId = _authenticationService.CurrentUser.Id
+            };
+            pendingFriendRequests = await _client.GetAllFriendRequests(query, default);
 
             _friendrequestView.ItemsSource = pendingFriendRequests;
+        }
+
+        private void OnClickSendFriendRequest(object sender, EventArgs e)
+        {
+            var sendButton = sender as Button;
+            var emailEntry = (Entry)sendButton.BindingContext;
+
+            var friendEmail = emailEntry.Text;
+
+            var friendRequest = new CreateFriendRequestCommand
+            {
+                UserEmail = _authenticationService.CurrentUser.Email,
+                FriendEmail = friendEmail
+            };
+
+            _client.CreateFriendRequest(friendRequest);
+            
+        }
+        private void OnClickAcceptFriendRequest(object sender, EventArgs e)
+        {
+            var acceptButton = sender as Button;
+            var friendRequest = (FriendRequest)acceptButton.BindingContext;
+
+            var friendId = friendRequest.FriendId;
+
+            var acceptCommand = new AcceptFriendRequestCommand
+            {
+                UserId = _authenticationService.CurrentUser.Id,
+                FriendId = friendId 
+            };
+
+            _client.AcceptFriendRequest(acceptCommand);
+
         }
     }
 }
