@@ -126,6 +126,7 @@ internal class LoginPage : BasePage
 
             if (loginResult.IsSuccessful)
             {
+                _authenticationService.Auth0Id = loginResult.CurrentUser?.Auth0Id;
                 _authenticationService.AuthToken = loginResult.AuthToken;
                 _authenticationService.CurrentUser = loginResult.CurrentUser;
 

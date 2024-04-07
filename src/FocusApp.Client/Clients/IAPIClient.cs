@@ -32,6 +32,11 @@ public interface IAPIClient
     [Post("/User/Sound")]
     Task AddUserSound(AddUserSoundCommand command);
 
+    [Post("/User/AddSession")]
+    Task CreateSession(
+        CreateSessionCommand command,
+        CancellationToken cancellationToken = default);
+
     #endregion
 
     #region Shop
