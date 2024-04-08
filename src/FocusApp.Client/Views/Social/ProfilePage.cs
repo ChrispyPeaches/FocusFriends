@@ -17,8 +17,6 @@ internal class ProfilePage : BasePage
     IAuthenticationService _authenticationService;
     PopupService _popupService;
     FocusAppContext _localContext;
-    CarouselView _petsCarouselView { get; set; }
-    CarouselView _badgesCarouselView { get; set; }
 
     #region Frontend
     public ProfilePage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext) 
@@ -27,9 +25,6 @@ internal class ProfilePage : BasePage
         _authenticationService = authenticationService;
         _popupService = popupService;
         _localContext = localContext;
-
-        _petsCarouselView = BuildBaseCarouselView();
-        _badgesCarouselView = BuildBaseCarouselView();
 
         // Using grids
         Content = new Grid
@@ -61,68 +56,6 @@ internal class ProfilePage : BasePage
         };
     }
 
-    private CarouselView BuildBaseCarouselView()
-    {
-        CarouselView carouselView = new CarouselView();
-
-        carouselView.ItemTemplate = new DataTemplate(() =>
-        {
-            // Shop item name label
-            Label itemName = new Label
-            {
-                FontSize = 20,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
-            itemName.SetBinding(Label.TextProperty, "Name");
-
-            // Shop item image
-            ImageButton itemImage = new ImageButton
-            {
-                WidthRequest = 100,
-                HeightRequest = 100,
-            };
-            itemImage.SetBinding(
-                ImageButton.SourceProperty, "ImageSource",
-                converter: new ByteArrayToImageSourceConverter());
-
-            itemImage.Clicked += (s, e) =>
-            {
-                //OnImageButtonClicked(s, e);
-            };
-
-            // Shop item price
-            Label itemPrice = new Label
-            {
-                FontSize = 15,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            };
-            itemPrice.SetBinding(Label.TextProperty, "Price");
-
-            // Shop item stack for grouping shop item elements
-            VerticalStackLayout itemStack = new VerticalStackLayout
-            {
-                BackgroundColor = Color.FromRgba("#E0E4FF00"),
-                Padding = 10
-            };
-
-            itemStack.Add(itemName);
-            itemStack.Add(itemImage);
-            itemStack.Add(itemPrice);
-
-            return itemStack;
-        });
-
-        // Add space between the carousels - allows room for carousel label
-        carouselView.Margins(0, 5, 0, 10);
-
-        carouselView.BackgroundColor = AppStyles.Palette.MintGreen;
-
-        return carouselView;
-    }
-
-    // TODO: Register route in AppShell According to whichever method
     private async void BackButtonClicked(object sender, EventArgs e)
     {
         // Back navigation reverses animation so can keep right to left
