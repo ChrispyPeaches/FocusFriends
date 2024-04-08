@@ -4,11 +4,16 @@ using FocusApp.Client.Views;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using FocusApp.Client.Clients;
+using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using FocusApp.Client.Views.Mindfulness;
+using FocusCore.Commands.User;
+using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Helpers;
 
@@ -66,10 +71,9 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
     private TimerState _state;
     private int _lastFocusTimerDuration;
     private int _lastBreakTimerDuration;
-    private FocusAppContext _context;
     private DateTimeOffset? _currentSessionStartTime;
-    private User _currentUser;
     private Helpers.PopupService _popupService;
+    private readonly IMediator _mediator;
 
     #endregion
 
@@ -133,13 +137,13 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         };
     }
 
-    IAuthenticationService _authenticationService;
 
-    public TimerService(FocusAppContext context, Helpers.PopupService popupService, IAuthenticationService authenticationService)
+    public TimerService(
+        Helpers.PopupService popupService,
+        IMediator mediator)
     {
-        _context = context;
         _popupService = popupService;
-        _authenticationService = authenticationService;
+        _mediator = mediator;
 
         _timerDisplay = new TimerDto();
         _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
@@ -147,14 +151,6 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         _state = TimerState.StoppedPreFocus;
         _toggleTimerButtonText = "Start Focus";
         _toggleTimerButtonBackgroudColor = AppStyles.Palette.Celeste;
-        _currentUser = new User()
-        {
-            UserName = "TestUser",
-            Id = Guid.Parse("d77aa5fc-eed4-495e-b568-85ed7c8d7e64"),
-            Balance = 0,
-            Email = "testemail@test.com",
-            Auth0Id = "auth0epic"
-        };
 
         TimeLeft = _lastFocusTimerDuration;
         AreStepperButtonsVisible = true;
@@ -218,56 +214,27 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
         }
     }
 
-    private async void TrackFocusSession()
+    /// <summary>
+    /// Log the focus session in the mobile database and api.
+    /// </summary>
+    private async Task TrackFocusSession()
     {
         if (!_currentSessionStartTime.HasValue)
         {
             return;
         }
 
-        DateTimeOffset? endTime = _currentSessionStartTime + TimeSpan.FromMinutes(_lastFocusTimerDuration);
+        DateTimeOffset? endTime = (_currentSessionStartTime + TimeSpan.FromSeconds(_lastFocusTimerDuration)).Value.ToUniversalTime();
 
-        int currencyEarned = CalculateCurrencyEarned(endTime);
-
-        
-        User? user = await _context.Users
-            .Include(u => u.UserSessions)
-            .FirstOrDefaultAsync(u => u.Id == _currentUser.Id);
-        
-        // Temporarily used only for testing purposes
-        if (user == null)
+        await _mediator.Send(new AddSessionToUser.Query()
         {
-            EntityEntry<User> userEntity = await _context.Users.AddAsync(_currentUser);
-            user = userEntity.Entity;
-        }
-
-        UserSession session = new UserSession
-        {
-            SessionStartTime  = _currentSessionStartTime.Value.UtcDateTime,
-            SessionEndTime = endTime.Value.UtcDateTime,
-            CurrencyEarned = currencyEarned
-        };
+            SessionStartTime = _currentSessionStartTime.Value.ToUniversalTime(),
+            SessionEndTime = endTime.Value.ToUniversalTime()
+        }, 
+        default);
 
         _currentSessionStartTime = null;
-
-        user.UserSessions ??= new List<UserSession>();
-        user.UserSessions.Add(session);
-
-        await _context.SaveChangesAsync();
     }
-
-    private int CalculateCurrencyEarned(DateTimeOffset? endTime)
-    {
-        int currencyEarned = 0;
-        if (endTime.HasValue && _currentSessionStartTime.HasValue)
-        {
-            currencyEarned = (int)Math.Floor((endTime - _currentSessionStartTime).Value.TotalMinutes);
-        }
-        currencyEarned = currencyEarned <= 0 ? 0 : currencyEarned;
-
-        return currencyEarned;
-    }
-
 
     public async void ShowSessionRatingPopup()
     {
@@ -309,7 +276,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Unsubscribe from app lifecyce events, 
+    /// Unsubscribe from app lifecyce events,
     /// stop the timer,
     /// and reset the timer to the last used duration for this state.
     /// </summary>
