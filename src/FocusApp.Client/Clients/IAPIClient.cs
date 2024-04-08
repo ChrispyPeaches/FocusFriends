@@ -64,7 +64,7 @@ public interface IAPIClient
     #endregion
 
     [Get("/Social/FriendRequest")]
-    Task<List<FriendRequest>> GetAllFriendRequests(GetAllFriendRequestsQuery query, CancellationToken cancellationToken);
+    Task<List<FriendRequest>> GetAllFriendRequests(GetAllFriendRequestsQuery query, CancellationToken cancellationToken = default);
 
     //[Get("/Social/Friend")]
     //Task GetAllFriends(GetAllFriendsQuery query);
@@ -75,7 +75,7 @@ public interface IAPIClient
     [Put("/Social/FriendRequest")]
     Task AcceptFriendRequest(AcceptFriendRequestCommand command);
 
-    //[Del("/Social/FriendRequest")]
-    //Task CancelFriendRequest(CancelFriendRequestCommand command);
+    [Delete("/Social/FriendRequest")]
+    Task CancelFriendRequest([Body] CancelFriendRequestCommand command);
 
 }

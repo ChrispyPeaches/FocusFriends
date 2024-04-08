@@ -32,7 +32,6 @@ public class GetAllFriendRequests
                 FriendId = f.FriendId,
                 FriendUserName = f.Friend.UserName,
                 FriendEmail = f.Friend.Email,
-                FriendProfilePicture = f.Friend.ProfilePicture,
                 UserInitiated = true
             })
             .ToList();
@@ -43,7 +42,6 @@ public class GetAllFriendRequests
                 FriendId = f.UserId,
                 FriendUserName = f.User.UserName,
                 FriendEmail = f.User.Email,
-                FriendProfilePicture = f.User.ProfilePicture,
                 UserInitiated = false
             })
             .ToList();

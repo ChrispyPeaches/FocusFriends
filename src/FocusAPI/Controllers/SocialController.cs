@@ -48,7 +48,7 @@ namespace FocusAPI.Controllers
 
         [HttpDelete]
         [Route("FriendRequest")]
-        public async Task CancelFriendRequest(CancelFriendRequestCommand command)
+        public async Task CancelFriendRequest([FromBody] CancelFriendRequestCommand command)
         {
             await _mediator.Send(command);
         }

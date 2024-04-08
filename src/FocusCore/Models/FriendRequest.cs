@@ -12,10 +12,9 @@ namespace FocusCore.Models
         public Guid FriendId { get; set; }
         public string FriendUserName { get; set; }
         public required string FriendEmail { get; set; } = null!;
-        public byte[] FriendProfilePicture { get; set; }
         public int FriendStatus { get; set; }
 
-        // True if User is Inviter
+        // Bool to determine whether to display accept/reject or cancel button
         public bool UserInitiated { get; set; }
     }
 }
