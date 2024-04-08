@@ -71,6 +71,13 @@ public class AppShell : SimpleShell
                      Title = "PetsPage",
                      ContentTemplate = new DataTemplate(typeof(PetsPage)),
                      Route = "PetsPage"
+                },
+
+                new ShellContent()
+                {
+                     Title = "FriendProfilePage",
+                     ContentTemplate = new DataTemplate(typeof(FriendProfilePage)),
+                     Route = "FriendProfilePage"
                 }
             }
         };

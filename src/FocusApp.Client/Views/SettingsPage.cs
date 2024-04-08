@@ -249,12 +249,7 @@ internal sealed class SettingsPage : BasePage
         };
     }
 
-    private async void BackButtonClicked(object sender, EventArgs e)
-    {
-        // Back navigation reverses animation so can keep right to left
-        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync("..");
-    }
+    
 
     private void SaveSwitchState(string key, bool val)
     {

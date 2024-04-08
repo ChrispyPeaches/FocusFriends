@@ -14,6 +14,8 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Helpers;
+using FocusApp.Shared.Models;
+using MediatR;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -21,19 +23,31 @@ internal class SocialPage : BasePage
 {
     private Helpers.PopupService _popupService;
     IAuthenticationService _authenticationService;
+    private IMediator _mediator;
+
     IAPIClient _client { get; set; }
-	public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
+
+	public SocialPage(
+        IAPIClient client,
+        Helpers.PopupService popupService,
+        IAuthenticationService authenticationService,
+        IMediator mediator
+        )
 	{
         _popupService = popupService;
         _client = client;
         _authenticationService = authenticationService;
+        _mediator = mediator;
+
         // Add logic to fetch focused friends
         List<ImageCell> focusingFriends = new List<ImageCell>();
         for (int i = 0; i < 5; i++)
         {
-            focusingFriends.Add(new ImageCell
+            focusingFriends.Add(
+                new ImageCell
             {
                 Text = "Friend " + i,
+                StyleId = _authenticationService.Auth0Id,
                 ImageSource = new FileImageSource
                 {
                     // Add logic that gets profile picture from friend user data
@@ -46,6 +60,7 @@ internal class SocialPage : BasePage
         DataTemplate dataTemplate = new DataTemplate(typeof(ImageCell));
         dataTemplate.SetBinding(ImageCell.TextProperty, "Text");
         dataTemplate.SetBinding(ImageCell.ImageSourceProperty, "ImageSource");
+        
 
         Content = new Grid
         {
@@ -106,7 +121,10 @@ internal class SocialPage : BasePage
                 }
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2)
+                .ColumnSpan(2),
+                new Button()
+                    .Row(2).Column(0)
+                    .Invoke(b => b.Clicked += OnFriendClickShowFriendProfilePage)
             }
         };
     }
@@ -126,5 +144,15 @@ internal class SocialPage : BasePage
     private void OnClickShowPopup(object sender, EventArgs e)
     {
         _popupService.ShowPopup<ProfilePopupInterface>();
+    }
+
+    private async void OnFriendClickShowFriendProfilePage(object? sender, EventArgs eventArgs)
+    {
+        //var id = (sender as ImageCell)?.StyleId;
+        var id = _authenticationService.Auth0Id;
+
+        await Shell.Current.GoToAsync(
+            $"///{nameof(SocialPage)}/{nameof(FriendProfilePage)}", 
+            FriendProfilePage.BuildParamterArgs(id));
     }
 }
