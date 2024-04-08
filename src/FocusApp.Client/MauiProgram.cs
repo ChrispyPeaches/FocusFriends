@@ -102,6 +102,7 @@ namespace FocusApp.Client
             // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
             services.AddSingleton<Helpers.PopupService>();
+            services.AddScoped<ISyncService, SyncService>();
 
             // Singleton User Data
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
@@ -183,7 +184,9 @@ namespace FocusApp.Client
                 IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
 
                 var mindfulnessTipsTask = mediator.Send(new SyncMindfulnessTips.Query());
-                await mindfulnessTipsTask;
+                var badgesTask = mediator.Send(new SyncBadges.Query());
+
+                await Task.WhenAll(new[] { mindfulnessTipsTask, badgesTask });
             }
             catch (Exception ex)
             {

@@ -78,7 +78,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 (Row.TopBar, 80),
                 (Row.ProfileInfo, GridRowsColumns.Stars(4)),
                 (Row.IslandView, GridRowsColumns.Stars(4)),
-                (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
+                (Row.BottomWhiteSpace, GridRowsColumns.Stars(2))
             ),
             ColumnDefinitions = GridRowsColumns.Columns.Define(
                 (Column.ProfilePicture, GridRowsColumns.Stars(2)),
