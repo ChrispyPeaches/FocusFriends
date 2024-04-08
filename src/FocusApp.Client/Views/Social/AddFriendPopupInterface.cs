@@ -129,13 +129,6 @@ namespace FocusApp.Client.Views.Social
                             HeightRequest = 350,
                             BackgroundColor = Colors.Transparent,
                             Content = _friendrequestView
-                            
-                            /*new ListView
-                            {
-                                Header = "Pending Friend Requests",
-                                ItemsSource = pendingFriends,
-                                ItemTemplate = pendingFriendDataTemplate
-                            }*/
                         },
                     }
                 }
@@ -159,7 +152,7 @@ namespace FocusApp.Client.Views.Social
                 Grid grid = new Grid();
 
                 grid.RowDefinitions = Rows.Define(Star);
-                grid.ColumnDefinitions = Columns.Define(200, 80, 80);
+                grid.ColumnDefinitions = Columns.Define(Star, 80, 80);
 
                 // Friend username
                 Label friendUsername = new Label
@@ -182,6 +175,7 @@ namespace FocusApp.Client.Views.Social
                 buttonAccept.SetBinding(Button.IsVisibleProperty, "UserInitiated", converter: new InvertedBoolConverter());
                 buttonAccept.VerticalOptions = LayoutOptions.Center;
                 buttonAccept.Column(1);
+                buttonAccept.Invoke(b => b.Clicked += (s, e) => OnClickAcceptFriendRequest(s, e));
 
                 // Reject Button (Invitee Only)
                 Button buttonReject = new Button
@@ -195,6 +189,7 @@ namespace FocusApp.Client.Views.Social
                 buttonReject.SetBinding(Button.IsVisibleProperty, "UserInitiated", converter: new InvertedBoolConverter());
                 buttonReject.VerticalOptions = LayoutOptions.Center;
                 buttonReject.Column(2);
+                buttonReject.Invoke(b => b.Clicked += (s, e) => OnClickRejectFriendRequest(s, e));
 
                 // Cancel Button (Inviter Only)
                 Button buttonCancel = new Button
@@ -294,6 +289,24 @@ namespace FocusApp.Client.Views.Social
             };
 
             await _client.AcceptFriendRequest(acceptCommand);
+
+            PopulatePopup();
+        }
+
+        private async void OnClickRejectFriendRequest(object sender, EventArgs e)
+        {
+            var cancelButton = sender as Button;
+            var friendRequest = (FriendRequest)cancelButton.BindingContext;
+
+            var friendId = friendRequest.FriendId;
+
+            var cancelCommand = new CancelFriendRequestCommand
+            {
+                UserId = friendId,
+                FriendId = _authenticationService.CurrentUser.Id
+            };
+
+            await _client.CancelFriendRequest(cancelCommand);
 
             PopulatePopup();
         }

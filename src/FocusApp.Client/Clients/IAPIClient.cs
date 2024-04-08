@@ -73,7 +73,7 @@ public interface IAPIClient
     Task CreateFriendRequest(CreateFriendRequestCommand command);
 
     [Put("/Social/FriendRequest")]
-    Task AcceptFriendRequest(AcceptFriendRequestCommand command);
+    Task AcceptFriendRequest([Body] AcceptFriendRequestCommand command);
 
     [Delete("/Social/FriendRequest")]
     Task CancelFriendRequest([Body] CancelFriendRequestCommand command);
