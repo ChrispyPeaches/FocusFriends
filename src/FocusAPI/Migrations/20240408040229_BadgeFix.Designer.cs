@@ -4,6 +4,7 @@ using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusAPI.Migrations
 {
     [DbContext(typeof(FocusContext))]
-    partial class FocusContextModelSnapshot : ModelSnapshot
+    [Migration("20240408040229_BadgeFix")]
+    partial class BadgeFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +41,7 @@ namespace FocusAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Badges", (string)null);
+                    b.ToTable("Badges");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.Friendship", b =>
@@ -56,7 +59,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("FriendId");
 
-                    b.ToTable("Friendships", (string)null);
+                    b.ToTable("Friendships");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.Furniture", b =>
@@ -81,7 +84,7 @@ namespace FocusAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Furniture", (string)null);
+                    b.ToTable("Furniture");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.Island", b =>
@@ -103,7 +106,7 @@ namespace FocusAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Islands", (string)null);
+                    b.ToTable("Islands");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.MindfulnessTip", b =>
@@ -126,7 +129,7 @@ namespace FocusAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MindfulnessTips", (string)null);
+                    b.ToTable("MindfulnessTips");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.Pet", b =>
@@ -151,7 +154,7 @@ namespace FocusAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pets", (string)null);
+                    b.ToTable("Pets");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.Sound", b =>
@@ -173,7 +176,7 @@ namespace FocusAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sounds", (string)null);
+                    b.ToTable("Sounds");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.User", b =>
@@ -239,7 +242,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("SelectedPetId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.UserBadge", b =>
@@ -257,7 +260,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("BadgeId");
 
-                    b.ToTable("UserBadges", (string)null);
+                    b.ToTable("UserBadges");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.UserFurniture", b =>
@@ -275,7 +278,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("FurnitureId");
 
-                    b.ToTable("UserFurniture", (string)null);
+                    b.ToTable("UserFurniture");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.UserIsland", b =>
@@ -293,7 +296,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("IslandId");
 
-                    b.ToTable("UserIslands", (string)null);
+                    b.ToTable("UserIslands");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.UserPet", b =>
@@ -311,7 +314,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("PetId");
 
-                    b.ToTable("UserPets", (string)null);
+                    b.ToTable("UserPets");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.UserSession", b =>
@@ -336,7 +339,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserSessionHistory", (string)null);
+                    b.ToTable("UserSessionHistory");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.UserSound", b =>
@@ -354,7 +357,7 @@ namespace FocusAPI.Migrations
 
                     b.HasIndex("SoundId");
 
-                    b.ToTable("UserSounds", (string)null);
+                    b.ToTable("UserSounds");
                 });
 
             modelBuilder.Entity("FocusAPI.Models.Friendship", b =>

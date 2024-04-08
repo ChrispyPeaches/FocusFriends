@@ -170,7 +170,7 @@ namespace FocusApp.Client
         }
 
         /// <summary>
-        /// Syncs mindfulness tips between the API and mobile database each time the app starts.
+        /// Syncs mindfulness tips and badges between the API and mobile database each time the app starts.
         /// </summary>
         private static async Task StartupSync(IServiceCollection services)
         {
@@ -188,6 +188,23 @@ namespace FocusApp.Client
             catch (Exception ex)
             {
                 Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                Console.Write(ex);
+            }
+
+            try
+            {
+                var serviceProvider = services
+                    .BuildServiceProvider()
+                    .CreateScope()
+                    .ServiceProvider;
+                IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
+
+                var badgesTask = mediator.Send(new SyncBadges.Query());
+                await badgesTask;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error occurred when syncing badges.");
                 Console.Write(ex);
             }
         }

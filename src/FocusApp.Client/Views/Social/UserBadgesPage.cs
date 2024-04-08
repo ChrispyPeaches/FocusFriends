@@ -13,7 +13,7 @@ internal class UserBadgesPage : BasePage
 {
     IAPIClient _client;
     IAuthenticationService _authenticationService;
-    FocusAppContext _focusAppContext;
+    FocusAppContext _localContext;
     Helpers.PopupService _popupService;
 
 
@@ -23,19 +23,24 @@ internal class UserBadgesPage : BasePage
         _client = client;
         _authenticationService = authenticationService;
         _popupService = popupService;
-        _focusAppContext = localContext;
+        _localContext = localContext;
 
-        Content = new FlexLayout
+        BackgroundColor = AppStyles.Palette.OrchidPink;
+
+        var flexLayout = new FlexLayout
         {
-            BackgroundColor = AppStyles.Palette.FairyTale,
             Direction = FlexDirection.Row,
-            JustifyContent = FlexJustify.Start,
-            MaximumHeightRequest = 500,
-            Children =
-            {
-
-            }
+            Wrap = FlexWrap.Wrap,
+            AlignItems = FlexAlignItems.Start,
+            JustifyContent = FlexJustify.SpaceBetween
         };
+
+        var badges = GetLocalBadges();
+
+        foreach (var badge in badges)
+        {
+            var badgeView = new BadgeView(badge);
+        }
     }
     #endregion
 
@@ -57,7 +62,9 @@ internal class UserBadgesPage : BasePage
 
     private List<UserBadge> GetLocalBadges()
     {
-        return null;
+        List<Badge> badges = _localContext.Badges.Select(p => new Badge
+        { Image}
+        )
     }
     #endregion
 }
