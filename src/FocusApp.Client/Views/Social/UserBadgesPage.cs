@@ -4,6 +4,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
+using Microsoft.Maui.Layouts;
 
 
 namespace FocusApp.Client.Views.Social;
@@ -27,6 +28,9 @@ internal class UserBadgesPage : BasePage
         Content = new FlexLayout
         {
             BackgroundColor = AppStyles.Palette.FairyTale,
+            Direction = FlexDirection.Row,
+            JustifyContent = FlexJustify.Start,
+            MaximumHeightRequest = 500,
             Children =
             {
 
