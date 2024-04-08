@@ -39,7 +39,7 @@ internal class UserBadgesPage : BasePage
 
         foreach (var badge in badges)
         {
-            var badgeView = new BadgeView(badge);
+            //var badgeView = new BadgeView(badge);
         }
     }
     #endregion
@@ -62,9 +62,7 @@ internal class UserBadgesPage : BasePage
 
     private List<UserBadge> GetLocalBadges()
     {
-        List<Badge> badges = _localContext.Badges.Select(p => new Badge
-        { Image}
-        )
+        return null;
     }
     #endregion
 }
