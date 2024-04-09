@@ -5,6 +5,7 @@ using FocusCore.Queries.Shop;
 using FocusCore.Queries.Social;
 using FocusCore.Queries.Sync;
 using FocusCore.Queries.User;
+using FocusCore.Responses.Social;
 using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
 using Refit;
@@ -70,7 +71,7 @@ public interface IAPIClient
     Task<List<FriendRequest>> GetAllFriendRequests(GetAllFriendRequestsQuery query, CancellationToken cancellationToken = default);
 
     [Post("/Social/FriendRequest")]
-    Task CreateFriendRequest(CreateFriendRequestCommand command);
+    Task<CreateFriendRequestResponse> CreateFriendRequest(CreateFriendRequestCommand command);
 
     [Put("/Social/FriendRequest")]
     Task AcceptFriendRequest([Body] AcceptFriendRequestCommand command);

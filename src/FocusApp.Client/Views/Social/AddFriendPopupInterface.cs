@@ -8,6 +8,7 @@ using FocusApp.Client.Resources;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.Social;
 using FocusCore.Queries.Social;
+using FocusCore.Responses.Social;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
@@ -48,6 +49,13 @@ namespace FocusApp.Client.Views.Social
                 TextColor = Colors.Black,
                 ClearButtonVisibility = ClearButtonVisibility.Never,
                 Keyboard = Keyboard.Plain
+            };
+
+            Label entryError = new Label
+            {
+                BackgroundColor = Colors.Blue,
+                TextColor = Colors.Red,
+                FontSize = 15
             };
 
             Content = new Border
@@ -113,6 +121,11 @@ namespace FocusApp.Client.Views.Social
                                 }
                             }
                         },
+
+                        // Error label for friend request errors
+                        entryError
+                        .Paddings(left: 15)
+                        .Top(),
 
                         // Horizontal Divider
                         new BoxView
@@ -269,7 +282,7 @@ namespace FocusApp.Client.Views.Social
                 FriendEmail = friendEmail
             };
 
-            await _client.CreateFriendRequest(friendRequest);
+            CreateFriendRequestResponse response = await _client.CreateFriendRequest(friendRequest);
 
             PopulatePopup();
         }
@@ -288,6 +301,8 @@ namespace FocusApp.Client.Views.Social
             };
 
             await _client.AcceptFriendRequest(acceptCommand);
+
+            
 
             PopulatePopup();
         }

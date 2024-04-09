@@ -1,17 +1,19 @@
 ﻿using FocusAPI.Data;
+using FocusAPI.Methods.User;
 using FocusAPI.Models;
 using FocusCore.Commands.Social;
-using FocusCore.Commands.User;
 using FocusCore.Models;
-using FocusCore.Queries.Shop;
+using FocusCore.Responses;
+using FocusCore.Responses.Social;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace FocusApi.Methods.Social;
 public class CreateFriendRequest
 {
-    public class Handler : IRequestHandler<CreateFriendRequestCommand, Unit>
+    public class Handler : IRequestHandler<CreateFriendRequestCommand, MediatrResultWrapper<CreateFriendRequestResponse>>
     {
         FocusContext _context;
         ILogger<Handler> _logger;
@@ -21,13 +23,34 @@ public class CreateFriendRequest
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(CreateFriendRequestCommand command, CancellationToken cancellationToken)
+        public async Task<MediatrResultWrapper<CreateFriendRequestResponse>> Handle(CreateFriendRequestCommand command, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == command.UserEmail);
-                FocusAPI.Models.User friend = await _context.Users.FirstOrDefaultAsync(u => u.Email == command.FriendEmail);
+            // First we check if friendship already exists
+            Friendship? existingFriendship = await GetFriendship(command, cancellationToken);
 
+            if (existingFriendship != null)
+            {
+                return new MediatrResultWrapper<CreateFriendRequestResponse>
+                {
+                    HttpStatusCode = HttpStatusCode.Conflict,
+                    Message = $"Friendship already exists: {existingFriendship.User.Email} - {existingFriendship.Friend.Email}",
+                };
+            }
+
+            FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == command.UserEmail);
+            FocusAPI.Models.User friend = await _context.Users.FirstOrDefaultAsync(u => u.Email == command.FriendEmail);
+
+            // Check if friend exists (Email is invalid)
+            if (friend == null)
+            {
+                return new MediatrResultWrapper<CreateFriendRequestResponse>
+                {
+                    HttpStatusCode = HttpStatusCode.NotFound,
+                    Message = $"Friend email is invalid: {command.FriendEmail}",
+                };
+            }
+            else
+            {
                 Friendship friendship = new Friendship
                 {
                     User = user,
@@ -39,14 +62,48 @@ public class CreateFriendRequest
 
                 friend.Invitees?.Add(friendship);
 
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error creating friend request");
+                }
+
+                return new MediatrResultWrapper<CreateFriendRequestResponse>()
+                {
+                    HttpStatusCode = HttpStatusCode.OK,
+                    Data = new CreateFriendRequestResponse
+                    {
+                        PendingFriendRequest = new BaseFriendship
+                        {
+                            User = user,
+                            Friend = friend,
+                            Status = 0
+                        }
+                    }
+                };
+            }
+        }
+
+        private async Task<Friendship?> GetFriendship(
+            CreateFriendRequestCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await _context.Friends
+                    .Include(f => f.User)
+                    .Include(f => f.Friend)
+                    .Where(f => (f.User.Email == command.UserEmail && f.Friend.Email == command.FriendEmail)
+                    || (f.User.Email == command.FriendEmail && f.Friend.Email == command.UserEmail) )
+                    .FirstOrDefaultAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error adding Friendship to database. Exception: " + ex.Message);
+                throw new Exception("Error getting friendship");
             }
-
-            return Unit.Value;
         }
     }
 }
