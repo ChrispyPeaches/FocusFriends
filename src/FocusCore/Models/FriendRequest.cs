@@ -12,7 +12,6 @@ namespace FocusCore.Models
         public Guid FriendId { get; set; }
         public string FriendUserName { get; set; }
         public required string FriendEmail { get; set; } = null!;
-        public int FriendStatus { get; set; }
 
         // Bool to determine whether to display accept/reject or cancel button
         public bool UserInitiated { get; set; }

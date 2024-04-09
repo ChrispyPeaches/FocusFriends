@@ -205,7 +205,6 @@ namespace FocusApp.Client.Views.Social
                 buttonCancel.Column(1,2);
                 buttonCancel.Invoke(b => b.Clicked += (s, e) => OnClickCancelFriendRequest(s, e));
 
-                //stackLayout.Children.Add(friendImage);
                 grid.Children.Add(friendUsername);
                 grid.Children.Add(buttonAccept);
                 grid.Children.Add(buttonReject);

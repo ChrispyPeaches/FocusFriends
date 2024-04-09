@@ -14,7 +14,11 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Helpers;
+using FocusApp.Shared.Models;
 using FocusApp.Client.Resources.FontAwesomeIcons;
+using CommunityToolkit.Maui.Converters;
+using Microsoft.Maui.ApplicationModel;
+using FocusCore.Queries.Social;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -23,30 +27,15 @@ internal class SocialPage : BasePage
     private Helpers.PopupService _popupService;
     IAuthenticationService _authenticationService;
     IAPIClient _client { get; set; }
-	public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
+    ListView _friendsListView { get; set; }
+
+    public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
 	{
         _popupService = popupService;
         _client = client;
         _authenticationService = authenticationService;
-        // Add logic to fetch focused friends
-        List<ImageCell> focusingFriends = new List<ImageCell>();
-        for (int i = 0; i < 5; i++)
-        {
-            focusingFriends.Add(new ImageCell
-            {
-                Text = "Friend " + i,
-                ImageSource = new FileImageSource
-                {
-                    // Add logic that gets profile picture from friend user data
-                    File = "dotnet_bot.png"
-                },
-                BindingContext = this
-            });
-        };
 
-        DataTemplate dataTemplate = new DataTemplate(typeof(ImageCell));
-        dataTemplate.SetBinding(ImageCell.TextProperty, "Text");
-        dataTemplate.SetBinding(ImageCell.ImageSourceProperty, "ImageSource");
+        _friendsListView = BuildFriendsListView();
 
         Content = new Grid
         {
@@ -113,17 +102,72 @@ internal class SocialPage : BasePage
                 .Invoke(b => b.Clicked += (s,e) => OnClickShowProfileInterfacePopup(s,e)),
 
                 // Friends List
-                new ListView
-                {
-                    Header = "Focusing",
-                    ItemsSource = focusingFriends,
-                    ItemTemplate = dataTemplate
-                }
+                _friendsListView
                 .Row(1)
                 .Column(0)
                 .ColumnSpan(2)
             }
         };
+    }
+
+    private ListView BuildFriendsListView()
+    {
+        ListView listView = new ListView();
+        listView.Header = "Friends";
+
+        listView.ItemTemplate = new DataTemplate(() =>
+        {
+            ViewCell cell = new ViewCell();
+            Grid grid = new Grid();
+
+            grid.RowDefinitions = Rows.Define(Star);
+            grid.ColumnDefinitions = Columns.Define(80, Star);
+
+            // Friend profile picture
+            Image friendImage = new Image
+            {
+            };
+            friendImage.SetBinding(
+                Image.SourceProperty, "FriendProfilePicture",
+                converter: new ByteArrayToImageSourceConverter());
+            friendImage.VerticalOptions = LayoutOptions.Center;
+            friendImage.Column(0);
+
+            // Friend username
+            Label friendUsername = new Label
+            {
+                FontSize = 20
+            };
+            friendUsername.SetBinding(Label.TextProperty, "FriendUserName");
+            friendUsername.VerticalOptions = LayoutOptions.Center;
+            friendUsername.Column(1);
+
+            grid.Children.Add(friendImage);
+            grid.Children.Add(friendUsername);
+            cell.View = grid;
+
+            return cell;
+        });
+
+        return listView;
+    }
+
+    private List<FriendListModel> seedFakeFriends()
+    {
+        List<FriendListModel> friends = new List<FriendListModel>();
+
+        for (int i = 0; i < 10; i++)
+        {
+
+            FriendListModel fakeFriend = new FriendListModel
+            {
+                FriendUserName = "Test" + i,
+                FriendEmail = "Test" + i
+        };
+            friends.Add(fakeFriend);
+        };
+
+        return friends;
     }
 
     protected override async void OnAppearing()
@@ -133,6 +177,18 @@ internal class SocialPage : BasePage
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(SocialPage);
         }
+
+        // Retrieve Friends from API
+        List<FriendListModel> friendsList;
+
+        //friendsList = seedFakeFriends();
+        var query = new GetAllFriendsQuery
+        {
+            UserId = _authenticationService.CurrentUser.Id
+        };
+        friendsList = await _client.GetAllFriends(query, default);
+
+        _friendsListView.ItemsSource = friendsList;
 
         base.OnAppearing();
     }

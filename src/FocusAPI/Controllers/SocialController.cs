@@ -22,7 +22,12 @@ namespace FocusAPI.Controllers
             _mediator = mediator;
         }
 
-
+        [HttpGet]
+        [Route("Friend")]
+        public async Task<List<FriendListModel>> GetAllFriends([FromQuery] GetAllFriendsQuery query, CancellationToken cancellationToken)
+        {
+            return await _mediator.Send(query, cancellationToken);
+        }
 
 
         [HttpGet]

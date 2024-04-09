@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace FocusCore.Models
 {
-    public class FriendModel
+    public class FriendListModel
     {
         public string FriendUserName { get; set; }
-        public required string Email { get; set; } = null!;
-        public byte[] ProfilePicture { get; set; }
+        public string FriendEmail { get; set; }
+        public byte[] FriendProfilePicture { get; set; }
     }
 }

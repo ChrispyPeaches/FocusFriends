@@ -1,13 +1,14 @@
 ﻿using FocusAPI.Data;
 using FocusAPI.Models;
 using FocusCore.Models;
-using FocusCore.Queries.Shop;
+using FocusCore.Queries.Social;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApi.Methods.Social;
 public class GetAllFriends
 {
-    public class Handler// : IRequestHandler<GetAllShopItemsQuery, List<ShopItem>>
+    public class Handler : IRequestHandler<GetAllFriendsQuery, List<FriendListModel>>
     {
         FocusContext _context;
         public Handler(FocusContext context)
@@ -15,18 +16,36 @@ public class GetAllFriends
             _context = context;
         }
 
-        public async Task<List<FriendModel>> Handle(GetAllShopItemsQuery query, CancellationToken cancellationToken)
+        public async Task<List<FriendListModel>> Handle(GetAllFriendsQuery query, CancellationToken cancellationToken)
         {
-            List<BaseFriendship> friendships = _context.Friends.OfType<BaseFriendship>().ToList();
+            User user = _context.Users
+                .Include(user => user.Inviters)
+                .ThenInclude(i => i.Friend)
+                .Include(user => user.Invitees)
+                .ThenInclude(i => i.User)
+                .Where(user => user.Id == query.UserId).FirstOrDefault();
 
-            var friends = friendships.Select(f => new FriendModel
+            // Friends where user is the inviter
+            List<FriendListModel> inviters = user.Inviters.Where(f => f.Status == 1).Select(f => new FriendListModel
             {
                 FriendUserName = f.Friend.UserName,
-                Email = f.Friend.Email,
-                ProfilePicture = f.Friend.ProfilePicture
-            });
+                FriendEmail = f.Friend.Email,
+                FriendProfilePicture = f.Friend.ProfilePicture
+            })
+            .ToList();
 
-            return friends.ToList();
+            // Friends where user is the invitee
+            List<FriendListModel> invitees = user.Invitees.Where(f => f.Status == 1).Select(f => new FriendListModel
+            {
+                FriendUserName = f.User.UserName,
+                FriendEmail = f.User.Email,
+                FriendProfilePicture = f.User.ProfilePicture
+            })
+            .ToList();
+
+            List<FriendListModel> friendsList = inviters.Concat(invitees).OrderBy(f => f.FriendUserName).ToList();
+
+            return friendsList;
         }
     }
 }
