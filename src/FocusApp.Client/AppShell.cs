@@ -71,7 +71,14 @@ public class AppShell : SimpleShell
                      Title = "PetsPage",
                      ContentTemplate = new DataTemplate(typeof(PetsPage)),
                      Route = "PetsPage"
-                }
+                },
+
+                new ShellContent()
+                {
+                     Title = "LeaderboardsPage",
+                     ContentTemplate = new DataTemplate(typeof(LeaderboardsPage)),
+                     Route = "LeaderboardsPage"
+                },
             }
         };
         var loginTab = new Tab()

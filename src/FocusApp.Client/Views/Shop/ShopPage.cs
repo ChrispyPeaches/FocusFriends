@@ -242,7 +242,7 @@ namespace FocusApp.Client.Views.Shop
         private bool ShopItemsFetched()
         {
             return 
-                   _localContext.Pets.Count() == 6
+                   _localContext.Pets.Count() == 7
                 && _localContext.Furniture.Count() == 6
                 && _localContext.Sounds.Count() == 6;
         }
@@ -250,7 +250,7 @@ namespace FocusApp.Client.Views.Shop
         // Gather shop items from local database, and convert to ShopItem objects
         private List<ShopItem> GetLocalShopItems()
         {
-            List<ShopItem> pets = _localContext.Pets.Select(p => new ShopItem
+            List<ShopItem> pets = _localContext.Pets.Where(p => p.Price > 0).Select(p => new ShopItem
             {
                 Id = p.Id,
                 Name = p.Name,
