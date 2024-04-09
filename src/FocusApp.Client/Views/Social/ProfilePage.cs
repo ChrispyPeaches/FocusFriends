@@ -6,14 +6,9 @@ using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
-using FocusApp.Client.Views.Controls;
 using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
 using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
-using System.Security.Cryptography.X509Certificates;
-using MediatR;
-using FocusCore.Extensions;
 
 
 namespace FocusApp.Client.Views.Social;
@@ -35,6 +30,14 @@ internal class ProfilePage : BasePage
         _authenticationService = authenticationService;
         _popupService = popupService;
         _localContext = localContext;
+
+        // Profile Picture to Stream Convert (error in logic. null exception)
+        // We should instead give a default profile picture to any user generated rather than store locally
+        /*
+        var profilePicture = _authenticationService.CurrentUser?.ProfilePicture != null
+            ? ImageSource.FromStream(() => new MemoryStream(_authenticationService.CurrentUser.ProfilePicture))
+            : "pfp_default.jpg";
+        */
 
         #region Pet FlexLayout Population
         PetsFlexLayout = new FlexLayout
@@ -120,14 +123,13 @@ internal class ProfilePage : BasePage
                     WidthRequest = 90,
                     BackgroundColor = Colors.Transparent,
                     VerticalOptions = LayoutOptions.Center,
-                    CornerRadius = 28,
+                    CornerRadius = 50,
                     Content = new Image
                     {
                         // TODO Replace logic with user profile called from DB
-                        //Source = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
-                        Source = "dotnet_bot.png",
-                        HeightRequest = 250,
-                        WidthRequest = 250
+                        Source = "pfp_default.jpg",
+                        HeightRequest = 100,
+                        WidthRequest = 100
                     }
                 }
                 .Column(1)
