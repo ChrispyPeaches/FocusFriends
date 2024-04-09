@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models;
 
 [Table("Friendships")]
-[PrimaryKey(nameof(UserId), nameof(FriendId), nameof(Status))]
+[PrimaryKey(nameof(UserId), nameof(FriendId))]
 public class BaseFriendship
 {
     [ForeignKey(nameof(User))]
