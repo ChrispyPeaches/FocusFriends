@@ -204,7 +204,7 @@ internal class ProfilePage : BasePage
     private async void EditButtonClicked(object sender, EventArgs eventArgs)
     {
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync($"///{nameof(ProfilePageEdit)}/{nameof(ProfilePageEdit)}");
+        await Shell.Current.GoToAsync(nameof(ProfilePageEdit));
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)

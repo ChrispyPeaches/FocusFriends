@@ -22,6 +22,7 @@ public class AppShell : SimpleShell
     {
         // Register routes to any side pages
         Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
+        Routing.RegisterRoute(nameof(ProfilePageEdit), typeof(ProfilePageEdit));
 
         this.SetTransition(Transitions.RightToLeftPlatformTransition);
 
@@ -78,13 +79,6 @@ public class AppShell : SimpleShell
                     Title = "ProfilePage",
                     ContentTemplate = new DataTemplate (typeof(ProfilePage)),
                     Route = "ProfilePage"
-                },
-
-                new ShellContent()
-                {
-                    Title = "ProfilePageEdit",
-                    ContentTemplate = new DataTemplate (typeof(ProfilePageEdit)),
-                    Route = "ProfilePageEdit"
                 }
             }
         };
