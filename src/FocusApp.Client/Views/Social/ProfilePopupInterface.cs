@@ -89,9 +89,11 @@ namespace FocusApp.Client.Views.Social
                                 Padding = 0,
                                 FontSize = 30,
                                 TextColor = Colors.White,
-                                Text = "My Profile"
-                                //BindingContext = nameof(ProfilePage)
+                                Text = "My Profile",
+                                BindingContext = nameof(ProfilePage)
                             }
+                            .Invoke(button => button.Released += (sender, eventArgs) =>
+                                    PageButtonClicked(sender, eventArgs))
                         },
 
                         new Frame()
