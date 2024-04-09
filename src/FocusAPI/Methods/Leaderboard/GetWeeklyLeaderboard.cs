@@ -18,11 +18,14 @@ public class GetWeeklyLeaderboard
 
         public async Task<List<LeaderboardDto>> Handle(GetWeeklyLeaderboardQuery query, CancellationToken cancellationToken)
         {
-            // Grab friend Ids from database
-            List<Guid> userIds = await _context.Friends
-                .Where(f => f.UserId == query.UserId)
-                .Select(f => f.FriendId)
-                .ToListAsync(cancellationToken);
+            User? user = await _context.Users
+                .Include(u => u.Inviters)
+                    .ThenInclude(f => f.Friend)
+                .Include(u => u.Invitees)
+                    .ThenInclude(f => f.User)
+                .FirstOrDefaultAsync(u => u.Id == query.UserId, cancellationToken);
+
+            List<Guid> userIds = user.Inviters.Select(i => i.FriendId).Concat(user.Invitees.Select(i => i.UserId)).ToList();
 
             // Add requesting user's Id to userIds
             userIds.Add(query.UserId);
@@ -39,10 +42,6 @@ public class GetWeeklyLeaderboard
             if (!sessions.Any())
                 return new List<LeaderboardDto>();
 
-            // Grab friends and requesting user's information
-            List<FocusAPI.Models.User> users = await _context.Users
-                .Where(u => userIds.Contains(u.Id))
-                .ToListAsync(cancellationToken);
 
             // Aggregate daily stats for users
             int currencyEarned;
@@ -52,13 +51,25 @@ public class GetWeeklyLeaderboard
                 List<UserSession> userSessions = sessions.Where(s => s.UserId == userId).ToList();
                 currencyEarned = userSessions.Sum(s => s.CurrencyEarned);
 
-                FocusAPI.Models.User user = users.First(u => u.Id == userId);
-                leaderboard.Add(new LeaderboardDto
+                if (userId == user.Id)
                 {
-                    UserName = user.UserName,
-                    ProfilePicture = user.ProfilePicture,
-                    CurrencyEarned = currencyEarned,
-                });
+                    leaderboard.Add(new LeaderboardDto
+                    {
+                        UserName = user?.UserName,
+                        ProfilePicture = user?.ProfilePicture,
+                        CurrencyEarned = currencyEarned,
+                    });
+                }
+                else
+                {
+                    User userInfo = GetUserInfoFromFriends(user, userId);
+                    leaderboard.Add(new LeaderboardDto
+                    {
+                        UserName = userInfo?.UserName,
+                        ProfilePicture = userInfo?.ProfilePicture,
+                        CurrencyEarned = currencyEarned,
+                    });
+                }
             }
 
             // Rank users by currency earned
@@ -72,6 +83,24 @@ public class GetWeeklyLeaderboard
             }
 
             return leaderboard;
+        }
+
+        User GetUserInfoFromFriends(User user, Guid userId)
+        {
+            User userInfo;
+            Friendship friendship = user.Invitees.FirstOrDefault(i => i.UserId == userId);
+            if (friendship == null)
+            {
+                // Check inviters for friend object
+                friendship = user.Inviters.FirstOrDefault(i => i.FriendId == userId);
+                userInfo = friendship.Friend;
+            }
+            else
+            {
+                userInfo = friendship.User;
+            }
+
+            return userInfo;
         }
     }
 }
