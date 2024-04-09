@@ -20,6 +20,9 @@ namespace FocusApp.Client.Views.Social;
 
 internal class ProfilePage : BasePage
 {
+    public FlexLayout PetsFlexLayout { get; set; }
+    public FlexLayout BadgeFlexLayout { get; set; }
+
     IAPIClient _client;
     IAuthenticationService _authenticationService;
     PopupService _popupService;
@@ -34,13 +37,14 @@ internal class ProfilePage : BasePage
         _localContext = localContext;
 
         #region Pet FlexLayout Population
-        var petsFlexLayout = new FlexLayout
+        PetsFlexLayout = new FlexLayout
         {
             Direction = FlexDirection.Row,
             Wrap = FlexWrap.Wrap,
             JustifyContent = FlexJustify.SpaceEvenly,
             AlignItems = FlexAlignItems.Center,
-            AlignContent = FlexAlignContent.Center
+            AlignContent = FlexAlignContent.Center,
+            BackgroundColor = Colors.LightSlateGray
         };
 
         foreach (var pet in _authenticationService.CurrentUser?.Pets)
@@ -49,35 +53,35 @@ internal class ProfilePage : BasePage
             {
                 Source = new ByteArrayToImageSourceConverter().ConvertFrom(pet.Pet?.Image),
                 HeightRequest = 40,
-                WidthRequest = 100,
-                Aspect = Aspect.AspectFill
+                WidthRequest = 40
             };
 
-            petsFlexLayout.Children.Add(petImage);
+            PetsFlexLayout.Children.Add(petImage);
         }
         #endregion
 
         #region Badge FlexLayout Population
-        var badgesFlexLayout = new FlexLayout
+        BadgeFlexLayout = new FlexLayout
         {
             Direction = FlexDirection.Row,
             Wrap = FlexWrap.Wrap,
             JustifyContent = FlexJustify.SpaceEvenly,
             AlignItems = FlexAlignItems.Center,
-            AlignContent = FlexAlignContent.Center
+            AlignContent = FlexAlignContent.Center,
+            BackgroundColor = Colors.LightSlateGray
         };
 
         foreach (var badge in _authenticationService.CurrentUser?.Badges)
         {
             var badgeImage = new Image
             {
-                Source = new ByteArrayToImageSourceConverter().ConvertFrom(badge.Badge.Image),
+                //Source = new ByteArrayToImageSourceConverter().ConvertFrom(badge.Badge.Image),
+                Source = "dotnet_bot.png",
                 HeightRequest = 40,
-                WidthRequest = 100,
-                Aspect = Aspect.AspectFill
+                WidthRequest = 40
             };
 
-            petsFlexLayout.Children.Add(badgeImage);
+            BadgeFlexLayout.Children.Add(badgeImage);
         }
         #endregion
 
@@ -85,7 +89,7 @@ internal class ProfilePage : BasePage
         Content = new Grid
         {
             // Define the length of the rows & columns
-            ColumnDefinitions = Columns.Define(Star, Star, Star),
+            ColumnDefinitions = Columns.Define(60, 100, 60, Star),
             RowDefinitions = Rows.Define(Star, Star, Star, Star, Star, Star),
             BackgroundColor = AppStyles.Palette.LightMauve,
 
@@ -112,21 +116,25 @@ internal class ProfilePage : BasePage
                 // Profile Picture
                 new Frame
                 {
-                    HeightRequest = 70,
-                    WidthRequest = 70,
+                    HeightRequest = 90,
+                    WidthRequest = 90,
                     BackgroundColor = Colors.Transparent,
                     VerticalOptions = LayoutOptions.Center,
                     CornerRadius = 28,
                     Content = new Image
                     {
                         // TODO Replace logic with user profile called from DB
-                        Source = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+                        //Source = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+                        Source = "dotnet_bot.png",
+                        HeightRequest = 250,
+                        WidthRequest = 250
                     }
                 }
                 .Column(1)
                 .Row(0)
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Center(),
+                .Left()
+                .CenterVertical(),
 
                 // Profile Info
                 new StackLayout
@@ -134,25 +142,43 @@ internal class ProfilePage : BasePage
                     Spacing = 10,
                     Children =
                     {
-                        // @ ID
-                        new Label { Text = _authenticationService.CurrentUser?.Email},
-                        new Label { Text = _authenticationService.CurrentUser?.FirstName},
-                        new Label { Text = _authenticationService.CurrentUser?.Pronouns}
+                        new Label { Text = $"@{_authenticationService.CurrentUser?.Email}"},
+                        new Label { Text = $"Name: {_authenticationService.CurrentUser?.FirstName}"},
+                        new Label { Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}"}
                     }
                 }
+                .Row(0)
+                .Column(3)
                 .Left()
+                .FillHorizontal(),
+
+                // Edit Profile Button
+                new Button
+                {
+                     Text = SolidIcons.PenToSquare,
+                     TextColor = Colors.Black,
+                     FontFamily = nameof(SolidIcons),
+                     FontSize = 20,
+                     BackgroundColor = Colors.Transparent
+                }
+                .Left()
+                .Bottom()
+                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .Column(2)
-                .Row(0),
+                .Row(0)
+                // When clicked, go to timer view
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    EditButtonClicked(sender, eventArgs)),
 
                 // User Pets
-                petsFlexLayout
+                PetsFlexLayout
                 .Row(2)
                 .Column(0)
                 .ColumnSpan(6)
                 .Left(),
 
                 // User Badges
-                badgesFlexLayout
+                BadgeFlexLayout
                 .Row(3)
                 .Column(0)
                 .ColumnSpan(6)
@@ -168,8 +194,15 @@ internal class ProfilePage : BasePage
                 .Row(4)
                 .Column(0)
                 .ColumnSpan(6)
+                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
             }
         };
+    }
+
+    private async void EditButtonClicked(object sender, EventArgs eventArgs)
+    {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync($"///{nameof(ProfilePageEdit)}/{nameof(ProfilePageEdit)}");
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
