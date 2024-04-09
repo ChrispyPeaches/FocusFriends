@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using FocusCore.Models;
+using FocusCore.Responses.Leaderboard;
 
 namespace FocusCore.Queries.Leaderboard;
-public class GetWeeklyLeaderboardQuery : IRequest<List<LeaderboardDto>>
+public class GetWeeklyLeaderboardQuery : IRequest<LeaderboardResponse>
 {
     public Guid UserId { get; set; }
 }

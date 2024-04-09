@@ -4,11 +4,12 @@ using FocusCore.Queries.Leaderboard;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using FocusCore.Models;
+using FocusCore.Responses.Leaderboard;
 
 namespace FocusApi.Methods.Leaderboard;
 public class GetWeeklyLeaderboard
 {
-    public class Handler : IRequestHandler<GetWeeklyLeaderboardQuery, List<LeaderboardDto>>
+    public class Handler : IRequestHandler<GetWeeklyLeaderboardQuery, LeaderboardResponse>
     {
         FocusContext _context;
         public Handler(FocusContext context)
@@ -16,7 +17,7 @@ public class GetWeeklyLeaderboard
             _context = context;
         }
 
-        public async Task<List<LeaderboardDto>> Handle(GetWeeklyLeaderboardQuery query, CancellationToken cancellationToken)
+        public async Task<LeaderboardResponse> Handle(GetWeeklyLeaderboardQuery query, CancellationToken cancellationToken)
         {
             User? user = await _context.Users
                 .Include(u => u.Inviters)
@@ -42,7 +43,7 @@ public class GetWeeklyLeaderboard
 
             // If there are no sessions from today, return empty list
             if (!sessions.Any())
-                return new List<LeaderboardDto>();
+                return new LeaderboardResponse { LeaderboardRecords = new List<LeaderboardDto>() };
 
 
             // Aggregate daily stats for users
@@ -84,7 +85,7 @@ public class GetWeeklyLeaderboard
                 leaderboard[i].Rank = rank;
             }
 
-            return leaderboard;
+            return new LeaderboardResponse { LeaderboardRecords = leaderboard };
         }
 
         User GetUserInfoFromFriends(User user, Guid userId)

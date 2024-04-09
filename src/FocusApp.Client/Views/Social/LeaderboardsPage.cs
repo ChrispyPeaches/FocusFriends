@@ -10,6 +10,7 @@ using FocusApp.Client.Helpers;
 using FocusCore.Models;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui.Views;
+using FocusCore.Responses.Leaderboard;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -408,8 +409,8 @@ namespace FocusApp.Client.Views.Social
         {
             try
             {
-                List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-                PopulateLeaderboard(leaderboard);
+                LeaderboardResponse leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
 
                 // Disable the daily leaderboards button, and enable the weekly leaderboards button
                 _dailyLeaderboardButton.IsEnabled = false;
@@ -425,8 +426,8 @@ namespace FocusApp.Client.Views.Social
         {
             try
             {
-                List<LeaderboardDto> leaderboard = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-                PopulateLeaderboard(leaderboard);
+                LeaderboardResponse leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
 
                 // Disable the weekly leaderboards button, and enable the daily leaderboards button
                 _weeklyLeaderboardButton.IsEnabled = false;
@@ -504,8 +505,8 @@ namespace FocusApp.Client.Views.Social
             // On page load, fetch daily leaderboards
             try
             {
-                List<LeaderboardDto> leaderboard = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-                PopulateLeaderboard(leaderboard);
+                LeaderboardResponse leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
             }
             catch (Exception ex)
             {
