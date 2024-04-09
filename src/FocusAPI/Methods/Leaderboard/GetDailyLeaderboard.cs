@@ -25,8 +25,10 @@ public class GetDailyLeaderboard
                     .ThenInclude(f => f.User)
                 .FirstOrDefaultAsync(u => u.Id == query.UserId, cancellationToken);
 
-            List<Guid> userIds = user.Inviters.Select(i => i.FriendId).Concat(user.Invitees.Select(i => i.UserId)).ToList();
-            
+            List<Guid> inviterIds = user.Inviters.Where(i => i.Status == 1).Select(i => i.FriendId).ToList();
+            List<Guid> inviteeIds = user.Invitees.Where(i => i.Status == 1).Select(i => i.UserId).ToList();
+            List<Guid> userIds = inviterIds.Concat(inviteeIds).ToList();
+
             // Add requesting user's Id to userIds
             userIds.Add(query.UserId);
 
