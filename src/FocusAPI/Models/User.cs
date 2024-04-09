@@ -1,37 +1,38 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using FocusCore.Models;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusAPI.Models;
 
-public class User
+public class User : FocusCore.Models.BaseUser
 {
-	[Key]
-	public Guid Id { get; set; }
+    [InverseProperty(nameof(Friendship.User))]
+    public new ICollection<Friendship>? Inviters { get; set; } = new List<Friendship>();
 
-	public string UserName { get; set; } = null!;
+    [InverseProperty(nameof(Friendship.Friend))]
+    public new ICollection<Friendship>? Invitees { get; set; } = new List<Friendship>();
 
-	public string Email { get; set; } = null!;
+    public new ICollection<UserPet>? Pets { get; set; } = new List<UserPet>();
 
-	public DateTimeOffset DateCreated { get; set; }
+    public new ICollection<UserFurniture>? Furniture { get; set; } = new List<UserFurniture>();
 
-	public int Balance { get; set; }
+    public new ICollection<UserSound>? Sounds { get; set; } = new List<UserSound>();
 
-	public string? FirstName { get; set; }
+    public new ICollection<UserBadge>? Badges { get; set; } = new List<UserBadge>();
 
-	public string? LastName { get; set; }
+    public new ICollection<UserIsland>? Islands { get; set; } = new List<UserIsland>();
 
-	public string? Pronouns { get; set; }
+    public new ICollection<UserSession>? UserSessions { get; set; } = new List<UserSession>();
 
-	public byte[]? ProfilePicture { get; set; }
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Island? SelectedIsland { get; set; }
 
-	public virtual ICollection<UserFriends>? Inviters { get; set; }
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Pet? SelectedPet { get; set; }
 
-	public virtual ICollection<UserFriends>? Invitees { get; set; }
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Furniture? SelectedFurniture { get; set; }
 
-	public virtual ICollection<UserPets>? Pets { get; set; }
-
-	public virtual ICollection<UserBadges>? Badges { get; set; }
-
-	public ICollection<UserSessionHistory>? UserSessions { get; set; }
+    [DeleteBehavior(DeleteBehavior.Restrict)]
+    public new Badge? SelectedBadge { get; set; }
 }

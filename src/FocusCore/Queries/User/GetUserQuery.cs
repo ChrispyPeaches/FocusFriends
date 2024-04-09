@@ -1,9 +1,9 @@
-﻿using FocusCore.Models.User;
+﻿using FocusCore.Responses;
+using FocusCore.Responses.User;
 using MediatR;
 
 namespace FocusCore.Queries.User;
-public class GetUserQuery : IRequest<UserModel>
+public class GetUserQuery : IRequest<MediatrResultWrapper<GetUserResponse>>
 {
-    public Guid Id { get; set; }
+    public string? Auth0Id { get; set; }
 }
-

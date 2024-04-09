@@ -41,11 +41,106 @@ namespace FocusAPI.Migrations
                     b.ToTable("Badges");
                 });
 
+            modelBuilder.Entity("FocusAPI.Models.Friendship", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FriendId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "FriendId", "Status");
+
+                    b.HasIndex("FriendId");
+
+                    b.ToTable("Friendships");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.Furniture", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("HeightRequest")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Furniture");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.Island", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Islands");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.MindfulnessTip", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SessionRatingLevel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MindfulnessTips");
+                });
+
             modelBuilder.Entity("FocusAPI.Models.Pet", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("HeightRequest")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -59,11 +154,37 @@ namespace FocusAPI.Migrations
                     b.ToTable("Pets");
                 });
 
+            modelBuilder.Entity("FocusAPI.Models.Sound", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sounds");
+                });
+
             modelBuilder.Entity("FocusAPI.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Auth0Id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Balance")
                         .HasColumnType("int");
@@ -73,30 +194,55 @@ namespace FocusAPI.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("ProfilePicture")
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Pronouns")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid?>("SelectedBadgeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SelectedFurnitureId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SelectedIslandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SelectedPetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SelectedBadgeId");
+
+                    b.HasIndex("SelectedFurnitureId");
+
+                    b.HasIndex("SelectedIslandId");
+
+                    b.HasIndex("SelectedPetId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserBadges", b =>
+            modelBuilder.Entity("FocusAPI.Models.UserBadge", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -114,25 +260,43 @@ namespace FocusAPI.Migrations
                     b.ToTable("UserBadges");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserFriends", b =>
+            modelBuilder.Entity("FocusAPI.Models.UserFurniture", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("FriendId")
+                    b.Property<Guid>("FurnitureId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<DateTimeOffset>("DateAcquired")
+                        .HasColumnType("datetimeoffset");
 
-                    b.HasKey("UserId", "FriendId", "Status");
+                    b.HasKey("UserId", "FurnitureId");
 
-                    b.HasIndex("FriendId");
+                    b.HasIndex("FurnitureId");
 
-                    b.ToTable("Friends");
+                    b.ToTable("UserFurniture");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserPets", b =>
+            modelBuilder.Entity("FocusAPI.Models.UserIsland", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IslandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DateAcquired")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("UserId", "IslandId");
+
+                    b.HasIndex("IslandId");
+
+                    b.ToTable("UserIslands");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.UserPet", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -150,7 +314,7 @@ namespace FocusAPI.Migrations
                     b.ToTable("UserPets");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserSessionHistory", b =>
+            modelBuilder.Entity("FocusAPI.Models.UserSession", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,26 +339,25 @@ namespace FocusAPI.Migrations
                     b.ToTable("UserSessionHistory");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserBadges", b =>
+            modelBuilder.Entity("FocusAPI.Models.UserSound", b =>
                 {
-                    b.HasOne("FocusAPI.Models.Badge", "Badge")
-                        .WithMany()
-                        .HasForeignKey("BadgeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasOne("FocusAPI.Models.User", "User")
-                        .WithMany("Badges")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Property<Guid>("SoundId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Navigation("Badge");
+                    b.Property<DateTimeOffset>("DateAcquired")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Navigation("User");
+                    b.HasKey("UserId", "SoundId");
+
+                    b.HasIndex("SoundId");
+
+                    b.ToTable("UserSounds");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserFriends", b =>
+            modelBuilder.Entity("FocusAPI.Models.Friendship", b =>
                 {
                     b.HasOne("FocusAPI.Models.User", "Friend")
                         .WithMany("Invitees")
@@ -213,12 +376,100 @@ namespace FocusAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserPets", b =>
+            modelBuilder.Entity("FocusAPI.Models.User", b =>
+                {
+                    b.HasOne("FocusAPI.Models.Badge", "SelectedBadge")
+                        .WithMany()
+                        .HasForeignKey("SelectedBadgeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusAPI.Models.Furniture", "SelectedFurniture")
+                        .WithMany()
+                        .HasForeignKey("SelectedFurnitureId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusAPI.Models.Island", "SelectedIsland")
+                        .WithMany()
+                        .HasForeignKey("SelectedIslandId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FocusAPI.Models.Pet", "SelectedPet")
+                        .WithMany()
+                        .HasForeignKey("SelectedPetId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("SelectedBadge");
+
+                    b.Navigation("SelectedFurniture");
+
+                    b.Navigation("SelectedIsland");
+
+                    b.Navigation("SelectedPet");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.UserBadge", b =>
+                {
+                    b.HasOne("FocusAPI.Models.Badge", "Badge")
+                        .WithMany()
+                        .HasForeignKey("BadgeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FocusAPI.Models.User", "User")
+                        .WithMany("Badges")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Badge");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.UserFurniture", b =>
+                {
+                    b.HasOne("FocusAPI.Models.Furniture", "Furniture")
+                        .WithMany()
+                        .HasForeignKey("FurnitureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FocusAPI.Models.User", "User")
+                        .WithMany("Furniture")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Furniture");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.UserIsland", b =>
+                {
+                    b.HasOne("FocusAPI.Models.Island", "Island")
+                        .WithMany()
+                        .HasForeignKey("IslandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FocusAPI.Models.User", "User")
+                        .WithMany("Islands")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Island");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FocusAPI.Models.UserPet", b =>
                 {
                     b.HasOne("FocusAPI.Models.Pet", "Pet")
                         .WithMany()
                         .HasForeignKey("PetId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FocusAPI.Models.User", "User")
@@ -232,7 +483,7 @@ namespace FocusAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FocusAPI.Models.UserSessionHistory", b =>
+            modelBuilder.Entity("FocusAPI.Models.UserSession", b =>
                 {
                     b.HasOne("FocusAPI.Models.User", "User")
                         .WithMany("UserSessions")
@@ -243,15 +494,40 @@ namespace FocusAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FocusAPI.Models.UserSound", b =>
+                {
+                    b.HasOne("FocusAPI.Models.Sound", "Sound")
+                        .WithMany()
+                        .HasForeignKey("SoundId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FocusAPI.Models.User", "User")
+                        .WithMany("Sounds")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sound");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FocusAPI.Models.User", b =>
                 {
                     b.Navigation("Badges");
+
+                    b.Navigation("Furniture");
 
                     b.Navigation("Invitees");
 
                     b.Navigation("Inviters");
 
+                    b.Navigation("Islands");
+
                     b.Navigation("Pets");
+
+                    b.Navigation("Sounds");
 
                     b.Navigation("UserSessions");
                 });
