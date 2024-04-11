@@ -27,7 +27,7 @@ internal class SocialPage : BasePage
     private Helpers.PopupService _popupService;
     IAuthenticationService _authenticationService;
     IAPIClient _client { get; set; }
-    ListView _friendsListView { get; set; }
+    public ListView _friendsListView { get; set; }
 
     public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
 	{
@@ -193,6 +193,21 @@ internal class SocialPage : BasePage
         base.OnAppearing();
     }
 
+    public async void RepopulateFriendsList()
+    {
+        // Retrieve Friends from API
+        List<FriendListModel> friendsList;
+
+        //friendsList = seedFakeFriends();
+        var query = new GetAllFriendsQuery
+        {
+            UserId = _authenticationService.CurrentUser.Id
+        };
+        friendsList = await _client.GetAllFriends(query, default);
+
+        _friendsListView.ItemsSource = friendsList;
+    }
+
     // Display navigation popup on hit
     private void OnClickShowProfileInterfacePopup(object sender, EventArgs e)
     {
@@ -202,6 +217,7 @@ internal class SocialPage : BasePage
     // Display new friend popup on hit
     private void OnClickShowAddFriendsPopup(object sender, EventArgs e)
     {
-        _popupService.ShowPopup<AddFriendPopupInterface>();
+        var addFriendPopup = (AddFriendPopupInterface)_popupService.ShowAndGetPopup<AddFriendPopupInterface>();
+        addFriendPopup.SocialPage = this;
     }
 }

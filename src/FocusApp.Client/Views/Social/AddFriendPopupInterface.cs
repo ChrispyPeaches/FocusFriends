@@ -30,6 +30,7 @@ namespace FocusApp.Client.Views.Social
         IAuthenticationService _authenticationService;
         Helpers.PopupService _popupService;
         ListView _friendrequestView { get; set; }
+        public SocialPage SocialPage { get; set; }
 
         public AddFriendPopupInterface(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService)
         {
@@ -53,7 +54,7 @@ namespace FocusApp.Client.Views.Social
 
             Label entryError = new Label
             {
-                BackgroundColor = Colors.Blue,
+                BackgroundColor = Colors.Transparent,
                 TextColor = Colors.Red,
                 FontSize = 15
             };
@@ -302,7 +303,8 @@ namespace FocusApp.Client.Views.Social
 
             await _client.AcceptFriendRequest(acceptCommand);
 
-            
+            // Refresh friends list
+            SocialPage.RepopulateFriendsList();
 
             PopulatePopup();
         }
