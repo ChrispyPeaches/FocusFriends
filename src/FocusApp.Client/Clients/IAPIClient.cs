@@ -1,8 +1,10 @@
 ﻿using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
+using FocusCore.Queries.Leaderboard;
 using FocusCore.Queries.Shop;
 using FocusCore.Queries.Sync;
 using FocusCore.Queries.User;
+using FocusCore.Responses.Leaderboard;
 using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
 using Refit;
@@ -21,6 +23,16 @@ public interface IAPIClient
     Task<CreateUserResponse> CreateUser(
         CreateUserCommand command,
         CancellationToken cancellationToken = default);
+
+    [Get("/Leaderboard/Daily")]
+    Task<LeaderboardResponse> GetDailyLeaderboard(
+        GetDailyLeaderboardQuery query,
+        CancellationToken cancellationToken);
+
+    [Get("/Leaderboard/Weekly")]
+    Task<LeaderboardResponse> GetWeeklyLeaderboard(
+        GetWeeklyLeaderboardQuery query,
+        CancellationToken cancellationToken);
 
     [Post("/User/Pet")]
     Task AddUserPet(AddUserPetCommand command);
