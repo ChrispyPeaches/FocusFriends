@@ -49,10 +49,12 @@ namespace FocusApp.Client.Views.Social
             {
                 Placeholder = "Enter friend's email",
                 FontSize = 20,
+                HeightRequest = 50,
                 WidthRequest = 240,
                 TextColor = Colors.Black,
                 ClearButtonVisibility = ClearButtonVisibility.Never,
-                Keyboard = Keyboard.Plain
+                Keyboard = Keyboard.Plain,
+                VerticalOptions = LayoutOptions.Start
             };
 
             entryError = new Label
@@ -105,13 +107,15 @@ namespace FocusApp.Client.Views.Social
                         new Frame()
                         {
                             WidthRequest = 360,
-                            HeightRequest = 100,
+                            HeightRequest = 60,
+                            Padding = new Thickness(20, 20, 20, 0),
                             BackgroundColor = Colors.Transparent,
                             Content = new HorizontalStackLayout
                             {
+                                Spacing = 0,
                                 Children =
                                 {
-                                    emailEntry.Fill(),
+                                    emailEntry,
 
                                     new Button
                                     {
@@ -119,17 +123,19 @@ namespace FocusApp.Client.Views.Social
                                         WidthRequest = 80,
                                         HeightRequest = 50,
                                         FontSize = 20,
-                                        BindingContext = emailEntry
+                                        BindingContext = emailEntry,
+                                        VerticalOptions = LayoutOptions.Start
                                     }
                                     .Invoke(b => b.Clicked += (s,e) => OnClickSendFriendRequest(s,e))
                                 }
                             }
+                            .Margins(top: -15)
                         },
 
                         // Error label for friend request errors
                         entryError
-                        .Paddings(left: 15)
-                        .Top(),
+                        .Top()
+                        .Paddings(left: 15, bottom: 5),
 
                         // Horizontal Divider
                         new BoxView
@@ -302,6 +308,12 @@ namespace FocusApp.Client.Views.Social
             var emailEntry = (Entry)sendButton.BindingContext;
 
             var friendEmail = emailEntry.Text;
+
+            if (friendEmail == null || friendEmail == "")
+            {
+                entryError.Text = "Please enter an email address";
+                return;
+            }
 
             var friendRequest = new CreateFriendRequestCommand
             {
