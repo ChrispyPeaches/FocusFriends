@@ -180,7 +180,7 @@ namespace FocusApp.Client.Views.Social
                 // Friend username
                 Label friendUsername = new Label
                 {
-                    FontSize = 15
+                    FontSize = 12
                 };
                 friendUsername.SetBinding(Label.TextProperty, "FriendUserName");
                 friendUsername.VerticalOptions = LayoutOptions.Center;

@@ -40,7 +40,7 @@ internal class SocialPage : BasePage
         Content = new Grid
         {
             // Define rows and columns (Star means that row/column will take up the remaining space)
-            RowDefinitions = Rows.Define(80, Star, Star, Star),
+            RowDefinitions = Rows.Define(80, Star),
             ColumnDefinitions = Columns.Define(Star, Star),
             BackgroundColor = AppStyles.Palette.Celeste,
             Opacity = 0.9,
@@ -113,7 +113,6 @@ internal class SocialPage : BasePage
     private ListView BuildFriendsListView()
     {
         ListView listView = new ListView();
-        listView.Header = "Friends";
 
         listView.ItemTemplate = new DataTemplate(() =>
         {
