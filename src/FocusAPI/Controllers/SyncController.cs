@@ -1,4 +1,7 @@
+using FocusAPI.Helpers;
 using FocusAPI.Methods.Sync;
+using FocusAPI.Models;
+using FocusCore.Models;
 using FocusCore.Queries.Sync;
 using FocusCore.Responses.Sync;
 using Microsoft.AspNetCore.Mvc;
@@ -35,9 +38,19 @@ namespace FocusAPI.Controllers
         {
             try
             {
-                SyncMindfulnessTipsResponse result = await _mediator.Send(query, cancellationToken);
+                //SyncMindfulnessTipsResponse result = await _mediator.Send(query, cancellationToken);
+                var result1 = await _mediator.Send(new SyncItems.Query<MindfulnessTip>()
+                {
+                    ItemIds = query.MindfulnessTipIds
+                },
+                cancellationToken);
 
-                return Ok(result);
+                return Ok(new SyncMindfulnessTipsResponse()
+                {
+                    MissingTips = result1.MissingItems
+                        .Select(ProjectionHelper.ProjectToBaseMindfulnessTip)
+                        .ToList()
+                });
             }
             catch (Exception ex)
             {

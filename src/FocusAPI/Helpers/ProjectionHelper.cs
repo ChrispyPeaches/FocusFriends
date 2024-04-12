@@ -104,5 +104,14 @@ public static class ProjectionHelper
             Image = island.Image,
             Price = island.Price
         };
+
+    public static BaseMindfulnessTip ProjectToBaseMindfulnessTip(MindfulnessTip tip) =>
+        new()
+        {
+            Id = tip.Id,
+            Content = tip.Content,
+            SessionRatingLevel = tip.SessionRatingLevel,
+            Title = tip.Title
+        };
 }
 

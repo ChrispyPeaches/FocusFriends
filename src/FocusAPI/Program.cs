@@ -3,8 +3,12 @@ using FluentValidation;
 using FocusAPI.Configuration.PipelineBehaviors;
 using FocusAPI.Data;
 using FocusAPI.Helpers;
+using FocusAPI.Models;
+using FocusCore.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MediatR.Registration;
+using static FocusAPI.Methods.Sync.SyncItems;
 
 namespace FocusAPI;
 
@@ -21,7 +25,7 @@ internal class Program
         builder.Services.AddSwaggerGen();
 
         // Configure MediatR
-        RegisterMediatR(builder.Services);
+        RegisterMediatR(builder);
 
         // Register DbContext
         builder.Services.AddDbContext<FocusContext>(options =>
@@ -52,11 +56,18 @@ internal class Program
         app.Run();
     }
 
-    public static void RegisterMediatR(IServiceCollection services)
+    public static void RegisterMediatR(WebApplicationBuilder builder)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        builder.Services.AddMediatR(cfg => cfg
+            .RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<MindfulnessTip>, Response<MindfulnessTip>>),
+            typeof(Handler<MindfulnessTip>));
+
     }
 
     /// <summary>

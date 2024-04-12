@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models;
 
 [Table("Furniture")]
-public class BaseFurniture
+public class BaseFurniture : ISyncEntity
 {
     [Key]
     public Guid Id { get; set; }
