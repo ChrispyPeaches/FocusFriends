@@ -62,20 +62,7 @@ public interface IAPIClient
 
     #endregion
 
-    #region Sync
-
-    [Post("/Sync/MindfulnessTips")]
-    Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
-        [Body] SyncMindfulnessTipsQuery query,
-        CancellationToken cancellationToken);
-
-    [Post("/Sync/InitialData")]
-    Task<SyncInitialDataResponse> SyncInitialData(
-        [Body] SyncInitialDataQuery query,
-        CancellationToken cancellationToken);
-
-    #endregion
-
+    #region Social
     [Get("/Social/Friend")]
     Task<List<FriendListModel>> GetAllFriends(GetAllFriendsQuery query, CancellationToken cancellationToken = default);
 
@@ -91,4 +78,19 @@ public interface IAPIClient
     [Delete("/Social/FriendRequest")]
     Task CancelFriendRequest([Body] CancelFriendRequestCommand command);
 
+    #endregion
+
+    #region Sync
+
+    [Post("/Sync/MindfulnessTips")]
+    Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
+        [Body] SyncMindfulnessTipsQuery query,
+        CancellationToken cancellationToken);
+
+    [Post("/Sync/InitialData")]
+    Task<SyncInitialDataResponse> SyncInitialData(
+        [Body] SyncInitialDataQuery query,
+        CancellationToken cancellationToken);
+
+    #endregion
 }

@@ -8,6 +8,7 @@ using FocusCore.Responses;
 using System.Net;
 using System.Threading;
 using FocusCore.Responses.Social;
+using FocusAPI.Methods.Social;
 
 namespace FocusAPI.Controllers
 {
@@ -24,6 +25,9 @@ namespace FocusAPI.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Feature: <see cref="Methods.Social.GetAllFriends"/>
+        /// </summary>
         [HttpGet]
         [Route("Friend")]
         public async Task<List<FriendListModel>> GetAllFriends([FromQuery] GetAllFriendsQuery query, CancellationToken cancellationToken)

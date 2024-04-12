@@ -152,24 +152,6 @@ internal class SocialPage : BasePage
         return listView;
     }
 
-    private List<FriendListModel> seedFakeFriends()
-    {
-        List<FriendListModel> friends = new List<FriendListModel>();
-
-        for (int i = 0; i < 10; i++)
-        {
-
-            FriendListModel fakeFriend = new FriendListModel
-            {
-                FriendUserName = "Test" + i,
-                FriendEmail = "Test" + i
-        };
-            friends.Add(fakeFriend);
-        };
-
-        return friends;
-    }
-
     protected override async void OnAppearing()
     {
         if (string.IsNullOrEmpty(_authenticationService.AuthToken))
@@ -181,7 +163,6 @@ internal class SocialPage : BasePage
         // Retrieve Friends from API
         List<FriendListModel> friendsList;
 
-        //friendsList = seedFakeFriends();
         var query = new GetAllFriendsQuery
         {
             UserId = _authenticationService.CurrentUser.Id
@@ -193,12 +174,12 @@ internal class SocialPage : BasePage
         base.OnAppearing();
     }
 
+    // We call this function from friends popup to refresh the friends list
     public async void RepopulateFriendsList()
     {
         // Retrieve Friends from API
         List<FriendListModel> friendsList;
 
-        //friendsList = seedFakeFriends();
         var query = new GetAllFriendsQuery
         {
             UserId = _authenticationService.CurrentUser.Id

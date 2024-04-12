@@ -51,6 +51,7 @@ public class CreateFriendRequest
             }
             else
             {
+                // Create new friend request entry (friendship relationship with status 0)
                 Friendship friendship = new Friendship
                 {
                     User = user,

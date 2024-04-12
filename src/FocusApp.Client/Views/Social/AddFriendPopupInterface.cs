@@ -240,34 +240,9 @@ namespace FocusApp.Client.Views.Social
             return listView;
         }
 
-        private List<FriendRequest> seedFakeFriendRequests()
-        {
-            List<FriendRequest> pendingFriends = new List<FriendRequest>();
-
-            for (int i = 0; i < 10; i++)
-            {
-                bool init = true;
-                if (i % 2 == 0)
-                {
-                    init = false;
-                }
-
-                FriendRequest fakeFriend = new FriendRequest
-                {
-                    FriendUserName = "Test" + i,
-                    FriendEmail = "Test" + i,
-                    UserInitiated = init,
-                };
-                pendingFriends.Add(fakeFriend);
-            };
-
-            return pendingFriends.OrderBy(pf => pf.UserInitiated).ToList();
-        }
-
         public async void PopulatePopup()
         {
             List<FriendRequest> pendingFriendRequests;
-            //pendingFriendRequests = seedFakeFriendRequests();
 
             // Fetch all pending friend requests
             var query = new GetAllFriendRequestsQuery
@@ -309,6 +284,7 @@ namespace FocusApp.Client.Views.Social
 
             var friendEmail = emailEntry.Text;
 
+            // Return if entry is empty
             if (friendEmail == null || friendEmail == "")
             {
                 entryError.Text = "Please enter an email address";
@@ -321,10 +297,11 @@ namespace FocusApp.Client.Views.Social
                 FriendEmail = friendEmail
             };
 
+            // Create Friend Request
             ApiResponse<CreateFriendRequestResponse>? response = await _client.CreateFriendRequest(friendRequest);
 
+            // Populate error label if necessary
             var httpCode = response.StatusCode;
-
             if (httpCode != HttpStatusCode.OK)
             {
                 PopulateErrorLabel((HttpStatusCode)httpCode);
@@ -346,6 +323,7 @@ namespace FocusApp.Client.Views.Social
                 FriendId = friendId 
             };
 
+            // Accept Friend Request
             await _client.AcceptFriendRequest(acceptCommand);
 
             // Refresh friends list
@@ -367,6 +345,7 @@ namespace FocusApp.Client.Views.Social
                 FriendId = _authenticationService.CurrentUser.Id
             };
 
+            // Reject Friend Request
             await _client.CancelFriendRequest(cancelCommand);
 
             PopulatePopup();
@@ -385,6 +364,7 @@ namespace FocusApp.Client.Views.Social
                 FriendId = friendId
             };
 
+            // Cancel Friend Request
             await _client.CancelFriendRequest(cancelCommand);
 
             PopulatePopup();

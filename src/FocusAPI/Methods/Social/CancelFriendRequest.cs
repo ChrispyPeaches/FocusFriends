@@ -25,11 +25,13 @@ public class CancelFriendRequest
         {
             try
             {
+                // Fetch friend request
                 var friendship = await _context.Friends
                     .Include(f => f.User)
                     .Include(f => f.Friend)
                     .FirstOrDefaultAsync(f => f.UserId == command.UserId && f.FriendId == command.FriendId);
 
+                // Remove friend request entry
                 friendship.User.Inviters?.Remove(friendship);
 
                 friendship.Friend.Invitees?.Remove(friendship);
