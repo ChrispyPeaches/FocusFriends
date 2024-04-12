@@ -185,19 +185,21 @@ namespace FocusApp.Client.Methods.User
             {
                 Shared.Models.User? user;
 
-                Shared.Models.User? localUser = await _localContext.Users
-                    .Include(u => u.SelectedIsland)
-                    .Include(u => u.SelectedPet)
-                    .Where(u => u.Auth0Id == auth0Id)
-                    .FirstOrDefaultAsync(cancellationToken);
-
                 if (getUserResponse?.User is null)
                 {
+                    Shared.Models.User? localUser = await _localContext.Users
+                        .Include(u => u.SelectedIsland)
+                        .Include(u => u.SelectedPet)
+                        .Where(u => u.Auth0Id == auth0Id)
+                        .FirstOrDefaultAsync(cancellationToken);
+
                     user = localUser;
                 }
                 else
                 {
                     user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
+
+                    await SyncLocalUserItems(user);
 
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
                     user.SelectedIsland ??= await GetInitialIslandQuery()
@@ -220,6 +222,53 @@ namespace FocusApp.Client.Methods.User
             {
                 return _localContext.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
+            }
+
+            async Task SyncLocalUserItems(Shared.Models.User serverUser)
+            {
+                var localUser = await _localContext.Users
+                    .Include(u => u.Pets)
+                    .Include(u => u.Furniture)
+                    .Include(u => u.Islands)
+                    .FirstOrDefaultAsync(u => u.Id == serverUser.Id);
+
+                List<Guid>? serverPetIds = serverUser.Pets?.Select(up => up.PetId).ToList();
+                List<Guid>? localPetIds = localUser.Pets?.Select(up => up.PetId).ToList();
+                List<Guid>? outOfSyncPetIds = serverPetIds.Except(localPetIds).ToList();
+
+                if (outOfSyncPetIds != null && outOfSyncPetIds.Any())
+                {
+                    foreach (var petId in outOfSyncPetIds)
+                    {
+                        localUser.Pets.Add(new UserPet { Pet = _localContext.Pets.First(p => p.Id == petId) });
+                    }
+                }
+
+                List<Guid> serverFurnitureIds = serverUser.Furniture.Select(uf => uf.FurnitureId).ToList();
+                List<Guid> localFurnitureIds = localUser.Furniture.Select(uf => uf.FurnitureId).ToList();
+                List<Guid> outOfSyncFurnitureIds = serverFurnitureIds.Except(localFurnitureIds).ToList();
+
+                if (outOfSyncFurnitureIds != null && outOfSyncFurnitureIds.Any())
+                {
+                    foreach (Guid furnitureId in outOfSyncFurnitureIds)
+                    {
+                        localUser.Furniture.Add(new UserFurniture { Furniture = _localContext.Furniture.First(f => f.Id == furnitureId) });
+                    }
+                }
+
+                List<Guid> serverIslandIds = serverUser.Islands.Select(ui => ui.IslandId).ToList();
+                List<Guid> localIslandIds = localUser.Islands.Select(ui => ui.IslandId).ToList();
+                List<Guid> outOfSyncIslandIds = serverIslandIds.Except(localIslandIds).ToList();
+
+                if (outOfSyncIslandIds != null && outOfSyncIslandIds.Any())
+                {
+                    foreach (Guid islandId in outOfSyncIslandIds)
+                    {
+                        localUser.Islands.Add(new UserIsland { Island = _localContext.Islands.First(i => i.Id == islandId) });
+                    }
+                }
+
+                await _localContext.SaveChangesAsync();
             }
         }
     }
