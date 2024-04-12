@@ -12,11 +12,13 @@ using FocusCore.Responses.Social;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
+using Refit;
 using SimpleToolkit.SimpleShell.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Net;
 using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +32,7 @@ namespace FocusApp.Client.Views.Social
         IAuthenticationService _authenticationService;
         Helpers.PopupService _popupService;
         ListView _friendrequestView { get; set; }
+        Label entryError {  get; set; }
         public SocialPage SocialPage { get; set; }
 
         public AddFriendPopupInterface(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService)
@@ -52,7 +55,7 @@ namespace FocusApp.Client.Views.Social
                 Keyboard = Keyboard.Plain
             };
 
-            Label entryError = new Label
+            entryError = new Label
             {
                 BackgroundColor = Colors.Transparent,
                 TextColor = Colors.Red,
@@ -270,8 +273,31 @@ namespace FocusApp.Client.Views.Social
             _friendrequestView.ItemsSource = pendingFriendRequests;
         }
 
+        // Populate entry error label with corresponding message
+        public void PopulateErrorLabel(HttpStatusCode httpCode)
+        {
+            switch (httpCode)
+            {
+                case HttpStatusCode.Conflict:
+                    entryError.Text = "You are already friends with this user";
+                    break;
+                case HttpStatusCode.NotFound:
+                    entryError.Text = "Invalid user email";
+                    break;
+                case HttpStatusCode.InternalServerError:
+                    entryError.Text = "Server error, try again later";
+                    break;
+                default:
+                    entryError.Text = "Error, try again later";
+                    break;
+            }
+        }
+
         private async void OnClickSendFriendRequest(object sender, EventArgs e)
         {
+            // Clear entry error
+            entryError.Text = "";
+
             var sendButton = sender as Button;
             var emailEntry = (Entry)sendButton.BindingContext;
 
@@ -283,7 +309,14 @@ namespace FocusApp.Client.Views.Social
                 FriendEmail = friendEmail
             };
 
-            CreateFriendRequestResponse response = await _client.CreateFriendRequest(friendRequest);
+            ApiResponse<CreateFriendRequestResponse>? response = await _client.CreateFriendRequest(friendRequest);
+
+            var httpCode = response.StatusCode;
+
+            if (httpCode != HttpStatusCode.OK)
+            {
+                PopulateErrorLabel((HttpStatusCode)httpCode);
+            }
 
             PopulatePopup();
         }

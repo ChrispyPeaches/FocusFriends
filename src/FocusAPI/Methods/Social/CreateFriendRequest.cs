@@ -33,7 +33,7 @@ public class CreateFriendRequest
                 return new MediatrResultWrapper<CreateFriendRequestResponse>
                 {
                     HttpStatusCode = HttpStatusCode.Conflict,
-                    Message = $"Friendship already exists: {existingFriendship.User.Email} - {existingFriendship.Friend.Email}",
+                    Message = $"Friendship already exists: {existingFriendship.User.Email} - {existingFriendship.Friend.Email}"
                 };
             }
 
@@ -46,7 +46,7 @@ public class CreateFriendRequest
                 return new MediatrResultWrapper<CreateFriendRequestResponse>
                 {
                     HttpStatusCode = HttpStatusCode.NotFound,
-                    Message = $"Friend email is invalid: {command.FriendEmail}",
+                    Message = $"Friend email is invalid: {command.FriendEmail}"
                 };
             }
             else
@@ -68,7 +68,12 @@ public class CreateFriendRequest
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Error creating friend request");
+                    _logger.LogError("Error creating friend request");
+                    return new MediatrResultWrapper<CreateFriendRequestResponse>
+                    {
+                        HttpStatusCode = HttpStatusCode.InternalServerError,
+                        Message = $"Error creating friend request"
+                    };
                 }
 
                 return new MediatrResultWrapper<CreateFriendRequestResponse>()
@@ -102,7 +107,8 @@ public class CreateFriendRequest
             }
             catch (Exception ex)
             {
-                throw new Exception("Error getting friendship");
+                _logger.LogError("Error getting friendship");
+                return null;
             }
         }
     }

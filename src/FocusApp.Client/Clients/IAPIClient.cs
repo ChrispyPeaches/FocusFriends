@@ -83,7 +83,7 @@ public interface IAPIClient
     Task<List<FriendRequest>> GetAllFriendRequests(GetAllFriendRequestsQuery query, CancellationToken cancellationToken = default);
 
     [Post("/Social/FriendRequest")]
-    Task<CreateFriendRequestResponse> CreateFriendRequest(CreateFriendRequestCommand command);
+    Task<ApiResponse<CreateFriendRequestResponse>> CreateFriendRequest(CreateFriendRequestCommand command);
 
     [Put("/Social/FriendRequest")]
     Task AcceptFriendRequest([Body] AcceptFriendRequestCommand command);
