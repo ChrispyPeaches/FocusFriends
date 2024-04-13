@@ -231,8 +231,11 @@ internal class ProfilePage : BasePage
                         .Center(),
 
                         new Label
-                        { 
-                            Text = $"{_authenticationService.CurrentUser?.SelectedPet?.Name}",
+                        {
+                            Text = $"{
+                                (_authenticationService.CurrentUser?.SelectedPet?.Name == null
+                                ? "Select a pet!"
+                                : _authenticationService.CurrentUser?.SelectedPet?.Name)}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Top)
@@ -262,7 +265,10 @@ internal class ProfilePage : BasePage
 
                         new Label
                         {
-                            Text = $"{_authenticationService.CurrentUser?.SelectedIsland?.Name}",
+                            Text = $"{
+                                (_authenticationService.CurrentUser?.SelectedIsland?.Name == null
+                                ? "Select an island!"
+                                : _authenticationService.CurrentUser?.SelectedIsland?.Name)}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Top)
@@ -292,7 +298,10 @@ internal class ProfilePage : BasePage
 
                         new Label
                         {
-                            Text = $"{_authenticationService.CurrentUser?.SelectedFurniture?.Name}",
+                            Text = $"{
+                                (_authenticationService.CurrentUser?.SelectedFurniture?.Name == null
+                                ? "Select decor!"
+                                : _authenticationService.CurrentUser?.SelectedFurniture?.Name)}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Bottom)
@@ -322,7 +331,10 @@ internal class ProfilePage : BasePage
 
                         new Label
                         {
-                            Text = $"{_authenticationService.CurrentUser?.SelectedFurniture?.Name}",
+                            Text = $"{
+                                (_authenticationService.CurrentUser?.SelectedBadge?.Name == null 
+                                ? "Select a badge!" 
+                                : _authenticationService.CurrentUser?.SelectedBadge?.Name)}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Bottom)
