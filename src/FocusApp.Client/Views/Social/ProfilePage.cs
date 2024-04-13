@@ -151,9 +151,25 @@ internal class ProfilePage : BasePage
                             FontSize = 15
                         }
                         .Row(UserDataRow.UserEmail)
-                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
-                        .Bottom()
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
+                        .CenterVertical()
                         .Left(),
+
+                        new Button
+                        {
+                             Text = SolidIcons.Copy,
+                             TextColor = Colors.Black,
+                             FontFamily = nameof(SolidIcons),
+                             FontSize = 20,
+                             BackgroundColor = Colors.Transparent
+                        }
+                        .Row(UserDataRow.UserEmail)
+                        .Column(UserDataColumn.EditButton)
+                        .CenterVertical()
+                        .CenterHorizontal()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            CopyEmailClicked(sender, eventArgs)),
+
                         new Label 
                         { 
                             Text = $"{_authenticationService.CurrentUser?.UserName}", 
@@ -165,7 +181,7 @@ internal class ProfilePage : BasePage
                         .Left(),
                         new Label 
                         { 
-                            Text = $"Pronouns: he/they{_authenticationService.CurrentUser?.Pronouns}",
+                            Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}",
                             FontSize = 15
                         }
                         .Row(UserDataRow.UserPronouns)
@@ -184,6 +200,7 @@ internal class ProfilePage : BasePage
                         .Row(UserDataRow.UserPronouns)
                         .Column(UserDataColumn.EditButton)
                         .Top()
+                        .CenterHorizontal()
                         // When clicked, go to edit profile view
                         .Invoke(button => button.Released += (sender, eventArgs) =>
                             EditButtonClicked(sender, eventArgs))
@@ -389,6 +406,11 @@ internal class ProfilePage : BasePage
                 .CenterHorizontal()
             }
         };
+    }
+
+    private async void CopyEmailClicked(object sender, EventArgs e)
+    {
+        await Clipboard.Default.SetTextAsync(_authenticationService.CurrentUser?.Email);
     }
 
     private async void EditButtonClicked(object sender, EventArgs eventArgs)
