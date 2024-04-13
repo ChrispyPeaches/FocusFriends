@@ -41,9 +41,7 @@ internal class ProfilePage : BasePage
         _popupService = popupService;
         _localContext = localContext;
 
-        //Shared.Models.User? localUser = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
-
-        // Set bindable properties
+        // Set bindable properties with images
         AvatarView profilePicture = new AvatarView
         {
             CornerRadius = 63,
@@ -58,7 +56,9 @@ internal class ProfilePage : BasePage
             HeightRequest = 110,
             WidthRequest = 110
         }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedPetClicked(sender, eventArgs));
         selectedPet.BindingContext = _authenticationService.CurrentUser?.SelectedPet;
 
         ImageButton selectedIsland = new ImageButton
@@ -66,7 +66,9 @@ internal class ProfilePage : BasePage
             HeightRequest = 110,
             WidthRequest = 110
         }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedIslandClicked(sender, eventArgs));
         selectedIsland.BindingContext = _authenticationService.CurrentUser?.SelectedIsland;
 
         ImageButton selectedDecor = new ImageButton
@@ -74,7 +76,9 @@ internal class ProfilePage : BasePage
             HeightRequest = 110,
             WidthRequest = 110
         }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedDecorClicked(sender, eventArgs));
         selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedFurniture;
 
         ImageButton selectedBadge = new ImageButton
@@ -82,7 +86,9 @@ internal class ProfilePage : BasePage
             HeightRequest = 110,
             WidthRequest = 110
         }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedBadgeClicked(sender, eventArgs));
         selectedBadge.BindingContext = _authenticationService.CurrentUser?.SelectedBadge;
 
         Content = new Grid
@@ -178,7 +184,7 @@ internal class ProfilePage : BasePage
                         .Row(UserDataRow.UserPronouns)
                         .Column(UserDataColumn.EditButton)
                         .Top()
-                        // When clicked, go to timer view
+                        // When clicked, go to edit profile view
                         .Invoke(button => button.Released += (sender, eventArgs) =>
                             EditButtonClicked(sender, eventArgs))
                     }
@@ -389,6 +395,30 @@ internal class ProfilePage : BasePage
     {
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync(nameof(ProfilePageEdit));
+    }
+
+    private async void SelectedPetClicked(object sender, EventArgs eventArgs)
+    {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
+    }
+
+    private async void SelectedIslandClicked(object sender, EventArgs eventArgs)
+    {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
+    }
+
+    private async void SelectedDecorClicked(object sender, EventArgs eventArgs)
+    {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
+    }
+
+    private async void SelectedBadgeClicked(object sender, EventArgs eventArgs)
+    {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
