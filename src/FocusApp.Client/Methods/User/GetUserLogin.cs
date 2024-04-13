@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Auth0.OidcClient;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using FocusApp.Client.Methods.Sync;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
@@ -34,12 +35,14 @@ namespace FocusApp.Client.Methods.User
             IAPIClient _client;
             FocusAppContext _localContext;
             ILogger<Handler> _logger;
-            public Handler(Auth0Client auth0Client, IAPIClient client, FocusAppContext localContext, ILogger<Handler> logger)
+            IMediator _mediator;
+            public Handler(Auth0Client auth0Client, IAPIClient client, FocusAppContext localContext, ILogger<Handler> logger, IMediator mediator)
             {
                 _auth0Client = auth0Client;
                 _client = client;
                 _localContext = localContext;
                 _logger = logger;
+                _mediator = mediator;
             }
 
             public async Task<Result> Handle(
@@ -199,7 +202,15 @@ namespace FocusApp.Client.Methods.User
                 {
                     user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
 
-                    await SyncLocalUserItems(user);
+                    try
+                    {
+                        // Sync local user data with server user data
+                        await _mediator.Send(new SyncUserData.Query { ServerUser = user }, default);
+                    }
+                    catch (Exception ex) 
+                    {
+                        _logger.Log(LogLevel.Debug, "Error syncing local user data with server's user data. Message: " + ex.Message);
+                    }
 
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
                     user.SelectedIsland ??= await GetInitialIslandQuery()
@@ -222,53 +233,6 @@ namespace FocusApp.Client.Methods.User
             {
                 return _localContext.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
-            }
-
-            async Task SyncLocalUserItems(Shared.Models.User serverUser)
-            {
-                var localUser = await _localContext.Users
-                    .Include(u => u.Pets)
-                    .Include(u => u.Furniture)
-                    .Include(u => u.Islands)
-                    .FirstOrDefaultAsync(u => u.Id == serverUser.Id);
-
-                List<Guid>? serverPetIds = serverUser.Pets?.Select(up => up.PetId).ToList();
-                List<Guid>? localPetIds = localUser.Pets?.Select(up => up.PetId).ToList();
-                List<Guid>? outOfSyncPetIds = serverPetIds.Except(localPetIds).ToList();
-
-                if (outOfSyncPetIds != null && outOfSyncPetIds.Any())
-                {
-                    foreach (var petId in outOfSyncPetIds)
-                    {
-                        localUser.Pets.Add(new UserPet { Pet = _localContext.Pets.First(p => p.Id == petId) });
-                    }
-                }
-
-                List<Guid> serverFurnitureIds = serverUser.Furniture.Select(uf => uf.FurnitureId).ToList();
-                List<Guid> localFurnitureIds = localUser.Furniture.Select(uf => uf.FurnitureId).ToList();
-                List<Guid> outOfSyncFurnitureIds = serverFurnitureIds.Except(localFurnitureIds).ToList();
-
-                if (outOfSyncFurnitureIds != null && outOfSyncFurnitureIds.Any())
-                {
-                    foreach (Guid furnitureId in outOfSyncFurnitureIds)
-                    {
-                        localUser.Furniture.Add(new UserFurniture { Furniture = _localContext.Furniture.First(f => f.Id == furnitureId) });
-                    }
-                }
-
-                List<Guid> serverIslandIds = serverUser.Islands.Select(ui => ui.IslandId).ToList();
-                List<Guid> localIslandIds = localUser.Islands.Select(ui => ui.IslandId).ToList();
-                List<Guid> outOfSyncIslandIds = serverIslandIds.Except(localIslandIds).ToList();
-
-                if (outOfSyncIslandIds != null && outOfSyncIslandIds.Any())
-                {
-                    foreach (Guid islandId in outOfSyncIslandIds)
-                    {
-                        localUser.Islands.Add(new UserIsland { Island = _localContext.Islands.First(i => i.Id == islandId) });
-                    }
-                }
-
-                await _localContext.SaveChangesAsync();
             }
         }
     }
