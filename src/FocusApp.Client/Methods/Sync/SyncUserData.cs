@@ -28,7 +28,7 @@ public class SyncUserData
 
         public async Task<Unit> Handle(Query query, CancellationToken cancellationToken) 
         {
-            if (query.ServerUser == null) return;
+            if (query.ServerUser == null) return Unit.Value;
 
             _serverUser = query.ServerUser;
 
