@@ -75,6 +75,13 @@ public class AppShell : SimpleShell
 
                 new ShellContent()
                 {
+                     Title = "LeaderboardsPage",
+                     ContentTemplate = new DataTemplate(typeof(LeaderboardsPage)),
+                     Route = "LeaderboardsPage"
+                },
+
+                new ShellContent()
+                {
                     Title = "UserBadgesPage",
                     ContentTemplate = new DataTemplate (typeof(UserBadgesPage)),
                     Route = "UserBadgesPage"
