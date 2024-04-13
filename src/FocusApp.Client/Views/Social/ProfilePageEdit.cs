@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using Microsoft.Maui.Layouts;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
@@ -9,18 +8,21 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Shared.Data;
 using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using CommunityToolkit.Maui.Views;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class ProfilePageEdit : BasePage
 {
-    public FlexLayout PetsFlexLayout { get; set; }
-    public FlexLayout BadgeFlexLayout { get; set; }
 
     IAPIClient _client;
     IAuthenticationService _authenticationService;
     PopupService _popupService;
     FocusAppContext _localContext;
+
+    // Page Row / Column Definitions
+    enum PageRow { ProfilePicture, FormFields, TabBarSpace }
+    enum PageColumn { Left, Right }
 
     #region Frontend
     public ProfilePageEdit(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
@@ -30,69 +32,28 @@ internal class ProfilePageEdit : BasePage
         _popupService = popupService;
         _localContext = localContext;
 
-        // Profile Picture to Stream Convert (error in logic. null exception)
-        // We should instead give a default profile picture to any user generated rather than store locally
-        /*
-        var profilePicture = _authenticationService.CurrentUser?.ProfilePicture != null
-            ? ImageSource.FromStream(() => new MemoryStream(_authenticationService.CurrentUser.ProfilePicture))
-            : "pfp_default.jpg";
-        */
-
-        #region Pet FlexLayout Population
-        PetsFlexLayout = new FlexLayout
+        // Set bindable properties with images
+        AvatarView profilePicture = new AvatarView
         {
-            Direction = FlexDirection.Row,
-            Wrap = FlexWrap.Wrap,
-            JustifyContent = FlexJustify.SpaceEvenly,
-            AlignItems = FlexAlignItems.Center,
-            AlignContent = FlexAlignContent.Center,
-            BackgroundColor = Colors.LightSlateGray
-        };
-
-        foreach (var pet in _authenticationService.CurrentUser?.Pets)
-        {
-            var petImage = new Image
-            {
-                Source = new ByteArrayToImageSourceConverter().ConvertFrom(pet.Pet?.Image),
-                HeightRequest = 40,
-                WidthRequest = 40
-            };
-
-            PetsFlexLayout.Children.Add(petImage);
+            CornerRadius = 63,
+            HeightRequest = 126,
+            WidthRequest = 126
         }
-        #endregion
+        .Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+        profilePicture.BindingContext = _authenticationService.CurrentUser;
 
-        #region Badge FlexLayout Population
-        BadgeFlexLayout = new FlexLayout
-        {
-            Direction = FlexDirection.Row,
-            Wrap = FlexWrap.Wrap,
-            JustifyContent = FlexJustify.SpaceEvenly,
-            AlignItems = FlexAlignItems.Center,
-            AlignContent = FlexAlignContent.Center,
-            BackgroundColor = Colors.LightSlateGray
-        };
-
-        foreach (var badge in _authenticationService.CurrentUser?.Badges)
-        {
-            var badgeImage = new Image
-            {
-                //Source = new ByteArrayToImageSourceConverter().ConvertFrom(badge.Badge.Image),
-                Source = "dotnet_bot.png",
-                HeightRequest = 40,
-                WidthRequest = 40
-            };
-
-            BadgeFlexLayout.Children.Add(badgeImage);
-        }
-        #endregion
-
-        // Using grids
         Content = new Grid
         {
             // Define the length of the rows & columns
-            ColumnDefinitions = Columns.Define(60, 100, 60, Star),
-            RowDefinitions = Rows.Define(Star, Star, Star, Star, Star, Star),
+            RowDefinitions = Rows.Define(
+                (PageRow.ProfilePicture, Stars(0.75)),
+                (PageRow.FormFields, Stars(2)),
+                (PageRow.TabBarSpace, Stars(0.25))
+                ),
+            ColumnDefinitions = Columns.Define(
+                (PageColumn.Left, Stars(1)),
+                (PageColumn.Right, Stars(1))
+                ),
             BackgroundColor = AppStyles.Palette.LightMauve,
 
             Children =
@@ -108,62 +69,48 @@ internal class ProfilePageEdit : BasePage
                 }
                 .Left()
                 .Top()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Column(0)
-                .Row(0)
                 // When clicked, go to timer view
                 .Invoke(button => button.Released += (sender, eventArgs) =>
                     BackButtonClicked(sender, eventArgs)),
 
                 // Profile Picture
-                new Frame
-                {
-                    HeightRequest = 90,
-                    WidthRequest = 90,
-                    BackgroundColor = Colors.Transparent,
-                    VerticalOptions = LayoutOptions.Center,
-                    CornerRadius = 50,
-                    Content = new Image
-                    {
-                        // TODO Replace logic with user profile called from DB
-                        Source = "pfp_default.jpg",
-                        HeightRequest = 100,
-                        WidthRequest = 100
-                    }
+                profilePicture
+                .Row(PageRow.ProfilePicture)
+                .Column(PageColumn.Right)
+                .Center(),
+
+                new Button
+                { 
+                    Text = SolidIcons.Plus,
+                    TextColor = Colors.Black,
+                    FontSize = 30,
+                    Opacity = 0.35,
+                    CornerRadius = 63,
+                    WidthRequest = 126,
+                    HeightRequest = 126,
+                    BackgroundColor = Colors.LightGray
                 }
-                .Column(1)
-                .Row(0)
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Left()
-                .CenterVertical(),
+                .Row(PageRow.ProfilePicture)
+                .Column(PageColumn.Right)
+                .Center(),
 
                 // Profile Info
                 new StackLayout
                 {
-                    Spacing = 10,
+                    Spacing = 50,
                     Children =
                     {
-                        new Label { Text = $"@{_authenticationService.CurrentUser?.Email}"},
-                        new Label { Text = $"Name: {_authenticationService.CurrentUser?.FirstName}"},
-                        new Label { Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}"}
+                        new Label { Text = $"#{_authenticationService.CurrentUser?.Email}", FontSize = 30 },
+                        new Entry { Placeholder = "Username" },
+                        new Entry { Placeholder = "Pronouns" },
+                        new Entry { Placeholder = "First Name" },
+                        new Entry { Placeholder = "Last Name" },
                     }
                 }
-                .Row(0)
-                .Column(3)
+                .Row(PageRow.FormFields)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 .Left()
                 .FillHorizontal(),
-
-                // Date Joined
-                new Label
-                {
-                    Text = $"Member Since: {_authenticationService.CurrentUser?.DateCreated.ToShortDateString()}",
-                    TextColor = Colors.Black,
-                    FontSize = 20
-                }
-                .Row(4)
-                .Column(0)
-                .ColumnSpan(6)
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
             }
         };
     }
