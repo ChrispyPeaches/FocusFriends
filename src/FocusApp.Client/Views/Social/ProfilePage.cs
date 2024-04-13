@@ -23,7 +23,7 @@ internal class ProfilePage : BasePage
     FocusAppContext _localContext;
 
     // Row / Column structure for entire page
-    enum PageRow { UserDataHeader, SelectedItems, MembershipDate, TabBarSpace }
+    enum PageRow { UserDataHeader, Spacing, SelectedItems, MembershipDate, TabBarSpace }
     enum PageColumn { Left, Right }
 
     // Row / Column structure for user data header
@@ -43,6 +43,7 @@ internal class ProfilePage : BasePage
 
         //Shared.Models.User? localUser = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
 
+        // Set bindable properties
         AvatarView profilePicture = new AvatarView
         {
             CornerRadius = 63,
@@ -52,10 +53,43 @@ internal class ProfilePage : BasePage
         .Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
         profilePicture.BindingContext = _authenticationService.CurrentUser;
 
+        ImageButton selectedPet = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        selectedPet.BindingContext = _authenticationService.CurrentUser?.SelectedPet;
+
+        ImageButton selectedIsland = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        selectedIsland.BindingContext = _authenticationService.CurrentUser?.SelectedIsland;
+
+        ImageButton selectedDecor = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedFurniture;
+
+        ImageButton selectedBadge = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter());
+        selectedBadge.BindingContext = _authenticationService.CurrentUser?.SelectedBadge;
+
         Content = new Grid
         {
             RowDefinitions = Rows.Define(
-                (PageRow.UserDataHeader, Stars(1.25)),
+                (PageRow.UserDataHeader, Stars(1)),
+                (PageRow.Spacing, Stars(0.25)),
                 (PageRow.SelectedItems, Stars(2)),
                 (PageRow.MembershipDate, Stars(0.5)),
                 (PageRow.TabBarSpace, Stars(0.5))
@@ -177,7 +211,7 @@ internal class ProfilePage : BasePage
                         ),
                     Children =
                     {
-                        // Selected pet cell
+                        /* Selected pet cell */
                         new Label
                         {
                             Text = "Selected Pet",
@@ -189,18 +223,16 @@ internal class ProfilePage : BasePage
                         .Top()
                         .CenterHorizontal()
                         .Margins(top: 15),
-                        new Image
-                        { 
-                            Source = new FileImageSource { File = "pet_franklin.jpg" },
-                            HeightRequest = 125,
-                            WidthRequest = 125
-                        }
+
+                        // Selected pet image button
+                        selectedPet
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Left)
                         .Center(),
+
                         new Label
                         { 
-                            Text = "Pet Name",
+                            Text = $"{_authenticationService.CurrentUser?.SelectedPet?.Name}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Top)
@@ -209,7 +241,7 @@ internal class ProfilePage : BasePage
                         .CenterHorizontal()
                         .Margins(bottom: 15),
 
-                        // Selected Island cell
+                        /* Selected Island cell */
                         new Label
                         {
                             Text = "Selected Island",
@@ -221,18 +253,16 @@ internal class ProfilePage : BasePage
                         .Top()
                         .CenterHorizontal()
                         .Margins(top: 15),
-                        new Image
-                        {
-                            Source = new FileImageSource { File = "pet_franklin.jpg" },
-                            HeightRequest = 125,
-                            WidthRequest = 125
-                        }
+
+                        // Selected island image button
+                        selectedIsland
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Right)
                         .Center(),
+
                         new Label
                         {
-                            Text = "Island Name",
+                            Text = $"{_authenticationService.CurrentUser?.SelectedIsland?.Name}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Top)
@@ -241,7 +271,7 @@ internal class ProfilePage : BasePage
                         .CenterHorizontal()
                         .Margins(bottom: 15),
 
-                        // Selected Decor cell
+                        /* Selected Decor cell */
                         new Label
                         {
                             Text = "Selected Decor",
@@ -253,18 +283,16 @@ internal class ProfilePage : BasePage
                         .Top()
                         .CenterHorizontal()
                         .Margins(top: 15),
-                        new Image
-                        {
-                            Source = new FileImageSource { File = "pet_franklin.jpg" },
-                            HeightRequest = 125,
-                            WidthRequest = 125
-                        }
+
+                        // Selected decor image button
+                        selectedDecor
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Left)
                         .Center(),
+
                         new Label
                         {
-                            Text = "Decor Name",
+                            Text = $"{_authenticationService.CurrentUser?.SelectedFurniture?.Name}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Bottom)
@@ -273,7 +301,7 @@ internal class ProfilePage : BasePage
                         .CenterHorizontal()
                         .Margins(bottom: 15),
 
-                        // Selected Badge cell
+                        /* Selected Badge cell */
                         new Label
                         {
                             Text = "Selected Badge",
@@ -285,18 +313,16 @@ internal class ProfilePage : BasePage
                         .Top()
                         .CenterHorizontal()
                         .Margins(top: 15),
-                        new Image
-                        {
-                            Source = new FileImageSource { File = "pet_franklin.jpg" },
-                            HeightRequest = 125,
-                            WidthRequest = 125
-                        }
+                        
+                        // Selected badge image button
+                        selectedBadge
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Right)
                         .Center(),
+
                         new Label
                         {
-                            Text = "Badge Name",
+                            Text = $"{_authenticationService.CurrentUser?.SelectedFurniture?.Name}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Bottom)
@@ -305,7 +331,7 @@ internal class ProfilePage : BasePage
                         .CenterHorizontal()
                         .Margins(bottom: 15),
 
-                        // Dividers for the grid sections
+                        // Dividers for the selected item grid sections
                         new BoxView
                         {
                             Color = Colors.Black,
@@ -326,7 +352,6 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Left)
                         .Right()
                         .Margins(top: 50, bottom: 50)
-                        //.Margins(top: 60, bottom: 60)
                     } 
                     
                 }
