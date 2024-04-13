@@ -9,19 +9,29 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Shared.Data;
 using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using Microsoft.EntityFrameworkCore;
+using CommunityToolkit.Maui.Views;
 
 
 namespace FocusApp.Client.Views.Social;
 
 internal class ProfilePage : BasePage
 {
-    public FlexLayout PetsFlexLayout { get; set; }
-    public FlexLayout BadgeFlexLayout { get; set; }
-
     IAPIClient _client;
     IAuthenticationService _authenticationService;
     PopupService _popupService;
     FocusAppContext _localContext;
+
+    // Row / Column structure for entire page
+    enum PageRow { UserDataHeader, SelectedItems, MembershipDate, TabBarSpace }
+    enum PageColumn { Left, Right }
+
+    // Row / Column structure for user data header
+    enum UserDataRow { UserEmail, UserName, UserPronouns }
+    enum UserDataColumn { Data, EditButton }
+
+    // Row structure for selected user items
+    enum SelectedItemRow { Top, Bottom }
 
     #region Frontend
     public ProfilePage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext) 
@@ -31,69 +41,29 @@ internal class ProfilePage : BasePage
         _popupService = popupService;
         _localContext = localContext;
 
-        // Profile Picture to Stream Convert (error in logic. null exception)
-        // We should instead give a default profile picture to any user generated rather than store locally
-        /*
-        var profilePicture = _authenticationService.CurrentUser?.ProfilePicture != null
-            ? ImageSource.FromStream(() => new MemoryStream(_authenticationService.CurrentUser.ProfilePicture))
-            : "pfp_default.jpg";
-        */
+        //Shared.Models.User? localUser = _localContext.Users.First(u => u.Id == _authenticationService.CurrentUser.Id);
 
-        #region Pet FlexLayout Population
-        PetsFlexLayout = new FlexLayout
+        AvatarView profilePicture = new AvatarView
         {
-            Direction = FlexDirection.Row,
-            Wrap = FlexWrap.Wrap,
-            JustifyContent = FlexJustify.SpaceEvenly,
-            AlignItems = FlexAlignItems.Center,
-            AlignContent = FlexAlignContent.Center,
-            BackgroundColor = Colors.LightSlateGray
-        };
-
-        foreach (var pet in _authenticationService.CurrentUser?.Pets)
-        {
-            var petImage = new Image
-            {
-                Source = new ByteArrayToImageSourceConverter().ConvertFrom(pet.Pet?.Image),
-                HeightRequest = 40,
-                WidthRequest = 40
-            };
-
-            PetsFlexLayout.Children.Add(petImage);
+            CornerRadius = 63,
+            HeightRequest = 126,
+            WidthRequest = 126
         }
-        #endregion
+        .Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
+        profilePicture.BindingContext = _authenticationService.CurrentUser;
 
-        #region Badge FlexLayout Population
-        BadgeFlexLayout = new FlexLayout
-        {
-            Direction = FlexDirection.Row,
-            Wrap = FlexWrap.Wrap,
-            JustifyContent = FlexJustify.SpaceEvenly,
-            AlignItems = FlexAlignItems.Center,
-            AlignContent = FlexAlignContent.Center,
-            BackgroundColor = Colors.LightSlateGray
-        };
-
-        foreach (var badge in _authenticationService.CurrentUser?.Badges)
-        {
-            var badgeImage = new Image
-            {
-                //Source = new ByteArrayToImageSourceConverter().ConvertFrom(badge.Badge.Image),
-                Source = "dotnet_bot.png",
-                HeightRequest = 40,
-                WidthRequest = 40
-            };
-
-            BadgeFlexLayout.Children.Add(badgeImage);
-        }
-        #endregion
-
-        // Using grids
         Content = new Grid
         {
-            // Define the length of the rows & columns
-            ColumnDefinitions = Columns.Define(60, 100, 60, Star),
-            RowDefinitions = Rows.Define(Star, Star, Star, Star, Star, Star),
+            RowDefinitions = Rows.Define(
+                (PageRow.UserDataHeader, Stars(1.25)),
+                (PageRow.SelectedItems, Stars(2)),
+                (PageRow.MembershipDate, Stars(0.5)),
+                (PageRow.TabBarSpace, Stars(0.5))
+                ),
+            ColumnDefinitions = Columns.Define(
+                (PageColumn.Left, Stars(1)),
+                (PageColumn.Right, Stars(1))
+                ),
             BackgroundColor = AppStyles.Palette.LightMauve,
 
             Children =
@@ -109,82 +79,259 @@ internal class ProfilePage : BasePage
                 }
                 .Left()
                 .Top()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Column(0)
-                .Row(0)
+                .Row(PageRow.UserDataHeader)
                 // When clicked, go to timer view
                 .Invoke(button => button.Released += (sender, eventArgs) =>
                     BackButtonClicked(sender, eventArgs)),
 
                 // Profile Picture
-                new Frame
-                {
-                    HeightRequest = 90,
-                    WidthRequest = 90,
-                    BackgroundColor = Colors.Transparent,
-                    VerticalOptions = LayoutOptions.Center,
-                    CornerRadius = 50,
-                    Content = new Image
-                    {
-                        // TODO Replace logic with user profile called from DB
-                        Source = "pfp_default.jpg",
-                        HeightRequest = 100,
-                        WidthRequest = 100
-                    }
-                }
-                .Column(1)
-                .Row(0)
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Left()
-                .CenterVertical(),
+                profilePicture
+                .Column(PageColumn.Left)
+                .Row(PageRow.UserDataHeader)
+                .CenterVertical()
+                .CenterHorizontal(),
 
                 // Profile Info
-                new StackLayout
+                new Grid
                 {
-                    Spacing = 10,
+                    RowDefinitions = Rows.Define(
+                        (UserDataRow.UserEmail, Stars(1)),
+                        (UserDataRow.UserName, Stars(1.5)),
+                        (UserDataRow.UserPronouns, Stars(1))
+                        ),
+                    ColumnDefinitions = Columns.Define(
+                        (UserDataColumn.Data, Stars(2)),
+                        (UserDataColumn.EditButton, Stars(0.75))
+                        ),
                     Children =
                     {
-                        new Label { Text = $"@{_authenticationService.CurrentUser?.Email}"},
-                        new Label { Text = $"Name: {_authenticationService.CurrentUser?.FirstName}"},
-                        new Label { Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}"}
+                        new Label 
+                        { 
+                            Text = $"#{_authenticationService.CurrentUser?.Email}", 
+                            FontSize = 15
+                        }
+                        .Row(UserDataRow.UserEmail)
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
+                        .Bottom()
+                        .Left(),
+                        new Label 
+                        { 
+                            Text = $"{_authenticationService.CurrentUser?.UserName}", 
+                            FontSize = 25
+                        }
+                        .Row(UserDataRow.UserName)
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
+                        .CenterVertical()
+                        .Left(),
+                        new Label 
+                        { 
+                            Text = $"Pronouns: he/they{_authenticationService.CurrentUser?.Pronouns}",
+                            FontSize = 15
+                        }
+                        .Row(UserDataRow.UserPronouns)
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
+                        .Top()
+                        .Left(),
+                        // Edit Profile Button
+                        new Button
+                        {
+                             Text = SolidIcons.PenToSquare,
+                             TextColor = Colors.Black,
+                             FontFamily = nameof(SolidIcons),
+                             FontSize = 20,
+                             BackgroundColor = Colors.Transparent
+                        }
+                        .Row(UserDataRow.UserPronouns)
+                        .Column(UserDataColumn.EditButton)
+                        .Top()
+                        // When clicked, go to timer view
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            EditButtonClicked(sender, eventArgs))
                     }
                 }
-                .Row(0)
-                .Column(3)
-                .Left()
-                .FillHorizontal(),
+                .Row(PageRow.UserDataHeader)
+                .Column(PageColumn.Right),
 
-                // Edit Profile Button
-                new Button
+                // Horizontal divider separating user data from selected item data
+                new BoxView
                 {
-                     Text = SolidIcons.PenToSquare,
-                     TextColor = Colors.Black,
-                     FontFamily = nameof(SolidIcons),
-                     FontSize = 20,
-                     BackgroundColor = Colors.Transparent
+                    Color = Colors.Black,
+                    HeightRequest = 2,
+                    Opacity = 0.5
                 }
-                .Left()
+                .Row(PageRow.UserDataHeader)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 .Bottom()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .Column(2)
-                .Row(0)
-                // When clicked, go to timer view
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    EditButtonClicked(sender, eventArgs)),
+                .Margins(bottom: 15),
 
-                // User Pets
-                PetsFlexLayout
-                .Row(2)
-                .Column(0)
-                .ColumnSpan(6)
-                .Left(),
 
-                // User Badges
-                BadgeFlexLayout
-                .Row(3)
-                .Column(0)
-                .ColumnSpan(6)
-                .Left(),
+                new Grid
+                { 
+                    RowDefinitions = Rows.Define(
+                        (SelectedItemRow.Top, Stars(1)),
+                        (SelectedItemRow.Bottom, Stars(1))
+                        ),
+                    ColumnDefinitions = Columns.Define(
+                        (PageColumn.Left, Stars(1)),
+                        (PageColumn.Right, Stars(1))
+                        ),
+                    Children =
+                    {
+                        // Selected pet cell
+                        new Label
+                        {
+                            Text = "Selected Pet",
+                            FontSize = 15,
+                            Opacity = 0.5
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .Column(PageColumn.Left)
+                        .Top()
+                        .CenterHorizontal()
+                        .Margins(top: 15),
+                        new Image
+                        { 
+                            Source = new FileImageSource { File = "pet_franklin.jpg" },
+                            HeightRequest = 125,
+                            WidthRequest = 125
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .Column(PageColumn.Left)
+                        .Center(),
+                        new Label
+                        { 
+                            Text = "Pet Name",
+                            FontSize = 15
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .Column(PageColumn.Left)
+                        .Bottom()
+                        .CenterHorizontal()
+                        .Margins(bottom: 15),
+
+                        // Selected Island cell
+                        new Label
+                        {
+                            Text = "Selected Island",
+                            FontSize = 15,
+                            Opacity = 0.5
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .Column(PageColumn.Right)
+                        .Top()
+                        .CenterHorizontal()
+                        .Margins(top: 15),
+                        new Image
+                        {
+                            Source = new FileImageSource { File = "pet_franklin.jpg" },
+                            HeightRequest = 125,
+                            WidthRequest = 125
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .Column(PageColumn.Right)
+                        .Center(),
+                        new Label
+                        {
+                            Text = "Island Name",
+                            FontSize = 15
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .Column(PageColumn.Right)
+                        .Bottom()
+                        .CenterHorizontal()
+                        .Margins(bottom: 15),
+
+                        // Selected Decor cell
+                        new Label
+                        {
+                            Text = "Selected Decor",
+                            FontSize = 15,
+                            Opacity = 0.5
+                        }
+                        .Row(SelectedItemRow.Bottom)
+                        .Column(PageColumn.Left)
+                        .Top()
+                        .CenterHorizontal()
+                        .Margins(top: 15),
+                        new Image
+                        {
+                            Source = new FileImageSource { File = "pet_franklin.jpg" },
+                            HeightRequest = 125,
+                            WidthRequest = 125
+                        }
+                        .Row(SelectedItemRow.Bottom)
+                        .Column(PageColumn.Left)
+                        .Center(),
+                        new Label
+                        {
+                            Text = "Decor Name",
+                            FontSize = 15
+                        }
+                        .Row(SelectedItemRow.Bottom)
+                        .Column(PageColumn.Left)
+                        .Bottom()
+                        .CenterHorizontal()
+                        .Margins(bottom: 15),
+
+                        // Selected Badge cell
+                        new Label
+                        {
+                            Text = "Selected Badge",
+                            FontSize = 15,
+                            Opacity = 0.5
+                        }
+                        .Row(SelectedItemRow.Bottom)
+                        .Column(PageColumn.Right)
+                        .Top()
+                        .CenterHorizontal()
+                        .Margins(top: 15),
+                        new Image
+                        {
+                            Source = new FileImageSource { File = "pet_franklin.jpg" },
+                            HeightRequest = 125,
+                            WidthRequest = 125
+                        }
+                        .Row(SelectedItemRow.Bottom)
+                        .Column(PageColumn.Right)
+                        .Center(),
+                        new Label
+                        {
+                            Text = "Badge Name",
+                            FontSize = 15
+                        }
+                        .Row(SelectedItemRow.Bottom)
+                        .Column(PageColumn.Right)
+                        .Bottom()
+                        .CenterHorizontal()
+                        .Margins(bottom: 15),
+
+                        // Dividers for the grid sections
+                        new BoxView
+                        {
+                            Color = Colors.Black,
+                            HeightRequest = 2,
+                            Opacity = 0.5
+                        }
+                        .Row(SelectedItemRow.Top)
+                        .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                        .Bottom()
+                        .Margins(left: 50, right: 50),
+                        new BoxView
+                        {
+                            Color = Colors.Black,
+                            WidthRequest = 2,
+                            Opacity = 0.5
+                        }
+                        .RowSpan(typeof(SelectedItemRow).GetEnumNames().Length)
+                        .Column(PageColumn.Left)
+                        .Right()
+                        .Margins(top: 50, bottom: 50)
+                        //.Margins(top: 60, bottom: 60)
+                    } 
+                    
+                }
+                .Row(PageRow.SelectedItems)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
 
                 // Date Joined
                 new Label
@@ -193,10 +340,10 @@ internal class ProfilePage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 20
                 }
-                .Row(4)
-                .Column(0)
-                .ColumnSpan(6)
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                .Row(PageRow.MembershipDate)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                .CenterVertical()
+                .CenterHorizontal()
             }
         };
     }
