@@ -28,7 +28,7 @@ internal class ProfilePage : BasePage
 
     // Row / Column structure for user data header
     enum UserDataRow { UserEmail, UserName, UserPronouns }
-    enum UserDataColumn { Data, EditButton }
+    enum UserDataColumn { Data, UtilityButtons }
 
     // Row structure for selected user items
     enum SelectedItemRow { Top, Bottom }
@@ -141,7 +141,7 @@ internal class ProfilePage : BasePage
                         ),
                     ColumnDefinitions = Columns.Define(
                         (UserDataColumn.Data, Stars(2)),
-                        (UserDataColumn.EditButton, Stars(0.75))
+                        (UserDataColumn.UtilityButtons, Stars(0.75))
                         ),
                     Children =
                     {
@@ -164,7 +164,7 @@ internal class ProfilePage : BasePage
                              BackgroundColor = Colors.Transparent
                         }
                         .Row(UserDataRow.UserEmail)
-                        .Column(UserDataColumn.EditButton)
+                        .Column(UserDataColumn.UtilityButtons)
                         .CenterVertical()
                         .CenterHorizontal()
                         .Invoke(button => button.Released += (sender, eventArgs) =>
@@ -198,7 +198,7 @@ internal class ProfilePage : BasePage
                              BackgroundColor = Colors.Transparent
                         }
                         .Row(UserDataRow.UserPronouns)
-                        .Column(UserDataColumn.EditButton)
+                        .Column(UserDataColumn.UtilityButtons)
                         .Top()
                         .CenterHorizontal()
                         // When clicked, go to edit profile view
