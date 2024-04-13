@@ -64,9 +64,22 @@ internal class Program
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+        // Create types for generic SyncItems MediatR query
         builder.Services.AddTransient(
             typeof(IRequestHandler<Query<MindfulnessTip>, Response<MindfulnessTip>>),
             typeof(Handler<MindfulnessTip>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Badge>, Response<Badge>>),
+            typeof(Handler<Badge>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Pet>, Response<Pet>>),
+            typeof(Handler<Pet>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Furniture>, Response<Furniture>>),
+            typeof(Handler<Furniture>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Island>, Response<Island>>),
+            typeof(Handler<Island>));
 
     }
 

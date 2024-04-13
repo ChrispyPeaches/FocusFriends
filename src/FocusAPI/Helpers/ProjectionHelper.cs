@@ -113,5 +113,23 @@ public static class ProjectionHelper
             SessionRatingLevel = tip.SessionRatingLevel,
             Title = tip.Title
         };
+
+    public static BaseBadge ProjectToBaseBadge(Badge badge) =>
+        new()
+        {
+            Id = badge.Id,
+            Name = badge.Name,
+            Image = badge.Image
+        };
+
+    public static BaseFurniture ProjectToBaseFurniture(Furniture furniture) =>
+        new()
+        {
+            Id = furniture.Id,
+            Name = furniture.Name,
+            Image = furniture.Image,
+            Price = furniture.Price,
+            HeightRequest = furniture.HeightRequest
+        };
 }
 

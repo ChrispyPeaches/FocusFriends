@@ -22,43 +22,172 @@ namespace FocusAPI.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>
-        /// Feature: <see cref="SyncMindfulnessTips"/>
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <summary> Feature: <see cref="SyncItems"/> </summary>
         [HttpPost]
         [Route("MindfulnessTips")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<SyncMindfulnessTipsResponse>> MindfulnessTips(
-            [FromBody] SyncMindfulnessTipsQuery query,
+        public async Task<ActionResult<SyncItemResponse<BaseMindfulnessTip>>> MindfulnessTips(
+            [FromBody] SyncItemsQuery query,
             CancellationToken cancellationToken)
         {
             try
             {
-                //SyncMindfulnessTipsResponse result = await _mediator.Send(query, cancellationToken);
-                var result1 = await _mediator.Send(new SyncItems.Query<MindfulnessTip>()
-                {
-                    ItemIds = query.MindfulnessTipIds
-                },
-                cancellationToken);
+                var result = await _mediator.Send(
+                    new SyncItems.Query<MindfulnessTip>
+                    {
+                        ItemIds = query.ItemIds
+                    },
+                    cancellationToken);
 
-                return Ok(new SyncMindfulnessTipsResponse()
-                {
-                    MissingTips = result1.MissingItems
-                        .Select(ProjectionHelper.ProjectToBaseMindfulnessTip)
-                        .ToList()
-                });
+                return Ok(
+                    new SyncItemResponse<BaseMindfulnessTip>
+                    {
+                        MissingItems = result.MissingItems
+                            .Select(ProjectionHelper.ProjectToBaseMindfulnessTip)
+                            .ToList()
+                    });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting mindfulness tip ids");
+                _logger.LogError(ex, "Error syncing mindfulness tips");
                 return StatusCode(500);
             }
         }
 
+        /// <summary> Feature: <see cref="SyncItems"/> </summary>
+        [HttpPost]
+        [Route("Badges")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<SyncItemResponse<BaseBadge>>> Badges(
+            [FromBody] SyncItemsQuery query,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _mediator.Send(
+                    new SyncItems.Query<Badge>
+                    {
+                        ItemIds = query.ItemIds
+                    },
+                    cancellationToken);
+
+                return Ok(
+                    new SyncItemResponse<BaseBadge>
+                    {
+                        MissingItems = result.MissingItems
+                            .Select(ProjectionHelper.ProjectToBaseBadge)
+                            .ToList()
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing badges");
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary> Feature: <see cref="SyncItems"/> </summary>
+        [HttpPost]
+        [Route("Pets")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<SyncItemResponse<BasePet>>> Pets(
+            [FromBody] SyncItemsQuery query,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _mediator.Send(
+                    new SyncItems.Query<Pet>
+                    {
+                        ItemIds = query.ItemIds
+                    },
+                    cancellationToken);
+
+                return Ok(
+                    new SyncItemResponse<BasePet>
+                    {
+                        MissingItems = result.MissingItems
+                            .Select(ProjectionHelper.ProjectToBasePet)
+                            .ToList()
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing pets");
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary> Feature: <see cref="SyncItems"/> </summary>
+        [HttpPost]
+        [Route("Decor")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<SyncItemResponse<BaseFurniture>>> Decor(
+            [FromBody] SyncItemsQuery query,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _mediator.Send(
+                    new SyncItems.Query<Furniture>
+                    {
+                        ItemIds = query.ItemIds
+                    },
+                    cancellationToken);
+
+                return Ok(
+                    new SyncItemResponse<BaseFurniture>
+                    {
+                        MissingItems = result.MissingItems
+                            .Select(ProjectionHelper.ProjectToBaseFurniture)
+                            .ToList()
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing decor");
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary> Feature: <see cref="SyncItems"/> </summary>
+        [HttpPost]
+        [Route("Islands")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<SyncItemResponse<BaseIsland>>> Islands(
+            [FromBody] SyncItemsQuery query,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _mediator.Send(
+                    new SyncItems.Query<Island>
+                    {
+                        ItemIds = query.ItemIds
+                    },
+                    cancellationToken);
+
+                return Ok(
+                    new SyncItemResponse<BaseIsland>
+                    {
+                        MissingItems = result.MissingItems
+                            .Select(ProjectionHelper.ProjectToBaseIsland)
+                            .ToList()
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing islands");
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary> Feature: <see cref="SyncInitialData"/> </summary>
         [HttpPost]
         [Route("InitialData")]
         [ProducesResponseType(StatusCodes.Status200OK)]

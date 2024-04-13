@@ -1,5 +1,5 @@
-﻿using FocusApp.Shared.Models;
-using FocusCore.Commands.User;
+﻿using FocusCore.Commands.User;
+using FocusCore.Models;
 using FocusCore.Queries.Leaderboard;
 using FocusCore.Queries.Shop;
 using FocusCore.Queries.Sync;
@@ -8,6 +8,7 @@ using FocusCore.Responses.Leaderboard;
 using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
 using Refit;
+using ShopItem = FocusApp.Shared.Models.ShopItem;
 
 namespace FocusApp.Client.Clients;
 public interface IAPIClient
@@ -62,8 +63,28 @@ public interface IAPIClient
     #region Sync
 
     [Post("/Sync/MindfulnessTips")]
-    Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
-        [Body] SyncMindfulnessTipsQuery query,
+    Task<SyncItemResponse<BaseMindfulnessTip>> SyncMindfulnessTips(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken);
+
+    [Post("/Sync/Badges")]
+    Task<SyncItemResponse<BaseMindfulnessTip>> SyncBadges(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken);
+
+    [Post("/Sync/Pets")]
+    Task<SyncItemResponse<BasePet>> SyncPets(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken);
+
+    [Post("/Sync/Decor")]
+    Task<SyncItemResponse<BaseFurniture>> SyncDecor(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken);
+
+    [Post("/Sync/Islands")]
+    Task<SyncItemResponse<BaseIsland>> SyncIslands(
+        [Body] SyncItemsQuery query,
         CancellationToken cancellationToken);
 
     [Post("/Sync/InitialData")]

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using FocusApp.Client.Clients;
 using FocusApp.Shared.Data;
+using FocusCore.Models;
 using FocusCore.Queries.Sync;
 using FocusCore.Responses.Sync;
 
@@ -56,13 +57,13 @@ namespace FocusApp.Client.Methods.Sync
                 List<Guid> mobileTipIds,
                 CancellationToken cancellationToken)
             {
-                SyncMindfulnessTipsResponse response;
+                SyncItemResponse<BaseMindfulnessTip> response;
                 try
                 {
                     response = await _client.SyncMindfulnessTips(
-                        new SyncMindfulnessTipsQuery()
+                        new SyncItemsQuery
                         {
-                            MindfulnessTipIds = mobileTipIds
+                            ItemIds = mobileTipIds
                         }
                         , cancellationToken);
                 }
@@ -71,7 +72,7 @@ namespace FocusApp.Client.Methods.Sync
                     throw new Exception("Error when gathering tips to add from the API.", ex);
                 }
 
-                return response.MissingTips
+                return response.MissingItems
                     .Select(tip => new Shared.Models.MindfulnessTip()
                     {
                         Id = tip.Id,
@@ -80,8 +81,6 @@ namespace FocusApp.Client.Methods.Sync
                         SessionRatingLevel = tip.SessionRatingLevel
                     })
                     .ToList();
-
-                
             }
 
             private async Task AddNewTipsToMobileDb(

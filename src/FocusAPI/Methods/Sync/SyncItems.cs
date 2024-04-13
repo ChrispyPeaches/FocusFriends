@@ -3,20 +3,19 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using FocusCore.Models;
+using FocusCore.Queries.Sync;
 
 namespace FocusAPI.Methods.Sync;
 
 public class SyncItems
 {
-    public class Query<TItem> : IRequest<Response<TItem>> 
+    public class Query<TItem> : SyncItemsQuery, IRequest<Response<TItem>> 
         where TItem : class, ISyncEntity
-    {
-        public IList<Guid> ItemIds { get; set; }
-    }
+    { }
 
-    public class Response<TBaseItem>
+    public class Response<TItem>
     {
-        public IList<TBaseItem> MissingItems { get; set; }
+        public IList<TItem> MissingItems { get; set; }
     }
 
     public class Validator<TItem> : AbstractValidator<Query<TItem>>
