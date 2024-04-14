@@ -88,7 +88,7 @@ public static class ProjectionHelper
         };
 
     public static BaseIsland ProjectToBaseIsland(Island island) =>
-        new()
+        new BaseIsland
         {
             Id = island.Id,
             Name = island.Name,
@@ -97,7 +97,7 @@ public static class ProjectionHelper
         };
 
     public static Island ProjectFromBaseIsland(BaseIsland island) =>
-        new()
+        new Island
         {
             Id = island.Id,
             Name = island.Name,
@@ -105,7 +105,41 @@ public static class ProjectionHelper
             Price = island.Price
         };
 
-    public static Furniture ProjectionFromBaseDecor(BaseFurniture furniture) =>
+    public static BaseMindfulnessTip ProjectToBaseMindfulnessTip(MindfulnessTip tip) =>
+        new()
+        {
+            Id = tip.Id,
+            Content = tip.Content,
+            SessionRatingLevel = tip.SessionRatingLevel,
+            Title = tip.Title
+        };
+
+    public static MindfulnessTip ProjectFromBaseMindfulnessTip(BaseMindfulnessTip tip) =>
+        new()
+        {
+            Id = tip.Id,
+            Content = tip.Content,
+            SessionRatingLevel = tip.SessionRatingLevel,
+            Title = tip.Title
+        };
+
+    public static BaseBadge ProjectToBaseBadge(Badge badge) =>
+        new()
+        {
+            Id = badge.Id,
+            Name = badge.Name,
+            Image = badge.Image
+        };
+
+    public static Badge ProjectFromBaseBadge(BaseBadge badge) =>
+        new()
+        {
+            Id = badge.Id,
+            Name = badge.Name,
+            Image = badge.Image
+        };
+
+    public static BaseFurniture ProjectToBaseFurniture(Furniture furniture) =>
         new()
         {
             Id = furniture.Id,
@@ -115,7 +149,7 @@ public static class ProjectionHelper
             HeightRequest = furniture.HeightRequest
         };
 
-    public static BaseFurniture ProjectToBaseDecor(Furniture furniture) =>
+    public static Furniture ProjectFromBaseFurniture(BaseFurniture furniture) =>
         new()
         {
             Id = furniture.Id,

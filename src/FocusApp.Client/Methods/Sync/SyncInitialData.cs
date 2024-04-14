@@ -74,7 +74,7 @@ namespace FocusApp.Client.Methods.Sync
                         {
                             await AddItemToMobileDb(
                                 _context.Furniture,
-                                ProjectionHelper.ProjectionFromBaseDecor(response.Decor),
+                                ProjectionHelper.ProjectFromBaseFurniture(response.Decor),
                                 cancellationToken);
                         }
 

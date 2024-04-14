@@ -68,7 +68,7 @@ public interface IAPIClient
         CancellationToken cancellationToken);
 
     [Post("/Sync/Badges")]
-    Task<SyncItemResponse<BaseMindfulnessTip>> SyncBadges(
+    Task<SyncItemResponse<BaseBadge>> SyncBadges(
         [Body] SyncItemsQuery query,
         CancellationToken cancellationToken);
 

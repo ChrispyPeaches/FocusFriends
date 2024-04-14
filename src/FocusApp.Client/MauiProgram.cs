@@ -55,7 +55,7 @@ namespace FocusApp.Client
                 PostLogoutRedirectUri = "myapp://callback",
                 Scope = "openid profile email"
             }));
-
+            
             #region Logic Run on Startup
             
             Task.Run(() => RunStartupLogic(builder.Services));
@@ -156,10 +156,7 @@ namespace FocusApp.Client
                     .ServiceProvider;
                 _ = scopedServiceProvider.GetRequiredService<FocusAppContext>();
 
-                var startupSyncTask = Task.Run(() => StartupSync(services));
-                var initialDatabasePopulateTask = Task.Run(() => InitialPopulateDatabase(services));
-
-                await Task.WhenAll([startupSyncTask, initialDatabasePopulateTask]);
+                await Task.Run(() => StartupSync(services));
             }
             catch (Exception ex)
             {
@@ -176,14 +173,24 @@ namespace FocusApp.Client
         {
             try
             {
-                var serviceProvider = services
-                    .BuildServiceProvider()
-                    .CreateScope()
-                    .ServiceProvider;
-                IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
+                 
 
-                var mindfulnessTipsTask = mediator.Send(new SyncMindfulnessTips.Query());
-                await mindfulnessTipsTask;
+                IList<Task> tasks = new List<Task>();
+
+                foreach (SyncItems.SyncItemType syncType in Enum.GetValues(typeof(SyncItems.SyncItemType)))
+                {
+                    IMediator mediator = services
+                        .BuildServiceProvider()
+                        .CreateScope()
+                        .ServiceProvider
+                        .GetRequiredService<IMediator>();
+
+                    tasks.Add(
+                            Task.Run(() => mediator.Send(new SyncItems.Query() { ItemType = syncType }))
+                        );
+                }
+
+                await Task.WhenAll(tasks);
             }
             catch (Exception ex)
             {
