@@ -171,6 +171,9 @@ namespace FocusApp.Client.Methods.User
                 user.SelectedPet = await GetInitialPetQuery()
                     .FirstOrDefaultAsync(cancellationToken);
 
+               // user.Badges = await GetBadgesQuery()
+                 //   .FirstOrDefaultAsync(cancellationToken);
+
                 return user;
             }
 
@@ -221,6 +224,13 @@ namespace FocusApp.Client.Methods.User
                 return _localContext.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
             }
+            /*
+            private IQueryable<Badge> GetBadgesQuery()
+            {
+                return _localContext.Badges
+                    .Where(userBadge => userBadge.Id == _localContext.Badges))
+            }
+            */
         }
     }
 }

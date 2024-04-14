@@ -33,8 +33,10 @@ public class GetUser
                     Data = new GetUserResponse
                     {
                         User = user,
+                        SelectedBadgeId = user.SelectedBadge?.Id,
                         SelectedIslandId = user.SelectedIsland?.Id,
                         SelectedPetId = user.SelectedPet?.Id,
+                        UserBadgeIds = user.Badges?.Select(ub => ub.BadgeId).ToList() ?? new(),
                         UserIslandIds = user.Islands?.Select(ui => ui.IslandId).ToList() ?? new(),
                         UserPetIds = user.Pets?.Select(up => up.PetId).ToList() ?? new()
                     }
