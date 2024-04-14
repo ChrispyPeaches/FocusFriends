@@ -200,7 +200,7 @@ internal class ProfilePage : BasePage
                         .Row(UserDataRow.UserPronouns)
                         .Column(UserDataColumn.UtilityButtons)
                         .Top()
-                        .CenterHorizontal()
+                        .Right()
                         // When clicked, go to edit profile view
                         .Invoke(button => button.Released += (sender, eventArgs) =>
                             EditButtonClicked(sender, eventArgs))
