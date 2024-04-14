@@ -110,8 +110,7 @@ internal class UserBadgesPage : BasePage
 
         // Fetch badges from the local database and display them
         var localBadges = await FetchBadgesFromLocalDb();
-        // Replace below with API when complete
-        var userBadges = await FetchBadgesFromLocalDb();
+        var userBadges = await FetchBadgesFromAPI();
         DisplayBadges(localBadges, userBadges);
     }
 
@@ -128,33 +127,27 @@ internal class UserBadgesPage : BasePage
         }
     }
 
-    /*
-    private async Task<List<Badge?>> FetchBadgesFromAPI()
+
+    private async Task<List<Guid>> FetchBadgesFromAPI()
     {
         try
         {
-            var userId = _authenticationService.CurrentUser?.Id;
-
-            return await _authenticationService.CurrentUser.Badges
-                .Where(badge => badge.UserId == userId)
-                .Select(badge => badge.Badge)
-                .ToListAsync();
+            return await _localContext.UserBadges?.Select(ub => ub.BadgeId).ToListAsync();
         }
         catch (Exception ex)
         {
             throw new Exception("Error when fetching badges from API.", ex);
         }
     }
-    */
 
-    private void DisplayBadges(List<Badge> localBadges, List<Badge> userBadges)
+    private void DisplayBadges(List<Badge> localBadges, List<Guid> userBadgeIds)
     {
         var flexLayout = (FlexLayout)((Grid)Content).Children[3];
 
         // Add badges to FlexLayout
         foreach (var badge in localBadges)
         {
-            var isOwned = userBadges.Any(userBadge => userBadge.Id == badge.Id);
+            var isOwned = userBadgeIds.Any(userBadgeId => userBadgeId == badge.Id);
 
             if (isOwned)
             {
