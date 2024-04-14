@@ -4,6 +4,7 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Helpers;
 using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
@@ -16,11 +17,11 @@ internal sealed class SettingsPage : BasePage
         _client = client;
 
         // Default values for preferences
-        double ambianceVolume = Preferences.Default.Get("ambiance_volume", 50.00);
-        var isNotificationsEnabled = Preferences.Default.Get("notifications_enabled", false);
-        var isStartupTipsEnabled = Preferences.Default.Get("startup_tips_enabled", true);
-        var isSessionRatingEnabled = Preferences.Default.Get("session_rating_enabled", true);
-        
+        double ambianceVolume = PreferencesHelper.Get<double>(PreferencesHelper.PreferenceNames.ambiance_volume);
+        bool isNotificationsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.notifications_enabled);
+        bool isStartupTipsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled);
+        bool isSessionRatingEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled);
+
         // Using grids
         Content = new Grid
         {

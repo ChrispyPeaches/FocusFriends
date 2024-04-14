@@ -15,6 +15,7 @@ using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
 using FocusApp.Client.Methods.Sync;
+using static FocusApp.Client.Helpers.PreferencesHelper;
 
 namespace FocusApp.Client
 {
@@ -56,13 +57,8 @@ namespace FocusApp.Client
                 Scope = "openid profile email"
             }));
             
-            #region Logic Run on Startup
-            
             Task.Run(() => RunStartupLogic(builder.Services));
 
-            #endregion
-
-            PreferenceRequest();
 
             return builder.Build();
         }
@@ -156,7 +152,8 @@ namespace FocusApp.Client
                     .ServiceProvider;
                 _ = scopedServiceProvider.GetRequiredService<FocusAppContext>();
 
-                await Task.Run(() => StartupSync(services));
+                await Task.Run(PreferencesHelper.InitializePreferences, default);
+                await Task.Run(() => StartupSync(services, default), default);
             }
             catch (Exception ex)
             {
@@ -167,16 +164,23 @@ namespace FocusApp.Client
         }
 
         /// <summary>
-        /// Syncs mindfulness tips between the API and mobile database each time the app starts.
+        /// Syncs all item types in the <see cref="SyncItems.SyncItemType"/> enum between the API and mobile database
+        /// if the last sync happened over a week ago or this is the first time starting the app.
         /// </summary>
-        private static async Task StartupSync(IServiceCollection services)
+        private static async Task StartupSync(IServiceCollection services, CancellationToken cancellationToken)
         {
             try
             {
-                 
+
+                // If not in debug and a sync has been done in the past week, don't sync
+#if !DEBUG
+                DateTimeOffset? lastSyncTime = PreferencesHelper.Get<DateTimeOffset?>(PreferenceNames.last_sync_time);
+                if (lastSyncTime.HasValue)
+                    if (DateTimeOffset.UtcNow < lastSyncTime.Value.AddDays(7)) 
+                        return;
+#endif
 
                 IList<Task> tasks = new List<Task>();
-
                 foreach (SyncItems.SyncItemType syncType in Enum.GetValues(typeof(SyncItems.SyncItemType)))
                 {
                     IMediator mediator = services
@@ -186,11 +190,16 @@ namespace FocusApp.Client
                         .GetRequiredService<IMediator>();
 
                     tasks.Add(
-                            Task.Run(() => mediator.Send(new SyncItems.Query() { ItemType = syncType }))
+                            Task.Run(() => mediator.Send(
+                                        new SyncItems.Query() { ItemType = syncType },
+                                        cancellationToken),
+                                    cancellationToken)
                         );
                 }
 
                 await Task.WhenAll(tasks);
+
+                PreferencesHelper.Set(PreferenceNames.last_sync_time, DateTimeOffset.UtcNow);
             }
             catch (Exception ex)
             {
@@ -219,22 +228,6 @@ namespace FocusApp.Client
             {
                 Console.WriteLine("Error when instantiating and seeding database");
                 Console.Write(ex);
-            }
-        }
-
-        private static void PreferenceRequest()
-        {
-            var keys = new List<string> { "ambiance_volume", "notifications_enabled", "startup_tips_enabled", "session_rating_enabled" };
-            var vals = new List<dynamic> { 50.00, false, true, true };
-
-            var pairs = keys.Zip(vals);
-
-            foreach (var pair in pairs)
-            {
-                if (!Preferences.Default.ContainsKey(pair.First))
-                {
-                    Preferences.Default.Set(pair.First, pair.Second);
-                }
             }
         }
     }
