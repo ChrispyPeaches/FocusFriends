@@ -11,5 +11,5 @@ public class BaseBadge  : ISyncEntity
 
     public required string Name { get; set; } = null!;
 
-    public required string FilePath { get; set; } = null!;
+    public required byte[] Image { get; set; } = null!;
 }
