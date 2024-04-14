@@ -5,9 +5,9 @@ using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace FocusAPI.Methods.User;
-public class AddUserSound
+public class AddUserIsland
 {
-    public class Handler : IRequestHandler<AddUserSoundCommand, Unit>
+    public class Handler : IRequestHandler<AddUserIslandCommand, Unit>
     {
         FocusContext _context;
         ILogger<Handler> _logger;
@@ -17,16 +17,16 @@ public class AddUserSound
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(AddUserSoundCommand command, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddUserIslandCommand command, CancellationToken cancellationToken)
         {
             try
             {
                 FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                FocusAPI.Models.Sound sound = await _context.Sounds.FirstOrDefaultAsync(s => s.Id == command.SoundId);
+                FocusAPI.Models.Island island = await _context.Islands.FirstOrDefaultAsync(s => s.Id == command.IslandId);
 
-                user.Sounds.Add(new UserSound
+                user.Islands.Add(new UserIsland
                 {
-                    Sound = sound,
+                    Island = island,
                     DateAcquired = DateTime.UtcNow
                 });
 
@@ -36,7 +36,7 @@ public class AddUserSound
             }
             catch (Exception ex) 
             {
-                _logger.Log(LogLevel.Error, "Error adding UserSound to database. Exception: " + ex.Message);
+                _logger.Log(LogLevel.Error, "Error adding UserIsland to database. Exception: " + ex.Message);
             }
 
             return Unit.Value;

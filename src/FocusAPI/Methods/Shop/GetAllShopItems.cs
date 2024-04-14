@@ -35,16 +35,16 @@ public class GetAllShopItems
                 Type = ShopItemType.Furniture
             }).ToList();
 
-            List<ShopItem> sounds = _context.Sounds.OfType<BaseSound>().Select(s => new ShopItem
+            /*List<ShopItem> sounds = _context.Sounds.OfType<BaseSound>().Select(s => new ShopItem
             {
                 Id = s.Id,
                 Name = s.Name,
                 Price = s.Price,
                 ImageSource = s.Image,
                 Type = ShopItemType.Sounds
-            }).ToList();
+            }).ToList();*/
 
-            return pets.Concat(furniture).Concat(sounds).ToList();
+            return pets.Concat(furniture)/*.Concat(sounds)*/.ToList();
         }
     }
 }

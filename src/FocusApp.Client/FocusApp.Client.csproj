@@ -57,6 +57,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Models\**" />
+	  <Compile Remove="Models\**" />
+	  <EmbeddedResource Remove="Models\**" />
+	  <MauiCss Remove="Models\**" />
+	  <MauiXaml Remove="Models\**" />
+	  <None Remove="Models\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\Islands\island_zero.svg" />
 	  <None Remove="Resources\Images\Pets\pet_cat_zero.svg" />
 	  <None Remove="Resources\Images\sound_image.png" />
@@ -88,10 +97,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\FocusApp.Shared\FocusApp.Shared.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Models\Extensions\" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">

@@ -244,7 +244,7 @@ namespace FocusApp.Client.Views.Shop
             return 
                    _localContext.Pets.Count() == 7
                 && _localContext.Furniture.Count() == 6
-                && _localContext.Sounds.Count() == 6;
+                /*&& _localContext.Sounds.Count() == 6 */;
         }
 
         // Gather shop items from local database, and convert to ShopItem objects
@@ -267,7 +267,7 @@ namespace FocusApp.Client.Views.Shop
                 ImageSource = f.Image,
                 Type = ShopItemType.Furniture
             }).ToList();
-
+            /*
             List<ShopItem> sounds = _localContext.Sounds.Select(s => new ShopItem
             {
                 Id = s.Id,
@@ -276,8 +276,8 @@ namespace FocusApp.Client.Views.Shop
                 ImageSource = s.Image,
                 Type = ShopItemType.Sounds
             }).ToList();
-
-            return pets.Concat(furniture).Concat(sounds).ToList();
+            */
+            return pets.Concat(furniture).ToList();
         }
 
         #endregion

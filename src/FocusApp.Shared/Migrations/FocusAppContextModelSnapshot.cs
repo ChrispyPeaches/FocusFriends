@@ -149,28 +149,6 @@ namespace FocusApp.Shared.Migrations
                     b.ToTable("Pets");
                 });
 
-            modelBuilder.Entity("FocusApp.Shared.Models.Sound", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("Image")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Price")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sounds");
-                });
-
             modelBuilder.Entity("FocusApp.Shared.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -334,24 +312,6 @@ namespace FocusApp.Shared.Migrations
                     b.ToTable("UserSessionHistory");
                 });
 
-            modelBuilder.Entity("FocusApp.Shared.Models.UserSound", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("SoundId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateAcquired")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("UserId", "SoundId");
-
-                    b.HasIndex("SoundId");
-
-                    b.ToTable("UserSounds");
-                });
-
             modelBuilder.Entity("FocusApp.Shared.Models.Friendship", b =>
                 {
                     b.HasOne("FocusApp.Shared.Models.User", "Friend")
@@ -489,25 +449,6 @@ namespace FocusApp.Shared.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FocusApp.Shared.Models.UserSound", b =>
-                {
-                    b.HasOne("FocusApp.Shared.Models.Sound", "Sound")
-                        .WithMany()
-                        .HasForeignKey("SoundId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FocusApp.Shared.Models.User", "User")
-                        .WithMany("Sounds")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Sound");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FocusApp.Shared.Models.User", b =>
                 {
                     b.Navigation("Badges");
@@ -521,8 +462,6 @@ namespace FocusApp.Shared.Migrations
                     b.Navigation("Islands");
 
                     b.Navigation("Pets");
-
-                    b.Navigation("Sounds");
 
                     b.Navigation("UserSessions");
                 });

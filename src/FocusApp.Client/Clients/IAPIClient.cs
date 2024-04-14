@@ -41,8 +41,10 @@ public interface IAPIClient
     [Post("/User/Furniture")]
     Task AddUserFurniture(AddUserFurnitureCommand command);
 
-    [Post("/User/Sound")]
-    Task AddUserSound(AddUserSoundCommand command);
+    [Post("/User/Island")]
+    Task AddUserIsland(
+        AddUserIslandCommand command,
+        CancellationToken cancellationToken = default);
 
     [Post("/User/AddSession")]
     Task CreateSession(

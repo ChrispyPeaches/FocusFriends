@@ -146,9 +146,10 @@ namespace FocusAPI.Controllers
             await _mediator.Send(command);
         }
 
+        
         [HttpPost]
-        [Route("Sound")]
-        public async Task AddUserSound(AddUserSoundCommand command)
+        [Route("Island")]
+        public async Task AddUserIsland(AddUserIslandCommand command)
         {
             await _mediator.Send(command);
         }

@@ -15,9 +15,7 @@ public class FocusContext : DbContext
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
     public DbSet<Furniture> Furniture { get; set; }
-    public DbSet<Sound> Sounds { get; set; }
     public DbSet<UserFurniture> UserFurniture { get; set; }
-    public DbSet<UserSound> UserSounds { get; set; }
     public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
     public DbSet<Island> Islands { get; set; }
     public DbSet<UserIsland> UserIslands { get; set; }

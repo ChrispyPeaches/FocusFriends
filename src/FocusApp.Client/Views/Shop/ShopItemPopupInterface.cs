@@ -263,7 +263,7 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     break;
-
+                /*
                 case ShopItemType.Sounds:
 
                     // Note: This check will be made obsolete after the shop item sync update
@@ -302,7 +302,7 @@ namespace FocusApp.Client.Views.Shop
                     // If time allows, we will store the sound files on the server, and fetch/store them after purchase
                     try
                     {
-                        await _client.AddUserSound(new AddUserSoundCommand
+                        await _client.AddUserIsland(new AddUserIslandCommand
                         {
                             UserId = _authenticationService.CurrentUser.Id,
                             SoundId = _currentItem.Id,
@@ -315,6 +315,7 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     break;
+                */
                 default:
                     break;
             }
@@ -346,10 +347,12 @@ namespace FocusApp.Client.Views.Shop
                     return _localContext.UserFurniture.Any(f => 
                            f.FurnitureId == _currentItem.Id
                         && f.UserId == _authenticationService.CurrentUser.Id);
+                /*
                 case ShopItemType.Sounds:
                     return _localContext.UserSounds.Any(s => 
                            s.SoundId == _currentItem.Id 
                         && s.UserId == _authenticationService.CurrentUser.Id);
+                */
                 default:
                     return false;
             }

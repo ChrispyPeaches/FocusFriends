@@ -16,8 +16,6 @@ public class User : FocusCore.Models.BaseUser
 
     public new ICollection<UserFurniture>? Furniture { get; set; } = new List<UserFurniture>();
 
-    public new ICollection<UserSound>? Sounds { get; set; } = new List<UserSound>();
-
     public new ICollection<UserBadge>? Badges { get; set; } = new List<UserBadge>();
 
     public new ICollection<UserIsland>? Islands { get; set; } = new List<UserIsland>();

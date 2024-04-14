@@ -40,8 +40,6 @@ public class BaseUser
 
     public ICollection<BaseUserFurniture>? Furniture { get; set; } = new List<BaseUserFurniture>();
 
-    public ICollection<BaseUserSound>? Sounds { get; set; } = new List<BaseUserSound>();
-
     public ICollection<BaseUserBadge>? Badges { get; set; } = new List<BaseUserBadge>();
 
     public ICollection<BaseUserIsland>? Islands { get; set; } = new List<BaseUserIsland>();
