@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using Microsoft.Maui.Layouts;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
@@ -9,7 +8,6 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Shared.Data;
 using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
-using Microsoft.EntityFrameworkCore;
 using CommunityToolkit.Maui.Views;
 
 
@@ -243,9 +241,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Left)
-                        .Top()
+                        .Bottom()
                         .CenterHorizontal()
-                        .Margins(top: 15),
+                        .Margins(bottom: 15),
 
                         // Selected pet image button
                         selectedPet
@@ -263,9 +261,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Left)
-                        .Bottom()
-                        .CenterHorizontal()
-                        .Margins(bottom: 15),
+                        .Top()
+                        .CenterHorizontal(),
+                        //.Margins(top: 15),
 
                         /* Selected Island cell */
                         new Label
@@ -276,9 +274,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Right)
-                        .Top()
+                        .Bottom()
                         .CenterHorizontal()
-                        .Margins(top: 15),
+                        .Margins(bottom: 15),
 
                         // Selected island image button
                         selectedIsland
@@ -296,9 +294,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Right)
-                        .Bottom()
-                        .CenterHorizontal()
-                        .Margins(bottom: 15),
+                        .Top()
+                        .CenterHorizontal(),
+                        //.Margins(top: 15),
 
                         /* Selected Decor cell */
                         new Label
@@ -309,9 +307,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Left)
-                        .Top()
+                        .Bottom()
                         .CenterHorizontal()
-                        .Margins(top: 15),
+                        .Margins(bottom: 15),
 
                         // Selected decor image button
                         selectedDecor
@@ -329,9 +327,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Left)
-                        .Bottom()
-                        .CenterHorizontal()
-                        .Margins(bottom: 15),
+                        .Top()
+                        .CenterHorizontal(),
+                        //.Margins(top: 15),
 
                         /* Selected Badge cell */
                         new Label
@@ -342,9 +340,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Right)
-                        .Top()
+                        .Bottom()
                         .CenterHorizontal()
-                        .Margins(top: 15),
+                        .Margins(bottom: 15),
                         
                         // Selected badge image button
                         selectedBadge
@@ -362,9 +360,9 @@ internal class ProfilePage : BasePage
                         }
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Right)
-                        .Bottom()
-                        .CenterHorizontal()
-                        .Margins(bottom: 15),
+                        .Top()
+                        .CenterHorizontal(),
+                        //.Margins(top: 15),
 
                         // Dividers for the selected item grid sections
                         new BoxView
@@ -388,7 +386,6 @@ internal class ProfilePage : BasePage
                         .Right()
                         .Margins(top: 50, bottom: 50)
                     } 
-                    
                 }
                 .Row(PageRow.SelectedItems)
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),

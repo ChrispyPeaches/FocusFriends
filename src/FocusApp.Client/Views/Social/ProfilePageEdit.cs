@@ -11,6 +11,11 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls.Shapes;
+using CommunityToolkit.Maui.Behaviors;
+using FocusApp.Client.Methods.User;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using FocusCore.Commands.User;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -19,24 +24,27 @@ internal class ProfilePageEdit : BasePage
 
     IAPIClient _client;
     IAuthenticationService _authenticationService;
-    PopupService _popupService;
-    FocusAppContext _localContext;
+    IMediator _mediator;
+    ILogger<ProfilePageEdit> _logger;
 
     // Page Row / Column Definitions
     enum PageRow { PageHeader, ProfilePicture, FormFields, TabBarSpace }
     enum PageColumn { Left, Right }
 
     // Form Fields Row / Column Definitions
-    enum FormRow { Username, Pronouns, FirstName, LastName, SaveButton }
+    enum FormRow { Username, Pronouns, SaveButton }
     enum FormColumn { Label, Remainder }
 
+    Entry userNameField { get; set; }
+    Entry pronounsField { get; set; }
+
     #region Frontend
-    public ProfilePageEdit(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
+    public ProfilePageEdit(IAPIClient client, IAuthenticationService authenticationService, IMediator mediator, ILogger<ProfilePageEdit> logger)
     {
         _client = client;
         _authenticationService = authenticationService;
-        _popupService = popupService;
-        _localContext = localContext;
+        _mediator = mediator;
+        _logger = logger;
 
         // Set bindable properties with images
         AvatarView profilePicture = new AvatarView
@@ -48,14 +56,41 @@ internal class ProfilePageEdit : BasePage
         .Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
         profilePicture.BindingContext = _authenticationService.CurrentUser;
 
+        TextValidationBehavior userNameValidationBehavior = new TextValidationBehavior
+        {
+            MaximumLength = 50,
+            MinimumLength = 3
+        };
+
+        TextValidationBehavior pronounsValidationBehavior = new TextValidationBehavior
+        {
+            MaximumLength = 16,
+        };
+
+        userNameField = new Entry
+        {
+            Placeholder = "Enter username here",
+            Text = _authenticationService.CurrentUser?.UserName
+        };
+
+        userNameField.Behaviors.Add(userNameValidationBehavior);
+
+        pronounsField = new Entry
+        {
+            Placeholder = "Enter pronouns here",
+            Text = _authenticationService.CurrentUser?.Pronouns
+        };
+
+        pronounsField.Behaviors.Add(pronounsValidationBehavior);
+
         Content = new Grid
         {
             // Define the length of the rows & columns
             RowDefinitions = Rows.Define(
                 (PageRow.PageHeader, Stars(0.2)),
                 (PageRow.ProfilePicture, Stars(0.5)),
-                (PageRow.FormFields, Stars(2)),
-                (PageRow.TabBarSpace, Stars(0.2))
+                (PageRow.FormFields, Stars(1)),
+                (PageRow.TabBarSpace, Stars(1))
                 ),
             ColumnDefinitions = Columns.Define(
                 (PageColumn.Left, Stars(1)),
@@ -126,8 +161,6 @@ internal class ProfilePageEdit : BasePage
                     RowDefinitions = Rows.Define(
                         (FormRow.Username, Stars(1)),
                         (FormRow.Pronouns, Stars(1)),
-                        (FormRow.FirstName, Stars(1)),
-                        (FormRow.LastName, Stars(1)),
                         (FormRow.SaveButton, Stars(1))
                         ),
                     ColumnDefinitions = Columns.Define(
@@ -138,7 +171,6 @@ internal class ProfilePageEdit : BasePage
                     {
                         new StackLayout
                         { 
-                            //Padding = 10,
                             Children =
                             {
                                 new Label
@@ -151,10 +183,7 @@ internal class ProfilePageEdit : BasePage
                                     BackgroundColor = AppStyles.Palette.DarkMauve,
                                     Stroke = Colors.Transparent,
                                     StrokeThickness = 2,
-                                    Content = new Entry
-                                    {
-                                        Placeholder = "Enter username here"
-                                    }
+                                    Content = userNameField
                                 }
                             }
                         }
@@ -165,7 +194,6 @@ internal class ProfilePageEdit : BasePage
 
                         new StackLayout
                         { 
-                            //Padding = 10,
                             Children =
                             {
                                 new Label
@@ -178,68 +206,11 @@ internal class ProfilePageEdit : BasePage
                                     BackgroundColor = AppStyles.Palette.DarkMauve,
                                     Stroke = Colors.Transparent,
                                     StrokeThickness = 2,
-                                    Content = new Entry
-                                    {
-                                        Placeholder = "Enter pronouns here"
-                                    }
+                                    Content = pronounsField
                                 }
                             }
                         }
                         .Row(FormRow.Pronouns)
-                        .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
-                        .CenterVertical()
-                        .Margins(left:10, right: 10),
-
-                        new StackLayout
-                        { 
-                            //Padding = 10,
-                            Children =
-                            {
-                                new Label
-                                {
-                                    Text = "First Name",
-                                    FontSize = 20,
-                                },
-                                new Border
-                                {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
-                                    Stroke = Colors.Transparent,
-                                    StrokeThickness = 2,
-                                    Content = new Entry
-                                    {
-                                        Placeholder = "Enter first name here"
-                                    }
-                                }
-                            }
-                        }
-                        .Row(FormRow.FirstName)
-                        .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
-                        .CenterVertical()
-                        .Margins(left:10, right: 10),
-
-                        new StackLayout
-                        { 
-                            //Padding = 10,
-                            Children =
-                            {
-                                new Label
-                                {
-                                    Text = "Last Name",
-                                    FontSize = 20,
-                                },
-                                new Border
-                                {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
-                                    Stroke = Colors.Transparent,
-                                    StrokeThickness = 2,
-                                    Content = new Entry
-                                    {
-                                        Placeholder = "Enter last name here"
-                                    }
-                                }
-                            }
-                        }
-                        .Row(FormRow.LastName)
                         .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                         .CenterVertical()
                         .Margins(left:10, right: 10),
@@ -251,12 +222,29 @@ internal class ProfilePageEdit : BasePage
                         .Row(FormRow.SaveButton)
                         .ColumnSpan(typeof(FormColumn).GetEnumNames().Length)
                         .Center()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            SaveChangesButtonClicked(sender, eventArgs))
                     }
                 }
                 .Row(PageRow.FormFields)
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 .Left()
                 .FillHorizontal(),
+
+                new Image
+                {
+                    Source = new FileImageSource
+                    {
+                        File = "logo.png"
+                    },
+                    HeightRequest = 75,
+                    WidthRequest = 75,
+                }
+                .Row(PageRow.TabBarSpace)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                .Top()
+                .CenterHorizontal()
+                .Margins(top: 15)
             }
         };
     }
@@ -267,6 +255,33 @@ internal class ProfilePageEdit : BasePage
         Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
         await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(ProfilePage)}");
     }
+
+    private async void SaveChangesButtonClicked(object sender, EventArgs e)
+    {
+        EditUserProfileCommand command = new EditUserProfileCommand
+        { 
+            UserId = _authenticationService.CurrentUser?.Id
+        };
+
+        if (userNameField.Text != _authenticationService.CurrentUser?.UserName)
+            command.UserName = userNameField.Text;
+
+        if (pronounsField.Text != _authenticationService.CurrentUser?.Pronouns)
+            command.Pronouns = pronounsField.Text;
+
+        if (!string.IsNullOrEmpty(command.Pronouns) || !string.IsNullOrEmpty(command.UserName))
+        {
+            try
+            {
+                await _client.EditUserProfile(command, default);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Debug, "Error occurred when editing user profile. Message: " + ex.Message);
+            }
+        }
+    }
+
     #endregion
 
     #region Backend

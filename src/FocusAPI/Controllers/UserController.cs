@@ -131,6 +131,38 @@ namespace FocusAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Edit")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> EditUserProfile(
+            EditUserProfileCommand command,
+            CancellationToken cancellationToken = default)
+        {
+
+            MediatrResult result = new();
+            try
+            {
+                result = await _mediator.Send(command, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Debug, "[500] Error editing user profile details. Message: " + ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            switch (result.HttpStatusCode)
+            {
+                case null:
+                    _logger.LogError($"[500] {result.Message}");
+                    return StatusCode((int)HttpStatusCode.InternalServerError);
+                case HttpStatusCode.OK:
+                    return Ok();
+                default:
+                    _logger.LogError($"[{(int)result.HttpStatusCode}] {result.Message}");
+                    return StatusCode((int)result.HttpStatusCode);
+            }
+        }
 
         [HttpPost]
         [Route("Pet")]
