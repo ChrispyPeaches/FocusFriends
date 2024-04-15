@@ -14,7 +14,7 @@ using Refit;
 
 namespace FocusApp.Client.Methods.User
 {
-    internal class GetAndSyncUser
+    internal class GetAndSyncFriend
     {
         public class Query : IRequest<Shared.Models.User?>
         {
@@ -87,12 +87,12 @@ namespace FocusApp.Client.Methods.User
             /// </summary>
             private async Task<Shared.Models.User?> SyncAndGetUserData(
                 string auth0Id,
-                Shared.Models.User? responseUser = null,
+                Shared.Models.User? responseFriend = null,
                 CancellationToken cancellationToken = default)
             {
                 Shared.Models.User? user;
 
-                Shared.Models.User? localUser = await _context.Users
+                Shared.Models.User? localFriend = await _context.Users
                     .Include(u => u.SelectedIsland)
                     .Include(u => u.SelectedPet)
                     .Include(u => u.SelectedFurniture)
@@ -101,48 +101,73 @@ namespace FocusApp.Client.Methods.User
                     .FirstOrDefaultAsync(cancellationToken);
 
                 // Sync user data
-                if (responseUser is not null && 
-                    localUser is not null)
+                if (responseFriend is not null && 
+                    localFriend is not null)
                 {
-                    localUser.UserName = !string.IsNullOrEmpty(responseUser.UserName) ? responseUser.UserName : localUser.UserName;
-                    localUser.FirstName = !string.IsNullOrEmpty(responseUser.FirstName) ? responseUser.FirstName : localUser.FirstName;
-                    localUser.LastName = !string.IsNullOrEmpty(responseUser.LastName) ? responseUser.LastName : localUser.LastName;
-                    localUser.Pronouns = !string.IsNullOrEmpty(responseUser.Pronouns) ? responseUser.Pronouns : localUser.Pronouns;
+                    // Update normal fields
+                    localFriend.UserName = CheckNullAndUpdateString(localFriend.UserName, responseFriend.UserName);
+                    localFriend.FirstName = CheckNullAndUpdateString(localFriend.FirstName, responseFriend.FirstName);
+                    localFriend.LastName = CheckNullAndUpdateString(localFriend.LastName, responseFriend.LastName);
+                    localFriend.Pronouns = CheckNullAndUpdateString(localFriend.Pronouns, responseFriend.Pronouns);
 
-                    // Gather the user's selected island and pet or get the defaults if one isn't selected
-                    localUser.SelectedIslandId ??= await _syncService
+                    localFriend.ProfilePicture = responseFriend.ProfilePicture ?? localFriend.ProfilePicture;
+
+                    // Update selected items
+                    if (responseFriend.SelectedPetId != null &&
+                        localFriend.SelectedPetId != responseFriend.SelectedPetId)
+                    {
+                        localFriend.SelectedPetId = responseFriend.SelectedPetId;
+                        localFriend.SelectedPet = await _context.Pets
+                            .Where(pet => pet.Id == localFriend.SelectedPetId)
+                            .FirstOrDefaultAsync(cancellationToken);
+                    }
+
+                    if (responseFriend.SelectedIslandId != null &&
+                        localFriend.SelectedIslandId != responseFriend.SelectedIslandId)
+                    {
+                        localFriend.SelectedIslandId = responseFriend.SelectedIslandId;
+                        localFriend.SelectedIsland = await _context.Islands
+                            .Where(island => island.Id == localFriend.SelectedIslandId)
+                            .FirstOrDefaultAsync(cancellationToken);
+                    }
+
+                    if (responseFriend.SelectedBadgeId != null &&
+                        localFriend.SelectedBadgeId != responseFriend.SelectedBadgeId)
+                    {
+                        localFriend.SelectedBadgeId = responseFriend.SelectedBadgeId;
+                        localFriend.SelectedBadge = await _context.Badges
+                            .Where(badge => badge.Id == localFriend.SelectedBadgeId)
+                            .FirstOrDefaultAsync(cancellationToken);
+                    }
+
+                    if (responseFriend.SelectedFurnitureId != null &&
+                        localFriend.SelectedFurnitureId != responseFriend.SelectedFurnitureId)
+                    {
+                        localFriend.SelectedFurnitureId = responseFriend.SelectedFurnitureId;
+                        localFriend.SelectedFurniture = await _context.Furniture
+                            .Where(furniture => furniture.Id == localFriend.SelectedFurnitureId)
+                            .FirstOrDefaultAsync(cancellationToken);
+                    }
+
+                    // If the selected island or pet are null, set to default
+                    localFriend.SelectedIsland ??= await _syncService
                         .GetInitialIslandQuery()
-                        .Select(island => island.Id)
                         .FirstOrDefaultAsync(cancellationToken);
+                    localFriend.SelectedIslandId ??= localFriend.SelectedIsland?.Id;
 
-                    localUser.SelectedPetId ??= await _syncService
+                    localFriend.SelectedPet ??= await _syncService
                         .GetInitialPetQuery()
-                        .Select(pet => pet.Id)
                         .FirstOrDefaultAsync(cancellationToken);
-
-                    localUser.SelectedPetId = responseUser.SelectedPetId;
-                    localUser.SelectedBadgeId = responseUser.SelectedBadgeId;
-                    localUser.SelectedFurnitureId = responseUser.SelectedFurnitureId;
-                    localUser.SelectedIslandId = responseUser.SelectedIslandId;
+                    localFriend.SelectedPetId ??= localFriend.SelectedPet?.Id;
 
                     await _context.SaveChangesAsync(cancellationToken);
-
-                    localUser.SelectedPet ??= await _context.Pets
-                        .Where(pet => pet.Id == localUser.SelectedPetId)
-                        .FirstOrDefaultAsync(cancellationToken);
-                    localUser.SelectedIsland ??= await _context.Islands
-                        .Where(island => island.Id == localUser.SelectedIslandId)
-                        .FirstOrDefaultAsync(cancellationToken);
-                    localUser.SelectedBadge ??= await _context.Badges
-                        .Where(badge => badge.Id == localUser.SelectedBadgeId)
-                        .FirstOrDefaultAsync(cancellationToken);
-                    localUser.SelectedFurniture ??= await _context.Furniture
-                        .Where(decor => decor.Id == localUser.SelectedFurnitureId)
-                        .FirstOrDefaultAsync(cancellationToken);
                 }
 
-                return localUser;
+                return localFriend;
             }
+
+            public string CheckNullAndUpdateString(string existingValue, string newValue) => 
+                !string.IsNullOrEmpty(newValue) ? newValue : existingValue;
         }
 
     }

@@ -36,7 +36,7 @@ public class GetUser
                         SelectedIslandId = user.SelectedIsland?.Id,
                         SelectedPetId = user.SelectedPet?.Id,
                         UserIslandIds = user.Islands?.Select(ui => ui.IslandId).ToList() ?? new(),
-                        UserPetIds = user.Pets?.Select(up => up.PetId).ToList() ?? new()
+                        UserPetIds = user.Pets?.Select(up => up.PetId).ToList() ?? new(),
                     }
                 };
             }

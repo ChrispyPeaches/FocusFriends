@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Maui.Markup.LeftToRight;
+using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Views.Controls;
@@ -8,6 +10,7 @@ using FocusCore.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Layouts;
+using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -67,6 +70,10 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
     enum Column { ProfilePicture, ProfileInfo }
     enum Row { TopBar, ProfileInfo, IslandView, BottomWhiteSpace }
 
+    // Row / Column structure for user data header
+    enum UserDataRow { UserEmail, UserName, UserPronouns }
+    enum UserDataColumn { Data, UtilityButtons }
+
     private readonly IMediator _mediator;
     private readonly ILogger<FriendProfilePage> _logger;
 
@@ -76,7 +83,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
         {
             RowDefinitions = GridRowsColumns.Rows.Define(
                 (Row.TopBar, 80),
-                (Row.ProfileInfo, GridRowsColumns.Stars(4)),
+                (Row.ProfileInfo, GridRowsColumns.Stars(3)),
                 (Row.IslandView, GridRowsColumns.Stars(4)),
                 (Row.BottomWhiteSpace, GridRowsColumns.Stars(2))
             ),
@@ -124,6 +131,26 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 .Row(Row.TopBar)
                 .ColumnSpan(typeof(Column).GetEnumNames().Length));
         grid.Children.Add(
+            // Header & Content Divider
+            new BoxView
+                {
+                    Color = Color.Parse("Black"),
+                    HeightRequest = 2,
+                }
+                .FillHorizontal()
+                .Bottom()
+                .Row(Row.TopBar)
+                .ColumnSpan(typeof(Column).GetEnumNames().Length));
+
+        AvatarView profilePic = GetProfilePic()
+            .Row(Row.ProfileInfo)
+            .Column(Column.ProfilePicture);
+        grid.Children.Add(profilePic);
+        grid.Children.Add(
+            GetBadgeOverlay(profilePic)
+                .Row(Row.ProfileInfo)
+                .Column(Column.ProfilePicture));
+        grid.Children.Add(
             GetProfileInfo()
                 .Row(Row.ProfileInfo)
                 .Column(Column.ProfileInfo));
@@ -138,10 +165,8 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
 
     public View GetTopBar()
     {
-        return new FlexLayout()
+        return new FlexLayout
         {
-            JustifyContent = FlexJustify.Start,
-
             Children =
             {
                 // Back Button
@@ -153,16 +178,17 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                         FontSize = 40,
                         BackgroundColor = Colors.Transparent
                     }
+                    
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                     // When clicked, go to timer view
                     .Invoke(button => button.Released += (sender, eventArgs) =>
-                        BackButtonClicked(sender, eventArgs)),
+                        OnBackButtonClicked()),
 
                 // Header
                 new Label
                     {
                         TextColor = Colors.Black,
-                        FontSize = 25
+                        FontSize = 20
                     }
                     .CenterVertical()
                     .Paddings(left: 5, right: 5)
@@ -173,73 +199,167 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                         source: this),
             }
         };
+    }
 
+    public AvatarView GetProfilePic()
+    {
+        return new AvatarView
+            {
+                CornerRadius = 63,
+                HeightRequest = 126,
+                WidthRequest = 126,
+                ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(DisplayUser?.ProfilePicture),
+            }
+            .Top()
+            .Margins(top: 10, left: -5);
+    }
+
+    public FlexLayout GetBadgeOverlay(AvatarView profilePic)
+    {
+        return new FlexLayout()
+            {
+                ZIndex = 1,
+                HeightRequest = profilePic.HeightRequest,
+                WidthRequest = profilePic.WidthRequest,
+                Direction = FlexDirection.Column,
+                JustifyContent = FlexJustify.End,
+                Children =
+                {
+                    new Frame()
+                    {
+                        WidthRequest = HeightRequest,
+                        Padding = 0,
+                        BackgroundColor = Colors.Transparent,
+                        Content = new Image()
+                        {
+                            Aspect = Aspect.AspectFit,
+                            Source = new ByteArrayToImageSourceConverter().ConvertFrom(DisplayUser?.SelectedBadge?.Image)
+                        }
+                    }
+                    .Margins(right: -10, bottom: -10)
+                    .Basis(0.35f, true)
+                    .Right()
+                }
+
+            }
+            .Top()
+            .Margins(top: 10, left: -5)
+            .Bind(
+                FlexLayout.HeightRequestProperty,
+                getter: static (profilePic) => profilePic.HeightRequest,
+                source: profilePic);
     }
 
     public FlexLayout GetProfileInfo()
     {
+        int horizontalPadding = 5;
+        int verticalPadding = 2;
+        int labelFontSize = 15;
+        int valueFontSize = 17;
+        Color labelColor = Colors.SlateGray;
+
         var a = new FlexLayout()
         {
             Direction = FlexDirection.Column,
             AlignItems = FlexAlignItems.End,
             JustifyContent = FlexJustify.Start,
-        };
+            Children =
+            {
+                // Email / Id
+                new Label()
+                    {
+                        Text = $"#{DisplayUser?.Email}",
+                        FontSize = valueFontSize
+                    }
+                    .Padding(horizontalPadding, verticalPadding)
+                    .AlignSelf(FlexAlignSelf.Start),
 
-        a.Children.Add(
-            new Label()
-                {
-                    FontSize = 20
-                }
-                .Padding(15, 2)
-                .Bind(
-                    Label.TextProperty,
-                    getter: (page) => page.DisplayUser,
-                    convert: (user) => user?.UserName,
-                    source: this));
-        a.Children.Add(
-            new Label()
-            {
-                FontSize = 20
+                // Name
+                new Label()
+                    {
+                        Text = "Name",
+                        FontSize = labelFontSize,
+                        TextColor = labelColor
+                    }
+                    .Padding(horizontalPadding, verticalPadding)
+                    .AlignSelf(FlexAlignSelf.Start),
+                new Label()
+                    {
+                        Text = DisplayUser?.FullName(),
+                        FontSize = valueFontSize
+                    }
+                    .Padding(horizontalPadding, verticalPadding)
+                    .AlignSelf(FlexAlignSelf.Start),
+                
+                // Pronouns
+                new Label()
+                    {
+                        Text = "Pronouns",
+                        FontSize = labelFontSize,
+                        TextColor = labelColor
+                    }
+                    .Padding(horizontalPadding, verticalPadding)
+                    .AlignSelf(FlexAlignSelf.Start),
+                new Label()
+                    {
+                        Text = $"{DisplayUser?.Pronouns}",
+                        FontSize = valueFontSize
+                    }
+                    .Padding(horizontalPadding, verticalPadding)
+                    .AlignSelf(FlexAlignSelf.Start),
+
+
             }
-            .Padding(15, 2)
-            .Bind(
-                Label.TextProperty,
-                getter: (page) => page.DisplayUser,
-                convert: (user) => user?.FullName(),
-                source: this));
-        a.Children.Add(
-            new Label()
-                {
-                    FontSize = 20
-            }
-                .Paddings(right: 15, top: 2, bottom: 12)
-                .Bind(
-                    Label.TextProperty,
-                    getter: (page) => page.DisplayUser,
-                    convert: (user) => user?.Pronouns,
-                    source: this));
-        a.Children.Add(
-            new Frame()
-            {
-                HeightRequest = 80,
-                WidthRequest = HeightRequest,
-                BackgroundColor = Colors.PaleVioletRed,
-                Padding = 5,
-                Content = new Image()
-                {
-                    Aspect = Aspect.AspectFit,
-                    Source = new ByteArrayToImageSourceConverter().ConvertFrom(DisplayUser?.SelectedBadge?.Image)
-                }
-                .Grow(1)
-                .Bind(
-                    Image.SourceProperty,
-                    getter: (page) => page.DisplayUser,
-                    convert: (user) => new ByteArrayToImageSourceConverter().ConvertFrom(user?.SelectedBadge?.Image),
-                    source: this)
-            }
-        );
+        }
+        .Margins(top: 10);
 
         return a;
+    }
+
+    public Grid GetProfileInfo2()
+    {
+        return new Grid
+        {
+            RowDefinitions = Rows.Define(
+                (UserDataRow.UserEmail, Stars(1)),
+                (UserDataRow.UserName, Stars(1.5)),
+                (UserDataRow.UserPronouns, Stars(1))
+            ),
+            ColumnDefinitions = Columns.Define(
+                (UserDataColumn.Data, Stars(2)),
+                (UserDataColumn.UtilityButtons, Stars(0.75))
+            ),
+            Children =
+            {
+                new Label
+                    {
+                        Text = $"#{DisplayUser?.Email}",
+                        FontSize = 15
+                    }
+                    .Row(UserDataRow.UserEmail)
+                    .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length - 1)
+                    .CenterVertical()
+                    .Left(),
+                new Label
+                    {
+                        Text = $"{DisplayUser?.UserName}",
+                        FontSize = 20
+                    }
+                    .Row(UserDataRow.UserName)
+                    .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
+                    .CenterVertical()
+                    .Left(),
+                new Label
+                    {
+                        Text = $"Pronouns: {DisplayUser?.Pronouns}",
+                        FontSize = 15
+                    }
+                    .Row(UserDataRow.UserPronouns)
+                    .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length - 1)
+                    .Top()
+                    .Left()
+            }
+        };
     }
 
     public IslandDisplayView GetIslandView()
@@ -284,7 +404,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
 
     public async Task GetUser(CancellationToken cancellationToken = default)
     {
-        var user = await _mediator.Send(new Methods.User.GetAndSyncUser.Query()
+        var user = await _mediator.Send(new Methods.User.GetAndSyncFriend.Query()
         {
             Auth0Id = DisplayUserAuth0Id
         },
@@ -299,5 +419,10 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
             throw new Exception( "Error getting user");
         }
-    } 
+    }
+
+    private async Task OnBackButtonClicked()
+    {
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
+    }
 }

@@ -6,11 +6,13 @@ public static class UserExtensions
 {
     public static string FullName(this BaseUser user)
     {
-        return user.FirstName +
-               (
+        return (
+                    !string.IsNullOrEmpty(user.FirstName)
+                        ? $" {user.FirstName}"
+                        : "")
+               + (
                    !string.IsNullOrEmpty(user.LastName)
                        ? $" {user.LastName}"
-                       : ""
-               );
+                       : "");
     }
 }
