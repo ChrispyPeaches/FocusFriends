@@ -78,7 +78,13 @@ public class AppShell : SimpleShell
                      Title = "FriendProfilePage",
                      ContentTemplate = new DataTemplate(typeof(FriendProfilePage)),
                      Route = "FriendProfilePage"
-                }
+                },
+                new ShellContent()
+                {
+                     Title = "LeaderboardsPage",
+                     ContentTemplate = new DataTemplate(typeof(LeaderboardsPage)),
+                     Route = "LeaderboardsPage"
+                },
             }
         };
         var loginTab = new Tab()
