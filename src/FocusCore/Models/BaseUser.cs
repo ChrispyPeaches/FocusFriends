@@ -22,12 +22,6 @@ public class BaseUser
 	public required int Balance { get; set; }
 
     [MaxLength(50)]
-    public string? FirstName { get; set; }
-
-    [MaxLength(50)]
-    public string? LastName { get; set; }
-
-    [MaxLength(50)]
     public string? Pronouns { get; set; }
 
 	public byte[]? ProfilePicture { get; set; }
