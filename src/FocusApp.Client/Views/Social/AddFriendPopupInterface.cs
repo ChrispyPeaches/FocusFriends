@@ -291,6 +291,13 @@ namespace FocusApp.Client.Views.Social
                 return;
             }
 
+            // Return if user enters their own email
+            if (friendEmail == _authenticationService.CurrentUser.Email)
+            {
+                entryError.Text = "Please don't enter your own email";
+                return;
+            }
+
             var friendRequest = new CreateFriendRequestCommand
             {
                 UserEmail = _authenticationService.CurrentUser.Email,
