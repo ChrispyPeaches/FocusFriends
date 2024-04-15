@@ -60,13 +60,13 @@ public class SyncItems
                         await AddNewItemsToMobileDb(petsToAdd, cancellationToken);
                     break;
                 case SyncItemType.Decor:
-                    mobileIds = await GetMobileDbMindfulnessTipIds<Pet>(cancellationToken);
+                    mobileIds = await GetMobileDbMindfulnessTipIds<Decor>(cancellationToken);
                     var decorToAdd = await GetMissingDecorFromServer(mobileIds, cancellationToken);
                     if (decorToAdd.Count > 0)
                         await AddNewItemsToMobileDb(decorToAdd, cancellationToken);
                     break;
                 case SyncItemType.Islands:
-                    mobileIds = await GetMobileDbMindfulnessTipIds<Pet>(cancellationToken);
+                    mobileIds = await GetMobileDbMindfulnessTipIds<Island>(cancellationToken);
                     var islandsToAdd = await GetMissingIslandsFromServer(mobileIds, cancellationToken);
                     if (islandsToAdd.Count > 0)
                         await AddNewItemsToMobileDb(islandsToAdd, cancellationToken);
