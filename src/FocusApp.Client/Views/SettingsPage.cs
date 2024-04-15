@@ -100,7 +100,7 @@ internal sealed class SettingsPage : BasePage
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Default.Set("ambiance_volume", e.NewValue);}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {PreferencesHelper.Set(PreferencesHelper.PreferenceNames.ambiance_volume, e.NewValue);}),
 
 
                 // Notifications
@@ -127,7 +127,7 @@ internal sealed class SettingsPage : BasePage
                 .Column(5)
                 .Left()
                 .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("notifications_enabled", e.Value); }),
+                .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.notifications_enabled, e.Value); }),
                 
                 
                 // Show Mindful Tips on Startup
@@ -154,7 +154,7 @@ internal sealed class SettingsPage : BasePage
                     .Column(5)
                     .Left()
                     .CenterVertical()
-                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("startup_tips_enabled", e.Value); }),
+                    .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.startup_tips_enabled, e.Value); }),
                 
                 
                 // Show Session Rating
@@ -181,7 +181,7 @@ internal sealed class SettingsPage : BasePage
                     .Column(5)
                     .Left()
                     .CenterVertical()
-                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("session_rating_enabled", e.Value); }),
+                    .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.session_rating_enabled, e.Value); }),
                 
                 
                 // Tutorial
@@ -255,11 +255,6 @@ internal sealed class SettingsPage : BasePage
         // Back navigation reverses animation so can keep right to left
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync("..");
-    }
-
-    private void SaveSwitchState(string key, bool val)
-    {
-        Preferences.Default.Set(key, val);
     }
 
     protected override async void OnAppearing()
