@@ -27,7 +27,8 @@ internal class SocialPage : BasePage
     private Helpers.PopupService _popupService;
     IAuthenticationService _authenticationService;
     IAPIClient _client { get; set; }
-    public ListView _friendsListView { get; set; }
+
+    public ListView _friendsListView;
 
     public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
 	{
