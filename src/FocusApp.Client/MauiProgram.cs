@@ -166,6 +166,9 @@ namespace FocusApp.Client
         /// Syncs all item types in the <see cref="SyncItems.SyncItemType"/> enum between the API and mobile database
         /// if the last sync happened over a week ago or this is the first time starting the app.
         /// </summary>
+        /// <remarks>
+        /// If there's an unexpected error, the critical data for app functionality will be retrieved.
+        /// </remarks>
         private static async Task StartupSync(IServiceCollection services, CancellationToken cancellationToken)
         {
             try
