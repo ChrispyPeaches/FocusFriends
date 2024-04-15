@@ -173,10 +173,14 @@ namespace FocusApp.Client
 
                 // If not in debug and a sync has been done in the past week, don't sync
 #if !DEBUG
-                DateTimeOffset? lastSyncTime = PreferencesHelper.Get<DateTimeOffset?>(PreferenceNames.last_sync_time);
-                if (lastSyncTime.HasValue)
-                    if (DateTimeOffset.UtcNow < lastSyncTime.Value.AddDays(7)) 
+                string lastSyncTimeString = PreferencesHelper.Get<string>(PreferenceNames.last_sync_time);
+                if (!string.IsNullOrEmpty(lastSyncTimeString))
+                {
+                    DateTimeOffset lastSyncTime = DateTimeOffset.Parse(lastSyncTimeString);
+
+                    if (DateTimeOffset.UtcNow < lastSyncTime.AddDays(7))
                         return;
+                }
 #endif
 
                 IList<Task> tasks = new List<Task>();
@@ -198,20 +202,22 @@ namespace FocusApp.Client
 
                 await Task.WhenAll(tasks);
 
-                PreferencesHelper.Set(PreferenceNames.last_sync_time, DateTimeOffset.UtcNow);
+                PreferencesHelper.Set(PreferenceNames.last_sync_time, DateTimeOffset.UtcNow.ToString("O"));
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                // If there's an error, ensure the essential database information is gathered
+                Console.WriteLine("Error occurred when syncing selectable items and mindfulness tips. Running essential database population.");
                 Console.Write(ex);
+                await GatherEssentialDatabaseData(services);
             }
         }
 
         /// <summary>
         /// Populates the database with initial data requested from the API for any of
-        /// the island, pets, or furniture tables if they don't have any entries.
+        /// the island, pets, or decor tables if they don't have any entries.
         /// </summary>
-        private static async Task InitialPopulateDatabase(IServiceCollection services)
+        private static async Task GatherEssentialDatabaseData(IServiceCollection services)
         {
             try
             {
@@ -225,7 +231,7 @@ namespace FocusApp.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error when instantiating and seeding database");
+                Console.WriteLine("Error when running essential database population.");
                 Console.Write(ex);
             }
         }
