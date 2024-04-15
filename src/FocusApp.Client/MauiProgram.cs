@@ -152,7 +152,6 @@ namespace FocusApp.Client
                     .ServiceProvider;
                 _ = scopedServiceProvider.GetRequiredService<FocusAppContext>();
 
-                await Task.Run(PreferencesHelper.InitializePreferences, default);
                 await Task.Run(() => StartupSync(services, default), default);
             }
             catch (Exception ex)

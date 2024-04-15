@@ -22,22 +22,11 @@ internal static class PreferencesHelper
 
     public static TPrefType Get<TPrefType>(PreferenceNames prefName)
     {
-        return Preferences.Default.Get<TPrefType>(nameof(prefName), _initialValues[nameof(prefName)]);
+        return Preferences.Default.Get<TPrefType>(prefName.ToString(), _initialValues[prefName.ToString()]);
     }
 
     public static void Set<TPrefType>(PreferenceNames prefName, TPrefType value)
     {
-        Preferences.Default.Set(nameof(prefName), value);
-    }
-
-    public static void InitializePreferences()
-    {
-        foreach (var (key, value) in _initialValues)
-        {
-            if (!Preferences.Default.ContainsKey(key))
-            {
-                Preferences.Default.Set(key, value);
-            }
-        }
+        Preferences.Default.Set(prefName.ToString(), value);
     }
 }
