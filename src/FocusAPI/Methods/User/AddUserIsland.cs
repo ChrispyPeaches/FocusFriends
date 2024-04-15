@@ -9,11 +9,11 @@ public class AddUserIsland
 {
     public class Handler : IRequestHandler<AddUserIslandCommand, Unit>
     {
-        FocusContext _context;
+        FocusAPIContext _apiContext;
         ILogger<Handler> _logger;
-        public Handler(FocusContext context, ILogger<Handler> logger)
+        public Handler(FocusAPIContext apiContext, ILogger<Handler> logger)
         {
-            _context = context;
+            _apiContext = apiContext;
             _logger = logger;
         }
 
@@ -21,8 +21,8 @@ public class AddUserIsland
         {
             try
             {
-                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                FocusAPI.Models.Island island = await _context.Islands.FirstOrDefaultAsync(s => s.Id == command.IslandId);
+                FocusAPI.Models.User user = await _apiContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                FocusAPI.Models.Island island = await _apiContext.Islands.FirstOrDefaultAsync(s => s.Id == command.IslandId);
 
                 user.Islands.Add(new UserIsland
                 {
@@ -32,7 +32,7 @@ public class AddUserIsland
 
                 user.Balance = command.UpdatedBalance;
 
-                await _context.SaveChangesAsync();
+                await _apiContext.SaveChangesAsync();
             }
             catch (Exception ex) 
             {

@@ -6,11 +6,11 @@ namespace FocusAPI.Data
 {
     public class Seeder
     {
-        private readonly FocusContext _context;
+        private readonly FocusAPIContext _apiContext;
         
-        public Seeder(FocusContext context)
+        public Seeder(FocusAPIContext apiContext)
         {
-            _context = context;
+            _apiContext = apiContext;
         }
 
         private List<MindfulnessTip> getMindfulnessTips()
@@ -117,13 +117,13 @@ namespace FocusAPI.Data
 
         public async Task SeedData()
         {
-            if (!_context.MindfulnessTips.Any())
+            if (!_apiContext.MindfulnessTips.Any())
             {
                  var tips = getMindfulnessTips();
 
-                await _context.MindfulnessTips.AddRangeAsync(tips);
+                await _apiContext.MindfulnessTips.AddRangeAsync(tips);
 
-                await _context.SaveChangesAsync();
+                await _apiContext.SaveChangesAsync();
             }
         }
     }

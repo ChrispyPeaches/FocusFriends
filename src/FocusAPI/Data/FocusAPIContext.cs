@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FocusAPI.Data;
 
-public class FocusContext : DbContext
+public class FocusAPIContext : DbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Badge> Badges { get; set; }
@@ -24,7 +24,7 @@ public class FocusContext : DbContext
     /// If the database isn't created, create it.
     /// If the tables aren't created, create them.
     /// </summary>
-    public FocusContext(DbContextOptions<FocusContext> options) : base(options)
+    public FocusAPIContext(DbContextOptions<FocusAPIContext> options) : base(options)
     {
         if (Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator dbCreator)
         {

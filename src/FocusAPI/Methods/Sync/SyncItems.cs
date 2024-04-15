@@ -31,11 +31,11 @@ public class SyncItems
     public class Handler<TItem> : IRequestHandler<Query<TItem>, Response<TItem>>
         where TItem : class, ISyncEntity
     {
-        private readonly FocusContext _context;
+        private readonly FocusAPIContext _apiContext;
 
-        public Handler(FocusContext context)
+        public Handler(FocusAPIContext apiContext)
         {
-            _context = context;
+            _apiContext = apiContext;
         }
 
         public async Task<Response<TItem>> Handle(
@@ -66,7 +66,7 @@ public class SyncItems
         {
             try
             {
-                return await _context.Set<TItem>()
+                return await _apiContext.Set<TItem>()
                     .Select(item => item.Id)
                     .ToListAsync(cancellationToken);
             }
@@ -101,7 +101,7 @@ public class SyncItems
         {
             try
             {
-                return await _context.Set<TItem>()
+                return await _apiContext.Set<TItem>()
                     .Where(item => missingItemIds.Contains(item.Id))
                     .ToListAsync(cancellationToken);
             }

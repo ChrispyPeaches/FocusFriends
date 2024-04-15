@@ -9,11 +9,11 @@ public class AddUserDecor
 {
     public class Handler : IRequestHandler<AddUserDecorCommand, Unit>
     {
-        FocusContext _context;
+        FocusAPIContext _apiContext;
         ILogger<Handler> _logger;
-        public Handler(FocusContext context, ILogger<Handler> logger)
+        public Handler(FocusAPIContext apiContext, ILogger<Handler> logger)
         {
-            _context = context;
+            _apiContext = apiContext;
             _logger = logger;
         }
 
@@ -21,8 +21,8 @@ public class AddUserDecor
         {
             try
             {
-                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                FocusAPI.Models.Decor decor = await _context.Decor.FirstOrDefaultAsync(f => f.Id == command.DecorId);
+                FocusAPI.Models.User user = await _apiContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                FocusAPI.Models.Decor decor = await _apiContext.Decor.FirstOrDefaultAsync(f => f.Id == command.DecorId);
 
                 user.Decor.Add(new UserDecor
                 {
@@ -32,7 +32,7 @@ public class AddUserDecor
 
                 user.Balance = command.UpdatedBalance;
 
-                await _context.SaveChangesAsync();
+                await _apiContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {

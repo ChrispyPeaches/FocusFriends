@@ -12,12 +12,12 @@ namespace FocusAPI.Methods.Sync
     {
         public class Handler : IRequestHandler<SyncInitialDataQuery, SyncInitialDataResponse>
         {
-            private readonly FocusContext _context;
+            private readonly FocusAPIContext _apiContext;
             private readonly ISyncService _syncService;
 
-            public Handler(FocusContext context, ISyncService syncService)
+            public Handler(FocusAPIContext apiContext, ISyncService syncService)
             {
-                _context = context;
+                _apiContext = apiContext;
                 _syncService = syncService;
             }
 
@@ -41,7 +41,7 @@ namespace FocusAPI.Methods.Sync
 
                 if (query.SyncInitialDecor)
                 {
-                    response.Decor = await _context.Decor
+                    response.Decor = await _apiContext.Decor
                         .FirstOrDefaultAsync(cancellationToken);
                 }
 

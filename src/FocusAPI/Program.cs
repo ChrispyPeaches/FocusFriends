@@ -28,7 +28,7 @@ internal class Program
         RegisterMediatR(builder);
 
         // Register DbContext
-        builder.Services.AddDbContext<FocusContext>(options =>
+        builder.Services.AddDbContext<FocusAPIContext>(options =>
         {
             options.UseSqlServer(builder.Configuration["DefaultConnectionString"]);
         });
