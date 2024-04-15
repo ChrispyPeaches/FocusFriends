@@ -19,22 +19,25 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 using CommunityToolkit.Maui.Converters;
 using Microsoft.Maui.ApplicationModel;
 using FocusCore.Queries.Social;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class SocialPage : BasePage
 {
     private Helpers.PopupService _popupService;
+    private readonly ILogger<SocialPage> _logger;
     IAuthenticationService _authenticationService;
     IAPIClient _client { get; set; }
 
     public ListView _friendsListView;
 
-    public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService)
+    public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService, ILogger<SocialPage> logger)
 	{
         _popupService = popupService;
         _client = client;
         _authenticationService = authenticationService;
+        _logger = logger;
 
         _friendsListView = BuildFriendsListView();
 
@@ -178,13 +181,21 @@ internal class SocialPage : BasePage
     public async void RepopulateFriendsList()
     {
         // Retrieve Friends from API
-        List<FriendListModel> friendsList;
+        List<FriendListModel> friendsList = new List<FriendListModel>();
 
         var query = new GetAllFriendsQuery
         {
             UserId = _authenticationService.CurrentUser.Id
         };
-        friendsList = await _client.GetAllFriends(query, default);
+
+        try
+        {
+            friendsList = await _client.GetAllFriends(query, default);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occured while fetching friends");
+        }
 
         _friendsListView.ItemsSource = friendsList;
     }
