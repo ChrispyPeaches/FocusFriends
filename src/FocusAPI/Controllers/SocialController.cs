@@ -25,7 +25,7 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
-        [Route("Friend")]
+        [Route("AllFriends")]
         public async Task<List<FriendListModel>> GetAllFriends([FromQuery] GetAllFriendsQuery query, CancellationToken cancellationToken)
         {
             return await _mediator.Send(query, cancellationToken);
@@ -33,7 +33,7 @@ namespace FocusAPI.Controllers
 
 
         [HttpGet]
-        [Route("FriendRequest")]
+        [Route("AllFriendRequests")]
         public async Task<List<FriendRequest>> GetAllFriendRequests([FromQuery] GetAllFriendRequestsQuery query, CancellationToken cancellationToken)
         {
             return await _mediator.Send(query, cancellationToken);

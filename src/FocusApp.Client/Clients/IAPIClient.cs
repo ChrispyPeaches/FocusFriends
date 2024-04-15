@@ -63,10 +63,10 @@ public interface IAPIClient
     #endregion
 
     #region Social
-    [Get("/Social/Friend")]
+    [Get("/Social/AllFriends")]
     Task<List<FriendListModel>> GetAllFriends(GetAllFriendsQuery query, CancellationToken cancellationToken = default);
 
-    [Get("/Social/FriendRequest")]
+    [Get("/Social/AllFriendRequests")]
     Task<List<FriendRequest>> GetAllFriendRequests(GetAllFriendRequestsQuery query, CancellationToken cancellationToken = default);
 
     [Post("/Social/FriendRequest")]
