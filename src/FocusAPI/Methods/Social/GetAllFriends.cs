@@ -18,12 +18,12 @@ public class GetAllFriends
 
         public async Task<List<FriendListModel>> Handle(GetAllFriendsQuery query, CancellationToken cancellationToken)
         {
-            User user = _context.Users
+            User? user = await _context.Users
                 .Include(user => user.Inviters)
                 .ThenInclude(i => i.Friend)
                 .Include(user => user.Invitees)
                 .ThenInclude(i => i.User)
-                .Where(user => user.Id == query.UserId).FirstOrDefault();
+                .Where(user => user.Id == query.UserId).FirstOrDefaultAsync(cancellationToken);
 
             // Friends where user is the inviter
             List<FriendListModel> inviters = user.Inviters.Where(f => f.Status == 1).Select(f => new FriendListModel

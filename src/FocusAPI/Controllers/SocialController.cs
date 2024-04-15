@@ -26,17 +26,41 @@ namespace FocusAPI.Controllers
 
         [HttpGet]
         [Route("AllFriends")]
-        public async Task<List<FriendListModel>> GetAllFriends([FromQuery] GetAllFriendsQuery query, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<FriendListModel>>> GetAllFriends([FromQuery] GetAllFriendsQuery query, CancellationToken cancellationToken)
         {
-            return await _mediator.Send(query, cancellationToken);
+            List<FriendListModel> result = new List<FriendListModel>();
+
+            try
+            {
+                result = await _mediator.Send(query, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching friends");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok(result);
         }
 
 
         [HttpGet]
         [Route("AllFriendRequests")]
-        public async Task<List<FriendRequest>> GetAllFriendRequests([FromQuery] GetAllFriendRequestsQuery query, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<FriendRequest>>> GetAllFriendRequests([FromQuery] GetAllFriendRequestsQuery query, CancellationToken cancellationToken)
         {
-            return await _mediator.Send(query, cancellationToken);
+            List<FriendRequest> result = new List<FriendRequest>();
+
+            try
+            {
+                result = await _mediator.Send(query, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching friend requests");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok(result);
         }
 
         [HttpPost]
@@ -73,16 +97,36 @@ namespace FocusAPI.Controllers
 
         [HttpPut]
         [Route("FriendRequest")]
-        public async Task AcceptFriendRequest(AcceptFriendRequestCommand command)
+        public async Task<ActionResult> AcceptFriendRequest(AcceptFriendRequestCommand command)
         {
-            await _mediator.Send(command);
+            try
+            {
+                await _mediator.Send(command);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error accepting friend request");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok();
         }
 
         [HttpDelete]
         [Route("FriendRequest")]
-        public async Task CancelFriendRequest([FromBody] CancelFriendRequestCommand command)
+        public async Task<ActionResult> CancelFriendRequest([FromBody] CancelFriendRequestCommand command)
         {
-            await _mediator.Send(command);
+            try
+            {
+                await _mediator.Send(command);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error cancelling friend request");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok();
         }
 
     }
