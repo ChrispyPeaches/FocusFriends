@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Maui.Converters;
-using FocusApp.Client;
-using FocusApp.Client.Clients;
+﻿using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
@@ -25,6 +23,8 @@ internal class UserBadgesPage : BasePage
 
     public Guid SelectedBadgeId { get; set; }
 
+    public FlexLayout _flexLayout;
+
     public UserBadgesPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
     {
         _client = client;
@@ -32,13 +32,22 @@ internal class UserBadgesPage : BasePage
         _popupService = popupService;
         _localContext = localContext;
 
-        var grid = new Grid
+        // FlexLayout for the Badges
+        _flexLayout = new FlexLayout
         {
-            RowDefinitions = Rows.Define(80,10,Star,70),
-            ColumnDefinitions = Columns.Define(Star,Star),
-            BackgroundColor = AppStyles.Palette.DarkMauve,
+            Direction = FlexDirection.Row,
+            Wrap = FlexWrap.Wrap,
+            JustifyContent = FlexJustify.SpaceAround
         };
-        grid.Children.Add(
+
+        Content = new Grid
+        {
+            RowDefinitions = Rows.Define(80, 10, Star, 70),
+            ColumnDefinitions = Columns.Define(Star, Star),
+            BackgroundColor = AppStyles.Palette.DarkMauve,
+
+            Children =
+            {
             // Header
             new Label
             {
@@ -47,13 +56,12 @@ internal class UserBadgesPage : BasePage
                 FontSize = 40
             }
             .Row(0)
-            .Column(1)
-            .Left()
+            .Column(0)
+            .Center()
             .ColumnSpan(2)
             .CenterVertical()
-            .Paddings(top: 5, bottom: 5, left: 5, right: 5));
+            .Paddings(top: 5, bottom: 5, left: 5, right: 5),
 
-        grid.Children.Add(
             // Back Button
             new Button
             {
@@ -68,9 +76,8 @@ internal class UserBadgesPage : BasePage
             .Paddings(top: 10, bottom: 10, left: 15, right: 15)
             .Column(0)
             .Invoke(button => button.Released += (sender, eventArgs) =>
-            BackButtonClicked(sender, eventArgs)));
+            BackButtonClicked(sender, eventArgs)),
 
-        grid.Children.Add(
             // Header & Content Divider
             new BoxView
             {
@@ -81,19 +88,18 @@ internal class UserBadgesPage : BasePage
             .Bottom()
             .Row(0)
             .Column(0)
-            .ColumnSpan(5));
+            .ColumnSpan(5),
 
-        // Configure FlexLayout for badge display
-        grid.Children.Add(new FlexLayout
-        {
-            Direction = FlexDirection.Row,
-            Wrap = FlexWrap.Wrap,
-            JustifyContent = FlexJustify.SpaceAround
-        }
-        .Row(2)
-        .ColumnSpan(2));
+            new ScrollView
+            {
+               Content = _flexLayout
+            }
+            // Badges FlexLayout
+            .ColumnSpan(2)
+            .Row(2)
+            }
+        };
 
-        Content = grid;
     }
 
     protected override async void OnAppearing()
@@ -142,7 +148,7 @@ internal class UserBadgesPage : BasePage
 
     private void DisplayBadges(List<Badge> localBadges, List<Guid> userBadgeIds)
     {
-        var flexLayout = (FlexLayout)((Grid)Content).Children[3];
+        var flexLayout = _flexLayout;
 
         // Add badges to FlexLayout
         foreach (var badge in localBadges)
@@ -162,7 +168,7 @@ internal class UserBadgesPage : BasePage
             }
             else
             {
-                var unownedBadge = new Image
+                var unownedBadge = new ImageButton
                 {
                     Source = ImageSource.FromStream(() => new MemoryStream(badge.Image)),
                     Aspect = Aspect.AspectFit,
@@ -172,10 +178,7 @@ internal class UserBadgesPage : BasePage
                 };
                 flexLayout.Children.Add(unownedBadge);
             }
-                
         }
-        // Set the FlexLayout as the content of the page
-        //Content = flexLayout;
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
