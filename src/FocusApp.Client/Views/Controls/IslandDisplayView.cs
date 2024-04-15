@@ -33,16 +33,16 @@ internal class IslandDisplayView : ContentView
         returnType: typeof(Pet),
         declaringType: typeof(IslandDisplayView));
 
-    public Furniture DisplayDecor
+    public Decor DisplayDecor
     {
-        get => (Furniture)GetValue(DisplayDecorProperty);
+        get => (Decor)GetValue(DisplayDecorProperty);
         set => SetValue(DisplayDecorProperty, value);
     }
 
     /// <summary>Bindable property for <see cref="DisplayDecor"/>.</summary>
     public static readonly BindableProperty DisplayDecorProperty = BindableProperty.Create(
         propertyName: nameof(DisplayDecor),
-        returnType: typeof(Furniture),
+        returnType: typeof(Decor),
         declaringType: typeof(IslandDisplayView));
 
     #endregion

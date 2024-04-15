@@ -19,6 +19,6 @@ namespace FocusApp.Shared.Models
     {
         Pets,
         Sounds,
-        Furniture
+        Decor
     }
 }

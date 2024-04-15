@@ -41,7 +41,7 @@ namespace FocusAPI.Methods.Sync
 
                 if (query.SyncInitialDecor)
                 {
-                    response.Decor = await _context.Furniture
+                    response.Decor = await _context.Decor
                         .FirstOrDefaultAsync(cancellationToken);
                 }
 

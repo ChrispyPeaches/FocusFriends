@@ -5,9 +5,9 @@ using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace FocusAPI.Methods.User;
-public class AddUserFurniture
+public class AddUserDecor
 {
-    public class Handler : IRequestHandler<AddUserFurnitureCommand, Unit>
+    public class Handler : IRequestHandler<AddUserDecorCommand, Unit>
     {
         FocusContext _context;
         ILogger<Handler> _logger;
@@ -17,16 +17,16 @@ public class AddUserFurniture
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(AddUserFurnitureCommand command, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddUserDecorCommand command, CancellationToken cancellationToken)
         {
             try
             {
                 FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                FocusAPI.Models.Furniture furniture = await _context.Furniture.FirstOrDefaultAsync(f => f.Id == command.FurnitureId);
+                FocusAPI.Models.Decor decor = await _context.Decor.FirstOrDefaultAsync(f => f.Id == command.DecorId);
 
-                user.Furniture.Add(new UserFurniture
+                user.Decor.Add(new UserDecor
                 {
-                    Furniture = furniture,
+                    Decor = decor,
                     DateAcquired = DateTime.UtcNow
                 });
 
@@ -36,7 +36,7 @@ public class AddUserFurniture
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error adding UserFurniture to database. Exception: " + ex.Message);
+                _logger.Log(LogLevel.Error, "Error adding UserDecor to database. Exception: " + ex.Message);
             }
 
             return Unit.Value;

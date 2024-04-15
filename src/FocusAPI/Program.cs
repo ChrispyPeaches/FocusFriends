@@ -75,8 +75,8 @@ internal class Program
             typeof(IRequestHandler<Query<Pet>, Response<Pet>>),
             typeof(Handler<Pet>));
         builder.Services.AddTransient(
-            typeof(IRequestHandler<Query<Furniture>, Response<Furniture>>),
-            typeof(Handler<Furniture>));
+            typeof(IRequestHandler<Query<Decor>, Response<Decor>>),
+            typeof(Handler<Decor>));
         builder.Services.AddTransient(
             typeof(IRequestHandler<Query<Island>, Response<Island>>),
             typeof(Handler<Island>));

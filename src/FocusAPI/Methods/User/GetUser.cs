@@ -60,7 +60,7 @@ public class GetUser
                     .Where(u => u.Auth0Id == query.Auth0Id)
                     .Include(user => user.Islands)
                     .Include(user => user.Pets)
-                    .Include(user => user.Furniture)
+                    .Include(user => user.Decor)
                     .Include(user => user.Badges)
                     .Select(user => ProjectionHelper.ProjectToBaseUser(user))
                     .FirstOrDefaultAsync(cancellationToken);

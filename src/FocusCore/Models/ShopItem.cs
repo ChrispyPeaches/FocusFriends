@@ -19,6 +19,6 @@ namespace FocusCore.Models
     {
         Pets,
         Sounds,
-        Furniture
+        Decor
     }
 }

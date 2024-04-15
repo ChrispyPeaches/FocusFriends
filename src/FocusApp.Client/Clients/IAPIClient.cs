@@ -38,8 +38,10 @@ public interface IAPIClient
     [Post("/User/Pet")]
     Task AddUserPet(AddUserPetCommand command);
 
-    [Post("/User/Furniture")]
-    Task AddUserFurniture(AddUserFurnitureCommand command);
+    [Post("/User/Decor")]
+    Task AddUserDecor(
+        AddUserDecorCommand command,
+        CancellationToken cancellationToken = default);
 
     [Post("/User/Island")]
     Task AddUserIsland(
@@ -80,7 +82,7 @@ public interface IAPIClient
         CancellationToken cancellationToken);
 
     [Post("/Sync/Decor")]
-    Task<SyncItemResponse<BaseFurniture>> SyncDecor(
+    Task<SyncItemResponse<BaseDecor>> SyncDecor(
         [Body] SyncItemsQuery query,
         CancellationToken cancellationToken);
 

@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusCore.Models;
 
-[Table("Furniture")]
-public class BaseFurniture : ISyncEntity
+[Table("Decor")]
+public class BaseDecor : ISyncEntity
 {
     [Key]
     public Guid Id { get; set; }

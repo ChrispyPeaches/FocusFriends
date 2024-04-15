@@ -126,24 +126,24 @@ namespace FocusAPI.Controllers
         [Route("Decor")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<SyncItemResponse<BaseFurniture>>> Decor(
+        public async Task<ActionResult<SyncItemResponse<BaseDecor>>> Decor(
             [FromBody] SyncItemsQuery query,
             CancellationToken cancellationToken)
         {
             try
             {
                 var result = await _mediator.Send(
-                    new SyncItems.Query<Furniture>
+                    new SyncItems.Query<Decor>
                     {
                         ItemIds = query.ItemIds
                     },
                     cancellationToken);
 
                 return Ok(
-                    new SyncItemResponse<BaseFurniture>
+                    new SyncItemResponse<BaseDecor>
                     {
                         MissingItems = result.MissingItems
-                            .Select(ProjectionHelper.ProjectToBaseFurniture)
+                            .Select(ProjectionHelper.ProjectToBaseDecor)
                             .ToList()
                     });
             }

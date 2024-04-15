@@ -161,7 +161,7 @@ public class SyncItems
             }
         }
 
-        private async Task<IList<Furniture>> GetMissingDecorFromServer(
+        private async Task<IList<Decor>> GetMissingDecorFromServer(
             List<Guid> mobileTipIds,
             CancellationToken cancellationToken)
         {
@@ -176,7 +176,7 @@ public class SyncItems
 
                 return response
                     .MissingItems
-                    .Select(ProjectionHelper.ProjectFromBaseFurniture)
+                    .Select(ProjectionHelper.ProjectFromBaseDecor)
                     .ToList();
             }
             catch (Exception ex)
