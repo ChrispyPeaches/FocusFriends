@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Shared.Data;
@@ -61,20 +62,27 @@ namespace FocusApp.Client.Methods.User
                     throw new Exception("Error fetching user from server", ex);
                 }
 
-                switch (response.StatusCode)
+                try
                 {
-                    case HttpStatusCode.OK:
-                        var user = ProjectionHelper.ProjectFromBaseUser(response.Content.User);
-                        result = await SyncAndGetUserData(request.Auth0Id, user, cancellationToken);
-                        break;
-                    case HttpStatusCode.NotFound:
-                        _logger.LogDebug("User not found on server.");
-                        result = await SyncAndGetUserData(request.Auth0Id, cancellationToken: cancellationToken);
-                        break;
-                    case HttpStatusCode.InternalServerError:
-                        _logger.LogDebug("Error fetching user from server.");
-                        result = await SyncAndGetUserData(request.Auth0Id, cancellationToken: cancellationToken);
-                        break;
+                    Shared.Models.User? user = null;
+                    switch (response.StatusCode)
+                    {
+                        case HttpStatusCode.OK:
+                            user = ProjectionHelper.ProjectFromBaseUser(response.Content.User);
+                            break;
+                        case HttpStatusCode.NotFound:
+                            _logger.LogDebug(response.Error, "User not found on server.");
+                            break;
+                        case HttpStatusCode.InternalServerError:
+                            _logger.LogDebug(response.Error, "Error fetching user from server.");
+                            break;
+                    }
+
+                    result = await SyncAndGetUserData(request.Auth0Id, user, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error fetching user from server", ex);
                 }
 
                 return result;
@@ -90,8 +98,6 @@ namespace FocusApp.Client.Methods.User
                 Shared.Models.User? responseFriend = null,
                 CancellationToken cancellationToken = default)
             {
-                Shared.Models.User? user;
-
                 Shared.Models.User? localFriend = await _context.Users
                     .Include(u => u.SelectedIsland)
                     .Include(u => u.SelectedPet)
@@ -100,73 +106,90 @@ namespace FocusApp.Client.Methods.User
                     .Where(u => u.Auth0Id == auth0Id)
                     .FirstOrDefaultAsync(cancellationToken);
 
+                
                 // Sync user data
-                if (responseFriend is not null && 
-                    localFriend is not null)
+                if (responseFriend is null && localFriend is null)
                 {
-                    // Update normal fields
-                    localFriend.UserName = CheckNullAndUpdateString(localFriend.UserName, responseFriend.UserName);
-                    localFriend.FirstName = CheckNullAndUpdateString(localFriend.FirstName, responseFriend.FirstName);
-                    localFriend.LastName = CheckNullAndUpdateString(localFriend.LastName, responseFriend.LastName);
-                    localFriend.Pronouns = CheckNullAndUpdateString(localFriend.Pronouns, responseFriend.Pronouns);
-
-                    localFriend.ProfilePicture = responseFriend.ProfilePicture ?? localFriend.ProfilePicture;
-
-                    // Update selected items
-                    if (responseFriend.SelectedPetId != null &&
-                        localFriend.SelectedPetId != responseFriend.SelectedPetId)
-                    {
-                        localFriend.SelectedPetId = responseFriend.SelectedPetId;
-                        localFriend.SelectedPet = await _context.Pets
-                            .Where(pet => pet.Id == localFriend.SelectedPetId)
-                            .FirstOrDefaultAsync(cancellationToken);
-                    }
-
-                    if (responseFriend.SelectedIslandId != null &&
-                        localFriend.SelectedIslandId != responseFriend.SelectedIslandId)
-                    {
-                        localFriend.SelectedIslandId = responseFriend.SelectedIslandId;
-                        localFriend.SelectedIsland = await _context.Islands
-                            .Where(island => island.Id == localFriend.SelectedIslandId)
-                            .FirstOrDefaultAsync(cancellationToken);
-                    }
-
-                    if (responseFriend.SelectedBadgeId != null &&
-                        localFriend.SelectedBadgeId != responseFriend.SelectedBadgeId)
-                    {
-                        localFriend.SelectedBadgeId = responseFriend.SelectedBadgeId;
-                        localFriend.SelectedBadge = await _context.Badges
-                            .Where(badge => badge.Id == localFriend.SelectedBadgeId)
-                            .FirstOrDefaultAsync(cancellationToken);
-                    }
-
-                    if (responseFriend.SelectedFurnitureId != null &&
-                        localFriend.SelectedFurnitureId != responseFriend.SelectedFurnitureId)
-                    {
-                        localFriend.SelectedFurnitureId = responseFriend.SelectedFurnitureId;
-                        localFriend.SelectedFurniture = await _context.Furniture
-                            .Where(furniture => furniture.Id == localFriend.SelectedFurnitureId)
-                            .FirstOrDefaultAsync(cancellationToken);
-                    }
-
-                    // If the selected island or pet are null, set to default
-                    localFriend.SelectedIsland ??= await _syncService
-                        .GetInitialIslandQuery()
-                        .FirstOrDefaultAsync(cancellationToken);
-                    localFriend.SelectedIslandId ??= localFriend.SelectedIsland?.Id;
-
-                    localFriend.SelectedPet ??= await _syncService
-                        .GetInitialPetQuery()
-                        .FirstOrDefaultAsync(cancellationToken);
-                    localFriend.SelectedPetId ??= localFriend.SelectedPet?.Id;
-
-                    await _context.SaveChangesAsync(cancellationToken);
+                    throw new InvalidOperationException("User data not found.");
                 }
+                else if (responseFriend is null || localFriend is null)
+                {
+                    localFriend ??= responseFriend;
+                }
+                else
+                {
+                    await UpdateLocalFriendWithServerInfo(localFriend, responseFriend, cancellationToken);
+                }
+
+                // If the selected island or pet are null, set to default
+                localFriend.SelectedIsland ??= await _syncService
+                    .GetInitialIslandQuery()
+                    .FirstOrDefaultAsync(cancellationToken);
+                localFriend.SelectedIslandId ??= localFriend.SelectedIsland?.Id;
+
+                localFriend.SelectedPet ??= await _syncService
+                    .GetInitialPetQuery()
+                    .FirstOrDefaultAsync(cancellationToken);
+                localFriend.SelectedPetId ??= localFriend.SelectedPet?.Id;
+
+                if (_context.ChangeTracker.HasChanges())
+                    await _context.SaveChangesAsync(cancellationToken);
 
                 return localFriend;
             }
 
-            public string CheckNullAndUpdateString(string existingValue, string newValue) => 
+            private async Task UpdateLocalFriendWithServerInfo(
+                Shared.Models.User? localFriend,
+                Shared.Models.User? responseFriend,
+                CancellationToken cancellationToken)
+            {
+                // Update normal fields
+                localFriend.UserName = CheckNullAndUpdateString(localFriend.UserName, responseFriend.UserName);
+                localFriend.FirstName = CheckNullAndUpdateString(localFriend.FirstName, responseFriend.FirstName);
+                localFriend.LastName = CheckNullAndUpdateString(localFriend.LastName, responseFriend.LastName);
+                localFriend.Pronouns = CheckNullAndUpdateString(localFriend.Pronouns, responseFriend.Pronouns);
+
+                localFriend.ProfilePicture = responseFriend.ProfilePicture ?? localFriend.ProfilePicture;
+
+                // Update selected items
+                if (responseFriend.SelectedPetId != null &&
+                    localFriend.SelectedPetId != responseFriend.SelectedPetId)
+                {
+                    localFriend.SelectedPetId = responseFriend.SelectedPetId;
+                    localFriend.SelectedPet = await _context.Pets
+                        .Where(pet => pet.Id == localFriend.SelectedPetId)
+                        .FirstOrDefaultAsync(cancellationToken);
+                }
+
+                if (responseFriend.SelectedIslandId != null &&
+                    localFriend.SelectedIslandId != responseFriend.SelectedIslandId)
+                {
+                    localFriend.SelectedIslandId = responseFriend.SelectedIslandId;
+                    localFriend.SelectedIsland = await _context.Islands
+                        .Where(island => island.Id == localFriend.SelectedIslandId)
+                        .FirstOrDefaultAsync(cancellationToken);
+                }
+
+                if (responseFriend.SelectedBadgeId != null &&
+                    localFriend.SelectedBadgeId != responseFriend.SelectedBadgeId)
+                {
+                    localFriend.SelectedBadgeId = responseFriend.SelectedBadgeId;
+                    localFriend.SelectedBadge = await _context.Badges
+                        .Where(badge => badge.Id == localFriend.SelectedBadgeId)
+                        .FirstOrDefaultAsync(cancellationToken);
+                }
+
+                if (responseFriend.SelectedFurnitureId != null &&
+                    localFriend.SelectedFurnitureId != responseFriend.SelectedFurnitureId)
+                {
+                    localFriend.SelectedFurnitureId = responseFriend.SelectedFurnitureId;
+                    localFriend.SelectedFurniture = await _context.Furniture
+                        .Where(furniture => furniture.Id == localFriend.SelectedFurnitureId)
+                        .FirstOrDefaultAsync(cancellationToken);
+                }
+            }
+
+            private static string CheckNullAndUpdateString(string existingValue, string newValue) => 
                 !string.IsNullOrEmpty(newValue) ? newValue : existingValue;
         }
 
