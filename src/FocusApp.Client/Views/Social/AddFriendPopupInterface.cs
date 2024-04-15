@@ -5,8 +5,8 @@ using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
-using FocusApp.Shared.Models;
 using FocusCore.Commands.Social;
+using FocusCore.Models;
 using FocusCore.Queries.Social;
 using FocusCore.Responses.Social;
 using Microsoft.Maui.Controls;
@@ -260,7 +260,7 @@ namespace FocusApp.Client.Views.Social
             switch (httpCode)
             {
                 case HttpStatusCode.Conflict:
-                    entryError.Text = "You are already friends with this user";
+                    entryError.Text = "Friendship already exists or is pending";
                     break;
                 case HttpStatusCode.NotFound:
                     entryError.Text = "Invalid user email";
@@ -334,7 +334,7 @@ namespace FocusApp.Client.Views.Social
             await _client.AcceptFriendRequest(acceptCommand);
 
             // Refresh friends list
-            SocialPage.RepopulateFriendsList();
+            SocialPage.PopulateFriendsList();
 
             PopulatePopup();
         }

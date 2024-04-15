@@ -10,6 +10,7 @@ using FocusCore.Responses.Social;
 using FocusCore.Responses.Leaderboard;
 using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
+using FocusCore.Models;
 using Refit;
 
 namespace FocusApp.Client.Clients;

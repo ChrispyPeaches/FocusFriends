@@ -100,6 +100,8 @@ public class CreateFriendRequest
             try
             {
                 return await _context.Friends
+                    .Include(f => f.User)
+                    .Include(f => f.Friend)
                     .Where(f => (f.User.Email == command.UserEmail && f.Friend.Email == command.FriendEmail)
                     || (f.User.Email == command.FriendEmail && f.Friend.Email == command.UserEmail) )
                     .FirstOrDefaultAsync(cancellationToken);

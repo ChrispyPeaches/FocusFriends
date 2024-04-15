@@ -14,12 +14,12 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Helpers;
-using FocusApp.Shared.Models;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using CommunityToolkit.Maui.Converters;
 using Microsoft.Maui.ApplicationModel;
 using FocusCore.Queries.Social;
 using Microsoft.Extensions.Logging;
+using FocusCore.Models;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -157,28 +157,22 @@ internal class SocialPage : BasePage
 
     protected override async void OnAppearing()
     {
+        // If not logged in display popup, otherwise populate friends list
         if (string.IsNullOrEmpty(_authenticationService.AuthToken))
         {
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(SocialPage);
         }
-
-        // Retrieve Friends from API
-        List<FriendListModel> friendsList;
-
-        var query = new GetAllFriendsQuery
+        else
         {
-            UserId = _authenticationService.CurrentUser.Id
-        };
-        friendsList = await _client.GetAllFriends(query, default);
-
-        _friendsListView.ItemsSource = friendsList;
+            PopulateFriendsList();
+        }
 
         base.OnAppearing();
     }
 
-    // We call this function from friends popup to refresh the friends list
-    public async void RepopulateFriendsList()
+    // We call this function to populate FriendsList and from friends popup to refresh list
+    public async void PopulateFriendsList()
     {
         // Retrieve Friends from API
         List<FriendListModel> friendsList = new List<FriendListModel>();
