@@ -28,15 +28,17 @@ public interface IAPIClient
     [Get("/Leaderboard/Daily")]
     Task<LeaderboardResponse> GetDailyLeaderboard(
         GetDailyLeaderboardQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Get("/Leaderboard/Weekly")]
     Task<LeaderboardResponse> GetWeeklyLeaderboard(
         GetWeeklyLeaderboardQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/User/Pet")]
-    Task AddUserPet(AddUserPetCommand command);
+    Task AddUserPet(
+        AddUserPetCommand command,
+        CancellationToken cancellationToken = default);
 
     [Post("/User/Decor")]
     Task AddUserDecor(
@@ -60,7 +62,7 @@ public interface IAPIClient
     [Get("/Shop")]
     Task<List<ShopItem>> GetAllShopItems(
         GetAllShopItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     #endregion
 
@@ -69,32 +71,32 @@ public interface IAPIClient
     [Post("/Sync/MindfulnessTips")]
     Task<SyncItemResponse<BaseMindfulnessTip>> SyncMindfulnessTips(
         [Body] SyncItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/Sync/Badges")]
     Task<SyncItemResponse<BaseBadge>> SyncBadges(
         [Body] SyncItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/Sync/Pets")]
     Task<SyncItemResponse<BasePet>> SyncPets(
         [Body] SyncItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/Sync/Decor")]
     Task<SyncItemResponse<BaseDecor>> SyncDecor(
         [Body] SyncItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/Sync/Islands")]
     Task<SyncItemResponse<BaseIsland>> SyncIslands(
         [Body] SyncItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/Sync/InitialData")]
     Task<SyncInitialDataResponse> SyncInitialData(
         [Body] SyncInitialDataQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     #endregion
 }
