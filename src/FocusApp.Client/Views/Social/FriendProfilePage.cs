@@ -9,6 +9,8 @@ using FocusApp.Shared.Models;
 using FocusCore.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Controls.Handlers;
+using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
@@ -67,12 +69,17 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
 
     private Action DisplayUserIdSet;
 
-    enum Column { ProfilePicture, ProfileInfo }
-    enum Row { TopBar, ProfileInfo, IslandView, BottomWhiteSpace }
+    enum Column { ProfilePicture, Pronouns }
+    enum Row { TopBar, ProfilePicAndPronouns, IslandView, ProfileInfo, BottomWhiteSpace }
 
     // Row / Column structure for user data header
     enum UserDataRow { UserEmail, UserName, UserPronouns }
     enum UserDataColumn { Data, UtilityButtons }
+
+
+    int _labelFontSize = 17;
+    int _valueFontSize = 20;
+    Color _labelColor = Colors.SlateGray;
 
     private readonly IMediator _mediator;
     private readonly ILogger<FriendProfilePage> _logger;
@@ -83,13 +90,14 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
         {
             RowDefinitions = GridRowsColumns.Rows.Define(
                 (Row.TopBar, 80),
-                (Row.ProfileInfo, GridRowsColumns.Stars(3)),
-                (Row.IslandView, GridRowsColumns.Stars(4)),
-                (Row.BottomWhiteSpace, GridRowsColumns.Stars(2))
+                (Row.ProfilePicAndPronouns, GridRowsColumns.Stars(1)),
+                (Row.IslandView, GridRowsColumns.Stars(2)),
+                (Row.ProfileInfo, GridRowsColumns.Stars(1)),
+                (Row.BottomWhiteSpace, 80)
             ),
             ColumnDefinitions = GridRowsColumns.Columns.Define(
                 (Column.ProfilePicture, GridRowsColumns.Stars(2)),
-                (Column.ProfileInfo, GridRowsColumns.Stars(2))
+                (Column.Pronouns, GridRowsColumns.Stars(2))
             ),
             Children =
             {
@@ -98,7 +106,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                         Color = AppStyles.Palette.OrchidPink
                     }
                     .ZIndex(2)
-                    .Row(Row.ProfileInfo, Row.BottomWhiteSpace)
+                    .Row(Row.ProfilePicAndPronouns, Row.BottomWhiteSpace)
                     .Column(typeof(Column).GetEnumNames().Length)
                     .Center()
                     .Bind(
@@ -142,23 +150,33 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 .Row(Row.TopBar)
                 .ColumnSpan(typeof(Column).GetEnumNames().Length));
 
-        AvatarView profilePic = GetProfilePic()
-            .Row(Row.ProfileInfo)
+        Border profilePic = GetProfilePic()
+            .Row(Row.ProfilePicAndPronouns)
             .Column(Column.ProfilePicture);
+
         grid.Children.Add(profilePic);
+
         grid.Children.Add(
             GetBadgeOverlay(profilePic)
-                .Row(Row.ProfileInfo)
+                .Row(Row.ProfilePicAndPronouns)
                 .Column(Column.ProfilePicture));
+
         grid.Children.Add(
-            GetProfileInfo()
-                .Row(Row.ProfileInfo)
-                .Column(Column.ProfileInfo));
+            GetPronounsContainer()
+                .Row(Row.ProfilePicAndPronouns)
+                .Column(Column.Pronouns));
+
         grid.Children.Add(
             GetIslandView()
                 .CenterVertical()
                 .Row(Row.IslandView)
                 .ColumnSpan(typeof(Column).GetEnumNames().Length));
+
+        grid.Children.Add(
+            GetProfileInfo()
+                .Row(Row.ProfileInfo)
+                .ColumnSpan(typeof(Column).GetEnumNames().Length));
+
 
         MainThread.BeginInvokeOnMainThread(() => Content = grid);
     }
@@ -210,11 +228,12 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 WidthRequest = 126,
                 ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(DisplayUser?.ProfilePicture),
             }
+            .Aspect(Aspect.AspectFit)
             .Top()
             .Margins(top: 10, left: -5);
     }
 
-    public FlexLayout GetBadgeOverlay(AvatarView profilePic)
+    public FlexLayout GetBadgeOverlay(View profilePic)
     {
         return new FlexLayout()
             {
@@ -250,13 +269,43 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 source: profilePic);
     }
 
+    public FlexLayout GetPronounsContainer()
+    {
+        int horizontalPadding = 5;
+        int verticalPadding = 2;
+
+        return new FlexLayout()
+            {
+                Direction = FlexDirection.Column,
+                AlignItems = FlexAlignItems.Start,
+                JustifyContent = FlexJustify.Start,
+                Children =
+                {
+                    // Pronouns
+                    new Label()
+                        {
+                            Text = "Pronouns",
+                            FontSize = _labelFontSize,
+                            TextColor = _labelColor
+                        }
+                        .Padding(horizontalPadding, verticalPadding)
+                        .AlignSelf(FlexAlignSelf.Start),
+                    new Label()
+                        {
+                            Text = $"{DisplayUser?.Pronouns}",
+                            FontSize = _valueFontSize
+                        }
+                        .Padding(horizontalPadding, verticalPadding)
+                        .AlignSelf(FlexAlignSelf.Start),
+                }
+            }
+            .Margins(top: 10);
+    }
+
     public FlexLayout GetProfileInfo()
     {
         int horizontalPadding = 5;
         int verticalPadding = 2;
-        int labelFontSize = 15;
-        int valueFontSize = 17;
-        Color labelColor = Colors.SlateGray;
 
         var a = new FlexLayout()
         {
@@ -268,98 +317,36 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 // Email / Id
                 new Label()
                     {
+                        Text = "Friend Id",
+                        FontSize = _labelFontSize,
+                        TextColor = _labelColor
+                    }
+                    .Padding(horizontalPadding, verticalPadding)
+                    .AlignSelf(FlexAlignSelf.Start),
+                new Label()
+                    {
                         Text = $"#{DisplayUser?.Email}",
-                        FontSize = valueFontSize
+                        FontSize = _valueFontSize
                     }
                     .Padding(horizontalPadding, verticalPadding)
                     .AlignSelf(FlexAlignSelf.Start),
 
-                // Name
-                new Label()
+                // Date Joined
+                new Label
                     {
-                        Text = "Name",
-                        FontSize = labelFontSize,
-                        TextColor = labelColor
+                        Text = $"Member Since: {DisplayUser?.DateCreated.ToShortDateString()}",
+                        TextColor = Colors.Black,
+                        FontSize = 20
                     }
-                    .Padding(horizontalPadding, verticalPadding)
-                    .AlignSelf(FlexAlignSelf.Start),
-                new Label()
-                    {
-                        Text = DisplayUser?.FullName(),
-                        FontSize = valueFontSize
-                    }
-                    .Padding(horizontalPadding, verticalPadding)
-                    .AlignSelf(FlexAlignSelf.Start),
-                
-                // Pronouns
-                new Label()
-                    {
-                        Text = "Pronouns",
-                        FontSize = labelFontSize,
-                        TextColor = labelColor
-                    }
-                    .Padding(horizontalPadding, verticalPadding)
-                    .AlignSelf(FlexAlignSelf.Start),
-                new Label()
-                    {
-                        Text = $"{DisplayUser?.Pronouns}",
-                        FontSize = valueFontSize
-                    }
-                    .Padding(horizontalPadding, verticalPadding)
-                    .AlignSelf(FlexAlignSelf.Start),
+                    .Margins(top: 10)
+                    .AlignSelf(FlexAlignSelf.Center)
 
 
             }
         }
-        .Margins(top: 10);
+        .Margins(top: 10, left: 10);
 
         return a;
-    }
-
-    public Grid GetProfileInfo2()
-    {
-        return new Grid
-        {
-            RowDefinitions = Rows.Define(
-                (UserDataRow.UserEmail, Stars(1)),
-                (UserDataRow.UserName, Stars(1.5)),
-                (UserDataRow.UserPronouns, Stars(1))
-            ),
-            ColumnDefinitions = Columns.Define(
-                (UserDataColumn.Data, Stars(2)),
-                (UserDataColumn.UtilityButtons, Stars(0.75))
-            ),
-            Children =
-            {
-                new Label
-                    {
-                        Text = $"#{DisplayUser?.Email}",
-                        FontSize = 15
-                    }
-                    .Row(UserDataRow.UserEmail)
-                    .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length - 1)
-                    .CenterVertical()
-                    .Left(),
-                new Label
-                    {
-                        Text = $"{DisplayUser?.UserName}",
-                        FontSize = 20
-                    }
-                    .Row(UserDataRow.UserName)
-                    .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
-                    .CenterVertical()
-                    .Left(),
-                new Label
-                    {
-                        Text = $"Pronouns: {DisplayUser?.Pronouns}",
-                        FontSize = 15
-                    }
-                    .Row(UserDataRow.UserPronouns)
-                    .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length - 1)
-                    .Top()
-                    .Left()
-            }
-        };
     }
 
     public IslandDisplayView GetIslandView()
@@ -393,6 +380,9 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "Error getting friend");
+
+            await DisplayAlert("Error", ex.Message, "OK");
+
             // Go back a page
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
         }
