@@ -26,8 +26,6 @@ public class AcceptFriendRequest
             try
             {
                 var friendship = await _context.Friends
-                    .Include(f => f.User)
-                    .Include(f => f.Friend)
                     .FirstOrDefaultAsync(f => f.UserId == command.FriendId && f.FriendId == command.UserId);
 
                 // Fulfill friend request
@@ -37,7 +35,7 @@ public class AcceptFriendRequest
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error editing friendship in database. Exception: " + ex.Message);
+                _logger.LogError(ex , "Error editing friendship in database");
             }
 
             return Unit.Value;

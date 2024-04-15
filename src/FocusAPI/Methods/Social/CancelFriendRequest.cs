@@ -42,7 +42,7 @@ public class CancelFriendRequest
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error removing friendship from database. Exception: " + ex.Message);
+                _logger.LogError(ex, "Error removing friendship from database");
             }
 
             return Unit.Value;
