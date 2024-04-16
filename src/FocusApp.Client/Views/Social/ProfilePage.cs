@@ -31,6 +31,16 @@ internal class ProfilePage : BasePage
     // Row structure for selected user items
     enum SelectedItemRow { Top, Bottom }
 
+    // User data references
+    AvatarView _profilePicture { get; set; }
+    Label _userName { get; set; }
+    Label _pronouns { get; set; }
+
+    // Selected user item references
+    ImageButton _selectedPet { get; set; }
+    ImageButton _selectedIsland { get; set; }
+    ImageButton _selectedDecor { get; set; }
+    ImageButton _selectedBadge { get; set; }
     #region Frontend
     public ProfilePage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext) 
     {
@@ -39,55 +49,8 @@ internal class ProfilePage : BasePage
         _popupService = popupService;
         _localContext = localContext;
 
-        // Set bindable properties with images
-        AvatarView profilePicture = new AvatarView
-        {
-            CornerRadius = 63,
-            HeightRequest = 126,
-            WidthRequest = 126
-        }
-        .Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
-        profilePicture.BindingContext = _authenticationService.CurrentUser;
-
-        ImageButton selectedPet = new ImageButton
-        {
-            HeightRequest = 110,
-            WidthRequest = 110
-        }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
-        .Invoke(button => button.Released += (sender, eventArgs) =>
-            SelectedPetClicked(sender, eventArgs));
-        selectedPet.BindingContext = _authenticationService.CurrentUser?.SelectedPet;
-
-        ImageButton selectedIsland = new ImageButton
-        {
-            HeightRequest = 110,
-            WidthRequest = 110
-        }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
-        .Invoke(button => button.Released += (sender, eventArgs) =>
-            SelectedIslandClicked(sender, eventArgs));
-        selectedIsland.BindingContext = _authenticationService.CurrentUser?.SelectedIsland;
-
-        ImageButton selectedDecor = new ImageButton
-        {
-            HeightRequest = 110,
-            WidthRequest = 110
-        }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
-        .Invoke(button => button.Released += (sender, eventArgs) =>
-            SelectedDecorClicked(sender, eventArgs));
-        selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedFurniture;
-
-        ImageButton selectedBadge = new ImageButton
-        {
-            HeightRequest = 110,
-            WidthRequest = 110
-        }
-        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
-        .Invoke(button => button.Released += (sender, eventArgs) =>
-            SelectedBadgeClicked(sender, eventArgs));
-        selectedBadge.BindingContext = _authenticationService.CurrentUser?.SelectedBadge;
+        CreateUserDataElements();
+        CreateSelectedItemElements();
 
         Content = new Grid
         {
@@ -123,7 +86,7 @@ internal class ProfilePage : BasePage
                     BackButtonClicked(sender, eventArgs)),
 
                 // Profile Picture
-                profilePicture
+                _profilePicture
                 .Column(PageColumn.Left)
                 .Row(PageRow.UserDataHeader)
                 .CenterVertical()
@@ -168,20 +131,13 @@ internal class ProfilePage : BasePage
                         .Invoke(button => button.Released += (sender, eventArgs) =>
                             CopyEmailClicked(sender, eventArgs)),
 
-                        new Label 
-                        { 
-                            Text = $"{_authenticationService.CurrentUser?.UserName}", 
-                            FontSize = 25
-                        }
+                        _userName
                         .Row(UserDataRow.UserName)
                         .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
                         .CenterVertical()
                         .Left(),
-                        new Label 
-                        { 
-                            Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}",
-                            FontSize = 15
-                        }
+
+                        _pronouns
                         .Row(UserDataRow.UserPronouns)
                         .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
                         .Top()
@@ -219,7 +175,6 @@ internal class ProfilePage : BasePage
                 .Bottom()
                 .Margins(bottom: 15),
 
-
                 new Grid
                 { 
                     RowDefinitions = Rows.Define(
@@ -246,7 +201,7 @@ internal class ProfilePage : BasePage
                         .Margins(bottom: 15),
 
                         // Selected pet image button
-                        selectedPet
+                        _selectedPet?
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Left)
                         .Center(),
@@ -263,7 +218,6 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Left)
                         .Top()
                         .CenterHorizontal(),
-                        //.Margins(top: 15),
 
                         /* Selected Island cell */
                         new Label
@@ -279,7 +233,7 @@ internal class ProfilePage : BasePage
                         .Margins(bottom: 15),
 
                         // Selected island image button
-                        selectedIsland
+                        _selectedIsland?
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Right)
                         .Center(),
@@ -296,7 +250,6 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Right)
                         .Top()
                         .CenterHorizontal(),
-                        //.Margins(top: 15),
 
                         /* Selected Decor cell */
                         new Label
@@ -312,7 +265,7 @@ internal class ProfilePage : BasePage
                         .Margins(bottom: 15),
 
                         // Selected decor image button
-                        selectedDecor
+                        _selectedDecor?
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Left)
                         .Center(),
@@ -329,7 +282,6 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Left)
                         .Top()
                         .CenterHorizontal(),
-                        //.Margins(top: 15),
 
                         /* Selected Badge cell */
                         new Label
@@ -345,7 +297,7 @@ internal class ProfilePage : BasePage
                         .Margins(bottom: 15),
                         
                         // Selected badge image button
-                        selectedBadge
+                        _selectedBadge?
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Right)
                         .Center(),
@@ -362,7 +314,6 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Right)
                         .Top()
                         .CenterHorizontal(),
-                        //.Margins(top: 15),
 
                         // Dividers for the selected item grid sections
                         new BoxView
@@ -405,6 +356,99 @@ internal class ProfilePage : BasePage
         };
     }
 
+    protected override async void OnAppearing()
+    {
+        ByteArrayToImageSourceConverter byteArrayConverter = new ByteArrayToImageSourceConverter();
+        // Refresh bindings on page load in case of profile edit / navigation to settings page
+        _profilePicture.ImageSource = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
+        _userName.Text = _authenticationService.CurrentUser?.UserName;
+        _pronouns.Text = _authenticationService.CurrentUser?.Pronouns;
+
+        _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedPet?.Image);
+        _selectedIsland.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedIsland?.Image);
+
+        if (_authenticationService.CurrentUser?.SelectedFurniture != null)
+            _selectedDecor.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedFurniture?.Image);
+        // TODO: Refresh badge image on page load when badge image migration is in
+        /*
+        if (_authenticationService.CurrentUser?.SelectedBadge != null)
+            _selectedBadge.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedBadge?.Image);
+        */
+    }
+
+    private void CreateUserDataElements()
+    {
+        // Set bindable properties with images
+        _profilePicture = new AvatarView
+        {
+            CornerRadius = 63,
+            HeightRequest = 126,
+            WidthRequest = 126
+        }
+        .Bind(AvatarView.ImageSourceProperty,
+              "ProfilePicture",
+              converter: new ByteArrayToImageSourceConverter());
+        _profilePicture.BindingContext = _authenticationService.CurrentUser;
+
+        _userName = new Label
+        {
+            Text = $"{_authenticationService.CurrentUser?.UserName}",
+            FontSize = 25
+        };
+
+        _pronouns = new Label
+        {
+            Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}",
+            FontSize = 15
+        };
+    }
+
+    private void CreateSelectedItemElements()
+    {
+        _selectedPet = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedPetClicked(sender, eventArgs));
+        _selectedPet.BindingContext = _authenticationService.CurrentUser?.SelectedPet;
+
+        _selectedIsland = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedIslandClicked(sender, eventArgs));
+        _selectedIsland.BindingContext = _authenticationService.CurrentUser?.SelectedIsland;
+
+        _selectedDecor = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedDecorClicked(sender, eventArgs));
+        _selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedFurniture;
+
+        _selectedBadge = new ImageButton
+        {
+            HeightRequest = 110,
+            WidthRequest = 110
+        }
+        .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
+        .Invoke(button => button.Released += (sender, eventArgs) =>
+            SelectedBadgeClicked(sender, eventArgs));
+        _selectedBadge.BindingContext = _authenticationService.CurrentUser?.SelectedBadge;
+    }
+
+    #endregion
+
+    #region Backend
     private async void CopyEmailClicked(object sender, EventArgs e)
     {
         await Clipboard.Default.SetTextAsync(_authenticationService.CurrentUser?.Email);
@@ -446,8 +490,6 @@ internal class ProfilePage : BasePage
         Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
         await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
     }
-    #endregion
 
-    #region Backend
     #endregion
 }

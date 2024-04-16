@@ -38,8 +38,10 @@ public class EditUserProfile
 
             try
             {
-                user.Pronouns = command.Pronouns;
-                user.UserName = command.UserName;
+                // Update the user's fields if the command field is not null, otherwise, leave the same
+                user.UserName = command.UserName == null ? user.UserName : command.UserName;
+                user.Pronouns = command.Pronouns == null ? user.Pronouns : command.Pronouns;
+                user.ProfilePicture = command.ProfilePicture == null ? user.ProfilePicture : command.ProfilePicture;
 
                 await _context.SaveChangesAsync();
 
