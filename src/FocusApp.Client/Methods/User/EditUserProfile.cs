@@ -51,13 +51,15 @@ public class EditUserProfile
                 _logger.Log(LogLevel.Debug, "Error editing user profile. Message: " + ex.Message);
                 return new MediatrResult
                 {
-                    Message = "Error editing user profile. Message: " + ex.Message
+                    Message = "Error editing user profile. Message: " + ex.Message,
+                    Success = false
                 };
             }
 
             return new MediatrResult
             {
-                Message = "User edited successfully"
+                Message = "User edited successfully",
+                Success = true
             };
         }
     }

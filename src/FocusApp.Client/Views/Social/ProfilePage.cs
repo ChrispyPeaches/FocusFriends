@@ -356,10 +356,10 @@ internal class ProfilePage : BasePage
         };
     }
 
+    // Refresh bindings on page load in case of profile edit / navigation to settings page
     protected override async void OnAppearing()
     {
         ByteArrayToImageSourceConverter byteArrayConverter = new ByteArrayToImageSourceConverter();
-        // Refresh bindings on page load in case of profile edit / navigation to settings page
         _profilePicture.ImageSource = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
         _userName.Text = _authenticationService.CurrentUser?.UserName;
         _pronouns.Text = _authenticationService.CurrentUser?.Pronouns;

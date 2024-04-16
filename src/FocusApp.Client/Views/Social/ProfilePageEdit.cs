@@ -9,16 +9,14 @@ using FocusApp.Shared.Data;
 using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using CommunityToolkit.Maui.Views;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls.Shapes;
 using CommunityToolkit.Maui.Behaviors;
-using FocusApp.Client.Methods.User;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using FocusCore.Commands.User;
-using Microsoft.EntityFrameworkCore;
-using Refit;
 using System.Text;
+using FocusApp.Client.Views;
+using FocusCore.Responses;
+using FocusCore.Responses.User;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -27,6 +25,7 @@ internal class ProfilePageEdit : BasePage
     IAuthenticationService _authenticationService;
     IMediator _mediator;
     ILogger<ProfilePageEdit> _logger;
+    PopupService _popupService;
 
     // Page Row / Column Definitions
     enum PageRow { PageHeader, ProfilePicture, FormFields, Logo, TabBarSpace }
@@ -44,11 +43,12 @@ internal class ProfilePageEdit : BasePage
     byte[]? _newPhoto { get; set; } = null;
 
     #region Frontend
-    public ProfilePageEdit(IAuthenticationService authenticationService, IMediator mediator, ILogger<ProfilePageEdit> logger)
+    public ProfilePageEdit(IAuthenticationService authenticationService, IMediator mediator, ILogger<ProfilePageEdit> logger, PopupService popupService)
     {
         _authenticationService = authenticationService;
         _mediator = mediator;
         _logger = logger;
+        _popupService = popupService;
 
         CreateFormValidationBehaviors();
         CreateFormElements();
@@ -329,11 +329,21 @@ internal class ProfilePageEdit : BasePage
         }
         else
         {
-            await UpdateUser();
+            _popupService.ShowPopup<GenericLoadingPopupInterface>();
+            var result = await UpdateUser();
+            _popupService.HidePopup();
+            if (result.IsSuccessful)
+            {
+                await DisplayAlert("Information", result.Message, "Ok");
+            }
+            else
+            {
+                await DisplayAlert("Error", result.Message, "Ok");
+            }
         }
     }
 
-    private async Task UpdateUser()
+    private async Task<EditUserResponse> UpdateUser()
     {
         EditUserProfileCommand command = new EditUserProfileCommand
         {
@@ -351,15 +361,21 @@ internal class ProfilePageEdit : BasePage
 
         if (!string.IsNullOrEmpty(command.Pronouns) || !string.IsNullOrEmpty(command.UserName) || command.ProfilePicture != null)
         {
-            try
+            // Call method to update the user data when the user fields have changed
+            MediatrResult result = await _mediator.Send(command, default);
+            return new EditUserResponse
+            { 
+                Message = result.Success ? "Successfully saved changes!" : "There was an issue saving your changes.",
+                IsSuccessful = result.Success
+            };
+        }
+        else
+        {
+            return new EditUserResponse
             {
-                // Call method to update the user data when the user fields have changed
-                await _mediator.Send(command, default);
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(LogLevel.Debug, "Error occurred when editing user profile. Message: " + ex.Message);
-            }
+                Message = "No changes were made to your user information.",
+                IsSuccessful = true
+            };
         }
     }
     #endregion
