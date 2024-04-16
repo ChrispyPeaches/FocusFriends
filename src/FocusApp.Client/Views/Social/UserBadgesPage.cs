@@ -42,7 +42,7 @@ internal class UserBadgesPage : BasePage
 
         Content = new Grid
         {
-            RowDefinitions = Rows.Define(80, 10, Star, 70),
+            RowDefinitions = Rows.Define(80, 10, Star, 80),
             ColumnDefinitions = Columns.Define(Star, Star),
             BackgroundColor = AppStyles.Palette.DarkMauve,
 
@@ -163,7 +163,8 @@ internal class UserBadgesPage : BasePage
                     Aspect = Aspect.AspectFit,
                     WidthRequest = 150,
                     HeightRequest = 150
-                };
+                }
+                .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
                 flexLayout.Children.Add(ownedBadge);
             }
             else
@@ -175,10 +176,21 @@ internal class UserBadgesPage : BasePage
                     WidthRequest = 150,
                     HeightRequest = 150,
                     Opacity = .2
-                };
+                }
+                .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
                 flexLayout.Children.Add(unownedBadge);
             }
         }
+    }
+
+    void OnImageButtonClicked(object sender, EventArgs eventArgs)
+    {
+        var itemButton = sender as ImageButton;
+        var badge = (Badge)itemButton.BindingContext;
+
+        var itemPopup = (UserBadgesPagePopupInterface)_popupService.ShowAndGetPopup<UserBadgesPagePopupInterface>();
+        itemPopup.UserBadgesPage = this;
+        itemPopup.PopulatePopup(badge);
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
