@@ -13,7 +13,7 @@ using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
 using FocusCore.Models;
 using Refit;
-using ShopItem = FocusApp.Shared.Models.ShopItem;
+using ShopItem = FocusCore.Models.ShopItem;
 
 namespace FocusApp.Client.Clients;
 public interface IAPIClient
