@@ -1,12 +1,16 @@
 ﻿using FocusApp.Shared.Models;
+using FocusCore.Commands.Social;
 using FocusCore.Commands.User;
 using FocusCore.Queries.Leaderboard;
 using FocusCore.Queries.Shop;
+using FocusCore.Queries.Social;
 using FocusCore.Queries.Sync;
 using FocusCore.Queries.User;
+using FocusCore.Responses.Social;
 using FocusCore.Responses.Leaderboard;
 using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
+using FocusCore.Models;
 using Refit;
 
 namespace FocusApp.Client.Clients;
@@ -61,6 +65,24 @@ public interface IAPIClient
     Task<List<ShopItem>> GetAllShopItems(
         GetAllShopItemsQuery query,
         CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Social
+    [Get("/Social/AllFriends")]
+    Task<List<FriendListModel>> GetAllFriends(GetAllFriendsQuery query, CancellationToken cancellationToken = default);
+
+    [Get("/Social/AllFriendRequests")]
+    Task<List<FriendRequest>> GetAllFriendRequests(GetAllFriendRequestsQuery query, CancellationToken cancellationToken = default);
+
+    [Post("/Social/FriendRequest")]
+    Task<ApiResponse<CreateFriendRequestResponse>> CreateFriendRequest(CreateFriendRequestCommand command);
+
+    [Put("/Social/FriendRequest")]
+    Task AcceptFriendRequest([Body] AcceptFriendRequestCommand command);
+
+    [Delete("/Social/FriendRequest")]
+    Task CancelFriendRequest([Body] CancelFriendRequestCommand command);
 
     #endregion
 

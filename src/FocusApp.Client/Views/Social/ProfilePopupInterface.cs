@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
+using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Graphics.Text;
@@ -16,34 +17,43 @@ namespace FocusApp.Client.Views.Social
 {
     internal class ProfilePopupInterface : BasePopup
     {
-        private Helpers.PopupService _popupService;
+        Helpers.PopupService _popupService;
+        IAuthenticationService _authenticationService;
 
-        public ProfilePopupInterface(Helpers.PopupService popupService)
+        public ProfilePopupInterface(IAuthenticationService authenticationService, Helpers.PopupService popupService)
         {
+            _authenticationService = authenticationService;
             _popupService = popupService;
+
+            // Fetch current user's username
+            string username = _authenticationService.CurrentUser.UserName;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start;
             Color = Colors.Transparent;
 
+            var borderWidth = 250;
+            var rowWidth = 260;
+
             Content = new Border
             {
                 StrokeThickness = 1,
                 StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20,20,20,20)},
                 BackgroundColor = AppStyles.Palette.LightMauve,
-                WidthRequest = 200,
+                WidthRequest = borderWidth,
                 HeightRequest = 336,
                 Content = new VerticalStackLayout
                 {
-                    WidthRequest = 200,
+                    WidthRequest = borderWidth,
                     HeightRequest = 336,
                     BackgroundColor = AppStyles.Palette.DarkMauve,
                     Children =
                     {
+                        // Top of popup (Username)
                         new Frame()
                         {
-                            WidthRequest = 210,
+                            WidthRequest = rowWidth,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.LightMauve,
                             Content = new Label()
@@ -54,23 +64,23 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.6f
                                 },
-                                WidthRequest = 210,
+                                WidthRequest = rowWidth,
                                 HeightRequest = 55,
-                                FontSize = 30,
+                                FontSize = 20,
                                 TextColor = Colors.White,
                                 HorizontalTextAlignment = TextAlignment.Center,
                                 VerticalTextAlignment = TextAlignment.Center,
                                 HorizontalOptions = LayoutOptions.Center,
                                 VerticalOptions = LayoutOptions.Center,
 
-                                // Add logic to fetch username
-                                Text = "Username"
+                                // Fetch username
+                                Text = username
                             }
                         },
 
                         new Frame()
                         {
-                            WidthRequest = 210,
+                            WidthRequest = rowWidth,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.DarkMauve,
                             Content = new Button()
@@ -81,7 +91,7 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.5f
                                 },
-                                WidthRequest = 210,
+                                WidthRequest = rowWidth,
                                 HeightRequest = 55,
                                 BorderWidth = 0.5,
                                 BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
@@ -98,7 +108,7 @@ namespace FocusApp.Client.Views.Social
 
                         new Frame()
                         {
-                            WidthRequest = 210,
+                            WidthRequest = rowWidth,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.DarkMauve,
                             Content = new Button()
@@ -109,7 +119,7 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.5f
                                 },
-                                WidthRequest = 210,
+                                WidthRequest = rowWidth,
                                 HeightRequest = 55,
                                 BorderWidth = 0.5,
                                 BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
@@ -126,7 +136,7 @@ namespace FocusApp.Client.Views.Social
 
                         new Frame()
                         {
-                            WidthRequest = 210,
+                            WidthRequest = rowWidth,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.DarkMauve,
                             Content = new Button()
@@ -137,7 +147,7 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.5f
                                 },
-                                WidthRequest = 210,
+                                WidthRequest = rowWidth,
                                 HeightRequest = 55,
                                 BorderWidth = 0.5,
                                 BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
@@ -152,7 +162,7 @@ namespace FocusApp.Client.Views.Social
 
                         new Frame()
                         {
-                            WidthRequest = 210,
+                            WidthRequest = rowWidth,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.DarkMauve,
                             Content = new Button()
@@ -163,7 +173,7 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.5f
                                 },
-                                WidthRequest = 210,
+                                WidthRequest = rowWidth,
                                 HeightRequest = 55,
                                 BorderWidth = 0.5,
                                 BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
@@ -180,7 +190,7 @@ namespace FocusApp.Client.Views.Social
 
                         new Frame()
                         {
-                            WidthRequest = 210,
+                            WidthRequest = rowWidth,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.DarkMauve,
                             Content = new Button()
@@ -191,7 +201,7 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.5f
                                 },
-                                WidthRequest = 210,
+                                WidthRequest = rowWidth,
                                 HeightRequest = 55,
                                 BorderWidth = 0.5,
                                 BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
