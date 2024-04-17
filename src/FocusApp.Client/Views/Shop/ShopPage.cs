@@ -5,7 +5,7 @@ using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
+using FocusCore.Models;
 using FocusCore.Queries.Shop;
 
 namespace FocusApp.Client.Views.Shop
