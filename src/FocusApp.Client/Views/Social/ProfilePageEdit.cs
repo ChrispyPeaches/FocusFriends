@@ -77,7 +77,7 @@ internal class ProfilePageEdit : BasePage
                 (PageColumn.Left, Stars(1)),
                 (PageColumn.Right, Stars(1))
                 ),
-            BackgroundColor = AppStyles.Palette.LightMauve,
+            BackgroundColor = AppStyles.Palette.Celeste,
 
             Children =
             {
@@ -163,7 +163,7 @@ internal class ProfilePageEdit : BasePage
                                 },
                                 new Border
                                 {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
+                                    BackgroundColor = AppStyles.Palette.LightPeriwinkle,
                                     Stroke = Colors.Transparent,
                                     StrokeThickness = 2,
                                     Content = _userNameField
@@ -186,7 +186,7 @@ internal class ProfilePageEdit : BasePage
                                 },
                                 new Border
                                 {
-                                    BackgroundColor = AppStyles.Palette.DarkMauve,
+                                    BackgroundColor = AppStyles.Palette.LightPeriwinkle,
                                     Stroke = Colors.Transparent,
                                     StrokeThickness = 2,
                                     Content = _pronounsField

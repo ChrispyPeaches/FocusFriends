@@ -66,7 +66,7 @@ internal class ProfilePage : BasePage
                 (PageColumn.Left, Stars(1)),
                 (PageColumn.Right, Stars(1))
                 ),
-            BackgroundColor = AppStyles.Palette.LightMauve,
+            BackgroundColor = AppStyles.Palette.Celeste,
 
             Children =
             {
@@ -84,6 +84,23 @@ internal class ProfilePage : BasePage
                 // When clicked, go to timer view
                 .Invoke(button => button.Released += (sender, eventArgs) =>
                     BackButtonClicked(sender, eventArgs)),
+
+                // Edit Profile Button
+                new Button
+                {
+                        Text = SolidIcons.PenToSquare,
+                        TextColor = Colors.Black,
+                        FontFamily = nameof(SolidIcons),
+                        FontSize = 30,
+                        BackgroundColor = Colors.Transparent
+                }
+                .Row(PageRow.UserProfilePictureHeader)
+                .Column(PageColumn.Right)
+                .Top()
+                .Right()
+                // When clicked, go to edit profile view
+                .Invoke(button => button.Released += (sender, eventArgs) =>
+                    EditButtonClicked(sender, eventArgs)),
 
                 // Profile Picture
                 _profilePicture
@@ -313,24 +330,7 @@ internal class ProfilePage : BasePage
                         .Row(UserDataRow.UserPronouns)
                         .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
                         .CenterVertical()
-                        .Left(),
-
-                        // Edit Profile Button
-                        new Button
-                        {
-                             Text = SolidIcons.PenToSquare,
-                             TextColor = Colors.Black,
-                             FontFamily = nameof(SolidIcons),
-                             FontSize = 20,
-                             BackgroundColor = Colors.Transparent
-                        }
-                        .Row(UserDataRow.UserName)
-                        .Column(UserDataColumn.UtilityButtons)
-                        .CenterVertical()
-                        .Right()
-                        // When clicked, go to edit profile view
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            EditButtonClicked(sender, eventArgs))
+                        .Left()
                     }
                 }
                 .Row(PageRow.UserDataFooter)
