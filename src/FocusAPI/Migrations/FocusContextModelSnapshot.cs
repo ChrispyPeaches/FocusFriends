@@ -52,7 +52,7 @@ namespace FocusAPI.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "FriendId", "Status");
+                    b.HasKey("UserId", "FriendId");
 
                     b.HasIndex("FriendId");
 
