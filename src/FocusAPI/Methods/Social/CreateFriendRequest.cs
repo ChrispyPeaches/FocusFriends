@@ -15,9 +15,9 @@ public class CreateFriendRequest
 {
     public class Handler : IRequestHandler<CreateFriendRequestCommand, MediatrResultWrapper<CreateFriendRequestResponse>>
     {
-        FocusContext _context;
+        FocusAPIContext _context;
         ILogger<Handler> _logger;
-        public Handler(FocusContext context, ILogger<Handler> logger)
+        public Handler(FocusAPIContext context, ILogger<Handler> logger)
         {
             _context = context;
             _logger = logger;

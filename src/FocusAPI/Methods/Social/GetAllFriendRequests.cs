@@ -11,8 +11,8 @@ public class GetAllFriendRequests
 {
     public class Handler : IRequestHandler<GetAllFriendRequestsQuery, List<FriendRequest>>
     {
-        FocusContext _context;
-        public Handler(FocusContext context)
+        FocusAPIContext _context;
+        public Handler(FocusAPIContext context)
         {
             _context = context;
         }
