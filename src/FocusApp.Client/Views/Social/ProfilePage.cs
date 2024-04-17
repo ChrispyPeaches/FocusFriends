@@ -21,11 +21,11 @@ internal class ProfilePage : BasePage
     FocusAppContext _localContext;
 
     // Row / Column structure for entire page
-    enum PageRow { UserDataHeader, Spacing, SelectedItems, MembershipDate, TabBarSpace }
+    enum PageRow { UserProfilePictureHeader, SelectedItems, UserDataFooter, MembershipDate, TabBarSpace }
     enum PageColumn { Left, Right }
 
     // Row / Column structure for user data header
-    enum UserDataRow { UserEmail, UserName, UserPronouns }
+    enum UserDataRow { UserName, UserPronouns, UserEmail }
     enum UserDataColumn { Data, UtilityButtons }
 
     // Row structure for selected user items
@@ -35,6 +35,7 @@ internal class ProfilePage : BasePage
     AvatarView _profilePicture { get; set; }
     Label _userName { get; set; }
     Label _pronouns { get; set; }
+    Label _email { get; set; }
 
     // Selected user item references
     ImageButton _selectedPet { get; set; }
@@ -55,10 +56,10 @@ internal class ProfilePage : BasePage
         Content = new Grid
         {
             RowDefinitions = Rows.Define(
-                (PageRow.UserDataHeader, Stars(1)),
-                (PageRow.Spacing, Stars(0.25)),
+                (PageRow.UserProfilePictureHeader, Stars(0.75)),
                 (PageRow.SelectedItems, Stars(2)),
-                (PageRow.MembershipDate, Stars(0.5)),
+                (PageRow.UserDataFooter, Stars(0.75)),
+                (PageRow.MembershipDate, Stars(0.35)),
                 (PageRow.TabBarSpace, Stars(0.5))
                 ),
             ColumnDefinitions = Columns.Define(
@@ -80,100 +81,15 @@ internal class ProfilePage : BasePage
                 }
                 .Left()
                 .Top()
-                .Row(PageRow.UserDataHeader)
                 // When clicked, go to timer view
                 .Invoke(button => button.Released += (sender, eventArgs) =>
                     BackButtonClicked(sender, eventArgs)),
 
                 // Profile Picture
                 _profilePicture
-                .Column(PageColumn.Left)
-                .Row(PageRow.UserDataHeader)
-                .CenterVertical()
-                .CenterHorizontal(),
-
-                // Profile Info
-                new Grid
-                {
-                    RowDefinitions = Rows.Define(
-                        (UserDataRow.UserEmail, Stars(1)),
-                        (UserDataRow.UserName, Stars(1.5)),
-                        (UserDataRow.UserPronouns, Stars(1))
-                        ),
-                    ColumnDefinitions = Columns.Define(
-                        (UserDataColumn.Data, Stars(2)),
-                        (UserDataColumn.UtilityButtons, Stars(0.75))
-                        ),
-                    Children =
-                    {
-                        new Label 
-                        { 
-                            Text = $"#{_authenticationService.CurrentUser?.Email}", 
-                            FontSize = 15
-                        }
-                        .Row(UserDataRow.UserEmail)
-                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
-                        .CenterVertical()
-                        .Left(),
-
-                        new Button
-                        {
-                             Text = SolidIcons.Copy,
-                             TextColor = Colors.Black,
-                             FontFamily = nameof(SolidIcons),
-                             FontSize = 20,
-                             BackgroundColor = Colors.Transparent
-                        }
-                        .Row(UserDataRow.UserEmail)
-                        .Column(UserDataColumn.UtilityButtons)
-                        .CenterVertical()
-                        .CenterHorizontal()
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            CopyEmailClicked(sender, eventArgs)),
-
-                        _userName
-                        .Row(UserDataRow.UserName)
-                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length)
-                        .CenterVertical()
-                        .Left(),
-
-                        _pronouns
-                        .Row(UserDataRow.UserPronouns)
-                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
-                        .Top()
-                        .Left(),
-                        // Edit Profile Button
-                        new Button
-                        {
-                             Text = SolidIcons.PenToSquare,
-                             TextColor = Colors.Black,
-                             FontFamily = nameof(SolidIcons),
-                             FontSize = 20,
-                             BackgroundColor = Colors.Transparent
-                        }
-                        .Row(UserDataRow.UserPronouns)
-                        .Column(UserDataColumn.UtilityButtons)
-                        .Top()
-                        .Right()
-                        // When clicked, go to edit profile view
-                        .Invoke(button => button.Released += (sender, eventArgs) =>
-                            EditButtonClicked(sender, eventArgs))
-                    }
-                }
-                .Row(PageRow.UserDataHeader)
-                .Column(PageColumn.Right),
-
-                // Horizontal divider separating user data from selected item data
-                new BoxView
-                {
-                    Color = Colors.Black,
-                    HeightRequest = 2,
-                    Opacity = 0.5
-                }
-                .Row(PageRow.UserDataHeader)
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
-                .Bottom()
-                .Margins(bottom: 15),
+                .Row(PageRow.UserProfilePictureHeader)
+                .Center(),
 
                 new Grid
                 { 
@@ -341,6 +257,85 @@ internal class ProfilePage : BasePage
                 .Row(PageRow.SelectedItems)
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
 
+                // Horizontal divider separating user data from selected item data
+                new BoxView
+                {
+                    Color = Colors.Black,
+                    HeightRequest = 2,
+                    Opacity = 0.5
+                }
+                .Row(PageRow.UserDataFooter)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                .Top(),
+
+                // Profile Info
+                new Grid
+                {
+                    RowDefinitions = Rows.Define(
+                        (UserDataRow.UserName, Stars(1.5)),
+                        (UserDataRow.UserPronouns, Stars(1)),
+                        (UserDataRow.UserEmail, Stars(1))
+                        ),
+                    ColumnDefinitions = Columns.Define(
+                        (UserDataColumn.Data, Stars(1)),
+                        (UserDataColumn.UtilityButtons, Stars(0.25))
+                        ),
+                    Children =
+                    {
+                        _email
+                        .Row(UserDataRow.UserEmail)
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
+                        .CenterVertical()
+                        .Left(),
+
+                        new Button
+                        {
+                             Text = SolidIcons.Copy,
+                             TextColor = Colors.Black,
+                             FontFamily = nameof(SolidIcons),
+                             FontSize = 20,
+                             BackgroundColor = Colors.Transparent
+                        }
+                        .Row(UserDataRow.UserEmail)
+                        .Column(UserDataColumn.UtilityButtons)
+                        .Right()
+                        .CenterVertical()
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            CopyEmailClicked(sender, eventArgs)),
+
+                         _userName
+                        .Row(UserDataRow.UserName)
+                        .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                        .CenterVertical()
+                        .Left(),
+
+                        _pronouns
+                        .Row(UserDataRow.UserPronouns)
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
+                        .CenterVertical()
+                        .Left(),
+
+                        // Edit Profile Button
+                        new Button
+                        {
+                             Text = SolidIcons.PenToSquare,
+                             TextColor = Colors.Black,
+                             FontFamily = nameof(SolidIcons),
+                             FontSize = 20,
+                             BackgroundColor = Colors.Transparent
+                        }
+                        .Row(UserDataRow.UserName)
+                        .Column(UserDataColumn.UtilityButtons)
+                        .CenterVertical()
+                        .Right()
+                        // When clicked, go to edit profile view
+                        .Invoke(button => button.Released += (sender, eventArgs) =>
+                            EditButtonClicked(sender, eventArgs))
+                    }
+                }
+                .Row(PageRow.UserDataFooter)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
+
                 // Date Joined
                 new Label
                 {
@@ -351,7 +346,18 @@ internal class ProfilePage : BasePage
                 .Row(PageRow.MembershipDate)
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 .CenterVertical()
-                .CenterHorizontal()
+                .CenterHorizontal(),
+
+                // Horizontal divider separating user data from selected item data
+                new BoxView
+                {
+                    Color = Colors.Black,
+                    HeightRequest = 2,
+                    Opacity = 0.5
+                }
+                .Row(PageRow.MembershipDate)
+                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                .Bottom(),
             }
         };
     }
@@ -362,7 +368,8 @@ internal class ProfilePage : BasePage
         ByteArrayToImageSourceConverter byteArrayConverter = new ByteArrayToImageSourceConverter();
         _profilePicture.ImageSource = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
         _userName.Text = _authenticationService.CurrentUser?.UserName;
-        _pronouns.Text = _authenticationService.CurrentUser?.Pronouns;
+        _pronouns.Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}";
+        _email.Text = $"Friend Id: #{_authenticationService.CurrentUser?.Email}";
 
         _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedPet?.Image);
         _selectedIsland.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedIsland?.Image);
@@ -381,9 +388,9 @@ internal class ProfilePage : BasePage
         // Set bindable properties with images
         _profilePicture = new AvatarView
         {
-            CornerRadius = 63,
-            HeightRequest = 126,
-            WidthRequest = 126
+            CornerRadius = 60,
+            HeightRequest = 120,
+            WidthRequest = 120
         }
         .Bind(AvatarView.ImageSourceProperty,
               "ProfilePicture",
@@ -393,12 +400,18 @@ internal class ProfilePage : BasePage
         _userName = new Label
         {
             Text = $"{_authenticationService.CurrentUser?.UserName}",
-            FontSize = 25
+            FontSize = 18
         };
 
         _pronouns = new Label
         {
             Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}",
+            FontSize = 15
+        };
+
+        _email = new Label
+        {
+            Text = $"Friend Id: #{_authenticationService.CurrentUser?.Email}",
             FontSize = 15
         };
     }
