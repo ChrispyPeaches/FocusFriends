@@ -46,10 +46,10 @@ public static class ProjectionHelper
             ProfilePicture = user.ProfilePicture,
             Inviters = user.Inviters.Select(i => i as Friendship).ToList(),
             Invitees = user.Invitees.Select(i => i as Friendship).ToList(),
-            Pets = user.Pets.Select(up => new UserPet { UserId = user.Id, PetId = up.PetId }).ToList(),
-            Decor = user.Decor.Select(uf => new UserDecor { UserId = user.Id, DecorId = uf.DecorId }).ToList(),
-            Badges = user.Badges.Select(ub => new UserBadge { UserId = user.Id, BadgeId = ub.BadgeId }).ToList(),
-            Islands = user.Islands.Select(ui => new UserIsland { UserId = user.Id, IslandId = ui.IslandId }).ToList(),
+            Pets = user.Pets != null ? user.Pets.Select(ProjectFromBaseUserPet).ToList() : null,
+            Decor = user.Decor != null ? user.Decor.Select(ProjectFromBaseUserDecor).ToList() : null,
+            Badges = user.Badges != null ? user.Badges.Select(ProjectFromBaseUserBadge).ToList() : null,
+            Islands = user.Islands != null ? user.Islands.Select(ProjectFromBaseUserIsland).ToList() : null,
             UserSessions = user.UserSessions.Select(userSession => userSession as UserSession).ToList(),
             SelectedIslandId = user.SelectedIslandId,
             SelectedIsland = user.SelectedIsland != null ? ProjectFromBaseIsland(user.SelectedIsland) : null,
@@ -151,6 +151,38 @@ public static class ProjectionHelper
             Image = decor.Image,
             Price = decor.Price,
             HeightRequest = decor.HeightRequest
+        };
+
+    public static UserPet ProjectFromBaseUserPet(BaseUserPet userPet) =>
+        new UserPet
+        {
+            UserId = userPet.UserId,
+            PetId = userPet.PetId,
+            DateAcquired = userPet.DateAcquired.DateTime
+        };
+
+    public static UserDecor ProjectFromBaseUserDecor(BaseUserDecor userDecor) =>
+        new UserDecor
+        {
+            UserId = userDecor.UserId,
+            DecorId = userDecor.DecorId,
+            DateAcquired = userDecor.DateAcquired.DateTime
+        };
+
+    public static UserBadge ProjectFromBaseUserBadge(BaseUserBadge userBadge) =>
+        new UserBadge
+        {
+            UserId = userBadge.UserId,
+            BadgeId = userBadge.BadgeId,
+            DateAcquired = userBadge.DateAcquired.DateTime
+        };
+
+    public static UserIsland ProjectFromBaseUserIsland(BaseUserIsland userIsland) =>
+        new UserIsland
+        {
+            UserId = userIsland.UserId,
+            IslandId = userIsland.IslandId,
+            DateAcquired = userIsland.DateAcquired.DateTime
         };
 }
 
