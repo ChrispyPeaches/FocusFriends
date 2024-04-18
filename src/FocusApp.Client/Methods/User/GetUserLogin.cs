@@ -167,7 +167,7 @@ namespace FocusApp.Client.Methods.User
                     UserName = userName,
                     Balance = createUserResponse.User.Balance,
                     // Note: DateCreated is the UTC DateTime the user was created (synced with server record)
-                    DateCreated = createUserResponse.User.DateCreated.DateTime
+                    DateCreated = createUserResponse.User.DateCreated.UtcDateTime
                 };
 
                 user.SelectedIsland = await GetInitialIslandQuery()
