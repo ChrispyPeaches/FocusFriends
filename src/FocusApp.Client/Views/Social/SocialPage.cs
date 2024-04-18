@@ -22,6 +22,8 @@ using Microsoft.Extensions.Logging;
 using FocusCore.Models;
 using FocusApp.Shared.Models;
 using MediatR;
+using CommunityToolkit.Mvvm.Input;
+using SimpleToolkit.SimpleShell;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -32,8 +34,7 @@ internal class SocialPage : BasePage
     IAuthenticationService _authenticationService;
     private IMediator _mediator;
     public ListView _friendsListView;
-
-    IAPIClient _client { get; set; }
+    private IAPIClient _client;
 
 	public SocialPage(
         IAPIClient client,
@@ -47,7 +48,6 @@ internal class SocialPage : BasePage
         _client = client;
         _authenticationService = authenticationService;
         _mediator = mediator;
-        _logger = logger;
         _logger = logger;
 
         _friendsListView = BuildFriendsListView();
@@ -121,13 +121,13 @@ internal class SocialPage : BasePage
                 .Row(1)
                 .Column(0)
                 .ColumnSpan(2),
-                new Button()
-                    .Row(2).Column(0)
-                    .Invoke(b => b.Clicked += OnFriendClickShowFriendProfilePage)
             }
         };
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     private ListView BuildFriendsListView()
     {
         ListView listView = new ListView();
@@ -145,7 +145,7 @@ internal class SocialPage : BasePage
             {
             };
             friendImage.SetBinding(
-                Image.SourceProperty, "FriendProfilePicture",
+                Image.SourceProperty, nameof(FriendListModel.FriendProfilePicture),
                 converter: new ByteArrayToImageSourceConverter());
             friendImage.VerticalOptions = LayoutOptions.Center;
             friendImage.Column(0);
@@ -155,12 +155,16 @@ internal class SocialPage : BasePage
             {
                 FontSize = 20
             };
-            friendUsername.SetBinding(Label.TextProperty, "FriendUserName");
+            friendUsername.SetBinding(Label.TextProperty, nameof(FriendListModel.FriendUserName));
             friendUsername.VerticalOptions = LayoutOptions.Center;
             friendUsername.Column(1);
 
             grid.Children.Add(friendImage);
             grid.Children.Add(friendUsername);
+            grid.BindTapGesture(
+                commandSource: this,
+                commandPath: MiscHelper.NameOf(() => TapFriendItemCommand),
+                parameterPath: nameof(FriendListModel.FriendAuth0Id));
             cell.View = grid;
 
             return cell;
@@ -219,5 +223,18 @@ internal class SocialPage : BasePage
     {
         var addFriendPopup = (AddFriendPopupInterface)_popupService.ShowAndGetPopup<AddFriendPopupInterface>();
         addFriendPopup.SocialPage = this;
+    }
+
+    public AsyncRelayCommand<string> TapFriendItemCommand => new(OnFriendClickShowFriendProfilePage);
+
+    /// <summary>
+    /// Send the user to the friend's profile page,
+    /// passing the friend's Auth0Id as a parameter
+    /// </summary>
+    private async Task OnFriendClickShowFriendProfilePage(string? auth0Id)
+    {
+        await Shell.Current.GoToAsync(
+            $"///{nameof(SocialPage)}/{nameof(FriendProfilePage)}",
+            FriendProfilePage.BuildParamterArgs(auth0Id));
     }
 }
