@@ -128,7 +128,7 @@ internal class LoginPage : BasePage
                 _authenticationService.CurrentUser = loginResult.CurrentUser;
 
                 _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
-                _authenticationService.SelectedFurniture = loginResult.CurrentUser?.SelectedFurniture;
+                _authenticationService.SelectedDecor = loginResult.CurrentUser?.SelectedDecor;
                 _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
                 _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
             }
@@ -171,7 +171,7 @@ internal class LoginPage : BasePage
 
             _authenticationService.SelectedIsland ??= result.Island;
             _authenticationService.SelectedPet ??= result.Pet;
-            _authenticationService.SelectedFurniture ??= result.Decor;
+            _authenticationService.SelectedDecor ??= result.Decor;
         }
     }
 

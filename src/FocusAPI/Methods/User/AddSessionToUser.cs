@@ -11,12 +11,12 @@ public class AddSessionToUser
 {
     public class Handler : IRequestHandler<CreateSessionCommand, MediatrResult>
     {
-        private readonly FocusContext _context;
+        private readonly FocusAPIContext _apiContext;
 
         public Handler(
-            FocusContext context)
+            FocusAPIContext apiContext)
         {
-            _context = context;
+            _apiContext = apiContext;
         }
 
         public async Task<MediatrResult> Handle(
@@ -48,7 +48,7 @@ public class AddSessionToUser
         {
             try
             {
-                return await _context.Users
+                return await _apiContext.Users
                     .Include(u => u.UserSessions)
                     .Where(u => u.Auth0Id == auth0Id)
                     .FirstOrDefaultAsync(cancellationToken);
@@ -76,11 +76,11 @@ public class AddSessionToUser
                     UserId = user.Id
                 };
 
-                await _context.UserSessionHistory.AddAsync(session, cancellationToken);
+                await _apiContext.UserSessionHistory.AddAsync(session, cancellationToken);
 
                 user?.UserSessions?.Add(session);
 
-                await _context.SaveChangesAsync(cancellationToken);
+                await _apiContext.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

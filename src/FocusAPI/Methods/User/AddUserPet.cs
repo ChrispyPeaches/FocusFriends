@@ -9,11 +9,11 @@ public class AddUserPet
 {
     public class Handler : IRequestHandler<AddUserPetCommand, Unit>
     {
-        FocusContext _context;
+        FocusAPIContext _apiContext;
         ILogger<Handler> _logger;
-        public Handler(FocusContext context, ILogger<Handler> logger)
+        public Handler(FocusAPIContext apiContext, ILogger<Handler> logger)
         {
-            _context = context;
+            _apiContext = apiContext;
             _logger = logger;
         }
 
@@ -21,8 +21,8 @@ public class AddUserPet
         {
             try
             {
-                FocusAPI.Models.User user = await _context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                Pet pet = await _context.Pets.FirstOrDefaultAsync(p => p.Id == command.PetId);
+                FocusAPI.Models.User user = await _apiContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                Pet pet = await _apiContext.Pets.FirstOrDefaultAsync(p => p.Id == command.PetId);
 
                 user.Pets?.Add(new UserPet
                 {
@@ -32,7 +32,7 @@ public class AddUserPet
 
                 user.Balance = command.UpdatedBalance;
 
-                await _context.SaveChangesAsync();
+                await _apiContext.SaveChangesAsync();
             }
             catch (Exception ex) 
             {

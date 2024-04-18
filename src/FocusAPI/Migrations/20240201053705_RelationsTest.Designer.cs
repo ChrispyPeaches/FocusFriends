@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FocusAPI.Migrations
 {
-    [DbContext(typeof(FocusContext))]
+    [DbContext(typeof(FocusAPIContext))]
     [Migration("20240201053705_RelationsTest")]
     partial class RelationsTest
     {

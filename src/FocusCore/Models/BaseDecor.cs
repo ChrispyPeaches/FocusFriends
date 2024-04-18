@@ -2,8 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FocusCore.Models;
-[Table("Sounds")]
-public class BaseSound
+
+[Table("Decor")]
+public class BaseDecor : ISyncEntity
 {
     [Key]
     public Guid Id { get; set; }
@@ -12,5 +13,5 @@ public class BaseSound
 
     public required string Name { get; set; } = null!;
     public byte[] Image { get; set; }
-    // Todo: Add sound file to database
+    public int HeightRequest { get; set; }
 }

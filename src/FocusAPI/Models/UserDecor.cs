@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 namespace FocusAPI.Models;
-public class UserFurniture : FocusCore.Models.BaseUserFurniture
+public class UserDecor : FocusCore.Models.BaseUserDecor
 {
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new User? User { get; set; }
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public new Furniture? Furniture { get; set; }
+    public new Decor? Decor { get; set; }
 }

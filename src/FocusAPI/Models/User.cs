@@ -14,9 +14,7 @@ public class User : FocusCore.Models.BaseUser
 
     public new ICollection<UserPet>? Pets { get; set; } = new List<UserPet>();
 
-    public new ICollection<UserFurniture>? Furniture { get; set; } = new List<UserFurniture>();
-
-    public new ICollection<UserSound>? Sounds { get; set; } = new List<UserSound>();
+    public new ICollection<UserDecor>? Decor { get; set; } = new List<UserDecor>();
 
     public new ICollection<UserBadge>? Badges { get; set; } = new List<UserBadge>();
 
@@ -31,7 +29,7 @@ public class User : FocusCore.Models.BaseUser
     public new Pet? SelectedPet { get; set; }
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public new Furniture? SelectedFurniture { get; set; }
+    public new Decor? SelectedDecor { get; set; }
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public new Badge? SelectedBadge { get; set; }
