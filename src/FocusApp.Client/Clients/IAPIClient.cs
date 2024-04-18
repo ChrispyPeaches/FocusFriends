@@ -1,6 +1,7 @@
 ﻿using FocusApp.Shared.Models;
 using FocusCore.Commands.Social;
 using FocusCore.Commands.User;
+using FocusCore.Models;
 using FocusCore.Queries.Leaderboard;
 using FocusCore.Queries.Shop;
 using FocusCore.Queries.Social;
@@ -12,6 +13,7 @@ using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
 using FocusCore.Models;
 using Refit;
+using ShopItem = FocusCore.Models.ShopItem;
 
 namespace FocusApp.Client.Clients;
 public interface IAPIClient
@@ -31,21 +33,27 @@ public interface IAPIClient
     [Get("/Leaderboard/Daily")]
     Task<LeaderboardResponse> GetDailyLeaderboard(
         GetDailyLeaderboardQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Get("/Leaderboard/Weekly")]
     Task<LeaderboardResponse> GetWeeklyLeaderboard(
         GetWeeklyLeaderboardQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     [Post("/User/Pet")]
-    Task AddUserPet(AddUserPetCommand command);
+    Task AddUserPet(
+        AddUserPetCommand command,
+        CancellationToken cancellationToken = default);
 
-    [Post("/User/Furniture")]
-    Task AddUserFurniture(AddUserFurnitureCommand command);
+    [Post("/User/Decor")]
+    Task AddUserDecor(
+        AddUserDecorCommand command,
+        CancellationToken cancellationToken = default);
 
-    [Post("/User/Sound")]
-    Task AddUserSound(AddUserSoundCommand command);
+    [Post("/User/Island")]
+    Task AddUserIsland(
+        AddUserIslandCommand command,
+        CancellationToken cancellationToken = default);
 
     [Post("/User/AddSession")]
     Task CreateSession(
@@ -59,7 +67,7 @@ public interface IAPIClient
     [Get("/Shop")]
     Task<List<ShopItem>> GetAllShopItems(
         GetAllShopItemsQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     #endregion
 
@@ -84,9 +92,29 @@ public interface IAPIClient
     #region Sync
 
     [Post("/Sync/MindfulnessTips")]
-    Task<SyncMindfulnessTipsResponse> SyncMindfulnessTips(
-        [Body] SyncMindfulnessTipsQuery query,
-        CancellationToken cancellationToken);
+    Task<SyncItemResponse<BaseMindfulnessTip>> SyncMindfulnessTips(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken = default);
+
+    [Post("/Sync/Badges")]
+    Task<SyncItemResponse<BaseBadge>> SyncBadges(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken = default);
+
+    [Post("/Sync/Pets")]
+    Task<SyncItemResponse<BasePet>> SyncPets(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken = default);
+
+    [Post("/Sync/Decor")]
+    Task<SyncItemResponse<BaseDecor>> SyncDecor(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken = default);
+
+    [Post("/Sync/Islands")]
+    Task<SyncItemResponse<BaseIsland>> SyncIslands(
+        [Body] SyncItemsQuery query,
+        CancellationToken cancellationToken = default);
 
     [Post("/Sync/Badges")]
     Task<SyncBadgesResponse> SyncBadges(
@@ -96,7 +124,7 @@ public interface IAPIClient
     [Post("/Sync/InitialData")]
     Task<SyncInitialDataResponse> SyncInitialData(
         [Body] SyncInitialDataQuery query,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken = default);
 
     #endregion
 }

@@ -4,6 +4,7 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Helpers;
 using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
@@ -16,11 +17,11 @@ internal sealed class SettingsPage : BasePage
         _client = client;
 
         // Default values for preferences
-        double ambianceVolume = Preferences.Default.Get("ambiance_volume", 50.00);
-        var isNotificationsEnabled = Preferences.Default.Get("notifications_enabled", false);
-        var isStartupTipsEnabled = Preferences.Default.Get("startup_tips_enabled", true);
-        var isSessionRatingEnabled = Preferences.Default.Get("session_rating_enabled", true);
-        
+        double ambianceVolume = PreferencesHelper.Get<double>(PreferencesHelper.PreferenceNames.ambiance_volume);
+        bool isNotificationsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.notifications_enabled);
+        bool isStartupTipsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled);
+        bool isSessionRatingEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled);
+
         // Using grids
         Content = new Grid
         {
@@ -99,7 +100,7 @@ internal sealed class SettingsPage : BasePage
                 .Column(2)
                 .CenterVertical()
                 .ColumnSpan(3)
-                .Invoke(s => s.ValueChanged += (sender, e) => {Preferences.Default.Set("ambiance_volume", e.NewValue);}),
+                .Invoke(s => s.ValueChanged += (sender, e) => {PreferencesHelper.Set(PreferencesHelper.PreferenceNames.ambiance_volume, e.NewValue);}),
 
 
                 // Notifications
@@ -126,7 +127,7 @@ internal sealed class SettingsPage : BasePage
                 .Column(5)
                 .Left()
                 .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("notifications_enabled", e.Value); }),
+                .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.notifications_enabled, e.Value); }),
                 
                 
                 // Show Mindful Tips on Startup
@@ -153,7 +154,7 @@ internal sealed class SettingsPage : BasePage
                     .Column(5)
                     .Left()
                     .CenterVertical()
-                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("startup_tips_enabled", e.Value); }),
+                    .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.startup_tips_enabled, e.Value); }),
                 
                 
                 // Show Session Rating
@@ -180,7 +181,7 @@ internal sealed class SettingsPage : BasePage
                     .Column(5)
                     .Left()
                     .CenterVertical()
-                    .Invoke(sw => sw.Toggled += (sender, e) => { SaveSwitchState("session_rating_enabled", e.Value); }),
+                    .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.session_rating_enabled, e.Value); }),
                 
                 
                 // Tutorial
@@ -250,11 +251,6 @@ internal sealed class SettingsPage : BasePage
     }
 
     
-
-    private void SaveSwitchState(string key, bool val)
-    {
-        Preferences.Default.Set(key, val);
-    }
 
     protected override async void OnAppearing()
     {

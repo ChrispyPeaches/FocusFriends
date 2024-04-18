@@ -3,20 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FocusCore.Models;
 
-[Table("UserSounds")]
-[PrimaryKey(nameof(UserId), nameof(SoundId))]
-public class BaseUserSound
+[Table("UserDecor")]
+[PrimaryKey(nameof(UserId), nameof(DecorId))]
+public class BaseUserDecor
 {
     [ForeignKey(nameof(User))]
     public Guid UserId { get; set; }
 
     public BaseUser User { get; set; } = null!;
 
-    [ForeignKey(nameof(Sound))]
-    public Guid SoundId { get; set; }
+    [ForeignKey(nameof(Decor))]
+    public Guid DecorId { get; set; }
 
-    public BaseSound Sound { get; set; } = null!;
+    public BaseDecor Decor { get; set; } = null!;
 
     public DateTimeOffset DateAcquired { get; set; }
 }
-

@@ -13,10 +13,10 @@ public class GetUser
 {
     public class Handler : IRequestHandler<GetUserQuery, MediatrResultWrapper<GetUserResponse>>
     {
-        FocusContext _context;
-        public Handler(FocusContext context) 
+        FocusAPIContext _apiContext;
+        public Handler(FocusAPIContext apiContext) 
         {
-            _context = context;
+            _apiContext = apiContext;
         }
 
         public async Task<MediatrResultWrapper<GetUserResponse>> Handle(
@@ -56,11 +56,11 @@ public class GetUser
         {
             try
             {
-                return await _context.Users
+                return await _apiContext.Users
                     .Where(u => u.Auth0Id == query.Auth0Id)
                     .Include(user => user.Islands)
                     .Include(user => user.Pets)
-                    .Include(user => user.Furniture)
+                    .Include(user => user.Decor)
                     .Include(user => user.Badges)
                     .Select(user => ProjectionHelper.ProjectToBaseUser(user))
                     .FirstOrDefaultAsync(cancellationToken);

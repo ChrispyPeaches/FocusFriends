@@ -11,22 +11,22 @@ namespace FocusAPI.Helpers
 
     public class SyncService : ISyncService
     {
-        private readonly FocusContext _context;
+        private readonly FocusAPIContext _apiContext;
 
-        public SyncService(FocusContext context)
+        public SyncService(FocusAPIContext apiContext)
         {
-            _context = context;
+            _apiContext = apiContext;
         }
 
         public IQueryable<Island> GetInitialIslandQuery()
         {
-            return _context.Islands
+            return _apiContext.Islands
                 .Where(island => island.Name == FocusCore.Consts.NameOfInitialIsland);
         }
 
         public IQueryable<Pet> GetInitialPetQuery()
         {
-            return _context.Pets
+            return _apiContext.Pets
                 .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
         }
     }

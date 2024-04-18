@@ -18,7 +18,7 @@ namespace FocusApp.Client.Views.Shop
         Helpers.PopupService _popupService;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _soundsCarouselView { get; set; }
-        CarouselView _furnitureCarouselView { get; set; }
+        CarouselView _decorCarouselView { get; set; }
 
         public Label _balanceLabel { get; set; }
 
@@ -33,7 +33,7 @@ namespace FocusApp.Client.Views.Shop
 
             _petsCarouselView = BuildBaseCarouselView();
             _soundsCarouselView = BuildBaseCarouselView();
-            _furnitureCarouselView = BuildBaseCarouselView();
+            _decorCarouselView = BuildBaseCarouselView();
 
 
             // Currency text
@@ -113,16 +113,16 @@ namespace FocusApp.Client.Views.Shop
                         HorizontalOptions = LayoutOptions.Start,
                     },
                     _soundsCarouselView,
-                    // Furniture Carousel Label
+                    // Decor Carousel Label
                     new Label
                     { 
-                        Text = "Furniture",
+                        Text = "Decor",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
-                    // Furniture Carousel
-                    _furnitureCarouselView
+                    // Decor Carousel
+                    _decorCarouselView
                 }
             };
         }
@@ -234,7 +234,7 @@ namespace FocusApp.Client.Views.Shop
 
             _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
             _soundsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Sounds);
-            _furnitureCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Furniture);
+            _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
         }
        
 
@@ -243,8 +243,8 @@ namespace FocusApp.Client.Views.Shop
         {
             return 
                    _localContext.Pets.Count() == 7
-                && _localContext.Furniture.Count() == 6
-                && _localContext.Sounds.Count() == 6;
+                && _localContext.Decor.Count() == 6
+                /*&& _localContext.Sounds.Count() == 6 */;
         }
 
         // Gather shop items from local database, and convert to ShopItem objects
@@ -259,15 +259,15 @@ namespace FocusApp.Client.Views.Shop
                 Type = ShopItemType.Pets,
             }).ToList();
 
-            List<ShopItem> furniture = _localContext.Furniture.Select(f => new ShopItem
+            List<ShopItem> decor = _localContext.Decor.Select(f => new ShopItem
             {
                 Id = f.Id,
                 Name = f.Name,
                 Price = f.Price,
                 ImageSource = f.Image,
-                Type = ShopItemType.Furniture
+                Type = ShopItemType.Decor
             }).ToList();
-
+            /*
             List<ShopItem> sounds = _localContext.Sounds.Select(s => new ShopItem
             {
                 Id = s.Id,
@@ -276,8 +276,8 @@ namespace FocusApp.Client.Views.Shop
                 ImageSource = s.Image,
                 Type = ShopItemType.Sounds
             }).ToList();
-
-            return pets.Concat(furniture).Concat(sounds).ToList();
+            */
+            return pets.Concat(decor).ToList();
         }
 
         #endregion

@@ -10,8 +10,8 @@ public class GetAllFriends
 {
     public class Handler : IRequestHandler<GetAllFriendsQuery, List<FriendListModel>>
     {
-        FocusContext _context;
-        public Handler(FocusContext context)
+        FocusAPIContext _context;
+        public Handler(FocusAPIContext context)
         {
             _context = context;
         }
