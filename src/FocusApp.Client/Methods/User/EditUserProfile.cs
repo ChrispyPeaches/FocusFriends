@@ -10,6 +10,12 @@ using Microsoft.Extensions.Logging;
 namespace FocusApp.Methods.User;
 public class EditUserProfile
 {
+    public class Response
+    {
+        public string Message { get; set; }
+        public bool IsSuccessful { get; set; }
+    }
+
     internal class Handler : IRequestHandler<EditUserProfileCommand, MediatrResult>
     {
         FocusAppContext _localContext;

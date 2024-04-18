@@ -17,6 +17,7 @@ using System.Text;
 using FocusApp.Client.Views;
 using FocusCore.Responses;
 using FocusCore.Responses.User;
+using FocusApp.Methods.User;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -343,7 +344,7 @@ internal class ProfilePageEdit : BasePage
         }
     }
 
-    private async Task<EditUserResponse> UpdateUser()
+    private async Task<EditUserProfile.Response> UpdateUser()
     {
         EditUserProfileCommand command = new EditUserProfileCommand
         {
@@ -363,7 +364,7 @@ internal class ProfilePageEdit : BasePage
         {
             // Call method to update the user data when the user fields have changed
             MediatrResult result = await _mediator.Send(command, default);
-            return new EditUserResponse
+            return new EditUserProfile.Response
             { 
                 Message = result.Success ? "Successfully saved changes!" : "There was an issue saving your changes.",
                 IsSuccessful = result.Success
@@ -371,7 +372,7 @@ internal class ProfilePageEdit : BasePage
         }
         else
         {
-            return new EditUserResponse
+            return new EditUserProfile.Response
             {
                 Message = "No changes were made to your user information.",
                 IsSuccessful = true
