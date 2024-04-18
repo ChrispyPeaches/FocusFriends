@@ -52,13 +52,13 @@ public static class ProjectionHelper
             Islands = user.Islands.Select(ui => new UserIsland { UserId = user.Id, IslandId = ui.IslandId }).ToList(),
             UserSessions = user.UserSessions.Select(userSession => userSession as UserSession).ToList(),
             SelectedIslandId = user.SelectedIslandId,
-            SelectedIsland = user.SelectedIsland as Island,
+            SelectedIsland = user.SelectedIsland != null ? ProjectFromBaseIsland(user.SelectedIsland) : null,
             SelectedPetId = user.SelectedPetId,
-            SelectedPet = user.SelectedPet as Pet,
+            SelectedPet = user.SelectedPet != null ? ProjectFromBasePet(user.SelectedPet) : null,
             SelectedDecorId = user.SelectedDecorId,
-            SelectedDecor = user.SelectedDecor as Decor,
+            SelectedDecor = user.SelectedDecor != null ? ProjectFromBaseDecor(user.SelectedDecor) : null,
             SelectedBadgeId = user.SelectedBadgeId,
-            SelectedBadge = user.SelectedBadge as Badge
+            SelectedBadge = user.SelectedBadge != null ? ProjectFromBaseBadge(user.SelectedBadge) : null
         };
 
     public static BasePet ProjectToBasePet(Pet pet) =>
