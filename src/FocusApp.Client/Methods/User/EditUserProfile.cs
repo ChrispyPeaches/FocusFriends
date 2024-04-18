@@ -54,7 +54,7 @@ public class EditUserProfile
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Debug, "Error editing user profile. Message: " + ex.Message);
+                _logger.LogError(ex, "Error editing user profile.");
                 return new MediatrResult
                 {
                     Message = "Error editing user profile. Message: " + ex.Message,
