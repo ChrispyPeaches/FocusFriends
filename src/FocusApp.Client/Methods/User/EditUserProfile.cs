@@ -35,10 +35,10 @@ public class EditUserProfile
             try
             {
                 // Update the user on the server
-                await _client.EditUserProfile(command, default);
+                await _client.EditUserProfile(command, cancellationToken);
 
                 // Update the local database to reflect the changes made to the user
-                Shared.Models.User? user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                Shared.Models.User? user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
 
                 // Update the user's fields if the command field is not null, otherwise, leave the same
                 user.UserName = command.UserName == null ? user.UserName : command.UserName;
@@ -50,7 +50,7 @@ public class EditUserProfile
                 _authenticationService.CurrentUser.Pronouns = user.Pronouns;
                 _authenticationService.CurrentUser.ProfilePicture = user.ProfilePicture;
 
-                await _localContext.SaveChangesAsync();
+                await _localContext.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

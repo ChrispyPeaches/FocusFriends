@@ -36,19 +36,19 @@ public class SyncUserData
                 .Include(u => u.Pets)
                 .Include(u => u.Decor)
                 .Include(u => u.Islands)
-                .FirstOrDefaultAsync(u => u.Id == _serverUser.Id);
+                .FirstOrDefaultAsync(u => u.Id == _serverUser.Id, cancellationToken);
 
-            SyncUserPets();
-            SyncUserIslands();
-            SyncUserDecor();
-            SyncUserBadges();
+            await SyncUserPets(cancellationToken);
+            await SyncUserIslands(cancellationToken);
+            await SyncUserDecor(cancellationToken);
+            await SyncUserBadges(cancellationToken);
 
-            await _localContext.SaveChangesAsync();
+            await _localContext.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }
 
-        void SyncUserPets()
+        async Task SyncUserPets(CancellationToken cancellationToken)
         {
             List<Guid>? serverPetIds = _serverUser.Pets?.Select(up => up.PetId).ToList();
             List<Guid>? localPetIds = _localUser.Pets?.Select(up => up.PetId).ToList();
@@ -58,12 +58,12 @@ public class SyncUserData
             {
                 foreach (var petId in outOfSyncPetIds)
                 {
-                    _localUser.Pets?.Add(new UserPet { Pet = _localContext.Pets.First(p => p.Id == petId) });
+                    _localUser.Pets?.Add(new UserPet { Pet = await _localContext.Pets.FirstAsync(p => p.Id == petId, cancellationToken) });
                 }
             }
         }
 
-        void SyncUserIslands()
+        async Task SyncUserIslands(CancellationToken cancellationToken)
         {
             List<Guid>? serverIslandIds = _serverUser.Islands?.Select(ui => ui.IslandId).ToList();
             List<Guid>? localIslandIds = _localUser.Islands?.Select(ui => ui.IslandId).ToList();
@@ -73,12 +73,12 @@ public class SyncUserData
             {
                 foreach (Guid islandId in outOfSyncIslandIds)
                 {
-                    _localUser.Islands?.Add(new UserIsland { Island = _localContext.Islands.First(i => i.Id == islandId) });
+                    _localUser.Islands?.Add(new UserIsland { Island = await _localContext.Islands.FirstAsync(i => i.Id == islandId, cancellationToken) });
                 }
             }
         }
 
-        void SyncUserDecor()
+        async Task SyncUserDecor(CancellationToken cancellationToken)
         {
             List<Guid>? serverDecorIds = _serverUser.Decor?.Select(ud => ud.DecorId).ToList();
             List<Guid>? localDecorIds = _localUser.Decor?.Select(ud => ud.DecorId).ToList();
@@ -88,12 +88,12 @@ public class SyncUserData
             {
                 foreach (Guid decorId in outOfSyncDecorIds)
                 {
-                    _localUser.Decor?.Add(new UserDecor { Decor = _localContext.Decor.First(f => f.Id == decorId) });
+                    _localUser.Decor?.Add(new UserDecor { Decor = await _localContext.Decor.FirstAsync(f => f.Id == decorId, cancellationToken) });
                 }
             }
         }
 
-        void SyncUserBadges()
+        async Task SyncUserBadges(CancellationToken cancellationToken)
         {
             List<Guid>? serverBadgeIds = _serverUser.Badges?.Select(ub => ub.BadgeId).ToList();
             List<Guid>? localBadgeIds = _localUser.Badges?.Select(ub => ub.BadgeId).ToList();
@@ -103,10 +103,9 @@ public class SyncUserData
             {
                 foreach (Guid badgeId in outOfSyncBadgeIds)
                 {
-                    _localUser.Badges?.Add(new UserBadge { Badge = _localContext.Badges.First(b => b.Id == badgeId) });
+                    _localUser.Badges?.Add(new UserBadge { Badge = await _localContext.Badges.FirstAsync(b => b.Id == badgeId, cancellationToken) });
                 }
             }
         }
     }
 }
-
