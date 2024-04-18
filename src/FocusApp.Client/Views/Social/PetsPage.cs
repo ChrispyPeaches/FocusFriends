@@ -4,109 +4,39 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using System.Runtime.CompilerServices;
 using SimpleToolkit.SimpleShell.Extensions;
+using Microsoft.Maui.Layouts;
+using CommunityToolkit.Maui.Converters;
+using FocusApp.Client.Views.Shop;
+using FocusCore.Models;
+using FocusApp.Client.Clients;
+using FocusApp.Client.Helpers;
+using FocusApp.Shared.Data;
 
 namespace FocusApp.Client.Views.Social;
 
 internal sealed class PetsPage : BasePage
 {
-    private Image? selectedCheckmark;
-    public PetsPage()
+    private readonly IAPIClient _client;
+    private readonly IAuthenticationService _authenticationService;
+    private readonly PopupService _popupService;
+    private readonly FocusAppContext _localContext;
+
+    FlexLayout _petsContainer;
+
+    public PetsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
 	{
-        // Variable checks for if pet is owned
-        bool hasBeans = false;
-        bool hasBob = false;
-        bool hasDanole = true;
-        bool hasFranklin = true;
-        bool hasGreg = true;
-        bool hasWurmy = false;
+        _client = client;
+        _authenticationService = authenticationService;
+        _popupService = popupService;
+        _localContext = localContext;
 
-        // Selected Pet
-        string selectedPet = "No Pet Selected";
-
-        // Label for selected pet
-        var dynamicLabel = new Label
+        // Instantiate container for pets
+        _petsContainer = new FlexLayout
         {
-            Text = selectedPet,
-            TextColor = Colors.Black,
-            FontSize = 20
-        }
-        .Row(5)
-        .Column(0)
-        .ColumnSpan(2)
-        .Center();
-
-        // Checkmarks for selected pet
-        var checkmark1 = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = 0
-        }
-        .Row(2)
-        .Column(0)
-        .Top()
-        .Right();
-
-        var checkmark2 = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = 0
-        }
-        .Row(2)
-        .Column(1)
-        .Top()
-        .Right();
-
-        var checkmark3 = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = 0
-        }
-        .Row(3)
-        .Column(0)
-        .Top()
-        .Right();
-
-        var checkmark4 = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = 0
-        }
-        .Row(3)
-        .Column(1)
-        .Top()
-        .Right();
-
-        var checkmark5 = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = 0
-        }
-        .Row(4)
-        .Column(0)
-        .Top()
-        .Right();
-
-        var checkmark6 = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = 0
-        }
-        .Row(4)
-        .Column(1)
-        .Top()
-        .Right();
+            Direction = FlexDirection.Row,
+            Wrap = FlexWrap.Wrap,
+            JustifyContent = FlexJustify.SpaceAround
+        };
 
         // Using grids
         Content = new Grid
@@ -114,7 +44,7 @@ internal sealed class PetsPage : BasePage
             // Define the length of the rows & columns
             // Rows: 80 for the top, 20 to act as padding, Stars for even spacing, and 140 for bottom padding
             // Columns: Two even columns should be enough
-            RowDefinitions = Rows.Define(80, 20, Star, Star, Star, 50, 90),
+            RowDefinitions = Rows.Define(80, Star),
             ColumnDefinitions = Columns.Define(Star, Star),
             Children = {
 
@@ -161,473 +91,102 @@ internal sealed class PetsPage : BasePage
                 .Column(0)
                 .ColumnSpan(int.MaxValue),
                 //////////////////////////////////////////////////////////
-				// Image Background 1
-				new BoxView
-                {
-                    Color = Colors.DarkGray,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(2)
-                .Column(0)
-                .Center(),
 
-				// Image Foreground 1
-				new BoxView
+				// FlexLayout - Container for Pets
+                new ScrollView
                 {
-                    Color = Colors.LightGrey,
-                    WidthRequest = 140,
-                    HeightRequest = 140,
-                    CornerRadius = 30
+                    Content = _petsContainer
                 }
-                .Row(2)
+                .Row(1)
                 .Column(0)
-                .Center(),
-
-                // Pet Image 1
-                new Image
-                {
-                    Source = "pet_greg.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(2)
-                .Column(0)
-                .Center(),
-
-                // Locked Pet Image 1
-                new Image
-                {
-                    Source = hasGreg ? null : "pet_locked.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(2)
-                .Column(0)
-                .Center(),
-
-                // Button 1
-                new Button
-                {
-                    Opacity = 0,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(2)
-                .Column(0)
+                .ColumnSpan(2)
                 .Center()
-                .Invoke(b => b.Clicked += (sender, e) =>
-                {
-                    if (hasGreg)
-                    {
-                        Console.WriteLine("Greg Tapped");
-                        PetHandler(checkmark1, "Greg");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Greg Not Owned");
-                    }
-
-                    // Update pet selection
-                    dynamicLabel.Text = selectedPet;
-                    ;}),
-				
-                //////////////////////////////////////////////////////////
-				// Image Background 2
-				new BoxView
-                {
-                    Color = Colors.DarkGray,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(2)
-                .Column(1)
-                .Center(),
-
-				// Image Foreground 2
-				new BoxView
-                {
-                    Color = Colors.LightGrey,
-                    WidthRequest = 140,
-                    HeightRequest = 140,
-                    CornerRadius = 30
-                }
-                .Row(2)
-                .Column(1)
-                .Center(),
-
-                // Pet Image 2
-                new Image
-                {
-                    Source = "pet_beans.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(2)
-                .Column(1)
-                .Center(),
-
-                // Locked Pet Image 2
-                new Image
-                {
-                    Source = hasBeans ? null : "pet_locked.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(2)
-                .Column(1)
-                .Center(),
-
-                // Button 2
-                new Button
-                {
-                    Opacity = 0,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(2)
-                .Column(1)
-                .Center()
-                .Invoke(b => b.Clicked += (sender, e) =>
-                {
-                    if (hasBeans)
-                    {
-                        Console.WriteLine("Beans Tapped");
-                        PetHandler(checkmark2, "Beans");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Beans Not Owned");
-                    }
-
-                    // Update pet selection
-                    dynamicLabel.Text = selectedPet;
-                    ;}),
-
-                //////////////////////////////////////////////////////////
-				// Image Background 3
-				new BoxView
-                {
-                    Color = Colors.DarkGray,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(3)
-                .Column(0)
-                .Center(),
-
-				// Image Foreground 3
-				new BoxView
-                {
-                    Color = Colors.LightGrey,
-                    WidthRequest = 140,
-                    HeightRequest = 140,
-                    CornerRadius = 30
-                }
-                .Row(3)
-                .Column(0)
-                .Center(),
-                
-                // Pet Image 3
-                new Image
-                {
-                    Source = "pet_bob.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(3)
-                .Column(0)
-                .Center(),
-
-                // Locked Pet Image 3
-                new Image
-                {
-                    Source = hasBob ? null : "pet_locked.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(3)
-                .Column(0)
-                .Center(),
-
-                // Button 3
-                new Button
-                {
-                    Opacity = 0,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(3)
-                .Column(0)
-                .Center()
-                .Invoke(b => b.Clicked += (sender, e) =>
-                {
-                    if (hasBob)
-                    {
-                        Console.WriteLine("Bob Tapped");
-                        PetHandler(checkmark3, "Bob");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Bob Not Owned");
-                    }
-
-                    // Update pet selection
-                    dynamicLabel.Text = selectedPet;
-                    ;}),
-
-                //////////////////////////////////////////////////////////
-				// Image Background 4
-				new BoxView
-                {
-                    Color = Colors.DarkGray,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(3)
-                .Column(1)
-                .Center(),
-
-				// Image Foreground 4
-				new BoxView
-                {
-                    Color = Colors.LightGrey,
-                    WidthRequest = 140,
-                    HeightRequest = 140,
-                    CornerRadius = 30
-                }
-                .Row(3)
-                .Column(1)
-                .Center(),
-
-                // Pet Image 4
-                new Image
-                {
-                    Source = "pet_danole.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(3)
-                .Column(1)
-                .Center(),
-
-                // Locked Pet Image 4
-                new Image
-                {
-                    Source = hasDanole ? null : "pet_locked.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(3)
-                .Column(1)
-                .Center(),
-
-                // Button 4
-                new Button
-                {
-                    Opacity = 0,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(3)
-                .Column(1)
-                .Center()
-                .Invoke(b => b.Clicked += (sender, e) =>
-                {
-                    if (hasDanole)
-                    {
-                        Console.WriteLine("Danole Tapped");
-                        PetHandler(checkmark4, "Danole");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Danole Not Owned");
-                    }
-
-                    // Update pet selection
-                    dynamicLabel.Text = selectedPet;
-                    ;}),
-
-                //////////////////////////////////////////////////////////
-				// Image Background 5
-				new BoxView
-                {
-                    Color = Colors.DarkGray,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(4)
-                .Column(0)
-                .Center(),
-
-				// Image Foreground 5
-				new BoxView
-                {
-                    Color = Colors.LightGrey,
-                    WidthRequest = 140,
-                    HeightRequest = 140,
-                    CornerRadius = 30
-                }
-                .Row(4)
-                .Column(0)
-                .Center(),
-
-                // Pet Image 5
-                new Image
-                {
-                    Source = "pet_franklin.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(4)
-                .Column(0)
-                .Center(),
-
-                // Locked Pet Image 5
-                new Image
-                {
-                    Source = hasFranklin ? null : "pet_locked.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(4)
-                .Column(0)
-                .Center(),
-
-                // Button 5
-                new Button
-                {
-                    Opacity = 0,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(4)
-                .Column(0)
-                .Center()
-                .Invoke(b => b.Clicked += (sender, e) =>
-                {
-                    if (hasFranklin)
-                    {
-                        Console.WriteLine("Franklin Tapped");
-                        PetHandler(checkmark5, "Franklin");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Franklin Not Owned");
-                    }
-
-                    // Update pet selection
-                    dynamicLabel.Text = selectedPet;
-                    ;}),
-
-                //////////////////////////////////////////////////////////
-				// Image Background 6
-				new BoxView
-                {
-                    Color = Colors.DarkGray,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(4)
-                .Column(1)
-                .Center(),
-
-				// Image Foreground 6
-				new BoxView
-                {
-                    Color = Colors.LightGrey,
-                    WidthRequest = 140,
-                    HeightRequest = 140,
-                    CornerRadius = 30
-                }
-                .Row(4)
-                .Column(1)
-                .Center(),
-
-                // Pet Image 6
-                new Image
-                {
-                    Source = "pet_wurmy.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(4)
-                .Column(1)
-                .Center(),
-
-                // Locked Pet Image 6
-                new Image
-                {
-                    Source = hasWurmy ? null : "pet_locked.png",
-                    WidthRequest = 120,
-                    HeightRequest = 120
-                }
-                .Row(4)
-                .Column(1)
-                .Center(),
-
-                // Button 6
-                new Button
-                {
-                    Opacity = 0,
-                    WidthRequest = 160,
-                    HeightRequest = 160,
-                    CornerRadius = 30
-                }
-                .Row(4)
-                .Column(1)
-                .Center()
-                .Invoke(b => b.Clicked += (sender, e) =>
-                {
-                    if (hasWurmy)
-                    {
-                        Console.WriteLine("Wurmy Tapped");
-                        PetHandler(checkmark6, "Wurmy");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Wurmy Not Owned");
-                    }
-
-                    // Update pet selection
-                    dynamicLabel.Text = selectedPet;
-                    ;}),
-
-                // Display Label
-                dynamicLabel,
-                checkmark1,
-                checkmark2,
-                checkmark3,
-                checkmark4,
-                checkmark5,
-                checkmark6
-
             }
 		};
-
-        void PetHandler(Image checkmark, string pet)
-        {
-            selectedPet = $"{pet} Selected";
-
-            dynamicLabel.Text = selectedPet;
-
-            selectedCheckmark?.FadeTo(0, 250);
-            checkmark.FadeTo(1, 250);
-
-            selectedCheckmark = checkmark;
-        }
 	}
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Check if the user is logged in
+        if (_authenticationService.CurrentUser == null)
+        {
+            var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
+            loginPopup.OriginPage = nameof(ShopPage);
+            return;
+        }
+
+        // Fetch pets from the local database and display them
+        var userPets = await FetchPetsFromLocalDb();
+        DisplayPets(userPets);
+    }
+
+    private async Task<List<PetItem>> FetchPetsFromLocalDb()
+    {
+        List<PetItem> userPets = new List<PetItem>();
+
+        userPets = SeedPetItems();
+
+        try
+        {
+            // Fetch pets from the local database using Mediatr feature
+            //userPets = await _localContext.Pets.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error when fetching pets from local DB.", ex);
+        }
+
+        return userPets;
+    }
+
+    private List<PetItem> SeedPetItems()
+    {
+        byte[]? image = _localContext.Pets.Where(p => p.Name == "Kyle").FirstOrDefault().Image;
+        List<PetItem> petItems = new List<PetItem>();
+
+        for (int i = 0; i < 5; i++)
+        {
+            petItems.Add(new PetItem
+            {
+                PetId = Guid.Empty,
+                PetName = "TestPet " + i.ToString(),
+                PetsProfilePicture = image
+            });
+        }
+
+        return petItems;
+    }
+
+    private void DisplayPets(List<PetItem> userPets)
+    {
+        var petsContainer = _petsContainer;
+
+        // Add pets to FlexLayout
+        foreach (var pet in userPets)
+        {
+            var userPet = new ImageButton
+            {
+                Source = ImageSource.FromStream(() => new MemoryStream(pet.PetsProfilePicture)),
+                Aspect = Aspect.AspectFit,
+                WidthRequest = 150,
+                HeightRequest = 150
+            }
+            .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
+            petsContainer.Children.Add(userPet);
+        }
+    }
+
+    void OnImageButtonClicked(object sender, EventArgs eventArgs)
+    {
+        var itemButton = sender as ImageButton;
+        var pet = (PetItem)itemButton.BindingContext;
+
+        /*var itemPopup = (UserBadgesPagePopupInterface)_popupService.ShowAndGetPopup<UserBadgesPagePopupInterface>();
+        itemPopup.UserBadgesPage = this;
+        itemPopup.PopulatePopup(badge);*/
+    }
 
     private async void BackButtonClicked(object sender, EventArgs e)
     {
