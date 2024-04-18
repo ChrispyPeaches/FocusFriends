@@ -54,7 +54,7 @@ public class SyncUserData
             List<Guid>? localPetIds = _localUser.Pets?.Select(up => up.PetId).ToList();
             List<Guid>? outOfSyncPetIds = serverPetIds?.Except(localPetIds).ToList();
 
-            if (outOfSyncPetIds != null && outOfSyncPetIds.Any())
+            if (outOfSyncPetIds != null && outOfSyncPetIds?.Count != 0)
             {
                 foreach (var petId in outOfSyncPetIds)
                 {
@@ -69,7 +69,7 @@ public class SyncUserData
             List<Guid>? localIslandIds = _localUser.Islands?.Select(ui => ui.IslandId).ToList();
             List<Guid>? outOfSyncIslandIds = serverIslandIds?.Except(localIslandIds).ToList();
 
-            if (outOfSyncIslandIds != null && outOfSyncIslandIds.Any())
+            if (outOfSyncIslandIds != null && outOfSyncIslandIds?.Count != 0)
             {
                 foreach (Guid islandId in outOfSyncIslandIds)
                 {
@@ -84,7 +84,7 @@ public class SyncUserData
             List<Guid>? localDecorIds = _localUser.Decor?.Select(ud => ud.DecorId).ToList();
             List<Guid>? outOfSyncDecorIds = serverDecorIds?.Except(localDecorIds).ToList();
 
-            if (outOfSyncDecorIds != null && outOfSyncDecorIds.Any())
+            if (outOfSyncDecorIds != null && outOfSyncDecorIds?.Count != null)
             {
                 foreach (Guid decorId in outOfSyncDecorIds)
                 {
@@ -99,7 +99,7 @@ public class SyncUserData
             List<Guid>? localBadgeIds = _localUser.Badges?.Select(ub => ub.BadgeId).ToList();
             List<Guid>? outOfSyncBadgeIds = serverBadgeIds?.Except(localBadgeIds).ToList();
 
-            if (outOfSyncBadgeIds != null && outOfSyncBadgeIds.Any())
+            if (outOfSyncBadgeIds != null && outOfSyncBadgeIds?.Count != null)
             {
                 foreach (Guid badgeId in outOfSyncBadgeIds)
                 {
