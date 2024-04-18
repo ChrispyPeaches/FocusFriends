@@ -206,9 +206,9 @@ internal class ProfilePage : BasePage
                         new Label
                         {
                             Text = $"{
-                                (_authenticationService.CurrentUser?.SelectedFurniture?.Name == null
+                                (_authenticationService.CurrentUser?.SelectedDecor?.Name == null
                                 ? "Select decor!"
-                                : _authenticationService.CurrentUser?.SelectedFurniture?.Name)}",
+                                : _authenticationService.CurrentUser?.SelectedDecor?.Name)}",
                             FontSize = 15
                         }
                         .Row(SelectedItemRow.Bottom)
@@ -374,13 +374,11 @@ internal class ProfilePage : BasePage
         _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedPet?.Image);
         _selectedIsland.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedIsland?.Image);
 
-        if (_authenticationService.CurrentUser?.SelectedFurniture != null)
-            _selectedDecor.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedFurniture?.Image);
-        // TODO: Refresh badge image on page load when badge image migration is in
-        /*
+        if (_authenticationService.CurrentUser?.SelectedDecor != null)
+            _selectedDecor.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedDecor?.Image);
+
         if (_authenticationService.CurrentUser?.SelectedBadge != null)
             _selectedBadge.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedBadge?.Image);
-        */
     }
 
     private void CreateUserDataElements()
@@ -446,7 +444,7 @@ internal class ProfilePage : BasePage
         .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
         .Invoke(button => button.Released += (sender, eventArgs) =>
             SelectedDecorClicked(sender, eventArgs));
-        _selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedFurniture;
+        _selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedDecor;
 
         _selectedBadge = new ImageButton
         {
