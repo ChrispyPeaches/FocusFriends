@@ -180,7 +180,7 @@ internal class LoginPage : BasePage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
+        await AppShell.Current.SetTabBarIsVisible(false);
     }
 }
 

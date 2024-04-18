@@ -27,7 +27,7 @@ internal class TimerPage : BasePage
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
 
-    enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, BottomWhiteSpace }
+    enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, TabBarSpacer }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     private enum TimerButton { Up, Down }
 
@@ -87,7 +87,7 @@ internal class TimerPage : BasePage
                 (Row.TimerDisplay, GridRowsColumns.Stars(1)),
                 (Row.IslandView, GridRowsColumns.Stars(4)),
                 (Row.TimerButtons, GridRowsColumns.Stars(1)),
-                (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
+                (Row.TabBarSpacer, Consts.TabBarHeight)
                 ),
             ColumnDefinitions = GridRowsColumns.Columns.Define(
                 (Column.LeftTimerButton, GridRowsColumns.Stars(1)),
@@ -284,6 +284,7 @@ internal class TimerPage : BasePage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
         _loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
         _selectedText = _loggedIn ? "Logout" : "Login";
         _logButton.Text = _selectedText;

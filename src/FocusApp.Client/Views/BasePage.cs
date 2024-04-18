@@ -25,6 +25,12 @@ internal class BasePage : ContentPage, INotifyPropertyChanged
         await Shell.Current.GoToAsync("..");
     }
 
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await AppShell.Current.SetTabBarIsVisible(true);
+    }
+
     #region Property Changed Notification Logic
 
     private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")

@@ -17,7 +17,7 @@ namespace FocusApp.Client.Views.Social
     internal class LeaderboardsPage : BasePage
     {
         // Row / Column structure for entire page
-        enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, BottomWhiteSpace }
+        enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, TabBarSpacer }
         enum PageColumn { DailyLeadboardButton, WeeklyLeaderboardButton }
 
         // Row / Column structure for top three friends grid
@@ -89,7 +89,7 @@ namespace FocusApp.Client.Views.Social
                     (PageRow.LeaderboardSelectors, GridRowsColumns.Stars(1)),
                     (PageRow.TopThreeFriendsDisplay, GridRowsColumns.Stars(4.5)),
                     (PageRow.RemainingFriendsDisplay, GridRowsColumns.Stars(3.5)),
-                    (PageRow.BottomWhiteSpace, GridRowsColumns.Stars(1.25))
+                    (PageRow.TabBarSpacer, Consts.TabBarHeight)
                     ),
                 ColumnDefinitions = GridRowsColumns.Columns.Define(
                     (PageColumn.DailyLeadboardButton, GridRowsColumns.Stars(1)),
@@ -502,6 +502,8 @@ namespace FocusApp.Client.Views.Social
 
         protected override async void OnAppearing()
         {
+            base.OnAppearing();
+
             // On page load, fetch daily leaderboards
             try
             {
@@ -512,7 +514,6 @@ namespace FocusApp.Client.Views.Social
             {
                 _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards on page load. Message: " + ex.Message);
             }
-            base.OnAppearing();
         }
 
         // Clear leaderboard and reset daily/weekly buttons upon leaving page

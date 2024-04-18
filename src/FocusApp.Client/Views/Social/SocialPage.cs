@@ -55,7 +55,7 @@ internal class SocialPage : BasePage
         Content = new Grid
         {
             // Define rows and columns (Star means that row/column will take up the remaining space)
-            RowDefinitions = Rows.Define(80, Star),
+            RowDefinitions = Rows.Define(80, Star, Consts.TabBarHeight),
             ColumnDefinitions = Columns.Define(Star, Star),
             BackgroundColor = AppStyles.Palette.Celeste,
             Opacity = 0.9,
@@ -175,6 +175,8 @@ internal class SocialPage : BasePage
 
     protected override async void OnAppearing()
     {
+        base.OnAppearing();
+
         // If not logged in display popup, otherwise populate friends list
         if (string.IsNullOrEmpty(_authenticationService.AuthToken))
         {
@@ -185,8 +187,6 @@ internal class SocialPage : BasePage
         {
             PopulateFriendsList();
         }
-
-        base.OnAppearing();
     }
 
     // We call this function to populate FriendsList and from friends popup to refresh list

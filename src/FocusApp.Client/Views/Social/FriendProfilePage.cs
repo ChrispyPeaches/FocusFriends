@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.Layouts;
+using SimpleToolkit.SimpleShell;
+using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Client.Views.Social;
@@ -413,6 +415,12 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
 
     private async Task OnBackButtonClicked()
     {
+        Shell.Current.SetTransition(Transitions.LeftToRightPlatformTransition);
         await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(SocialPage)}");
+    }
+
+    protected override async void OnAppearing()
+    {
+        await AppShell.Current.SetTabBarIsVisible(false);
     }
 }
