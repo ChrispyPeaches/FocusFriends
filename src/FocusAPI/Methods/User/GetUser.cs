@@ -62,10 +62,6 @@ public class GetUser
                     .Include(user => user.Pets)
                     .Include(user => user.Decor)
                     .Include(user => user.Badges)
-                    .Include(user => user.SelectedIsland)
-                    .Include(user => user.SelectedPet)
-                    .Include(user => user.SelectedDecor)
-                    .Include(user => user.SelectedBadge)
                     .Select(user => ProjectionHelper.ProjectToBaseUser(user))
                     .FirstOrDefaultAsync(cancellationToken);
             }

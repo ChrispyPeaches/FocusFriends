@@ -51,7 +51,8 @@ public class CreateUser
                             SelectedIslandId = newUser.SelectedIslandId,
                             SelectedPetId = newUser.SelectedPetId,
                             UserIslandIds = newUser.Islands.Select(userIsland => userIsland.IslandId).ToList(),
-                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList()
+                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList(),
+                            DateCreated = newUser.DateCreated
                         }
                     }
                 };

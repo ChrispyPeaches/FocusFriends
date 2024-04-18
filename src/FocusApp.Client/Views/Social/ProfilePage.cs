@@ -109,7 +109,7 @@ internal class ProfilePage : BasePage
                 .Center(),
 
                 new Grid
-                { 
+                {
                     RowDefinitions = Rows.Define(
                         (SelectedItemRow.Top, Stars(1)),
                         (SelectedItemRow.Bottom, Stars(1))
@@ -150,7 +150,8 @@ internal class ProfilePage : BasePage
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Left)
                         .Top()
-                        .CenterHorizontal(),
+                        .CenterHorizontal()
+                        .Margins(top: 15),
 
                         /* Selected Island cell */
                         new Label
@@ -182,7 +183,8 @@ internal class ProfilePage : BasePage
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Right)
                         .Top()
-                        .CenterHorizontal(),
+                        .CenterHorizontal()
+                        .Margins(top:15),
 
                         /* Selected Decor cell */
                         new Label
@@ -238,8 +240,8 @@ internal class ProfilePage : BasePage
                         new Label
                         {
                             Text = $"{
-                                (_authenticationService.CurrentUser?.SelectedBadge?.Name == null 
-                                ? "Select a badge!" 
+                                (_authenticationService.CurrentUser?.SelectedBadge?.Name == null
+                                ? "Select a badge!"
                                 : _authenticationService.CurrentUser?.SelectedBadge?.Name)}",
                             FontSize = 15
                         }
@@ -269,7 +271,7 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Left)
                         .Right()
                         .Margins(top: 50, bottom: 50)
-                    } 
+                    }
                 }
                 .Row(PageRow.SelectedItems)
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
@@ -299,12 +301,6 @@ internal class ProfilePage : BasePage
                         ),
                     Children =
                     {
-                        _email
-                        .Row(UserDataRow.UserEmail)
-                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
-                        .CenterVertical()
-                        .Left(),
-
                         new Button
                         {
                              Text = SolidIcons.Copy,
@@ -324,13 +320,22 @@ internal class ProfilePage : BasePage
                         .Row(UserDataRow.UserName)
                         .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                         .CenterVertical()
-                        .Left(),
+                        .Left()
+                        .Margins(left: 15),
 
                         _pronouns
                         .Row(UserDataRow.UserPronouns)
                         .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
                         .CenterVertical()
                         .Left()
+                        .Margins(left: 15),
+
+                        _email
+                        .Row(UserDataRow.UserEmail)
+                        .ColumnSpan(typeof(UserDataColumn).GetEnumNames().Length-1)
+                        .CenterVertical()
+                        .Left()
+                        .Margins(left: 15),
                     }
                 }
                 .Row(PageRow.UserDataFooter)
@@ -339,7 +344,7 @@ internal class ProfilePage : BasePage
                 // Date Joined
                 new Label
                 {
-                    Text = $"Member Since: {_authenticationService.CurrentUser?.DateCreated.ToShortDateString()}",
+                    Text = $"Member Since: {_authenticationService.CurrentUser?.DateCreated.ToLocalTime().ToShortDateString()}",
                     TextColor = Colors.Black,
                     FontSize = 20
                 }
