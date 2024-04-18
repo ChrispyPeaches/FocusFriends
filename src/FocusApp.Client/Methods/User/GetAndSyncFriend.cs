@@ -101,7 +101,7 @@ namespace FocusApp.Client.Methods.User
                 Shared.Models.User? localFriend = await _context.Users
                     .Include(u => u.SelectedIsland)
                     .Include(u => u.SelectedPet)
-                    .Include(u => u.SelectedFurniture)
+                    .Include(u => u.SelectedDecor)
                     .Include(u => u.SelectedBadge)
                     .Where(u => u.Auth0Id == auth0Id)
                     .FirstOrDefaultAsync(cancellationToken);
@@ -145,8 +145,6 @@ namespace FocusApp.Client.Methods.User
             {
                 // Update normal fields
                 localFriend.UserName = CheckNullAndUpdateString(localFriend.UserName, responseFriend.UserName);
-                localFriend.FirstName = CheckNullAndUpdateString(localFriend.FirstName, responseFriend.FirstName);
-                localFriend.LastName = CheckNullAndUpdateString(localFriend.LastName, responseFriend.LastName);
                 localFriend.Pronouns = CheckNullAndUpdateString(localFriend.Pronouns, responseFriend.Pronouns);
 
                 localFriend.ProfilePicture = responseFriend.ProfilePicture ?? localFriend.ProfilePicture;
@@ -179,12 +177,12 @@ namespace FocusApp.Client.Methods.User
                         .FirstOrDefaultAsync(cancellationToken);
                 }
 
-                if (responseFriend.SelectedFurnitureId != null &&
-                    localFriend.SelectedFurnitureId != responseFriend.SelectedFurnitureId)
+                if (responseFriend.SelectedDecorId != null &&
+                    localFriend.SelectedDecorId != responseFriend.SelectedDecorId)
                 {
-                    localFriend.SelectedFurnitureId = responseFriend.SelectedFurnitureId;
-                    localFriend.SelectedFurniture = await _context.Furniture
-                        .Where(furniture => furniture.Id == localFriend.SelectedFurnitureId)
+                    localFriend.SelectedDecorId = responseFriend.SelectedDecorId;
+                    localFriend.SelectedDecor = await _context.Decor
+                        .Where(decor => decor.Id == localFriend.SelectedDecorId)
                         .FirstOrDefaultAsync(cancellationToken);
                 }
             }

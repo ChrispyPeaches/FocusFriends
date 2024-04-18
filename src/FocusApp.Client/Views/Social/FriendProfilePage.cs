@@ -358,7 +358,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 BindingContext = this,
                 DisplayIsland = DisplayUser?.SelectedIsland,
                 DisplayPet = DisplayUser?.SelectedPet,
-                DisplayDecor = DisplayUser?.SelectedFurniture
+                DisplayDecor = DisplayUser?.SelectedDecor
             }
             .Bind(IslandDisplayView.IslandProperty,
                 getter: static (FriendProfilePage page) => page.DisplayUser,
@@ -368,7 +368,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
                 convert: static (User? user) => user?.SelectedPet)
             .Bind(IslandDisplayView.DisplayDecorProperty,
                 getter: static (FriendProfilePage page) => page.DisplayUser,
-                convert: static (User? user) => user?.SelectedFurniture);
+                convert: static (User? user) => user?.SelectedDecor);
     }
 
     private async void OnIdSet()
