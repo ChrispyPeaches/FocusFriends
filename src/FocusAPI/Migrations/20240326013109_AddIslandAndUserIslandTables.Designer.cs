@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FocusAPI.Migrations
 {
-    [DbContext(typeof(FocusContext))]
+    [DbContext(typeof(FocusAPIContext))]
     [Migration("20240326013109_AddIslandAndUserIslandTables")]
     partial class AddIslandAndUserIslandTables
     {

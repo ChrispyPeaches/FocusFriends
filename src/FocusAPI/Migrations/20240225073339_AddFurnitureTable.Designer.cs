@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FocusAPI.Migrations
 {
-    [DbContext(typeof(FocusContext))]
+    [DbContext(typeof(FocusAPIContext))]
     [Migration("20240225073339_AddFurnitureTable")]
     partial class AddFurnitureTable
     {

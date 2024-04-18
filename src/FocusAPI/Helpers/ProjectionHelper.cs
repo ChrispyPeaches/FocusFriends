@@ -14,15 +14,12 @@ public static class ProjectionHelper
             Email = user.Email,
             DateCreated = user.DateCreated,
             Balance = user.Balance,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
             Pronouns = user.Pronouns,
             ProfilePicture = user.ProfilePicture,
             Inviters = user.Inviters.Select(i => i as BaseFriendship).ToList(),
             Invitees = user.Invitees.Select(i => i as BaseFriendship).ToList(),
             Pets = user.Pets.Select(pet => pet as BaseUserPet).ToList(),
-            Furniture = user.Furniture.Select(furniture => furniture as BaseUserFurniture).ToList(),
-            Sounds = user.Sounds.Select(sound => sound as BaseUserSound).ToList(),
+            Decor = user.Decor.Select(decor => decor as BaseUserDecor).ToList(),
             Badges = user.Badges.Select(badge => badge as BaseUserBadge).ToList(),
             Islands = user.Islands.Select(island => island as BaseUserIsland).ToList(),
             UserSessions = user.UserSessions.Select(userSession => userSession as BaseUserSession).ToList(),
@@ -30,8 +27,8 @@ public static class ProjectionHelper
             SelectedIsland = user.SelectedIsland,
             SelectedPetId = user.SelectedPetId,
             SelectedPet = user.SelectedPet,
-            SelectedFurnitureId = user.SelectedFurnitureId,
-            SelectedFurniture = user.SelectedFurniture,
+            SelectedDecorId = user.SelectedDecorId,
+            SelectedDecor = user.SelectedDecor,
             SelectedBadgeId = user.SelectedBadgeId,
             SelectedBadge = user.SelectedBadge
         };
@@ -45,15 +42,12 @@ public static class ProjectionHelper
             Email = user.Email,
             DateCreated = user.DateCreated,
             Balance = user.Balance,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
             Pronouns = user.Pronouns,
             ProfilePicture = user.ProfilePicture,
             Inviters = user.Inviters.Select(i => i as Friendship).ToList(),
             Invitees = user.Invitees.Select(i => i as Friendship).ToList(),
             Pets = user.Pets.Select(pet => pet as UserPet).ToList(),
-            Furniture = user.Furniture.Select(furniture => furniture as UserFurniture).ToList(),
-            Sounds = user.Sounds.Select(sound => sound as UserSound).ToList(),
+            Decor = user.Decor.Select(decor => decor as UserDecor).ToList(),
             Badges = user.Badges.Select(badge => badge as UserBadge).ToList(),
             Islands = user.Islands.Select(island => island as UserIsland).ToList(),
             UserSessions = user.UserSessions.Select(userSession => userSession as UserSession).ToList(),
@@ -61,8 +55,8 @@ public static class ProjectionHelper
             SelectedIsland = user.SelectedIsland as Island,
             SelectedPetId = user.SelectedPetId,
             SelectedPet = user.SelectedPet as Pet,
-            SelectedFurnitureId = user.SelectedFurnitureId,
-            SelectedFurniture = user.SelectedFurniture as Furniture,
+            SelectedDecorId = user.SelectedDecorId,
+            SelectedDecor = user.SelectedDecor as Decor,
             SelectedBadgeId = user.SelectedBadgeId,
             SelectedBadge = user.SelectedBadge as Badge
         };
@@ -103,6 +97,33 @@ public static class ProjectionHelper
             Name = island.Name,
             Image = island.Image,
             Price = island.Price
+        };
+
+    public static BaseMindfulnessTip ProjectToBaseMindfulnessTip(MindfulnessTip tip) =>
+        new()
+        {
+            Id = tip.Id,
+            Content = tip.Content,
+            SessionRatingLevel = tip.SessionRatingLevel,
+            Title = tip.Title
+        };
+
+    public static BaseBadge ProjectToBaseBadge(Badge badge) =>
+        new()
+        {
+            Id = badge.Id,
+            Name = badge.Name,
+            Image = badge.Image
+        };
+
+    public static BaseDecor ProjectToBaseDecor(Decor decor) =>
+        new()
+        {
+            Id = decor.Id,
+            Name = decor.Name,
+            Image = decor.Image,
+            Price = decor.Price,
+            HeightRequest = decor.HeightRequest
         };
 }
 

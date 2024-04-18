@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FocusAPI.Data;
 
-public class FocusContext : DbContext
+public class FocusAPIContext : DbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Badge> Badges { get; set; }
@@ -14,10 +14,8 @@ public class FocusContext : DbContext
     public DbSet<UserPet> UserPets { get; set; }
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
-    public DbSet<Furniture> Furniture { get; set; }
-    public DbSet<Sound> Sounds { get; set; }
-    public DbSet<UserFurniture> UserFurniture { get; set; }
-    public DbSet<UserSound> UserSounds { get; set; }
+    public DbSet<Decor> Decor { get; set; }
+    public DbSet<UserDecor> UserDecor { get; set; }
     public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
     public DbSet<Island> Islands { get; set; }
     public DbSet<UserIsland> UserIslands { get; set; }
@@ -26,7 +24,7 @@ public class FocusContext : DbContext
     /// If the database isn't created, create it.
     /// If the tables aren't created, create them.
     /// </summary>
-    public FocusContext(DbContextOptions<FocusContext> options) : base(options)
+    public FocusAPIContext(DbContextOptions<FocusAPIContext> options) : base(options)
     {
         if (Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator dbCreator)
         {

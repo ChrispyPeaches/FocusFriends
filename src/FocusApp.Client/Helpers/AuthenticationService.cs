@@ -13,7 +13,7 @@ internal interface IAuthenticationService
     Island? SelectedIsland { get; set; }
     Pet? SelectedPet { get; set; }
     Badge? SelectedBadge { get; set; }
-    Furniture? SelectedFurniture { get; set; }
+    Decor? SelectedDecor { get; set; }
 
     event PropertyChangedEventHandler? PropertyChanged;
 }
@@ -53,11 +53,11 @@ public class AuthenticationService : INotifyPropertyChanged, IAuthenticationServ
         set => SetProperty(ref _selectedBadge, value);
     }
 
-    private Furniture? _selectedFurniture;
-    public Furniture? SelectedFurniture
+    private Decor? _selectedDecor;
+    public Decor? SelectedDecor
     {
-        get => _selectedFurniture;
-        set => SetProperty(ref _selectedFurniture, value);
+        get => _selectedDecor;
+        set => SetProperty(ref _selectedDecor, value);
     }
 
     #region Property Changed Notification Logic

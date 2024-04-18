@@ -218,7 +218,7 @@ internal class TimerPage : BasePage
                 source: _authenticationService)
             .Bind(
                 IslandDisplayView.DisplayDecorProperty,
-                getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
+                getter: static (IAuthenticationService authService) => authService.SelectedDecor,
                 source: _authenticationService);
     }
 

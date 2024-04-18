@@ -22,12 +22,6 @@ public class BaseUser
 	public required int Balance { get; set; }
 
     [MaxLength(50)]
-    public string? FirstName { get; set; }
-
-    [MaxLength(50)]
-    public string? LastName { get; set; }
-
-    [MaxLength(50)]
     public string? Pronouns { get; set; }
 
 	public byte[]? ProfilePicture { get; set; }
@@ -38,9 +32,7 @@ public class BaseUser
 
     public ICollection<BaseUserPet>? Pets { get; set; } = new List<BaseUserPet>();
 
-    public ICollection<BaseUserFurniture>? Furniture { get; set; } = new List<BaseUserFurniture>();
-
-    public ICollection<BaseUserSound>? Sounds { get; set; } = new List<BaseUserSound>();
+    public ICollection<BaseUserDecor>? Decor { get; set; } = new List<BaseUserDecor>();
 
     public ICollection<BaseUserBadge>? Badges { get; set; } = new List<BaseUserBadge>();
 
@@ -60,11 +52,11 @@ public class BaseUser
     [DeleteBehavior(DeleteBehavior.Restrict)]
     public BasePet? SelectedPet { get; set; }
 
-    [ForeignKey(nameof(SelectedFurniture))]
-    public Guid? SelectedFurnitureId { get; set; }
+    [ForeignKey(nameof(SelectedDecor))]
+    public Guid? SelectedDecorId { get; set; }
 
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public BaseFurniture? SelectedFurniture { get; set; }
+    public BaseDecor? SelectedDecor { get; set; }
 
     [ForeignKey(nameof(SelectedBadge))]
     public Guid? SelectedBadgeId { get; set; }

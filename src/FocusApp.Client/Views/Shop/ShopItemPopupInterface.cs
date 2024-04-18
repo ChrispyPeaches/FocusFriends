@@ -214,12 +214,12 @@ namespace FocusApp.Client.Views.Shop
 
                     break;
 
-                case ShopItemType.Furniture:
+                case ShopItemType.Decor:
 
                     // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Furniture.Any(f => f.Id == _currentItem.Id))
+                    if (!_localContext.Decor.Any(f => f.Id == _currentItem.Id))
                     {
-                        _localContext.Furniture.Add(new Furniture
+                        _localContext.Decor.Add(new Decor
                         {
                             Id = _currentItem.Id,
                             Name = _currentItem.Name,
@@ -230,13 +230,13 @@ namespace FocusApp.Client.Views.Shop
                         await _localContext.SaveChangesAsync();
                     }
 
-                    // Add the user's new furniture to the local database
+                    // Add the user's new decor to the local database
                     try
                     {
                         User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Furniture?.Add(new UserFurniture
+                        user.Decor?.Add(new UserDecor
                         {
-                            Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
+                            Decor = _localContext.Decor.First(f => f.Id == _currentItem.Id)
                         });
 
                         // Update the user's balance on the local database
@@ -244,27 +244,27 @@ namespace FocusApp.Client.Views.Shop
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to local database. Exception: " + ex.Message);
+                        _logger.Log(LogLevel.Error, "Error adding UserDecor to local database. Exception: " + ex.Message);
                     }
 
-                    // Add the user's furniture to the server database
+                    // Add the user's decor to the server database
                     // Note: This endpoint additionally updates the user's balance on the server
                     try
                     {
-                        await _client.AddUserFurniture(new AddUserFurnitureCommand
+                        await _client.AddUserDecor(new AddUserDecorCommand
                         {
                             UserId = _authenticationService.CurrentUser.Id,
-                            FurnitureId = _currentItem.Id,
+                            DecorId = _currentItem.Id,
                             UpdatedBalance = _authenticationService.CurrentUser.Balance,
                         });
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to server database. Exception: " + ex.Message);
+                        _logger.Log(LogLevel.Error, "Error adding UserDecor to server database. Exception: " + ex.Message);
                     }
 
                     break;
-
+                /*
                 case ShopItemType.Sounds:
 
                     // Note: This check will be made obsolete after the shop item sync update
@@ -303,7 +303,7 @@ namespace FocusApp.Client.Views.Shop
                     // If time allows, we will store the sound files on the server, and fetch/store them after purchase
                     try
                     {
-                        await _client.AddUserSound(new AddUserSoundCommand
+                        await _client.AddUserIsland(new AddUserIslandCommand
                         {
                             UserId = _authenticationService.CurrentUser.Id,
                             SoundId = _currentItem.Id,
@@ -316,6 +316,7 @@ namespace FocusApp.Client.Views.Shop
                     }
 
                     break;
+                */
                 default:
                     break;
             }
@@ -343,14 +344,16 @@ namespace FocusApp.Client.Views.Shop
                     return _localContext.UserPets.Any(p =>
                            p.PetId == _currentItem.Id
                         && p.UserId == _authenticationService.CurrentUser.Id);
-                case ShopItemType.Furniture:
-                    return _localContext.UserFurniture.Any(f => 
-                           f.FurnitureId == _currentItem.Id
+                case ShopItemType.Decor:
+                    return _localContext.UserDecor.Any(f => 
+                           f.DecorId == _currentItem.Id
                         && f.UserId == _authenticationService.CurrentUser.Id);
+                /*
                 case ShopItemType.Sounds:
                     return _localContext.UserSounds.Any(s => 
                            s.SoundId == _currentItem.Id 
                         && s.UserId == _authenticationService.CurrentUser.Id);
+                */
                 default:
                     return false;
             }
