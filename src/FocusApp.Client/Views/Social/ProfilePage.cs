@@ -352,17 +352,6 @@ internal class ProfilePage : BasePage
                 .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
                 .CenterVertical()
                 .CenterHorizontal(),
-
-                // Horizontal divider separating user data from selected item data
-                new BoxView
-                {
-                    Color = Colors.Black,
-                    HeightRequest = 2,
-                    Opacity = 0.5
-                }
-                .Row(PageRow.MembershipDate)
-                .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
-                .Bottom(),
             }
         };
     }
