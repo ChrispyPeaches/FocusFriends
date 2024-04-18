@@ -84,7 +84,7 @@ public class SyncUserData
             List<Guid>? localDecorIds = _localUser.Decor?.Select(ud => ud.DecorId).ToList();
             List<Guid>? outOfSyncDecorIds = serverDecorIds?.Except(localDecorIds).ToList();
 
-            if (outOfSyncDecorIds != null && outOfSyncDecorIds?.Count != null)
+            if (outOfSyncDecorIds != null && outOfSyncDecorIds?.Count != 0)
             {
                 foreach (Guid decorId in outOfSyncDecorIds)
                 {
@@ -99,7 +99,7 @@ public class SyncUserData
             List<Guid>? localBadgeIds = _localUser.Badges?.Select(ub => ub.BadgeId).ToList();
             List<Guid>? outOfSyncBadgeIds = serverBadgeIds?.Except(localBadgeIds).ToList();
 
-            if (outOfSyncBadgeIds != null && outOfSyncBadgeIds?.Count != null)
+            if (outOfSyncBadgeIds != null && outOfSyncBadgeIds?.Count != 0)
             {
                 foreach (Guid badgeId in outOfSyncBadgeIds)
                 {
