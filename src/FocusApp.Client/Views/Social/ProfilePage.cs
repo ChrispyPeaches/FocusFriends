@@ -371,19 +371,22 @@ internal class ProfilePage : BasePage
     protected override async void OnAppearing()
     {
         ByteArrayToImageSourceConverter byteArrayConverter = new ByteArrayToImageSourceConverter();
+
+        // Set user details bindings
         _profilePicture.ImageSource = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
         _userName.Text = _authenticationService.CurrentUser?.UserName;
         _pronouns.Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}";
         _email.Text = $"Friend Id: #{_authenticationService.CurrentUser?.Email}";
 
-        _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedPet?.Image);
-        _selectedIsland.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedIsland?.Image);
+        // Set user selected items bindings
+        _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedPet?.Image);
+        _selectedIsland.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedIsland?.Image);
 
-        if (_authenticationService.CurrentUser?.SelectedDecor != null)
-            _selectedDecor.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedDecor?.Image);
+        if (_authenticationService.SelectedDecor != null)
+            _selectedDecor.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedDecor?.Image);
 
-        if (_authenticationService.CurrentUser?.SelectedBadge != null)
-            _selectedBadge.Source = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.SelectedBadge?.Image);
+        if (_authenticationService.SelectedBadge != null)
+            _selectedBadge.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedBadge?.Image);
     }
 
     private void CreateUserDataElements()
@@ -429,7 +432,6 @@ internal class ProfilePage : BasePage
         .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
         .Invoke(button => button.Released += (sender, eventArgs) =>
             SelectedPetClicked(sender, eventArgs));
-        _selectedPet.BindingContext = _authenticationService.CurrentUser?.SelectedPet;
 
         _selectedIsland = new ImageButton
         {
@@ -439,7 +441,6 @@ internal class ProfilePage : BasePage
         .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
         .Invoke(button => button.Released += (sender, eventArgs) =>
             SelectedIslandClicked(sender, eventArgs));
-        _selectedIsland.BindingContext = _authenticationService.CurrentUser?.SelectedIsland;
 
         _selectedDecor = new ImageButton
         {
@@ -449,7 +450,6 @@ internal class ProfilePage : BasePage
         .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
         .Invoke(button => button.Released += (sender, eventArgs) =>
             SelectedDecorClicked(sender, eventArgs));
-        _selectedDecor.BindingContext = _authenticationService.CurrentUser?.SelectedDecor;
 
         _selectedBadge = new ImageButton
         {
@@ -459,7 +459,6 @@ internal class ProfilePage : BasePage
         .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
         .Invoke(button => button.Released += (sender, eventArgs) =>
             SelectedBadgeClicked(sender, eventArgs));
-        _selectedBadge.BindingContext = _authenticationService.CurrentUser?.SelectedBadge;
     }
 
     #endregion
