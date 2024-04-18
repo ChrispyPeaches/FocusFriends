@@ -34,7 +34,7 @@ public class SyncUserData
 
             _localUser = await _localContext.Users
                 .Include(u => u.Pets)
-                .Include(u => u.Furniture)
+                .Include(u => u.Decor)
                 .Include(u => u.Islands)
                 .FirstOrDefaultAsync(u => u.Id == _serverUser.Id);
 
@@ -80,15 +80,15 @@ public class SyncUserData
 
         void SyncUserDecor()
         {
-            List<Guid>? serverFurnitureIds = _serverUser.Furniture?.Select(uf => uf.FurnitureId).ToList();
-            List<Guid>? localFurnitureIds = _localUser.Furniture?.Select(uf => uf.FurnitureId).ToList();
-            List<Guid>? outOfSyncFurnitureIds = serverFurnitureIds?.Except(localFurnitureIds).ToList();
+            List<Guid>? serverDecorIds = _serverUser.Decor?.Select(ud => ud.DecorId).ToList();
+            List<Guid>? localDecorIds = _localUser.Decor?.Select(ud => ud.DecorId).ToList();
+            List<Guid>? outOfSyncDecorIds = serverDecorIds?.Except(localDecorIds).ToList();
 
-            if (outOfSyncFurnitureIds != null && outOfSyncFurnitureIds.Any())
+            if (outOfSyncDecorIds != null && outOfSyncDecorIds.Any())
             {
-                foreach (Guid furnitureId in outOfSyncFurnitureIds)
+                foreach (Guid decorId in outOfSyncDecorIds)
                 {
-                    _localUser.Furniture?.Add(new UserFurniture { Furniture = _localContext.Furniture.First(f => f.Id == furnitureId) });
+                    _localUser.Decor?.Add(new UserDecor { Decor = _localContext.Decor.First(f => f.Id == decorId) });
                 }
             }
         }

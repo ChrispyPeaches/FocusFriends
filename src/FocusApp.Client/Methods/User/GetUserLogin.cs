@@ -202,22 +202,33 @@ namespace FocusApp.Client.Methods.User
                 {
                     user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
 
-                    try
-                    {
-                        // Sync local user data with server user data
-                        await _mediator.Send(new SyncUserData.Query { ServerUser = user }, default);
-                    }
-                    catch (Exception ex) 
-                    {
-                        _logger.Log(LogLevel.Debug, "Error syncing local user data with server's user data. Message: " + ex.Message);
-                    }
-
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
                     user.SelectedIsland ??= await GetInitialIslandQuery()
                         .FirstOrDefaultAsync(cancellationToken);
 
                     user.SelectedPet ??= await GetInitialPetQuery()
                         .FirstOrDefaultAsync(cancellationToken);
+
+                    bool userExistsLocally = await _localContext.Users
+                        .AnyAsync(u => u.Auth0Id == getUserResponse.User.Auth0Id, cancellationToken);
+
+                    // Add user to the local database if the user doesn't exist locally
+                    if (!userExistsLocally)
+                    {
+                        await _localContext.Users.AddAsync(user, cancellationToken);
+
+                        await _localContext.SaveChangesAsync();
+                    }
+
+                    try
+                    {
+                        // Sync local user data with server user data
+                        await _mediator.Send(new SyncUserData.Query { ServerUser = user }, default);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log(LogLevel.Debug, "Error syncing local user data with server's user data. Message: " + ex.Message);
+                    }
                 }
 
                 return user;
