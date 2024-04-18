@@ -249,7 +249,7 @@ namespace FocusApp.Client.Methods.User
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Debug, "Error syncing local user data with server's user data. Message: " + ex.Message);
+                        _logger.LogError(ex, "Error syncing local user data with server's user data.");
                     }
                 }
 

@@ -147,7 +147,7 @@ namespace FocusAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Debug, "[500] Error editing user profile details. Message: " + ex.Message);
+                _logger.LogError(ex, "[500] Error editing user profile details.");
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
 

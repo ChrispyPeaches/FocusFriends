@@ -49,7 +49,7 @@ public class EditUserProfile
             }
             catch (Exception ex) 
             {
-                _logger.Log(LogLevel.Error, "Error saving changes to user profile in database. Message: " + ex.Message);
+                _logger.LogError(ex, "Error saving changes to user profile in database.");
                 
                 return new MediatrResult
                 {
