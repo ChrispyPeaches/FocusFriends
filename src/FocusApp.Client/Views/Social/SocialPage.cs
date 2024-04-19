@@ -1,29 +1,20 @@
-using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Clients;
-using FocusCore.Queries.User;
-using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
-using Microsoft.Maui.Platform;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using CommunityToolkit.Maui.Converters;
-using Microsoft.Maui.ApplicationModel;
+using CommunityToolkit.Maui.Views;
 using FocusCore.Queries.Social;
 using Microsoft.Extensions.Logging;
 using FocusCore.Models;
-using FocusApp.Shared.Models;
 using MediatR;
 using CommunityToolkit.Mvvm.Input;
-using SimpleToolkit.SimpleShell;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -85,7 +76,7 @@ internal class SocialPage : BasePage
                 .Column(1)
                 .Left()
                 .Padding(15, 15)
-                .Invoke(b => b.Clicked += (s,e) => OnClickShowAddFriendsPopup(s,e)),
+                .Invoke(b => b.Clicked += OnClickShowAddFriendsPopup),
 
                 // Horizontal Divider
                 new BoxView
@@ -114,7 +105,7 @@ internal class SocialPage : BasePage
                 .Right()
                 .Column(1)
                 .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
-                .Invoke(b => b.Clicked += (s,e) => OnClickShowProfileInterfacePopup(s,e)),
+                .Invoke(b => b.Clicked += OnClickShowProfileInterfacePopup),
 
                 // Friends List
                 _friendsListView
@@ -135,20 +126,42 @@ internal class SocialPage : BasePage
         listView.ItemTemplate = new DataTemplate(() =>
         {
             ViewCell cell = new ViewCell();
+
             Grid grid = new Grid();
 
             grid.RowDefinitions = Rows.Define(Star);
             grid.ColumnDefinitions = Columns.Define(80, Star);
 
             // Friend profile picture
-            Image friendImage = new Image
-            {
-            };
-            friendImage.SetBinding(
-                Image.SourceProperty, nameof(FriendListModel.FriendProfilePicture),
-                converter: new ByteArrayToImageSourceConverter());
-            friendImage.VerticalOptions = LayoutOptions.Center;
-            friendImage.Column(0);
+            AvatarView friendImage = new AvatarView
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                }
+                .Aspect(Aspect.AspectFit)
+                .Column(0)
+                .Bind(
+                    AvatarView.ImageSourceProperty,
+                    nameof(FriendListModel.FriendProfilePicture),
+                    converter: new ByteArrayToImageSourceConverter())
+                // Set the height of the image to be slightly smaller than the cell height
+                // because padding wasn't working properly
+                .Bind(
+                    AvatarView.HeightRequestProperty,
+                    getter: cell => cell.RenderHeight,
+                    convert: (double height) => height - 1,
+                    source: cell)
+                // Set the width to update when the height updates and set them to the same value
+                .Bind(
+                    AvatarView.WidthRequestProperty,
+                    path: nameof(AvatarView.HeightRequest),
+                    convert: (double hr) => hr,
+                    source: RelativeBindingSource.Self)
+                // Set the corner radius to be half of the height to make it a circle
+                .Bind(
+                    AvatarView.CornerRadiusProperty,
+                    path: nameof(AvatarView.HeightRequest),
+                    convert: (double hr) => hr / 2,
+                    source: RelativeBindingSource.Self);
 
             // Friend username
             Label friendUsername = new Label
@@ -213,13 +226,13 @@ internal class SocialPage : BasePage
     }
 
     // Display navigation popup on hit
-    private void OnClickShowProfileInterfacePopup(object sender, EventArgs e)
+    private void OnClickShowProfileInterfacePopup(object? sender, EventArgs e)
     {
         _popupService.ShowPopup<ProfilePopupInterface>();
     }
 
     // Display new friend popup on hit
-    private void OnClickShowAddFriendsPopup(object sender, EventArgs e)
+    private void OnClickShowAddFriendsPopup(object? sender, EventArgs e)
     {
         var addFriendPopup = (AddFriendPopupInterface)_popupService.ShowAndGetPopup<AddFriendPopupInterface>();
         addFriendPopup.SocialPage = this;
@@ -233,6 +246,7 @@ internal class SocialPage : BasePage
     /// </summary>
     private async Task OnFriendClickShowFriendProfilePage(string? auth0Id)
     {
+        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync(
             $"///{nameof(SocialPage)}/{nameof(FriendProfilePage)}",
             FriendProfilePage.BuildParamterArgs(auth0Id));
