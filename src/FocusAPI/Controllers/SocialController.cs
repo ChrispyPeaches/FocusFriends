@@ -15,10 +15,10 @@ namespace FocusAPI.Controllers
     [Route("[controller]")]
     public class SocialController : ControllerBase
     {
-        private readonly ILogger<ShopController> _logger;
+        private readonly ILogger<SocialController> _logger;
         private IMediator _mediator;
 
-        public SocialController(ILogger<ShopController> logger, IMediator mediator)
+        public SocialController(ILogger<SocialController> logger, IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;

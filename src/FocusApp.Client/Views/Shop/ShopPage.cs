@@ -3,19 +3,21 @@ using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusCore.Models;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace FocusApp.Client.Views.Shop
 {
     internal class ShopPage : BasePage
     {
-        IAPIClient _client;
         IAuthenticationService _authenticationService;
         FocusAppContext _localContext;
-        Helpers.PopupService _popupService;
+        PopupService _popupService;
+        IMediator _mediator;
         CarouselView _petsCarouselView { get; set; }
         CarouselView _islandsCarouselView { get; set; }
         CarouselView _decorCarouselView { get; set; }
@@ -24,12 +26,11 @@ namespace FocusApp.Client.Views.Shop
 
         #region Frontend
 
-        public ShopPage(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService, FocusAppContext localContext)
+        public ShopPage(IAuthenticationService authenticationService, PopupService popupService, IMediator mediator)
         {
-            _client = client;
             _popupService = popupService;
             _authenticationService = authenticationService;
-            _localContext = localContext;
+            _mediator = mediator;
 
             _petsCarouselView = BuildBaseCarouselView();
             _islandsCarouselView = BuildBaseCarouselView();
@@ -213,51 +214,13 @@ namespace FocusApp.Client.Views.Shop
             // Update user balance upon showing shop page
             _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
 
-            List<ShopItem> shopItems = await GetLocalShopItems();
+            List<ShopItem> shopItems = await _mediator.Send(new GetLocalShopItems.Query(), default);
 
             _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
             _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
             _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
 
             base.OnAppearing();
-        }
-
-        // Gather shop items from local database, and convert to ShopItem objects
-        private async Task<List<ShopItem>> GetLocalShopItems()
-        {
-            List<ShopItem> pets = await _localContext.Pets
-                .Where(p => p.Price > 0)
-                .Select(p => new ShopItem
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Price = p.Price,
-                    ImageSource = p.Image,
-                    Type = ShopItemType.Pets,
-                }).ToListAsync();
-
-            List<ShopItem> islands = await _localContext.Islands
-                .Where(p => p.Price > 0)
-                .Select(i => new ShopItem
-                {
-                    Id = i.Id,
-                    Name = i.Name,
-                    Price = i.Price,
-                    ImageSource = i.Image,
-                    Type = ShopItemType.Islands
-                }).ToListAsync();
-
-            List<ShopItem> decor = await _localContext.Decor
-                .Select(d => new ShopItem
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Price = d.Price,
-                    ImageSource = d.Image,
-                    Type = ShopItemType.Decor
-                }).ToListAsync();
-            
-            return pets.Concat(decor).Concat(islands).OrderBy(p => p.Price).ToList();
         }
 
         #endregion

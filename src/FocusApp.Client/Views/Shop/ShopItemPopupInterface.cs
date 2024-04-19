@@ -2,11 +2,13 @@
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
 using FocusCore.Models;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
@@ -19,18 +21,18 @@ namespace FocusApp.Client.Views.Shop
         StackLayout _popupContentStack;
         IAuthenticationService _authenticationService;
         IFocusAppContext _localContext;
-        IAPIClient _client;
         ILogger<ShopItemPopupInterface> _logger;
+        IMediator _mediator;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<ShopItemPopupInterface> logger)
+        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
-            _client = client;
             _logger = logger;
+            _mediator = mediator;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -158,128 +160,17 @@ namespace FocusApp.Client.Views.Shop
         // User wants to purchase item, save to local database, reduce balance, hide popup
         private async void PurchaseItem(object sender, EventArgs e)
         {
-            _authenticationService.CurrentUser.Balance -= _currentItem.Price;
-
-            switch (_currentItem.Type)
-            {
-                case ShopItemType.Pets:
-                    try
-                    {
-                        // Add the user's new pet to the local database
-                        User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Pets?.Add(new UserPet
-                        {
-                            Pet = await _localContext.Pets.FirstAsync(p => p.Id == _currentItem.Id)
-                        });
-
-                        // Update the user's balance on the local database
-                        user.Balance = _authenticationService.CurrentUser.Balance;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error adding UserPet to local database.");
-                    }
-
-                    // Add the user's pet to the server database
-                    // Note: This endpoint additionally updates the user's balance on the server
-                    try
-                    {
-                        await _client.AddUserPet(new AddUserPetCommand
-                        {
-                            UserId = _authenticationService.CurrentUser.Id,
-                            PetId = _currentItem.Id,
-                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                        });
-                    }
-                    catch (Exception ex) 
-                    {
-                        _logger.LogError(ex, "Error adding UserPet to server database.");
-                    }
-
-                    break;
-
-                case ShopItemType.Decor:
-                    // Add the user's new decor to the local database
-                    try
-                    {
-                        User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Decor?.Add(new UserDecor
-                        {
-                            Decor = await _localContext.Decor.FirstAsync(d => d.Id == _currentItem.Id)
-                        });
-
-                        // Update the user's balance on the local database
-                        user.Balance = _authenticationService.CurrentUser.Balance;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error adding UserDecor to local database.");
-                    }
-
-                    // Add the user's decor to the server database
-                    // Note: This endpoint additionally updates the user's balance on the server
-                    try
-                    {
-                        await _client.AddUserDecor(new AddUserDecorCommand
-                        {
-                            UserId = _authenticationService.CurrentUser.Id,
-                            DecorId = _currentItem.Id,
-                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error adding UserDecor to server database.");
-                    }
-
-                    break;
-                case ShopItemType.Islands:
-                    try
-                    {
-                        // Add the user's new island to the local database
-                        User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Islands?.Add(new UserIsland
-                        {
-                            Island = await _localContext.Islands.FirstAsync(i => i.Id == _currentItem.Id)
-                        });
-
-                        // Update the user's balance on the local database
-                        user.Balance = _authenticationService.CurrentUser.Balance;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error adding UserIsland to local database.");
-                    }
-
-                    // Add the user's island to the server database
-                    try
-                    {
-                        await _client.AddUserIsland(new AddUserIslandCommand
-                        {
-                            UserId = _authenticationService.CurrentUser.Id,
-                            IslandId = _currentItem.Id,
-                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error adding UserIsland to server database.");
-                    }
-
-                    break;
-
-                default:
-                    break;
-            }
-
             try
             {
-                await _localContext.SaveChangesAsync();
+                await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving changes to local database.");
+                _logger.LogError(ex, "Error occurred while purchasing item.");
             }
+            
+            // Update user's balance within the CurrentUser model
+            _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
             // After purchasing item, update the user balance display on the shop page
             ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
