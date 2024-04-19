@@ -39,7 +39,7 @@ namespace FocusApp.Client.Methods.Shop
                         try
                         {
                             // Add the user's new pet to the local database
-                            Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                            Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
                             user.Pets?.Add(new UserPet
                             {
                                 Pet = await _localContext.Pets.FirstAsync(p => p.Id == command.Item.Id)
@@ -75,7 +75,7 @@ namespace FocusApp.Client.Methods.Shop
                         // Add the user's new decor to the local database
                         try
                         {
-                            Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                            Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
                             user.Decor?.Add(new UserDecor
                             {
                                 Decor = await _localContext.Decor.FirstAsync(d => d.Id == command.Item.Id)
@@ -110,7 +110,7 @@ namespace FocusApp.Client.Methods.Shop
                         try
                         {
                             // Add the user's new island to the local database
-                            Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                            Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
                             user.Islands?.Add(new UserIsland
                             {
                                 Island = await _localContext.Islands.FirstAsync(i => i.Id == command.Item.Id)
@@ -147,7 +147,7 @@ namespace FocusApp.Client.Methods.Shop
 
                 try
                 {
-                    await _localContext.SaveChangesAsync();
+                    await _localContext.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
