@@ -1,10 +1,7 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
-using FocusApp.Client.Clients;
-using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
-using FocusApp.Shared.Data;
 using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;

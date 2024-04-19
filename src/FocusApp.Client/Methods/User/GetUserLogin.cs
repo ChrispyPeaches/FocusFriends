@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Auth0.OidcClient;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using FocusApp.Client.Methods.Sync;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
@@ -34,12 +35,14 @@ namespace FocusApp.Client.Methods.User
             IAPIClient _client;
             FocusAppContext _localContext;
             ILogger<Handler> _logger;
-            public Handler(Auth0Client auth0Client, IAPIClient client, FocusAppContext localContext, ILogger<Handler> logger)
+            IMediator _mediator;
+            public Handler(Auth0Client auth0Client, IAPIClient client, FocusAppContext localContext, ILogger<Handler> logger, IMediator mediator)
             {
                 _auth0Client = auth0Client;
                 _client = client;
                 _localContext = localContext;
                 _logger = logger;
+                _mediator = mediator;
             }
 
             public async Task<Result> Handle(
@@ -162,7 +165,9 @@ namespace FocusApp.Client.Methods.User
                     Auth0Id = auth0UserId,
                     Email = userEmail,
                     UserName = userName,
-                    Balance = createUserResponse.User.Balance
+                    Balance = createUserResponse.User.Balance,
+                    // Note: DateCreated is the UTC DateTime the user was created (synced with server record)
+                    DateCreated = createUserResponse.User.DateCreated.UtcDateTime
                 };
 
                 user.SelectedIsland = await GetInitialIslandQuery()
@@ -185,14 +190,14 @@ namespace FocusApp.Client.Methods.User
             {
                 Shared.Models.User? user;
 
-                Shared.Models.User? localUser = await _localContext.Users
-                    .Include(u => u.SelectedIsland)
-                    .Include(u => u.SelectedPet)
-                    .Where(u => u.Auth0Id == auth0Id)
-                    .FirstOrDefaultAsync(cancellationToken);
-
                 if (getUserResponse?.User is null)
                 {
+                    Shared.Models.User? localUser = await _localContext.Users
+                        .Include(u => u.SelectedIsland)
+                        .Include(u => u.SelectedPet)
+                        .Where(u => u.Auth0Id == auth0Id)
+                        .FirstOrDefaultAsync(cancellationToken);
+
                     user = localUser;
                 }
                 else
@@ -200,11 +205,52 @@ namespace FocusApp.Client.Methods.User
                     user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
 
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
-                    user.SelectedIsland ??= await GetInitialIslandQuery()
-                        .FirstOrDefaultAsync(cancellationToken);
+                    user.SelectedIsland = user.SelectedIslandId == null ?
+                        // If the user does not have a selected island id, default to tropical
+                        await GetInitialIslandQuery().FirstOrDefaultAsync(cancellationToken) 
+                        :
+                        await GetSelectedIslandQuery(user.SelectedIslandId.Value)
+                            .FirstOrDefaultAsync(cancellationToken);
 
-                    user.SelectedPet ??= await GetInitialPetQuery()
-                        .FirstOrDefaultAsync(cancellationToken);
+                    user.SelectedPet = user.SelectedPetId == null ?
+                        // If the user does not have a selected pet id, default to cool cat
+                        await GetInitialPetQuery().FirstOrDefaultAsync(cancellationToken)
+                        :
+                        await GetSelectedPetQuery(user.SelectedPetId.Value)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                    user.SelectedBadge = user.SelectedBadgeId == null ?
+                        null
+                        :
+                        await GetSelectedBadgeQuery(user.SelectedBadgeId.Value)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                    user.SelectedDecor = user.SelectedDecorId == null ?
+                        null
+                        :
+                        await GetSelectedDecorQuery(user.SelectedDecorId.Value)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                    bool userExistsLocally = await _localContext.Users
+                        .AnyAsync(u => u.Auth0Id == getUserResponse.User.Auth0Id, cancellationToken);
+
+                    // Add user to the local database if the user doesn't exist locally
+                    if (!userExistsLocally)
+                    {
+                        await _localContext.Users.AddAsync(user, cancellationToken);
+
+                        await _localContext.SaveChangesAsync();
+                    }
+
+                    try
+                    {
+                        // Sync local user data with server user data
+                        await _mediator.Send(new SyncUserData.Query { ServerUser = user }, default);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error syncing local user data with server's user data.");
+                    }
                 }
 
                 return user;
@@ -220,6 +266,30 @@ namespace FocusApp.Client.Methods.User
             {
                 return _localContext.Pets
                     .Where(pet => pet.Name == FocusCore.Consts.NameOfInitialPet);
+            }
+
+            private IQueryable<Island> GetSelectedIslandQuery(Guid selectedIslandId)
+            {
+                return _localContext.Islands
+                    .Where(island => island.Id == selectedIslandId);
+            }
+
+            private IQueryable<Pet> GetSelectedPetQuery(Guid selectedPetId)
+            {
+                return _localContext.Pets
+                    .Where(pet => pet.Id == selectedPetId);
+            }
+
+            private IQueryable<Badge> GetSelectedBadgeQuery(Guid selectedBadgeId)
+            {
+                return _localContext.Badges
+                    .Where(badge => badge.Id == selectedBadgeId);
+            }
+
+            private IQueryable<Decor> GetSelectedDecorQuery(Guid selectedDecorId)
+            {
+                return _localContext.Decor
+                    .Where(decor => decor.Id == selectedDecorId);
             }
         }
     }
