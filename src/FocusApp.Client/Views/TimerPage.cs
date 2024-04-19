@@ -45,8 +45,8 @@ internal class TimerPage : BasePage
         _popupService = popupService;
         _logger = logger;
 
-        _showMindfulnessTipPopupOnStartSettingPlaceholder = true;
-        Appearing += ShowMindfulnessTipPopup;
+        if (PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled))
+            Appearing += ShowMindfulnessTipPopup;
 
         // Login/Logout Button
         // This is placed here and not in the grid so the text
@@ -291,7 +291,7 @@ internal class TimerPage : BasePage
     }
 
     /// <summary>
-    /// Remove subscription to the this.Appearing event so that the popup is only shown once on app startup,
+    /// Remove subscription to the this. Appearing event so that the popup is only shown once on app startup,
     /// then show and populate the mindfulness tip popup.
     /// </summary>
     private async void ShowMindfulnessTipPopup(object? sender, EventArgs eventArgs)
