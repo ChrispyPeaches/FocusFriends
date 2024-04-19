@@ -6,7 +6,7 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusCore.Models;
-using FocusCore.Queries.Shop;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusApp.Client.Views.Shop
 {
@@ -17,7 +17,7 @@ namespace FocusApp.Client.Views.Shop
         FocusAppContext _localContext;
         Helpers.PopupService _popupService;
         CarouselView _petsCarouselView { get; set; }
-        CarouselView _soundsCarouselView { get; set; }
+        CarouselView _islandsCarouselView { get; set; }
         CarouselView _decorCarouselView { get; set; }
 
         public Label _balanceLabel { get; set; }
@@ -32,9 +32,8 @@ namespace FocusApp.Client.Views.Shop
             _localContext = localContext;
 
             _petsCarouselView = BuildBaseCarouselView();
-            _soundsCarouselView = BuildBaseCarouselView();
+            _islandsCarouselView = BuildBaseCarouselView();
             _decorCarouselView = BuildBaseCarouselView();
-
 
             // Currency text
             _balanceLabel = new Label
@@ -45,7 +44,6 @@ namespace FocusApp.Client.Views.Shop
                 VerticalOptions = LayoutOptions.Center,
             }
             .Margins(left: 10, right: 10);
-
 
             Content = new StackLayout
             {
@@ -104,15 +102,16 @@ namespace FocusApp.Client.Views.Shop
                     },
                     // Pets Carousel
                     _petsCarouselView,
-                    // Sounds Carousel Label
+                    // Islands Carousel Label
                     new Label
                     {
-                        Text = "Sounds",
+                        Text = "Islands",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
-                    _soundsCarouselView,
+                    // Islands Carousel
+                    _islandsCarouselView,
                     // Decor Carousel Label
                     new Label
                     { 
@@ -152,9 +151,9 @@ namespace FocusApp.Client.Views.Shop
                     ImageButton.SourceProperty, "ImageSource",
                     converter: new ByteArrayToImageSourceConverter());
 
-                itemImage.Clicked += (s,e) =>
+                itemImage.Clicked += async (s,e) =>
                 {
-                    OnImageButtonClicked(s, e);
+                    await OnImageButtonClicked(s, e);
                 };
 
                 // Shop item price
@@ -188,7 +187,7 @@ namespace FocusApp.Client.Views.Shop
             return carouselView;
         }
 
-        void OnImageButtonClicked(object sender, EventArgs eventArgs)
+        async Task OnImageButtonClicked(object sender, EventArgs eventArgs)
         {
             var itemButton = sender as ImageButton;
             var shopItem = (ShopItem)itemButton.BindingContext;
@@ -196,7 +195,7 @@ namespace FocusApp.Client.Views.Shop
             var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
             // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
             itemPopup.ShopPage = this;
-            itemPopup.PopulatePopup(shopItem);
+            await itemPopup.PopulatePopup(shopItem);
         }
 
         #endregion
@@ -214,70 +213,53 @@ namespace FocusApp.Client.Views.Shop
             // Update user balance upon showing shop page
             _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
 
-            // Note: This is temporary - will be made obsolete by shop item sync update
-            List<ShopItem> shopItems;
-            if (ShopItemsFetched())
-            {
-                shopItems = GetLocalShopItems();
-            }
-            else
-            {
-                shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery(), default);
-            }
-            
-            // TODO: Replace above logic with fetch from local database
-            //List<ShopItem> shopItems = GetAllShopItems();
+            List<ShopItem> shopItems = await GetLocalShopItems();
 
             shopItems = shopItems.OrderBy(p => p.Price).ToList();
 
             _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
-            _soundsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Sounds);
+            _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
             _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
 
             base.OnAppearing();
         }
-       
-
-        // Note: This is temporary - will be made obsolete by shop item sync update
-        private bool ShopItemsFetched()
-        {
-            return 
-                   _localContext.Pets.Count() == 7
-                && _localContext.Decor.Count() == 6
-                /*&& _localContext.Sounds.Count() == 6 */;
-        }
 
         // Gather shop items from local database, and convert to ShopItem objects
-        private List<ShopItem> GetLocalShopItems()
+        private async Task<List<ShopItem>> GetLocalShopItems()
         {
-            List<ShopItem> pets = _localContext.Pets.Where(p => p.Price > 0).Select(p => new ShopItem
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Price = p.Price,
-                ImageSource = p.Image,
-                Type = ShopItemType.Pets,
-            }).ToList();
+            List<ShopItem> pets = await _localContext.Pets
+                .Where(p => p.Price > 0)
+                .Select(p => new ShopItem
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    ImageSource = p.Image,
+                    Type = ShopItemType.Pets,
+                }).ToListAsync();
 
-            List<ShopItem> decor = _localContext.Decor.Select(f => new ShopItem
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Price = f.Price,
-                ImageSource = f.Image,
-                Type = ShopItemType.Decor
-            }).ToList();
-            /*
-            List<ShopItem> sounds = _localContext.Sounds.Select(s => new ShopItem
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Price = s.Price,
-                ImageSource = s.Image,
-                Type = ShopItemType.Sounds
-            }).ToList();
-            */
-            return pets.Concat(decor).ToList();
+            List<ShopItem> islands = await _localContext.Islands
+                .Where(p => p.Price > 0)
+                .Select(i => new ShopItem
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Price = i.Price,
+                    ImageSource = i.Image,
+                    Type = ShopItemType.Islands
+                }).ToListAsync();
+
+            List<ShopItem> decor = await _localContext.Decor
+                .Select(f => new ShopItem
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    Price = f.Price,
+                    ImageSource = f.Image,
+                    Type = ShopItemType.Decor
+                }).ToListAsync();
+            
+            return pets.Concat(decor).Concat(islands).ToList();
         }
 
         #endregion

@@ -52,7 +52,7 @@ namespace FocusApp.Client.Views.Shop
             };
         }
 
-        public void PopulatePopup(ShopItem item)
+        public async Task PopulatePopup(ShopItem item)
         {
             _currentItem = item;
 
@@ -112,13 +112,13 @@ namespace FocusApp.Client.Views.Shop
             .Margins(right: 35, top: 50)
             .Invoke(button => button.Pressed += (s, e) => PurchaseItem(s, e));
 
-            if (UserOwnsItem())
+            if (await UserOwnsItem())
             {
                 buyButton.IsEnabled = false;
                 buyButton.Opacity = 0.5;
                 buyButton.Text = "You own me!";
             }
-            else if (_authenticationService.CurrentUser.Balance < item.Price)
+            else if (_authenticationService.CurrentUser?.Balance < item.Price)
             {
                 buyButton.IsEnabled = false;
                 buyButton.Opacity = 0.5;
@@ -163,29 +163,13 @@ namespace FocusApp.Client.Views.Shop
             switch (_currentItem.Type)
             {
                 case ShopItemType.Pets:
-
-                    // If the local database currently does not have the pet, store it now
-                    // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Pets.Any(p => p.Id == _currentItem.Id))
-                    {
-                        _localContext.Pets.Add(new Pet
-                        {
-                            Id = _currentItem.Id,
-                            Name = _currentItem.Name,
-                            Price = _currentItem.Price,
-                            Image = _currentItem.ImageSource
-                        });
-
-                        await _localContext.SaveChangesAsync();
-                    }
-
                     try
                     {
                         // Add the user's new pet to the local database
-                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
                         user.Pets?.Add(new UserPet
                         {
-                            Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
+                            Pet = await _localContext.Pets.FirstAsync(p => p.Id == _currentItem.Id)
                         });
 
                         // Update the user's balance on the local database
@@ -193,7 +177,7 @@ namespace FocusApp.Client.Views.Shop
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserPet to local database. Exception: " + ex.Message);
+                        _logger.LogError(ex, "Error adding UserPet to local database.");
                     }
 
                     // Add the user's pet to the server database
@@ -209,34 +193,19 @@ namespace FocusApp.Client.Views.Shop
                     }
                     catch (Exception ex) 
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserPet to server database. Exception: " + ex.Message);
+                        _logger.LogError(ex, "Error adding UserPet to server database.");
                     }
 
                     break;
 
                 case ShopItemType.Decor:
-
-                    // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Decor.Any(f => f.Id == _currentItem.Id))
-                    {
-                        _localContext.Decor.Add(new Decor
-                        {
-                            Id = _currentItem.Id,
-                            Name = _currentItem.Name,
-                            Price = _currentItem.Price,
-                            Image = _currentItem.ImageSource
-                        });
-
-                        await _localContext.SaveChangesAsync();
-                    }
-
                     // Add the user's new decor to the local database
                     try
                     {
-                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
                         user.Decor?.Add(new UserDecor
                         {
-                            Decor = _localContext.Decor.First(f => f.Id == _currentItem.Id)
+                            Decor = await _localContext.Decor.FirstAsync(f => f.Id == _currentItem.Id)
                         });
 
                         // Update the user's balance on the local database
@@ -244,7 +213,7 @@ namespace FocusApp.Client.Views.Shop
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserDecor to local database. Exception: " + ex.Message);
+                        _logger.LogError(ex, "Error adding UserDecor to local database.");
                     }
 
                     // Add the user's decor to the server database
@@ -260,34 +229,18 @@ namespace FocusApp.Client.Views.Shop
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserDecor to server database. Exception: " + ex.Message);
+                        _logger.LogError(ex, "Error adding UserDecor to server database.");
                     }
 
                     break;
-                /*
-                case ShopItemType.Sounds:
-
-                    // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Sounds.Any(s => s.Id == _currentItem.Id))
-                    {
-                        _localContext.Sounds.Add(new Sound
-                        {
-                            Id = _currentItem.Id,
-                            Name = _currentItem.Name,
-                            Price = _currentItem.Price,
-                            Image = _currentItem.ImageSource
-                        });
-
-                        await _localContext.SaveChangesAsync();
-                    }
-
+                case ShopItemType.Islands:
                     try
                     {
-                        // Add the user's new sound to the local database
-                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Sounds?.Add(new UserSound
+                        // Add the user's new island to the local database
+                        User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
+                        user.Islands?.Add(new UserIsland
                         {
-                            Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
+                            Island = await _localContext.Islands.FirstAsync(f => f.Id == _currentItem.Id)
                         });
 
                         // Update the user's balance on the local database
@@ -295,28 +248,26 @@ namespace FocusApp.Client.Views.Shop
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserSound to local database. Exception: " + ex.Message);
+                        _logger.LogError(ex, "Error adding UserIsland to local database.");
                     }
 
-                    // Add the user's sound to the server database
-                    // Note: This endpoint additionally updates the user's balance on the server
-                    // If time allows, we will store the sound files on the server, and fetch/store them after purchase
+                    // Add the user's island to the server database
                     try
                     {
                         await _client.AddUserIsland(new AddUserIslandCommand
                         {
                             UserId = _authenticationService.CurrentUser.Id,
-                            SoundId = _currentItem.Id,
+                            IslandId = _currentItem.Id,
                             UpdatedBalance = _authenticationService.CurrentUser.Balance,
                         });
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log(LogLevel.Error, "Error adding UserSound to server database. Exception: " + ex.Message);
+                        _logger.LogError(ex, "Error adding UserIsland to server database.");
                     }
 
                     break;
-                */
+
                 default:
                     break;
             }
@@ -327,7 +278,7 @@ namespace FocusApp.Client.Views.Shop
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error saving changes to local database. Exception: " + ex.Message);
+                _logger.LogError(ex, "Error saving changes to local database.");
             }
 
             // After purchasing item, update the user balance display on the shop page
@@ -336,24 +287,24 @@ namespace FocusApp.Client.Views.Shop
             _popupService.HidePopup();
         }
 
-        private bool UserOwnsItem()
+        private async Task<bool> UserOwnsItem()
         {
             switch (_currentItem.Type)
             {
                 case ShopItemType.Pets:
-                    return _localContext.UserPets.Any(p =>
+                    return await _localContext.UserPets.AnyAsync(p =>
                            p.PetId == _currentItem.Id
                         && p.UserId == _authenticationService.CurrentUser.Id);
                 case ShopItemType.Decor:
-                    return _localContext.UserDecor.Any(f => 
+                    return await _localContext.UserDecor.AnyAsync(f => 
                            f.DecorId == _currentItem.Id
                         && f.UserId == _authenticationService.CurrentUser.Id);
-                /*
-                case ShopItemType.Sounds:
-                    return _localContext.UserSounds.Any(s => 
-                           s.SoundId == _currentItem.Id 
-                        && s.UserId == _authenticationService.CurrentUser.Id);
-                */
+                
+                case ShopItemType.Islands:
+                    return await _localContext.UserIslands.AnyAsync(i => 
+                           i.IslandId == _currentItem.Id 
+                        && i.UserId == _authenticationService.CurrentUser.Id);
+                
                 default:
                     return false;
             }

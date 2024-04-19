@@ -20,6 +20,7 @@ namespace FocusAPI.Controllers
         }
 
         [HttpGet]
+        [Obsolete]
         public async Task<List<ShopItem>> GetAllShopItems(CancellationToken cancellationToken)
         {
             return await _mediator.Send(new GetAllShopItemsQuery());
