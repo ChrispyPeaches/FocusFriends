@@ -215,8 +215,6 @@ namespace FocusApp.Client.Views.Shop
 
             List<ShopItem> shopItems = await GetLocalShopItems();
 
-            shopItems = shopItems.OrderBy(p => p.Price).ToList();
-
             _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
             _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
             _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
@@ -259,7 +257,7 @@ namespace FocusApp.Client.Views.Shop
                     Type = ShopItemType.Decor
                 }).ToListAsync();
             
-            return pets.Concat(decor).Concat(islands).ToList();
+            return pets.Concat(decor).Concat(islands).OrderBy(p => p.Price).ToList();
         }
 
         #endregion
