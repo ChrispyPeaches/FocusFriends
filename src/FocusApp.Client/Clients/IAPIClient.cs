@@ -60,6 +60,11 @@ public interface IAPIClient
         CreateSessionCommand command,
         CancellationToken cancellationToken = default);
 
+    [Post("/User/Edit")]
+    Task EditUserProfile(
+        EditUserProfileCommand command,
+        CancellationToken cancellationToken = default);
+     
     #endregion
 
     #region Shop
