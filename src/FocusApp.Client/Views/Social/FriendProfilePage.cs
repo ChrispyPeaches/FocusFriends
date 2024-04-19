@@ -396,7 +396,7 @@ internal class FriendProfilePage : BasePage, IQueryAttributable
 
     public async Task GetUser(CancellationToken cancellationToken = default)
     {
-        var user = await _mediator.Send(new Methods.User.GetAndSyncFriend.Query()
+        var user = await _mediator.Send(new Methods.User.GetFriend.Query()
         {
             Auth0Id = DisplayUserAuth0Id
         },

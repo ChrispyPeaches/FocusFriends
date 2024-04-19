@@ -27,16 +27,23 @@ public class GetUser
 
             if (user != null)
             {
+                ExtractUserRelationIds(
+                    user,
+                    out List<Guid> userIslandIds,
+                    out List<Guid> userPetIds,
+                    out List<Guid> userDecorIds,
+                    out List<Guid> userBadgeIds);
+
                 return new()
                 {
                     HttpStatusCode = HttpStatusCode.OK,
                     Data = new GetUserResponse
                     {
                         User = user,
-                        SelectedIslandId = user.SelectedIsland?.Id,
-                        SelectedPetId = user.SelectedPet?.Id,
-                        UserIslandIds = user.Islands?.Select(ui => ui.IslandId).ToList() ?? new(),
-                        UserPetIds = user.Pets?.Select(up => up.PetId).ToList() ?? new(),
+                        UserIslandIds = userIslandIds,
+                        UserPetIds = userPetIds,
+                        UserDecorIds = userDecorIds,
+                        UserBadgeIds = userBadgeIds
                     }
                 };
             }
@@ -69,6 +76,28 @@ public class GetUser
             {
                 throw new Exception($"Error getting user: {e.Message}");
             }
+        }
+
+
+        /// <summary>
+        /// Extract the item relation ids from the user object to optimize the response size
+        /// </summary>
+        private static void ExtractUserRelationIds(
+            BaseUser user,
+            out List<Guid> userIslandIds,
+            out List<Guid> userPetIds,
+            out List<Guid> userDecorIds,
+            out List<Guid> userBadgeIds)
+        {
+            userIslandIds = user.Islands?.Select(ui => ui.IslandId).ToList() ?? new();
+            userPetIds = user.Pets?.Select(up => up.PetId).ToList() ?? new();
+            userDecorIds = user.Decor?.Select(ud => ud.DecorId).ToList() ?? new();
+            userBadgeIds = user.Badges?.Select(ub => ub.BadgeId).ToList() ?? new();
+
+            user.Islands = new List<BaseUserIsland>();
+            user.Pets = new List<BaseUserPet>();
+            user.Decor = new List<BaseUserDecor>();
+            user.Badges = new List<BaseUserBadge>();
         }
     }
 }
