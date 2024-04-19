@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-using CommunityToolkit.Maui.Converters;
+﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusCore.Models;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace FocusApp.Client.Views.Shop
 {

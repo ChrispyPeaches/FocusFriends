@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FocusApp.Client.Clients;
+﻿using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;

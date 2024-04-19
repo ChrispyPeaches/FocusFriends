@@ -1,12 +1,9 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
-using FocusCore.Commands.User;
 using FocusCore.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
