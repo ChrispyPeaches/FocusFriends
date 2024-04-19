@@ -250,12 +250,12 @@ namespace FocusApp.Client.Views.Shop
                 }).ToListAsync();
 
             List<ShopItem> decor = await _localContext.Decor
-                .Select(f => new ShopItem
+                .Select(d => new ShopItem
                 {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Price = f.Price,
-                    ImageSource = f.Image,
+                    Id = d.Id,
+                    Name = d.Name,
+                    Price = d.Price,
+                    ImageSource = d.Image,
                     Type = ShopItemType.Decor
                 }).ToListAsync();
             

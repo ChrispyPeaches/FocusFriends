@@ -205,7 +205,7 @@ namespace FocusApp.Client.Views.Shop
                         User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
                         user.Decor?.Add(new UserDecor
                         {
-                            Decor = await _localContext.Decor.FirstAsync(f => f.Id == _currentItem.Id)
+                            Decor = await _localContext.Decor.FirstAsync(d => d.Id == _currentItem.Id)
                         });
 
                         // Update the user's balance on the local database
@@ -240,7 +240,7 @@ namespace FocusApp.Client.Views.Shop
                         User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id);
                         user.Islands?.Add(new UserIsland
                         {
-                            Island = await _localContext.Islands.FirstAsync(f => f.Id == _currentItem.Id)
+                            Island = await _localContext.Islands.FirstAsync(i => i.Id == _currentItem.Id)
                         });
 
                         // Update the user's balance on the local database
@@ -296,9 +296,9 @@ namespace FocusApp.Client.Views.Shop
                            p.PetId == _currentItem.Id
                         && p.UserId == _authenticationService.CurrentUser.Id);
                 case ShopItemType.Decor:
-                    return await _localContext.UserDecor.AnyAsync(f => 
-                           f.DecorId == _currentItem.Id
-                        && f.UserId == _authenticationService.CurrentUser.Id);
+                    return await _localContext.UserDecor.AnyAsync(d => 
+                           d.DecorId == _currentItem.Id
+                        && d.UserId == _authenticationService.CurrentUser.Id);
                 
                 case ShopItemType.Islands:
                     return await _localContext.UserIslands.AnyAsync(i => 
