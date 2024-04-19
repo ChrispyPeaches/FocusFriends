@@ -42,7 +42,7 @@ namespace FocusApp.Client.Methods.Shop
                             Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
                             user.Pets?.Add(new UserPet
                             {
-                                Pet = await _localContext.Pets.FirstAsync(p => p.Id == command.Item.Id)
+                                Pet = await _localContext.Pets.FirstAsync(p => p.Id == command.Item.Id, cancellationToken)
                             });
 
                             // Update the user's balance on the local database
@@ -78,7 +78,7 @@ namespace FocusApp.Client.Methods.Shop
                             Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
                             user.Decor?.Add(new UserDecor
                             {
-                                Decor = await _localContext.Decor.FirstAsync(d => d.Id == command.Item.Id)
+                                Decor = await _localContext.Decor.FirstAsync(d => d.Id == command.Item.Id, cancellationToken)
                             });
 
                             // Update the user's balance on the local database
@@ -113,7 +113,7 @@ namespace FocusApp.Client.Methods.Shop
                             Shared.Models.User user = await _localContext.Users.FirstAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
                             user.Islands?.Add(new UserIsland
                             {
-                                Island = await _localContext.Islands.FirstAsync(i => i.Id == command.Item.Id)
+                                Island = await _localContext.Islands.FirstAsync(i => i.Id == command.Item.Id, cancellationToken)
                             });
 
                             // Update the user's balance on the local database
