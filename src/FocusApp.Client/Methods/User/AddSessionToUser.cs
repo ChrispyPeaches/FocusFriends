@@ -47,6 +47,8 @@ internal class AddSessionToUser
 
             UserSession session = CreateSession(query, user);
 
+            _authService.CurrentUser.Balance += session.CurrencyEarned;
+
             // If a user isn't found, don't track the session
             if (user is null) return;
 

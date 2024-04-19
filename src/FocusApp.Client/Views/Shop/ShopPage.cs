@@ -243,7 +243,7 @@ namespace FocusApp.Client.Views.Shop
         {
             return 
                    _localContext.Pets.Count() == 7
-                && _localContext.Decor.Count() == 6
+                && _localContext.Decor.Count() == 7
                 /*&& _localContext.Sounds.Count() == 6 */;
         }
 
