@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
+using CommunityToolkit.Maui.Views;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using Microsoft.Maui.Layouts;
 using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
@@ -12,13 +14,12 @@ namespace FocusApp.Client.Views;
 internal sealed class SettingsPage : BasePage
 {
     IAPIClient _client { get; set; }
+
     public SettingsPage(IAPIClient client)
     {
         _client = client;
 
         // Default values for preferences
-        double ambianceVolume = PreferencesHelper.Get<double>(PreferencesHelper.PreferenceNames.ambiance_volume);
-        bool isNotificationsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.notifications_enabled);
         bool isStartupTipsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled);
         bool isSessionRatingEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled);
 
@@ -26,7 +27,7 @@ internal sealed class SettingsPage : BasePage
         Content = new Grid
         {
             // Define the length of the rows & columns
-            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, 70, 70, Star),
+            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, Star, GridRowsColumns.Stars(2), Star),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
@@ -74,61 +75,6 @@ internal sealed class SettingsPage : BasePage
                 .Row(0)
                 .Column(0)
                 .ColumnSpan(5),
-
-
-                // Ambiance
-                new Label
-                {
-                    Text = "Ambiance",
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(1)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
-
-                // Ambiance Slider
-                new Slider
-                {
-                    Maximum = 100,
-                    Value = ambianceVolume,
-                    WidthRequest = 200
-                }
-                .Row(1)
-                .Column(2)
-                .CenterVertical()
-                .ColumnSpan(3)
-                .Invoke(s => s.ValueChanged += (sender, e) => {PreferencesHelper.Set(PreferencesHelper.PreferenceNames.ambiance_volume, e.NewValue);}),
-
-
-                // Notifications
-                new Label
-                {
-                    Text = "Notifications",
-                    TextColor = Colors.Black,
-                    FontSize = 30
-                }
-                .Row(2)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
-
-                // Notifications Switch
-                new Switch
-                {
-                    ThumbColor = Colors.SlateGrey,
-                    OnColor = Colors.Green,
-                    IsToggled = isNotificationsEnabled
-                }
-                .Row(2)
-                .Column(5)
-                .Left()
-                .CenterVertical()
-                .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.notifications_enabled, e.Value); }),
-                
                 
                 // Show Mindful Tips on Startup
                 new Label
@@ -137,7 +83,7 @@ internal sealed class SettingsPage : BasePage
                         TextColor = Colors.Black,
                         FontSize = 30
                     }
-                    .Row(3)
+                    .Row(1)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -150,7 +96,7 @@ internal sealed class SettingsPage : BasePage
                         OnColor = Colors.Green,
                         IsToggled = isSessionRatingEnabled
                     }
-                    .Row(3)
+                    .Row(1)
                     .Column(5)
                     .Left()
                     .CenterVertical()
@@ -164,7 +110,7 @@ internal sealed class SettingsPage : BasePage
                         TextColor = Colors.Black,
                         FontSize = 30
                     }
-                    .Row(4)
+                    .Row(2)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -177,7 +123,7 @@ internal sealed class SettingsPage : BasePage
                         OnColor = Colors.Green,
                         IsToggled = isStartupTipsEnabled
                     }
-                    .Row(4)
+                    .Row(2)
                     .Column(5)
                     .Left()
                     .CenterVertical()
@@ -192,7 +138,7 @@ internal sealed class SettingsPage : BasePage
                         TextColor = Colors.Black,
                         FontSize = 30
                     }
-                    .Row(5)
+                    .Row(3)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -203,7 +149,7 @@ internal sealed class SettingsPage : BasePage
                     {
                         Opacity = 0
                     }
-                    .Row(5)
+                    .Row(3)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -219,7 +165,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 30
                 }
-                .Row(6)
+                .Row(4)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -230,22 +176,21 @@ internal sealed class SettingsPage : BasePage
                 {
                     Opacity = 0
                 }
-                .Row(6)
+                .Row(4)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
                 .ColumnSpan(2)
                 .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");}),
 
-                
-                // Logo
-                new Image
+                new Image()
                 {
-                    Source = "logo.png"
+                    Source = "logo.png",
                 }
-                .Row(7)
-                .Column(2)
-                .Center()
+                .FillVertical()
+                .Aspect(Aspect.AspectFit)
+                .Row(6)
+                .ColumnSpan(5)
             }
         };
     }
