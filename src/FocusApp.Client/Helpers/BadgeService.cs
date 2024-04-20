@@ -8,6 +8,8 @@ using FocusCore.Models;
 using FocusApp.Shared.Models;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
+using MediatR;
+using FocusApp.Client.Methods.Badges;
 
 namespace FocusApp.Client.Helpers
 {
@@ -15,23 +17,26 @@ namespace FocusApp.Client.Helpers
     {
         FocusAppContext _localContext;
         IAuthenticationService _authenticationService;
-        public BadgeService(FocusAppContext localContext, IAuthenticationService authenticationService)
+        IMediator _mediator;
+        public BadgeService(IMediator mediator)
         {
-            _localContext = localContext;
-            _authenticationService = authenticationService;
+            _mediator = mediator;
         }
 
         public async Task<BadgeEligibilityResult> CheckPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken)
         {
             BadgeEligibilityResult result = new();
+
             switch (item.Type)
             {
                 case ShopItemType.Pets:
-                    result = await CheckPetPurchaseBadgeEligibility(item, cancellationToken);
+                    result = await _mediator.Send(new CheckPetPurchaseBadgeEligbility.Query(), cancellationToken);
                     break;
                 case ShopItemType.Islands:
+                    result = await _mediator.Send(new CheckIslandPurchaseBadgeEligbility.Query(), cancellationToken);
                     break;
                 case ShopItemType.Decor:
+                    result = await _mediator.Send(new CheckDecorPurchaseBadgeEligbility.Query(), cancellationToken);
                     break;
                 default:
                     result = new BadgeEligibilityResult();
@@ -39,37 +44,6 @@ namespace FocusApp.Client.Helpers
             }
 
             return result;
-        }
-
-        private async Task<BadgeEligibilityResult> CheckPetPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken)
-        {
-            User? user = await _localContext.Users
-                .Include(u => u.Pets)
-                .SingleOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
-
-            if (user == null)
-                throw new InvalidOperationException("User not found in local database.");
-
-            BadgeEligibilityResult result = new();
-
-            if (user.Pets?.Count == 1)
-            {
-                Badge companionCollectorBadge = await _localContext.Badges.SingleAsync(u => u.Name == "CompanionCollector", cancellationToken);
-                user.Badges?.Add(new UserBadge { Badge = companionCollectorBadge });
-
-                result.IsEligible = true;
-                result.EarnedBadge = companionCollectorBadge;
-            }
-            else if (user.Pets.Count == await _localContext.Pets.CountAsync(cancellationToken))
-            { 
-                Badge petParadiseBadge = await _localContext.Badges.SingleAsync(u => u.Name == "PetParadise", cancellationToken);
-                user.Badges?.Add(new UserBadge { Badge = petParadiseBadge });
-
-                result.IsEligible = true;
-                result.EarnedBadge = petParadiseBadge;
-            }
-
-            return result;
-        }
+        }   
     }
 }
