@@ -104,19 +104,16 @@ namespace FocusApp.Client.Views
                         _badgeDescription
                         .Row(PopupRow.Description)
                         .Column(PopupColumn.Center)
-                        .CenterHorizontal(),
+                        .Center(),
 
-                        new Button
+                        new Label
                         {
-                            WidthRequest = 125,
-                            HeightRequest = 50,
-                            Text = "Equip badge!",
-                            HorizontalOptions = LayoutOptions.Start,
+                            Text = "Navigate to the badges page to equip your badge!",
+                            Opacity = 0.5
                         }
                         .Row(PopupRow.NavButton)
                         .Column(PopupColumn.Center)
                         .Center()
-                        .Invoke(button => button.Pressed += (s,e) => NavigateToBadgePage(s,e))
                     }
                 }
             };
@@ -149,20 +146,12 @@ namespace FocusApp.Client.Views
             _badgeDescription = new Label
             {
                 FontSize = 20,
-                Text = "You have earned a badge and that is so awesome and epic!!!"
             };
             _badgeDescription.SetBinding(Label.TextProperty, "Description");
         }
 
         private async void OnDismissPopup(object? sender, EventArgs e)
         {
-            _popupService.HidePopup();
-        }
-
-        private async void NavigateToBadgePage(object? sender, EventArgs e)
-        {
-            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-            await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
             _popupService.HidePopup();
         }
     }
