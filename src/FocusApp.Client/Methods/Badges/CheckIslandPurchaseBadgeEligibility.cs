@@ -22,7 +22,7 @@ namespace FocusApp.Client.Methods.Badges
             public async Task<BadgeEligibilityResult> Handle(Query query, CancellationToken cancellationToken)
             {
                 Shared.Models.User? user = await _localContext.Users
-                    .Include(u => u.Pets)
+                    .Include(u => u.Islands)
                     .SingleOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
 
                 if (user == null)
