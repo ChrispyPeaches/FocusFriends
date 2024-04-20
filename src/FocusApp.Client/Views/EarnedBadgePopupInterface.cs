@@ -18,7 +18,7 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Client.Views
 {
-    internal class EarnedBadgePopupInterface : BadgePopup
+    internal class EarnedBadgePopupInterface : BasePopup
     {
         Helpers.PopupService _popupService;
         StackLayout _popupContentStack;
@@ -59,6 +59,15 @@ namespace FocusApp.Client.Views
 
         public override void PopulatePopup(Badge badge)
         {
+            Button button = new Button
+            {
+                Text = SolidIcons.x,
+                TextColor = Colors.Black,
+                FontFamily = nameof(SolidIcons),
+                FontSize = 20,
+                BackgroundColor = Colors.Transparent
+            }
+            .Invoke(button => button.Released += OnDismissPopup);
             // Shop item name label
             Label badgeName = new Label
             {
@@ -124,6 +133,7 @@ namespace FocusApp.Client.Views
             };
             */
 
+            _popupContentStack.Add(button);
             _popupContentStack.Add(badgeName);
             _popupContentStack.Add(divider);
             _popupContentStack.Add(badgeImage);
@@ -131,8 +141,7 @@ namespace FocusApp.Client.Views
             //_popupContentStack.Add(popupButtons);
         }
 
-        // User doesn't want to purchase the item, hide popup
-        private async void ExitItemPopup(object sender, EventArgs e)
+        private async void OnDismissPopup(object? sender, EventArgs e)
         {
             _popupService.HidePopup();
         }

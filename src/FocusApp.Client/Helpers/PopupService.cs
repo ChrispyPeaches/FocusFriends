@@ -54,10 +54,10 @@ namespace FocusApp.Client.Helpers
             return popup;
         }
 
-        public void TriggerBadgeEvent<T>(Badge badge) where T : BadgePopup
+        public void TriggerBadgeEvent<T>(Badge badge) where T : BasePopup
         {
             Thread.Sleep(1000);
-            BadgePopup popup = (T)ShowAndGetPopup<T>();
+            BasePopup popup = (T)ShowAndGetPopup<T>();
             popup.PopulatePopup(badge);
         }
 
