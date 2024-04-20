@@ -3,7 +3,6 @@ using FocusAPI.Models;
 using FocusCore.Commands.Social;
 using FocusCore.Commands.User;
 using FocusCore.Models;
-using FocusCore.Queries.Shop;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
