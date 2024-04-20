@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Maui.Views;
+using FocusApp.Client.Views;
 using FocusApp.Client.Views.Shop;
+using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Helpers
 {
-    public interface IPopupService
+    internal interface IPopupService
     {
         void ShowPopup<T>() where T : Popup;
         Popup ShowAndGetPopup<T>() where T : Popup;
@@ -11,7 +13,7 @@ namespace FocusApp.Client.Helpers
         void HideAllPopups();
     }
 
-    public class PopupService : IPopupService
+    internal class PopupService : IPopupService
     {
         private readonly IServiceProvider _services;
         private Stack<Popup> _popups;
@@ -50,6 +52,13 @@ namespace FocusApp.Client.Helpers
             MainThread.BeginInvokeOnMainThread(() => mainPage.ShowPopup<T>(popup));
             _popups.Push(popup);
             return popup;
+        }
+
+        public void TriggerBadgeEvent<T>(Badge badge) where T : BadgePopup
+        {
+            Thread.Sleep(1000);
+            BadgePopup popup = (T)ShowAndGetPopup<T>();
+            popup.PopulatePopup(badge);
         }
 
         public void HidePopup()

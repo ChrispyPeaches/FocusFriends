@@ -180,10 +180,12 @@ namespace FocusApp.Client.Views.Shop
             try
             {
                 BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
-                if (result.IsEligible)
+                if (result.IsEligible && result.EarnedBadge != null)
                 {
-                    // Need to implement some sort of generic event that will display a popup within the app with badge info
-                    Action badgeEvent = ShopPage.TriggerBadgeEvent;
+                    Action badgeEvent = delegate 
+                    {
+                        _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                    };
                     badgeEvent.RunInNewThread();
                 }
             }
