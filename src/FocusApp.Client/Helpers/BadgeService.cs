@@ -15,8 +15,6 @@ namespace FocusApp.Client.Helpers
 {
     internal class BadgeService
     {
-        FocusAppContext _localContext;
-        IAuthenticationService _authenticationService;
         IMediator _mediator;
         public BadgeService(IMediator mediator)
         {

@@ -20,16 +20,18 @@ namespace FocusApp.Client.Views.Shop
         IFocusAppContext _localContext;
         ILogger<ShopItemPopupInterface> _logger;
         IMediator _mediator;
+        BadgeService _badgeService;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator)
+        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator, BadgeService badgeService)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
             _logger = logger;
             _mediator = mediator;
+            _badgeService = badgeService;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -160,17 +162,30 @@ namespace FocusApp.Client.Views.Shop
             try
             {
                 await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
+
+                // Update user's balance within the CurrentUser model
+                _authenticationService.CurrentUser.Balance -= _currentItem.Price;
+
+                // After purchasing item, update the user balance display on the shop page
+                ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while purchasing item.");
             }
-            
-            // Update user's balance within the CurrentUser model
-            _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
-            // After purchasing item, update the user balance display on the shop page
-            ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
+                if (result.IsEligible)
+                { 
+                    // Need to implement some sort of generic event that will display a popup within the app with badge info
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+            }
 
             _popupService.HidePopup();
         }

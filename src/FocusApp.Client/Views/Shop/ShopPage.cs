@@ -12,7 +12,6 @@ namespace FocusApp.Client.Views.Shop
     internal class ShopPage : BasePage
     {
         IAuthenticationService _authenticationService;
-        FocusAppContext _localContext;
         PopupService _popupService;
         IMediator _mediator;
         CarouselView _petsCarouselView { get; set; }
@@ -185,17 +184,6 @@ namespace FocusApp.Client.Views.Shop
             return carouselView;
         }
 
-        async Task OnImageButtonClicked(object sender, EventArgs eventArgs)
-        {
-            var itemButton = sender as ImageButton;
-            var shopItem = (ShopItem)itemButton.BindingContext;
-
-            var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
-            // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
-            itemPopup.ShopPage = this;
-            await itemPopup.PopulatePopup(shopItem);
-        }
-
         #endregion
 
         #region Backend
@@ -218,6 +206,17 @@ namespace FocusApp.Client.Views.Shop
             _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
 
             base.OnAppearing();
+        }
+
+        async Task OnImageButtonClicked(object sender, EventArgs eventArgs)
+        {
+            var itemButton = sender as ImageButton;
+            var shopItem = (ShopItem)itemButton.BindingContext;
+
+            var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
+            // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
+            itemPopup.ShopPage = this;
+            await itemPopup.PopulatePopup(shopItem);
         }
 
         #endregion
