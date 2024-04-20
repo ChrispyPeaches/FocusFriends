@@ -219,6 +219,15 @@ namespace FocusApp.Client.Views.Shop
             await itemPopup.PopulatePopup(shopItem);
         }
 
+        public void TriggerBadgeEvent()
+        {
+            Thread.Sleep(2000);
+            _popupService.ShowPopup<GenericLoadingPopupInterface>();
+            Thread.Sleep(2000);
+            _popupService.HidePopup();
+        }
+
+
         #endregion
     }
 }

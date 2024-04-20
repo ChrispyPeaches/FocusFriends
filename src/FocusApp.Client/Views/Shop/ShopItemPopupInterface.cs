@@ -11,6 +11,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
+using FocusApp.Client.Extensions;
 
 namespace FocusApp.Client.Views.Shop
 {
@@ -182,6 +183,8 @@ namespace FocusApp.Client.Views.Shop
                 if (result.IsEligible)
                 {
                     // Need to implement some sort of generic event that will display a popup within the app with badge info
+                    Action badgeEvent = ShopPage.TriggerBadgeEvent;
+                    badgeEvent.RunInNewThread();
                 }
             }
             catch (Exception ex)
