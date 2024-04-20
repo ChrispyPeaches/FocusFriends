@@ -4,7 +4,6 @@ using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 using FocusCore.Commands.User;
-using ThreadNetwork;
 using FocusApp.Client.Clients;
 using Microsoft.Extensions.Logging;
 

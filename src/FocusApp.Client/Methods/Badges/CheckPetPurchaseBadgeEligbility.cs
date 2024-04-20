@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using MediatR;
 using FocusApp.Client.Clients;
 using FocusCore.Commands.User;
-using ThreadNetwork;
 using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Methods.Badges
