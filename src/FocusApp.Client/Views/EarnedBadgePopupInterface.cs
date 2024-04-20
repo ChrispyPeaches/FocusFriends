@@ -15,6 +15,10 @@ using FocusApp.Client.Extensions;
 using FocusApp.Shared.Models;
 using SimpleToolkit.Core;
 using FocusApp.Client.Resources.FontAwesomeIcons;
+using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using CommunityToolkit.Maui.Markup.LeftToRight;
+using FocusApp.Client.Views.Social;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views
 {
@@ -22,6 +26,13 @@ namespace FocusApp.Client.Views
     {
         Helpers.PopupService _popupService;
         StackLayout _popupContentStack;
+
+        // Row / Column structure for badge popup
+        enum PopupRow { Name, Image, Description, NavButton }
+        enum PopupColumn { Center }
+        Label _badgeName { get; set; }
+        Image _badgeImage { get; set; }
+        Label _badgeDescription { get; set; }
 
         public EarnedBadgePopupInterface(PopupService popupService)
         {
@@ -35,16 +46,8 @@ namespace FocusApp.Client.Views
             CanBeDismissedByTappingOutsideOfPopup = false;
 
             _popupContentStack = new StackLayout();
-            /*
-            new Button
-            {
-                Text = SolidIcons.x,
-                TextColor = Colors.Black,
-                FontFamily = nameof(SolidIcons),
-                FontSize = 20,
-                BackgroundColor = Colors.Transparent
-            }
-            */
+
+            SetupUIElements();
 
             Content = new Border
             {
@@ -53,96 +56,113 @@ namespace FocusApp.Client.Views
                 BackgroundColor = AppStyles.Palette.LightMauve,
                 WidthRequest = 360,
                 HeightRequest = 460,
-                Content = _popupContentStack
+                Content = new Grid
+                {
+                    RowDefinitions = Rows.Define(
+                        (PopupRow.Name, Stars(0.5)),
+                        (PopupRow.Image, Stars(1)),
+                        (PopupRow.Description, Stars(0.5)),
+                        (PopupRow.NavButton, Stars(0.5))
+                        ),
+                    ColumnDefinitions = Columns.Define(
+                        (PopupColumn.Center, Stars(1))
+                        ),
+                    Children =
+                    {
+                        _badgeName
+                        .Row(PopupRow.Name)
+                        .Column(PopupColumn.Center)
+                        .Center(),
+
+                        new Button
+                        {
+                            Text = SolidIcons.x,
+                            TextColor = Colors.Black,
+                            FontFamily = nameof(SolidIcons),
+                            FontSize = 20,
+                            BackgroundColor = Colors.Transparent
+                        }
+                        .Row(PopupRow.Name)
+                        .Right()
+                        .Top()
+                        .Invoke(button => button.Pressed += (s,e) => OnDismissPopup(s,e)),
+
+                        new BoxView
+                        {
+                            Color = Colors.Black,
+                            HeightRequest = 2,
+                        }
+                        .Row(PopupRow.Name)
+                        .Column(PopupColumn.Center)
+                        .Bottom(),
+
+                        _badgeImage
+                        .Row(PopupRow.Image)
+                        .Column(PopupColumn.Center)
+                        .Center(),
+
+                        _badgeDescription
+                        .Row(PopupRow.Description)
+                        .Column(PopupColumn.Center)
+                        .CenterHorizontal(),
+
+                        new Button
+                        {
+                            WidthRequest = 125,
+                            HeightRequest = 50,
+                            Text = "Equip badge!",
+                            HorizontalOptions = LayoutOptions.Start,
+                        }
+                        .Row(PopupRow.NavButton)
+                        .Column(PopupColumn.Center)
+                        .Center()
+                        .Invoke(button => button.Pressed += (s,e) => NavigateToBadgePage(s,e))
+                    }
+                }
             };
         }
 
         public override void PopulatePopup(Badge badge)
         {
-            Button button = new Button
-            {
-                Text = SolidIcons.x,
-                TextColor = Colors.Black,
-                FontFamily = nameof(SolidIcons),
-                FontSize = 20,
-                BackgroundColor = Colors.Transparent
-            }
-            .Invoke(button => button.Released += OnDismissPopup);
-            // Shop item name label
-            Label badgeName = new Label
-            {
-                FontSize = 20,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            }
-            .Margins(top: 10);
-            badgeName.SetBinding(Label.TextProperty, "Name");
-            badgeName.BindingContext = badge;
+            _badgeName.BindingContext = badge;
+            _badgeImage.BindingContext = badge;
+            _badgeDescription.BindingContext = badge;
+        }
 
-            // Horizontal Divider
-            BoxView divider = new BoxView
+        void SetupUIElements()
+        {
+            _badgeName = new Label
             {
-                Color = Color.Parse("Black"),
-                WidthRequest = 400,
-                HeightRequest = 2,
-                Margin = 20
-            }
-            .Bottom()
-            .Row(0)
-            .Column(0)
-            .ColumnSpan(2);
-
-            // Shop item image
-            Image badgeImage = new Image
-            {
-                WidthRequest = 150,
-                HeightRequest = 150
+                FontSize = 20
             };
-            badgeImage.SetBinding(
+            _badgeName.SetBinding(Label.TextProperty, "Name");
+
+            _badgeImage = new Image
+            { 
+                HeightRequest = 150,
+                WidthRequest = 150
+            };
+            _badgeImage.SetBinding(
                 Image.SourceProperty, "Image",
                 converter: new ByteArrayToImageSourceConverter());
-            badgeImage.BindingContext = badge;
 
-            // Shop item price
-            Label badgeDescription = new Label
+            _badgeDescription = new Label
             {
-                FontSize = 30,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center
-            }
-            .Margins(top: 10);
-            badgeDescription.SetBinding(Label.TextProperty, "Description");
-            badgeDescription.BindingContext = badge;
-
-            /*
-            Grid popupButtons = new Grid
-            {
-                Children =
-                {
-                    new Button
-                    {
-                        WidthRequest = 125,
-                        HeightRequest = 50,
-                        Text = "Leave Me Be",
-                        HorizontalOptions = LayoutOptions.Start,
-                    }
-                    .Margins(left: 35, top: 50)
-                    .Invoke(button => button.Pressed += (s,e) => ExitItemPopup(s,e)),
-                    buyButton
-                }
+                FontSize = 20,
+                Text = "You have earned a badge and that is so awesome and epic!!!"
             };
-            */
-
-            _popupContentStack.Add(button);
-            _popupContentStack.Add(badgeName);
-            _popupContentStack.Add(divider);
-            _popupContentStack.Add(badgeImage);
-            _popupContentStack.Add(badgeDescription);
-            //_popupContentStack.Add(popupButtons);
+            _badgeDescription.SetBinding(Label.TextProperty, "Description");
         }
 
         private async void OnDismissPopup(object? sender, EventArgs e)
         {
+            _popupService.HidePopup();
+        }
+
+        private async void NavigateToBadgePage(object? sender, EventArgs e)
+        {
+            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+            await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
             _popupService.HidePopup();
         }
     }
