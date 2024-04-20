@@ -39,7 +39,6 @@ namespace FocusApp.Client.Helpers
                     result = await _mediator.Send(new CheckDecorPurchaseBadgeEligbility.Query(), cancellationToken);
                     break;
                 default:
-                    result = new BadgeEligibilityResult();
                     break;
             }
 
