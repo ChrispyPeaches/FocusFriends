@@ -10,6 +10,7 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 using FocusApp.Client.Methods.Badges;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Helpers
 {
@@ -22,10 +23,14 @@ namespace FocusApp.Client.Helpers
 
     internal class BadgeService : IBadgeService
     {
-        IMediator _mediator;
-        public BadgeService(IMediator mediator)
+        private readonly IMediator _mediator;
+        private readonly ILogger<BadgeService> _logger;
+        public BadgeService(
+            IMediator mediator, 
+            ILogger<BadgeService> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<BadgeEligibilityResult> CheckPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken)
@@ -52,7 +57,18 @@ namespace FocusApp.Client.Helpers
 
         public async Task<BadgeEligibilityResult> CheckSessionBadgeEligability(CancellationToken cancellationToken)
         {
-            return new BadgeEligibilityResult();
+            BadgeEligibilityResult result = new();
+
+            try
+            {
+                result = await _mediator.Send(new CheckSessionBadgeEligbility.Query(), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error when checking session badge eligibility.");
+            }
+
+            return result;
         }
 
         public async Task<BadgeEligibilityResult> CheckSocialBadgeEligability(CancellationToken cancellationToken)

@@ -23,17 +23,20 @@ internal class AddSessionToUser
         private readonly IAuthenticationService _authService;
         private readonly ILogger<Handler> _logger;
         private readonly IAPIClient _client;
+        private readonly IBadgeService _badgeService;
 
         public Handler(
             FocusAppContext context,
             IAuthenticationService authService,
             ILogger<Handler> logger,
-            IAPIClient client)
+            IAPIClient client,
+            IBadgeService badgeService)
         {
             _context = context;
             _authService = authService;
             _logger = logger;
             _client = client;
+            _badgeService = badgeService;
         }
 
         public async Task Handle(
@@ -60,6 +63,8 @@ internal class AddSessionToUser
                 cancellationToken);
 
             await AddSessionToMobileDatabaseUser(session, user, cancellationToken);
+
+            BadgeEligibilityResult result = await _badgeService.CheckSessionBadgeEligability(cancellationToken);
         }
 
         private async Task<Shared.Models.User?> GetUser(
