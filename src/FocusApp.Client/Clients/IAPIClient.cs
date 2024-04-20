@@ -52,6 +52,11 @@ public interface IAPIClient
         AddUserIslandCommand command,
         CancellationToken cancellationToken = default);
 
+    [Post("/User/Badge")]
+    Task AddUserBadge(
+        AddUserBadgeCommand command,
+        CancellationToken cancellationToken = default);
+
     [Post("/User/AddSession")]
     Task CreateSession(
         CreateSessionCommand command,
