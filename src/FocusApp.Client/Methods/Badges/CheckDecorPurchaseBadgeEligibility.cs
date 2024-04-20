@@ -3,6 +3,10 @@ using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
+using FocusCore.Commands.User;
+using ThreadNetwork;
+using FocusApp.Client.Clients;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Methods.Badges
 {
@@ -13,10 +17,14 @@ namespace FocusApp.Client.Methods.Badges
         {
             FocusAppContext _localContext;
             IAuthenticationService _authenticationService;
-            public Handler(FocusAppContext localContext, IAuthenticationService authenticationService)
+            IAPIClient _client;
+            ILogger<CheckDecorPurchaseBadgeEligbility> _logger;
+            public Handler(FocusAppContext localContext, IAuthenticationService authenticationService, IAPIClient client, ILogger<CheckDecorPurchaseBadgeEligbility> logger)
             {
                 _localContext = localContext;
                 _authenticationService = authenticationService;
+                _client = client;
+                _logger = logger;
             }
 
             public async Task<BadgeEligibilityResult> Handle(Query query, CancellationToken cancellationToken)
@@ -45,6 +53,22 @@ namespace FocusApp.Client.Methods.Badges
                     Badge decorDynastyBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Decor Dynasty", cancellationToken);
                     user.Badges?.Add(new UserBadge { Badge = decorDynastyBadge });
                     result.EarnedBadge = decorDynastyBadge;
+                }
+
+                if (result.IsEligible)
+                {
+                    // Save new user badge to local database
+                    await _localContext.SaveChangesAsync(cancellationToken);
+
+                    // Save new user badge to server database
+                    try
+                    {
+                        await _client.AddUserBadge(new AddUserBadgeCommand { UserId = _authenticationService.CurrentUser.Id, BadgeId = result.EarnedBadge.Id });
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error occurred while adding user badge on server.");
+                    }
                 }
 
                 return result;
