@@ -1,7 +1,6 @@
 ﻿using FocusAPI.Data;
 using FocusAPI.Models;
 using FocusCore.Models;
-using FocusCore.Queries.Shop;
 using FocusCore.Queries.Social;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

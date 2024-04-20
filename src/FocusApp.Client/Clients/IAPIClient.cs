@@ -3,7 +3,6 @@ using FocusCore.Commands.Social;
 using FocusCore.Commands.User;
 using FocusCore.Models;
 using FocusCore.Queries.Leaderboard;
-using FocusCore.Queries.Shop;
 using FocusCore.Queries.Social;
 using FocusCore.Queries.Sync;
 using FocusCore.Queries.User;
@@ -11,9 +10,7 @@ using FocusCore.Responses.Social;
 using FocusCore.Responses.Leaderboard;
 using FocusCore.Responses.Sync;
 using FocusCore.Responses.User;
-using FocusCore.Models;
 using Refit;
-using ShopItem = FocusCore.Models.ShopItem;
 
 namespace FocusApp.Client.Clients;
 public interface IAPIClient
@@ -65,15 +62,6 @@ public interface IAPIClient
         EditUserProfileCommand command,
         CancellationToken cancellationToken = default);
      
-    #endregion
-
-    #region Shop
-
-    [Get("/Shop")]
-    Task<List<ShopItem>> GetAllShopItems(
-        GetAllShopItemsQuery query,
-        CancellationToken cancellationToken = default);
-
     #endregion
 
     #region Social
