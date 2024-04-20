@@ -3,7 +3,9 @@ using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
+using FocusApp.Client.Views.Mindfulness;
 using FocusApp.Shared.Data;
+using FocusCore.Extensions;
 using FocusCore.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +22,11 @@ namespace FocusApp.Client.Views.Shop
         IFocusAppContext _localContext;
         ILogger<ShopItemPopupInterface> _logger;
         IMediator _mediator;
-        BadgeService _badgeService;
+        IBadgeService _badgeService;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator, BadgeService badgeService)
+        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator, IBadgeService badgeService)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
@@ -178,7 +180,7 @@ namespace FocusApp.Client.Views.Shop
             {
                 BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
                 if (result.IsEligible)
-                { 
+                {
                     // Need to implement some sort of generic event that will display a popup within the app with badge info
                 }
             }
