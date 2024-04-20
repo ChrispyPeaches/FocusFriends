@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
-using FocusCore.Commands.User;
+using FocusCore.Models;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
@@ -18,18 +18,18 @@ namespace FocusApp.Client.Views.Shop
         StackLayout _popupContentStack;
         IAuthenticationService _authenticationService;
         IFocusAppContext _localContext;
-        IAPIClient _client;
         ILogger<ShopItemPopupInterface> _logger;
+        IMediator _mediator;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(Helpers.PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<ShopItemPopupInterface> logger)
+        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
-            _client = client;
             _logger = logger;
+            _mediator = mediator;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -51,7 +51,7 @@ namespace FocusApp.Client.Views.Shop
             };
         }
 
-        public void PopulatePopup(ShopItem item)
+        public async Task PopulatePopup(ShopItem item)
         {
             _currentItem = item;
 
@@ -111,13 +111,13 @@ namespace FocusApp.Client.Views.Shop
             .Margins(right: 35, top: 50)
             .Invoke(button => button.Pressed += (s, e) => PurchaseItem(s, e));
 
-            if (UserOwnsItem())
+            if (await UserOwnsItem())
             {
                 buyButton.IsEnabled = false;
                 buyButton.Opacity = 0.5;
                 buyButton.Text = "You own me!";
             }
-            else if (_authenticationService.CurrentUser.Balance < item.Price)
+            else if (_authenticationService.CurrentUser?.Balance < item.Price)
             {
                 buyButton.IsEnabled = false;
                 buyButton.Opacity = 0.5;
@@ -157,176 +157,17 @@ namespace FocusApp.Client.Views.Shop
         // User wants to purchase item, save to local database, reduce balance, hide popup
         private async void PurchaseItem(object sender, EventArgs e)
         {
-            _authenticationService.CurrentUser.Balance -= _currentItem.Price;
-
-            switch (_currentItem.Type)
-            {
-                case ShopItemType.Pets:
-
-                    // If the local database currently does not have the pet, store it now
-                    // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Pets.Any(p => p.Id == _currentItem.Id))
-                    {
-                        _localContext.Pets.Add(new Pet
-                        {
-                            Id = _currentItem.Id,
-                            Name = _currentItem.Name,
-                            Price = _currentItem.Price,
-                            Image = _currentItem.ImageSource
-                        });
-
-                        await _localContext.SaveChangesAsync();
-                    }
-
-                    try
-                    {
-                        // Add the user's new pet to the local database
-                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Pets?.Add(new UserPet
-                        {
-                            Pet = _localContext.Pets.First(p => p.Id == _currentItem.Id)
-                        });
-
-                        // Update the user's balance on the local database
-                        user.Balance = _authenticationService.CurrentUser.Balance;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Log(LogLevel.Error, "Error adding UserPet to local database. Exception: " + ex.Message);
-                    }
-
-                    // Add the user's pet to the server database
-                    // Note: This endpoint additionally updates the user's balance on the server
-                    try
-                    {
-                        await _client.AddUserPet(new AddUserPetCommand
-                        {
-                            UserId = _authenticationService.CurrentUser.Id,
-                            PetId = _currentItem.Id,
-                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                        });
-                    }
-                    catch (Exception ex) 
-                    {
-                        _logger.Log(LogLevel.Error, "Error adding UserPet to server database. Exception: " + ex.Message);
-                    }
-
-                    break;
-
-                case ShopItemType.Furniture:
-
-                    // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Furniture.Any(f => f.Id == _currentItem.Id))
-                    {
-                        _localContext.Furniture.Add(new Furniture
-                        {
-                            Id = _currentItem.Id,
-                            Name = _currentItem.Name,
-                            Price = _currentItem.Price,
-                            Image = _currentItem.ImageSource
-                        });
-
-                        await _localContext.SaveChangesAsync();
-                    }
-
-                    // Add the user's new furniture to the local database
-                    try
-                    {
-                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Furniture?.Add(new UserFurniture
-                        {
-                            Furniture = _localContext.Furniture.First(f => f.Id == _currentItem.Id)
-                        });
-
-                        // Update the user's balance on the local database
-                        user.Balance = _authenticationService.CurrentUser.Balance;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to local database. Exception: " + ex.Message);
-                    }
-
-                    // Add the user's furniture to the server database
-                    // Note: This endpoint additionally updates the user's balance on the server
-                    try
-                    {
-                        await _client.AddUserFurniture(new AddUserFurnitureCommand
-                        {
-                            UserId = _authenticationService.CurrentUser.Id,
-                            FurnitureId = _currentItem.Id,
-                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Log(LogLevel.Error, "Error adding UserFurniture to server database. Exception: " + ex.Message);
-                    }
-
-                    break;
-
-                case ShopItemType.Sounds:
-
-                    // Note: This check will be made obsolete after the shop item sync update
-                    if (!_localContext.Sounds.Any(s => s.Id == _currentItem.Id))
-                    {
-                        _localContext.Sounds.Add(new Sound
-                        {
-                            Id = _currentItem.Id,
-                            Name = _currentItem.Name,
-                            Price = _currentItem.Price,
-                            Image = _currentItem.ImageSource
-                        });
-
-                        await _localContext.SaveChangesAsync();
-                    }
-
-                    try
-                    {
-                        // Add the user's new sound to the local database
-                        User user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id);
-                        user.Sounds?.Add(new UserSound
-                        {
-                            Sound = _localContext.Sounds.First(f => f.Id == _currentItem.Id)
-                        });
-
-                        // Update the user's balance on the local database
-                        user.Balance = _authenticationService.CurrentUser.Balance;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Log(LogLevel.Error, "Error adding UserSound to local database. Exception: " + ex.Message);
-                    }
-
-                    // Add the user's sound to the server database
-                    // Note: This endpoint additionally updates the user's balance on the server
-                    // If time allows, we will store the sound files on the server, and fetch/store them after purchase
-                    try
-                    {
-                        await _client.AddUserSound(new AddUserSoundCommand
-                        {
-                            UserId = _authenticationService.CurrentUser.Id,
-                            SoundId = _currentItem.Id,
-                            UpdatedBalance = _authenticationService.CurrentUser.Balance,
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Log(LogLevel.Error, "Error adding UserSound to server database. Exception: " + ex.Message);
-                    }
-
-                    break;
-                default:
-                    break;
-            }
-
             try
             {
-                await _localContext.SaveChangesAsync();
+                await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error saving changes to local database. Exception: " + ex.Message);
+                _logger.LogError(ex, "Error occurred while purchasing item.");
             }
+            
+            // Update user's balance within the CurrentUser model
+            _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
             // After purchasing item, update the user balance display on the shop page
             ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
@@ -334,22 +175,24 @@ namespace FocusApp.Client.Views.Shop
             _popupService.HidePopup();
         }
 
-        private bool UserOwnsItem()
+        private async Task<bool> UserOwnsItem()
         {
             switch (_currentItem.Type)
             {
                 case ShopItemType.Pets:
-                    return _localContext.UserPets.Any(p =>
+                    return await _localContext.UserPets.AnyAsync(p =>
                            p.PetId == _currentItem.Id
                         && p.UserId == _authenticationService.CurrentUser.Id);
-                case ShopItemType.Furniture:
-                    return _localContext.UserFurniture.Any(f => 
-                           f.FurnitureId == _currentItem.Id
-                        && f.UserId == _authenticationService.CurrentUser.Id);
-                case ShopItemType.Sounds:
-                    return _localContext.UserSounds.Any(s => 
-                           s.SoundId == _currentItem.Id 
-                        && s.UserId == _authenticationService.CurrentUser.Id);
+                case ShopItemType.Decor:
+                    return await _localContext.UserDecor.AnyAsync(d => 
+                           d.DecorId == _currentItem.Id
+                        && d.UserId == _authenticationService.CurrentUser.Id);
+                
+                case ShopItemType.Islands:
+                    return await _localContext.UserIslands.AnyAsync(i => 
+                           i.IslandId == _currentItem.Id 
+                        && i.UserId == _authenticationService.CurrentUser.Id);
+                
                 default:
                     return false;
             }

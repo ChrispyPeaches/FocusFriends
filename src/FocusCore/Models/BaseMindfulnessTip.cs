@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FocusCore.Models
 {
     [Table("MindfulnessTips")]
-    public class BaseMindfulnessTip
+    public class BaseMindfulnessTip : ISyncEntity
     {
         [Key]
         public Guid Id { get; set; }

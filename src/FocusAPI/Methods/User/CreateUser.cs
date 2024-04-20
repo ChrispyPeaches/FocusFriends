@@ -14,14 +14,14 @@ public class CreateUser
 {
     public class Handler : IRequestHandler<CreateUserCommand, MediatrResultWrapper<CreateUserResponse>>
     {
-        private readonly FocusContext _context;
+        private readonly FocusAPIContext _apiContext;
         private readonly ISyncService _syncService;
 
         public Handler(
-            FocusContext context,
+            FocusAPIContext apiContext,
             ISyncService syncService)
         {
-            _context = context;
+            _apiContext = apiContext;
             _syncService = syncService;
         }
 
@@ -51,7 +51,8 @@ public class CreateUser
                             SelectedIslandId = newUser.SelectedIslandId,
                             SelectedPetId = newUser.SelectedPetId,
                             UserIslandIds = newUser.Islands.Select(userIsland => userIsland.IslandId).ToList(),
-                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList()
+                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList(),
+                            DateCreated = newUser.DateCreated
                         }
                     }
                 };
@@ -72,7 +73,7 @@ public class CreateUser
         {
             try
             {
-                return await _context.Users
+                return await _apiContext.Users
                     .Where(u => u.Auth0Id == command.Auth0Id)
                     .FirstOrDefaultAsync(cancellationToken);
             }
@@ -138,11 +139,11 @@ public class CreateUser
                 user.SelectedIsland = initialIsland;
             }
 
-            _context.Users.Add(user);
+            _apiContext.Users.Add(user);
 
             try
             {
-                await _context.SaveChangesAsync(cancellationToken);
+                await _apiContext.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

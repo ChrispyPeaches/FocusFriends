@@ -15,6 +15,7 @@ using Auth0.OidcClient;
 using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
 using FocusApp.Client.Methods.Sync;
+using static FocusApp.Client.Helpers.PreferencesHelper;
 
 namespace FocusApp.Client
 {
@@ -55,14 +56,9 @@ namespace FocusApp.Client
                 PostLogoutRedirectUri = "myapp://callback",
                 Scope = "openid profile email"
             }));
-
-            #region Logic Run on Startup
             
             Task.Run(() => RunStartupLogic(builder.Services));
 
-            #endregion
-
-            PreferenceRequest();
 
             return builder.Build();
         }
@@ -156,10 +152,7 @@ namespace FocusApp.Client
                     .ServiceProvider;
                 _ = scopedServiceProvider.GetRequiredService<FocusAppContext>();
 
-                var startupSyncTask = Task.Run(() => StartupSync(services));
-                var initialDatabasePopulateTask = Task.Run(() => InitialPopulateDatabase(services));
-
-                await Task.WhenAll([startupSyncTask, initialDatabasePopulateTask]);
+                await Task.Run(() => StartupSync(services, default), default);
             }
             catch (Exception ex)
             {
@@ -170,50 +163,64 @@ namespace FocusApp.Client
         }
 
         /// <summary>
-        /// Syncs mindfulness tips and badges between the API and mobile database each time the app starts.
+        /// Syncs all item types in the <see cref="SyncItems.SyncItemType"/> enum between the API and mobile database
+        /// if the last sync happened over a week ago or this is the first time starting the app.
         /// </summary>
-        private static async Task StartupSync(IServiceCollection services)
+        /// <remarks>
+        /// If there's an unexpected error, the critical data for app functionality will be retrieved.
+        /// </remarks>
+        private static async Task StartupSync(IServiceCollection services, CancellationToken cancellationToken)
         {
             try
             {
-                var serviceProvider = services
-                    .BuildServiceProvider()
-                    .CreateScope()
-                    .ServiceProvider;
-                IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
 
-                var mindfulnessTipsTask = mediator.Send(new SyncMindfulnessTips.Query());
-                await mindfulnessTipsTask;
+                // If not in debug and a sync has been done in the past week, don't sync
+#if !DEBUG
+                string lastSyncTimeString = PreferencesHelper.Get<string>(PreferenceNames.last_sync_time);
+                if (!string.IsNullOrEmpty(lastSyncTimeString))
+                {
+                    DateTimeOffset lastSyncTime = DateTimeOffset.Parse(lastSyncTimeString);
+
+                    if (DateTimeOffset.UtcNow < lastSyncTime.AddDays(7))
+                        return;
+                }
+#endif
+
+                IList<Task> tasks = new List<Task>();
+                foreach (SyncItems.SyncItemType syncType in Enum.GetValues(typeof(SyncItems.SyncItemType)))
+                {
+                    IMediator mediator = services
+                        .BuildServiceProvider()
+                        .CreateScope()
+                        .ServiceProvider
+                        .GetRequiredService<IMediator>();
+
+                    tasks.Add(
+                            Task.Run(() => mediator.Send(
+                                        new SyncItems.Query() { ItemType = syncType },
+                                        cancellationToken),
+                                    cancellationToken)
+                        );
+                }
+
+                await Task.WhenAll(tasks);
+
+                PreferencesHelper.Set(PreferenceNames.last_sync_time, DateTimeOffset.UtcNow.ToString("O"));
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error occurred when syncing mindfulness tips.");
+                // If there's an error, ensure the essential database information is gathered
+                Console.WriteLine("Error occurred when syncing selectable items and mindfulness tips. Running essential database population.");
                 Console.Write(ex);
-            }
-
-            try
-            {
-                var serviceProvider = services
-                    .BuildServiceProvider()
-                    .CreateScope()
-                    .ServiceProvider;
-                IMediator mediator = serviceProvider.GetRequiredService<IMediator>();
-
-                var badgesTask = mediator.Send(new SyncBadges.Query());
-                await badgesTask;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error occurred when syncing badges.");
-                Console.Write(ex);
+                await GatherEssentialDatabaseData(services);
             }
         }
 
         /// <summary>
         /// Populates the database with initial data requested from the API for any of
-        /// the island, pets, or furniture tables if they don't have any entries.
+        /// the island, pets, or decor tables if they don't have any entries.
         /// </summary>
-        private static async Task InitialPopulateDatabase(IServiceCollection services)
+        private static async Task GatherEssentialDatabaseData(IServiceCollection services)
         {
             try
             {
@@ -227,24 +234,8 @@ namespace FocusApp.Client
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error when instantiating and seeding database");
+                Console.WriteLine("Error when running essential database population.");
                 Console.Write(ex);
-            }
-        }
-
-        private static void PreferenceRequest()
-        {
-            var keys = new List<string> { "ambiance_volume", "notifications_enabled", "startup_tips_enabled", "session_rating_enabled" };
-            var vals = new List<dynamic> { 50.00, false, true, true };
-
-            var pairs = keys.Zip(vals);
-
-            foreach (var pair in pairs)
-            {
-                if (!Preferences.Default.ContainsKey(pair.First))
-                {
-                    Preferences.Default.Set(pair.First, pair.Second);
-                }
             }
         }
     }

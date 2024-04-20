@@ -11,15 +11,15 @@ public class GetWeeklyLeaderboard
 {
     public class Handler : IRequestHandler<GetWeeklyLeaderboardQuery, LeaderboardResponse>
     {
-        FocusContext _context;
-        public Handler(FocusContext context)
+        FocusAPIContext _apiContext;
+        public Handler(FocusAPIContext apiContext)
         {
-            _context = context;
+            _apiContext = apiContext;
         }
 
         public async Task<LeaderboardResponse> Handle(GetWeeklyLeaderboardQuery query, CancellationToken cancellationToken)
         {
-            User? user = await _context.Users
+            User? user = await _apiContext.Users
                 .Include(u => u.Inviters)
                     .ThenInclude(f => f.Friend)
                 .Include(u => u.Invitees)
@@ -34,7 +34,7 @@ public class GetWeeklyLeaderboard
             userIds.Add(query.UserId);
 
             // Query session history table for friend's and requesting user's session history over a day's time
-            List<UserSession> sessions = await _context.UserSessionHistory
+            List<UserSession> sessions = await _apiContext.UserSessionHistory
                 .Where(s =>
                        userIds.Contains(s.UserId)
                     && s.SessionEndTime <= DateTime.UtcNow
