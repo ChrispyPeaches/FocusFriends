@@ -15,17 +15,20 @@ using Microsoft.Extensions.Logging;
 using FocusCore.Models;
 using MediatR;
 using CommunityToolkit.Mvvm.Input;
+using FocusApp.Shared.Models;
+using Microsoft.Maui;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class SocialPage : BasePage
 {
-    private Helpers.PopupService _popupService;
+    private readonly Helpers.PopupService _popupService;
     private readonly ILogger<SocialPage> _logger;
-    IAuthenticationService _authenticationService;
-    private IMediator _mediator;
-    public ListView _friendsListView;
-    private IAPIClient _client;
+    private readonly IAuthenticationService _authenticationService;
+    private readonly IMediator _mediator;
+    private readonly ListView _friendsListView;
+    private readonly IAPIClient _client;
+    private readonly AvatarView _profilePictureNavMenuButton;
 
 	public SocialPage(
         IAPIClient client,
@@ -42,6 +45,10 @@ internal class SocialPage : BasePage
         _logger = logger;
 
         _friendsListView = BuildFriendsListView();
+        _profilePictureNavMenuButton = new AvatarView()
+        {
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+        };
 
         Content = new Grid
         {
@@ -91,21 +98,22 @@ internal class SocialPage : BasePage
                 .ColumnSpan(2),
 
                 // Profile Picture
-                new ImageButton
-                {
-                    Source = new FileImageSource
-                    {
-                        // Add logic that gets profile picture from user data
-                        File = "dotnet_bot.png"
-                    },
-                    WidthRequest = 90,
-                    HeightRequest = 90
-                }
-                .Top()
+                _profilePictureNavMenuButton
+                .Aspect(Aspect.AspectFit)
                 .Right()
+                .FillVertical()
+                .Margin(1)
                 .Column(1)
-                .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
-                .Invoke(b => b.Clicked += OnClickShowProfileInterfacePopup),
+                // Set the corner radius to be half of the height to make it a circle
+                .Bind(
+                    AvatarView.CornerRadiusProperty,
+                    path: nameof(AvatarView.HeightRequest),
+                    convert: (double hr) => hr / 2,
+                    source: RelativeBindingSource.Self)
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapProfilePictureShowNavigationCommand),
+                    parameterPath: nameof(FriendListModel.FriendAuth0Id)),
 
                 // Friends List
                 _friendsListView
@@ -116,9 +124,12 @@ internal class SocialPage : BasePage
         };
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
+    private AvatarView GetProfilePictureNavMenuButton() =>
+         new AvatarView()
+        {
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+        };
+
     private ListView BuildFriendsListView()
     {
         ListView listView = new ListView();
@@ -190,6 +201,8 @@ internal class SocialPage : BasePage
     {
         base.OnAppearing();
 
+        _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.CurrentUser?.ProfilePicture);
+        
         // If not logged in display popup, otherwise populate friends list
         if (string.IsNullOrEmpty(_authenticationService.AuthToken))
         {
@@ -225,8 +238,10 @@ internal class SocialPage : BasePage
         _friendsListView.ItemsSource = friendsList;
     }
 
+    public RelayCommand TapProfilePictureShowNavigationCommand => new(OnClickShowProfileInterfacePopup);
+
     // Display navigation popup on hit
-    private void OnClickShowProfileInterfacePopup(object? sender, EventArgs e)
+    private void OnClickShowProfileInterfacePopup()
     {
         _popupService.ShowPopup<ProfilePopupInterface>();
     }
@@ -245,10 +260,10 @@ internal class SocialPage : BasePage
     /// passing the friend's Auth0Id as a parameter
     /// </summary>
     private async Task OnFriendClickShowFriendProfilePage(string? auth0Id)
-    {
-        Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync(
-            $"///{nameof(SocialPage)}/{nameof(FriendProfilePage)}",
-            FriendProfilePage.BuildParamterArgs(auth0Id));
-    }
+        {
+            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+            await Shell.Current.GoToAsync(
+                $"///{nameof(SocialPage)}/{nameof(FriendProfilePage)}",
+                FriendProfilePage.BuildParamterArgs(auth0Id));
+        }
 }
