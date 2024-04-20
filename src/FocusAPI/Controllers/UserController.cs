@@ -6,6 +6,7 @@ using FocusCore.Commands.User;
 using FocusCore.Queries.User;
 using FocusCore.Responses;
 using FocusCore.Responses.User;
+using System.Threading;
 
 namespace FocusAPI.Controllers
 {
@@ -184,6 +185,26 @@ namespace FocusAPI.Controllers
         public async Task AddUserIsland(AddUserIslandCommand command)
         {
             await _mediator.Send(command);
+        }
+
+        [HttpPost]
+        [Route("Badge")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> AddUserBadge(
+            AddUserBadgeCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await _mediator.Send(command, cancellationToken);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[500] Error editing user profile details.");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
     }
 }
