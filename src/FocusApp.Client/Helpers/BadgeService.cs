@@ -13,7 +13,14 @@ using FocusApp.Client.Methods.Badges;
 
 namespace FocusApp.Client.Helpers
 {
-    internal class BadgeService
+    internal interface IBadgeService
+    {
+        Task<BadgeEligibilityResult> CheckPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken);
+        Task<BadgeEligibilityResult> CheckSessionBadgeEligability(CancellationToken cancellationToken);
+        Task<BadgeEligibilityResult> CheckSocialBadgeEligability(CancellationToken cancellationToken);
+    }
+
+    internal class BadgeService : IBadgeService
     {
         IMediator _mediator;
         public BadgeService(IMediator mediator)
@@ -41,6 +48,16 @@ namespace FocusApp.Client.Helpers
             }
 
             return result;
-        }   
+        }
+
+        public async Task<BadgeEligibilityResult> CheckSessionBadgeEligability(CancellationToken cancellationToken)
+        {
+            return new BadgeEligibilityResult();
+        }
+
+        public async Task<BadgeEligibilityResult> CheckSocialBadgeEligability(CancellationToken cancellationToken)
+        {
+            return new BadgeEligibilityResult();
+        }
     }
 }
