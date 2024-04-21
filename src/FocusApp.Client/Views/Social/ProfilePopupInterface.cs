@@ -33,6 +33,8 @@ namespace FocusApp.Client.Views.Social
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start;
             Color = Colors.Transparent;
 
+            Closed += ProfilePopupInterface_Closed;
+
             var borderWidth = 250;
             var rowWidth = 260;
 
@@ -220,6 +222,11 @@ namespace FocusApp.Client.Views.Social
                 .Top()
                 .Right()
             };
+        }
+
+        private void ProfilePopupInterface_Closed(object? sender, CommunityToolkit.Maui.Core.PopupClosedEventArgs e)
+        {
+            _popupService.HidePopup(wasDismissedByTappingOutsideOfPopup: true);
         }
 
         // Navigate to page according to button

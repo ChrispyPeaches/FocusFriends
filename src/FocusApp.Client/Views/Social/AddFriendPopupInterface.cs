@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using CommunityToolkit.Maui.Core;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -49,6 +50,8 @@ namespace FocusApp.Client.Views.Social
             _client = client;
             _popupService = popupService;
             _authenticationService = authenticationService;
+
+            Closed += AddFriendPopupInterface_Closed;
 
             _friendrequestView = BuildFriendRequestListView();
 
@@ -170,6 +173,11 @@ namespace FocusApp.Client.Views.Social
 
             // Populate PendingFriends upon popup open
             PopulatePopup();
+        }
+
+        private void AddFriendPopupInterface_Closed(object? sender, PopupClosedEventArgs e)
+        {
+            _popupService.HidePopup(wasDismissedByTappingOutsideOfPopup: true);
         }
 
         private ListView BuildFriendRequestListView()

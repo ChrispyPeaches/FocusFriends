@@ -9,7 +9,7 @@ namespace FocusApp.Client.Helpers
     {
         void ShowPopup<T>() where T : Popup;
         Popup ShowAndGetPopup<T>() where T : Popup;
-        void HidePopup();
+        void HidePopup(bool wasDismissedByTappingOutsideOfPopup);
         void HideAllPopups();
     }
 
@@ -61,11 +61,18 @@ namespace FocusApp.Client.Helpers
             popup.PopulatePopup(badge);
         }
 
-        public void HidePopup()
+        public void HidePopup(bool wasDismissedByTappingOutsideOfPopup = false)
         {
-            if (_popups.Count > 0)
+            if (_popups.Count > 0 && !wasDismissedByTappingOutsideOfPopup)
             {
                 MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
+            }
+            // Quick patch for popups closed via tapping outside of the popup
+            else if (_popups.Count > 0 && wasDismissedByTappingOutsideOfPopup)
+            {
+                // Remove the popup from the stack, but do not close it, as it has already
+                // been closed via tapping outside of popup
+                _popups.Pop();
             }
         }
 

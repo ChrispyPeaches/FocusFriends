@@ -174,19 +174,7 @@ namespace FocusApp.Client.Views.Shop
                 _logger.LogError(ex, "Error occurred while purchasing item.");
             }
 
-            try
-            {
-                BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
-
-                if (result.IsEligible && result.EarnedBadge != null)
-                {
-                    Task.Run(() => _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge));
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
-            }
+            Task.Run(ShowPurchaseBadgeIfEarned);
 
             _popupService.HidePopup();
         }
@@ -211,6 +199,23 @@ namespace FocusApp.Client.Views.Shop
                 
                 default:
                     return false;
+            }
+        }
+
+        private async Task ShowPurchaseBadgeIfEarned()
+        {
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
+
+                if (result.IsEligible && result.EarnedBadge != null)
+                {
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
             }
         }
     }
