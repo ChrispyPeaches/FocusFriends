@@ -11,6 +11,11 @@ using FocusCore.Models;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Shared.Data;
+using FocusApp.Client.Methods.User;
+using MediatR;
+using FocusCore.Commands.User;
+using FocusCore.Responses;
+using FocusApp.Methods.User;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -20,15 +25,17 @@ internal sealed class PetsPage : BasePage
     private readonly IAuthenticationService _authenticationService;
     private readonly PopupService _popupService;
     private readonly FocusAppContext _localContext;
+    private readonly IMediator _mediator;
 
     FlexLayout _petsContainer;
 
-    public PetsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
+    public PetsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator)
 	{
         _client = client;
         _authenticationService = authenticationService;
         _popupService = popupService;
         _localContext = localContext;
+        _mediator = mediator;
 
         // Instantiate container for pets
         _petsContainer = new FlexLayout
@@ -95,7 +102,8 @@ internal sealed class PetsPage : BasePage
 				// FlexLayout - Container for Pets
                 new ScrollView
                 {
-                    Content = _petsContainer
+                    Content = _petsContainer,
+                    MaximumHeightRequest = 400
                 }
                 .Row(1)
                 .Column(0)
@@ -126,12 +134,19 @@ internal sealed class PetsPage : BasePage
     {
         List<PetItem> userPets = new List<PetItem>();
 
-        userPets = SeedPetItems();
+        //userPets = SeedPetItems();
 
         try
         {
             // Fetch pets from the local database using Mediatr feature
-            //userPets = await _localContext.Pets.ToListAsync();
+            GetUserPets.Result result = await _mediator.Send(new GetUserPets.Query()
+            {
+                UserId = _authenticationService.CurrentUser.Id,
+                selectedPetId = _authenticationService.SelectedPet.Id
+            },
+            default);
+
+            userPets = result.Pets;
         }
         catch (Exception ex)
         {
@@ -171,21 +186,29 @@ internal sealed class PetsPage : BasePage
                 Source = ImageSource.FromStream(() => new MemoryStream(pet.PetsProfilePicture)),
                 Aspect = Aspect.AspectFit,
                 WidthRequest = 150,
-                HeightRequest = 150
+                HeightRequest = 150,
+                BindingContext = pet.PetId
             }
             .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
             petsContainer.Children.Add(userPet);
         }
     }
 
-    void OnImageButtonClicked(object sender, EventArgs eventArgs)
+    private async void OnImageButtonClicked(object sender, EventArgs eventArgs)
     {
         var itemButton = sender as ImageButton;
-        var pet = (PetItem)itemButton.BindingContext;
+        var petId = (Guid)itemButton.BindingContext;
 
-        /*var itemPopup = (UserBadgesPagePopupInterface)_popupService.ShowAndGetPopup<UserBadgesPagePopupInterface>();
-        itemPopup.UserBadgesPage = this;
-        itemPopup.PopulatePopup(badge);*/
+        EditUserSelectedPetCommand command = new EditUserSelectedPetCommand
+        {
+            UserId = _authenticationService.CurrentUser?.Id,
+            PetId = petId
+        };
+
+        // Call method to update the user data when the user fields have changed
+        MediatrResult result = await _mediator.Send(command, default);
+
+
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
