@@ -17,8 +17,8 @@ namespace FocusApp.Client.Helpers
     internal interface IBadgeService
     {
         Task<BadgeEligibilityResult> CheckPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken);
-        Task<BadgeEligibilityResult> CheckSessionBadgeEligability(CancellationToken cancellationToken);
-        Task<BadgeEligibilityResult> CheckSocialBadgeEligability(CancellationToken cancellationToken);
+        Task<BadgeEligibilityResult> CheckSessionBadgeEligibility(CancellationToken cancellationToken = default);
+        Task<BadgeEligibilityResult> CheckSocialBadgeEligibility(CancellationToken cancellationToken = default);
     }
 
     internal class BadgeService : IBadgeService
@@ -76,25 +76,36 @@ namespace FocusApp.Client.Helpers
             return result;
         }
 
-        public async Task<BadgeEligibilityResult> CheckSessionBadgeEligability(CancellationToken cancellationToken)
+        public async Task<BadgeEligibilityResult> CheckSessionBadgeEligibility(CancellationToken cancellationToken = default)
         {
             BadgeEligibilityResult result = new();
 
             try
             {
-                result = await _mediator.Send(new CheckSessionBadgeEligbility.Query(), cancellationToken);
+                result = await _mediator.Send(new CheckSessionBadgeEligibility.Query(), cancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error when checking session badge eligibility.");
+                throw new Exception("Error when checking session badge eligibility.", ex);
             }
 
             return result;
         }
 
-        public async Task<BadgeEligibilityResult> CheckSocialBadgeEligability(CancellationToken cancellationToken)
+        public async Task<BadgeEligibilityResult> CheckSocialBadgeEligibility(CancellationToken cancellationToken = default)
         {
-            return new BadgeEligibilityResult();
+            BadgeEligibilityResult result = new();
+
+            try
+            {
+                result = await _mediator.Send(new CheckSocialBadgeEligibility.Query(), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error when checking social badge eligibility.", ex);
+            }
+
+            return result;
         }
     }
 }

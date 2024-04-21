@@ -3,14 +3,16 @@ using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
+using FocusCore.Commands.User;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 
 namespace FocusApp.Client.Methods.Badges
 {
-    internal class CheckSessionBadgeEligbility
+    internal class CheckSessionBadgeEligibility
     {
         public class Query : IRequest<BadgeEligibilityResult> { }
+
         public class Handler : IRequestHandler<Query, BadgeEligibilityResult>
         {
             private readonly FocusAppContext _localContext;
@@ -21,6 +23,7 @@ namespace FocusApp.Client.Methods.Badges
             {
                 _localContext = localContext;
                 _authenticationService = authenticationService;
+                _client = client;
             }
 
             public async Task<BadgeEligibilityResult> Handle(Query query, CancellationToken cancellationToken)
@@ -31,10 +34,13 @@ namespace FocusApp.Client.Methods.Badges
                     IsEligible = false
                 };
 
+                if (_authenticationService.CurrentUser is null)
+                {
+                    throw new InvalidOperationException("User is not logged in.");
+                }
+
                 int sessionCount = await _localContext.UserSessionHistory
                     .CountAsync(u => u.UserId == _authenticationService.CurrentUser.Id, cancellationToken);
-
-                var b = await _localContext.UserSessionHistory.Where(s => s.UserId == _authenticationService.CurrentUser.Id).ToListAsync(cancellationToken);
 
                 string? badgeName = sessionCount switch
                 {
@@ -56,13 +62,18 @@ namespace FocusApp.Client.Methods.Badges
                         DateAcquired = DateTime.UtcNow
                     });
 
-                    if (_localContext.ChangeTracker.HasChanges())
-                        await _localContext.SaveChangesAsync(cancellationToken);
+                    if (_localContext.ChangeTracker.HasChanges()) await _localContext.SaveChangesAsync(cancellationToken);
+
+                    await _client.AddUserBadge(new AddUserBadgeCommand()
+                        {
+                            BadgeId = result.EarnedBadge.Id,
+                            UserId = _authenticationService.CurrentUser.Id
+                        },
+                        cancellationToken);
 
                     result.IsEligible = true;
                 }
 
-                var a = await _localContext.UserBadges.ToListAsync(cancellationToken);
                 return result;
             }
         }

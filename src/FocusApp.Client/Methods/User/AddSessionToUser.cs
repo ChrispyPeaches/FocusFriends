@@ -63,8 +63,6 @@ internal class AddSessionToUser
                 cancellationToken);
 
             await AddSessionToMobileDatabaseUser(session, user, cancellationToken);
-
-            BadgeEligibilityResult result = await _badgeService.CheckSessionBadgeEligability(cancellationToken);
         }
 
         private async Task<Shared.Models.User?> GetUser(

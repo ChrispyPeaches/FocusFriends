@@ -177,9 +177,10 @@ namespace FocusApp.Client.Views.Shop
             try
             {
                 BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
+
                 if (result.IsEligible && result.EarnedBadge != null)
                 {
-                    Task.Run(() => _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge));
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
                 }
             }
             catch (Exception ex)

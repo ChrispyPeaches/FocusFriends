@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
+using FocusApp.Client.Extensions;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusCore.Commands.Social;
@@ -22,20 +23,29 @@ using System.Net;
 using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 
 namespace FocusApp.Client.Views.Social
 {
     internal class AddFriendPopupInterface : BasePopup
     {
-        IAPIClient _client;
-        IAuthenticationService _authenticationService;
-        Helpers.PopupService _popupService;
-        ListView _friendrequestView { get; set; }
-        Label entryError {  get; set; }
+        private readonly IAPIClient _client;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly Helpers.PopupService _popupService;
+        private readonly IBadgeService _badgeService;
+        private readonly ILogger<AddFriendPopupInterface> _logger;
+
+        private readonly ListView _friendrequestView;
+        private readonly Label entryError;
         public SocialPage SocialPage { get; set; }
 
-        public AddFriendPopupInterface(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService)
+        public AddFriendPopupInterface(
+            IAPIClient client,
+            IAuthenticationService authenticationService,
+            Helpers.PopupService popupService,
+            IBadgeService badgeService,
+            ILogger<AddFriendPopupInterface> logger)
         {
             _client = client;
             _popupService = popupService;
@@ -337,6 +347,23 @@ namespace FocusApp.Client.Views.Social
             SocialPage.PopulateFriendsList();
 
             PopulatePopup();
+
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+                if (result.IsEligible && result.EarnedBadge != null)
+                {
+                    Action badgeEvent = delegate
+                    {
+                        _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                    };
+                    badgeEvent.RunInNewThread();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+            }
         }
 
         private async void OnClickRejectFriendRequest(object sender, EventArgs e)

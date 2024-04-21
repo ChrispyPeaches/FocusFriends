@@ -20,6 +20,9 @@ using Microsoft.Maui.ApplicationModel;
 using FocusCore.Queries.Social;
 using Microsoft.Extensions.Logging;
 using FocusCore.Models;
+using FocusApp.Client.Views.Mindfulness;
+using FocusCore.Extensions;
+using FocusApp.Client.Extensions;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -28,18 +31,27 @@ internal class SocialPage : BasePage
     private Helpers.PopupService _popupService;
     private readonly ILogger<SocialPage> _logger;
     IAuthenticationService _authenticationService;
-    IAPIClient _client { get; set; }
+    private IAPIClient _client;
+    private IBadgeService _badgeService;
 
     public ListView _friendsListView;
 
-    public SocialPage(IAPIClient client, Helpers.PopupService popupService, IAuthenticationService authenticationService, ILogger<SocialPage> logger)
+    public SocialPage(
+        IAPIClient client,
+        Helpers.PopupService popupService,
+        IAuthenticationService authenticationService,
+        ILogger<SocialPage> logger,
+        IBadgeService badgeService)
 	{
         _popupService = popupService;
         _client = client;
         _authenticationService = authenticationService;
         _logger = logger;
+        _badgeService = badgeService;
 
         _friendsListView = BuildFriendsListView();
+
+        Appearing += CheckForSocialBadgeEarned;
 
         Content = new Grid
         {
@@ -165,14 +177,36 @@ internal class SocialPage : BasePage
         }
         else
         {
-            PopulateFriendsList();
+            Task.Run(PopulateFriendsList);
         }
 
         base.OnAppearing();
     }
 
+    private async void CheckForSocialBadgeEarned(object? sender, EventArgs eventArgs)
+    {
+        Appearing -= CheckForSocialBadgeEarned;
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+                if (result is { IsEligible: true, EarnedBadge: not null })
+                {
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+            }
+        });
+
+    }
+
     // We call this function to populate FriendsList and from friends popup to refresh list
-    public async void PopulateFriendsList()
+    public async Task PopulateFriendsList()
     {
         // Retrieve Friends from API
         List<FriendListModel> friendsList = new List<FriendListModel>();
@@ -191,7 +225,10 @@ internal class SocialPage : BasePage
             _logger.LogError(ex, "An error occured while fetching friends");
         }
 
-        _friendsListView.ItemsSource = friendsList;
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            _friendsListView.ItemsSource = friendsList;
+        });
     }
 
     // Display navigation popup on hit
