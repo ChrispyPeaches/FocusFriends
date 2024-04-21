@@ -22,7 +22,6 @@ using Microsoft.Extensions.Logging;
 using FocusCore.Models;
 using FocusApp.Client.Views.Mindfulness;
 using FocusCore.Extensions;
-using FocusApp.Client.Extensions;
 
 namespace FocusApp.Client.Views.Social;
 

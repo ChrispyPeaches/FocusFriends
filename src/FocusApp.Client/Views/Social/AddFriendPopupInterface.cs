@@ -3,7 +3,6 @@ using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
-using FocusApp.Client.Extensions;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusCore.Commands.Social;
@@ -250,7 +249,7 @@ namespace FocusApp.Client.Views.Social
             return listView;
         }
 
-        public async void PopulatePopup()
+        private async void PopulatePopup()
         {
             List<FriendRequest> pendingFriendRequests;
 
@@ -344,20 +343,22 @@ namespace FocusApp.Client.Views.Social
             await _client.AcceptFriendRequest(acceptCommand);
 
             // Refresh friends list
-            SocialPage.PopulateFriendsList();
+            Task.Run(SocialPage.PopulateFriendsList);
+            Task.Run(ShowSocialBadgeIfEarned);
 
             PopulatePopup();
 
+            
+        }
+
+        private async Task ShowSocialBadgeIfEarned()
+        {
             try
             {
                 BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
-                if (result.IsEligible && result.EarnedBadge != null)
+                if (result is { IsEligible: true, EarnedBadge: not null })
                 {
-                    Action badgeEvent = delegate
-                    {
-                        _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
-                    };
-                    badgeEvent.RunInNewThread();
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
                 }
             }
             catch (Exception ex)
