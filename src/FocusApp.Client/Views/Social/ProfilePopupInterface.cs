@@ -1,17 +1,9 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Graphics.Text;
 using SimpleToolkit.SimpleShell.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FocusApp.Client.Views.Social
 {

@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Views;
-using FocusApp.Client.Views.Shop;
 using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Helpers
