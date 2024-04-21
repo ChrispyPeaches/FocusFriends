@@ -161,10 +161,10 @@ namespace FocusApp.Client.Views.Shop
         {
             try
             {
-                await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
-
                 // Update user's balance within the CurrentUser model
                 _authenticationService.CurrentUser.Balance -= _currentItem.Price;
+
+                await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
 
                 // After purchasing item, update the user balance display on the shop page
                 ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
@@ -180,7 +180,7 @@ namespace FocusApp.Client.Views.Shop
 
                 if (result.IsEligible && result.EarnedBadge != null)
                 {
-                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                    Task.Run(() => _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge));
                 }
             }
             catch (Exception ex)
