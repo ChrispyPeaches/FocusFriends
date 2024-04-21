@@ -59,10 +59,10 @@ namespace FocusApp.Client.Views
                 Content = new Grid
                 {
                     RowDefinitions = Rows.Define(
-                        (PopupRow.Name, Stars(0.5)),
+                        (PopupRow.Name, Stars(0.35)),
                         (PopupRow.Image, Stars(1)),
                         (PopupRow.Description, Stars(0.5)),
-                        (PopupRow.NavButton, Stars(0.5))
+                        (PopupRow.NavButton, Stars(0.35))
                         ),
                     ColumnDefinitions = Columns.Define(
                         (PopupColumn.Center, Stars(1))

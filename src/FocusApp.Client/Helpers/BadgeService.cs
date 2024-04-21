@@ -40,13 +40,34 @@ namespace FocusApp.Client.Helpers
             switch (item.Type)
             {
                 case ShopItemType.Pets:
-                    result = await _mediator.Send(new CheckPetPurchaseBadgeEligbility.Query(), cancellationToken);
+                    try
+                    {
+                        result = await _mediator.Send(new CheckPetPurchaseBadgeEligbility.Query(), cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error occurred while checking for pet purchase badge eligibility.");
+                    }
                     break;
                 case ShopItemType.Islands:
-                    result = await _mediator.Send(new CheckIslandPurchaseBadgeEligbility.Query(), cancellationToken);
+                    try
+                    {
+                        result = await _mediator.Send(new CheckIslandPurchaseBadgeEligbility.Query(), cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error occurred while checking for island purchase badge eligibility.");
+                    }
                     break;
                 case ShopItemType.Decor:
-                    result = await _mediator.Send(new CheckDecorPurchaseBadgeEligbility.Query(), cancellationToken);
+                    try
+                    {
+                        result = await _mediator.Send(new CheckDecorPurchaseBadgeEligbility.Query(), cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error occurred while checking for decor purchase badge eligibility.");
+                    }
                     break;
                 default:
                     break;
