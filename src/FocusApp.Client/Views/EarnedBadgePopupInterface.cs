@@ -1,24 +1,12 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Helpers;
-using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
-using FocusApp.Client.Views.Mindfulness;
-using FocusApp.Shared.Data;
-using FocusCore.Extensions;
-using FocusCore.Models;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
-using FocusApp.Client.Extensions;
 using FocusApp.Shared.Models;
-using SimpleToolkit.Core;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using FocusApp.Client.Views.Social;
-using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views
 {
