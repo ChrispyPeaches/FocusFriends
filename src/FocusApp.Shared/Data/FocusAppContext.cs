@@ -17,6 +17,8 @@ public interface IFocusAppContext
     public DbSet<Decor> Decor { get; set; }
     public DbSet<UserDecor> UserDecor { get; set; }
     public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
+    public DbSet<Island> Islands { get; set; }
+    public DbSet<UserIsland> UserIslands { get; set; }
 
     #endregion
 
