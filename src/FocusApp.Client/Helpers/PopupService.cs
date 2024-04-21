@@ -71,7 +71,7 @@ namespace FocusApp.Client.Helpers
             else if (_popups.Count > 0 && wasDismissedByTappingOutsideOfPopup)
             {
                 // Remove the popup from the stack, but do not close it, as it has already
-                // been closed via tapping outside of popup
+                // been closed/disposed via tapping outside of popup
                 _popups.Pop();
             }
         }
