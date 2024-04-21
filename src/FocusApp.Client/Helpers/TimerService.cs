@@ -252,7 +252,7 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
 
         try
         {
-            BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+            BadgeEligibilityResult result = await _badgeService.CheckFocusSessionBadgeEligibility();
 
             if (result is { IsEligible: true, EarnedBadge: not null })
             {

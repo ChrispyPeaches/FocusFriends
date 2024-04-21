@@ -17,7 +17,7 @@ namespace FocusApp.Client.Helpers
     internal interface IBadgeService
     {
         Task<BadgeEligibilityResult> CheckPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken);
-        Task<BadgeEligibilityResult> CheckSessionBadgeEligibility(CancellationToken cancellationToken = default);
+        Task<BadgeEligibilityResult> CheckFocusSessionBadgeEligibility(CancellationToken cancellationToken = default);
         Task<BadgeEligibilityResult> CheckSocialBadgeEligibility(CancellationToken cancellationToken = default);
     }
 
@@ -76,17 +76,33 @@ namespace FocusApp.Client.Helpers
             return result;
         }
 
-        public async Task<BadgeEligibilityResult> CheckSessionBadgeEligibility(CancellationToken cancellationToken = default)
+        public async Task<BadgeEligibilityResult> CheckFocusSessionBadgeEligibility(CancellationToken cancellationToken = default)
         {
             BadgeEligibilityResult result = new();
 
             try
             {
-                result = await _mediator.Send(new CheckSessionBadgeEligibility.Query(), cancellationToken);
+                result = await _mediator.Send(new CheckFocusSessionBadgeEligibility.Query(), cancellationToken);
             }
             catch (Exception ex)
             {
                 throw new Exception("Error when checking session badge eligibility.", ex);
+            }
+
+            return result;
+        }
+
+        public async Task<BadgeEligibilityResult> CheckBreakSessionBadgeEligibility(CancellationToken cancellationToken = default)
+        {
+            BadgeEligibilityResult result = new();
+
+            try
+            {
+                result = await _mediator.Send(new CheckSocialBadgeEligibility.Query(), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error when checking social badge eligibility.", ex);
             }
 
             return result;
@@ -107,5 +123,7 @@ namespace FocusApp.Client.Helpers
 
             return result;
         }
+
+        
     }
 }
