@@ -150,7 +150,7 @@ public static class ProjectionHelper
         {
             UserId = userPet.UserId,
             PetId = userPet.PetId,
-            DateAcquired = userPet.DateAcquired.UtcDateTime
+            DateAcquired = userPet.DateAcquired
         };
 
     public static UserDecor ProjectFromBaseUserDecor(BaseUserDecor userDecor) =>
@@ -158,7 +158,7 @@ public static class ProjectionHelper
         {
             UserId = userDecor.UserId,
             DecorId = userDecor.DecorId,
-            DateAcquired = userDecor.DateAcquired.UtcDateTime
+            DateAcquired = userDecor.DateAcquired
         };
 
     public static UserBadge ProjectFromBaseUserBadge(BaseUserBadge userBadge) =>
@@ -166,7 +166,7 @@ public static class ProjectionHelper
         {
             UserId = userBadge.UserId,
             BadgeId = userBadge.BadgeId,
-            DateAcquired = userBadge.DateAcquired.UtcDateTime
+            DateAcquired = userBadge.DateAcquired
         };
 
     public static UserIsland ProjectFromBaseUserIsland(BaseUserIsland userIsland) =>
@@ -174,7 +174,7 @@ public static class ProjectionHelper
         {
             UserId = userIsland.UserId,
             IslandId = userIsland.IslandId,
-            DateAcquired = userIsland.DateAcquired.UtcDateTime
+            DateAcquired = userIsland.DateAcquired
         };
 }
 
