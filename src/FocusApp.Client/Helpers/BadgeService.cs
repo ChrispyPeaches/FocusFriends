@@ -19,6 +19,7 @@ namespace FocusApp.Client.Helpers
         Task<BadgeEligibilityResult> CheckPurchaseBadgeEligibility(ShopItem item, CancellationToken cancellationToken);
         Task<BadgeEligibilityResult> CheckFocusSessionBadgeEligibility(CancellationToken cancellationToken = default);
         Task<BadgeEligibilityResult> CheckSocialBadgeEligibility(CancellationToken cancellationToken = default);
+        Task<BadgeEligibilityResult> CheckBreakSessionBadgeEligibility(CancellationToken cancellationToken = default);
     }
 
     internal class BadgeService : IBadgeService
@@ -98,7 +99,7 @@ namespace FocusApp.Client.Helpers
 
             try
             {
-                result = await _mediator.Send(new CheckSocialBadgeEligibility.Query(), cancellationToken);
+                result = await _mediator.Send(new CheckBreakSessionBadgeEligibility.Query(), cancellationToken);
             }
             catch (Exception ex)
             {

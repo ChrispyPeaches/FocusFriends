@@ -298,10 +298,30 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
             TimeLeft--;
             if (TimeLeft <= 0)
             {
+                if (_state == TimerState.BreakCountdown)
+                    Task.Run(CheckUserSessionBadge);
+
                 TransitionToNextState();
             }
         };
         _timer.Start();
+    }
+
+    private async Task CheckUserSessionBadge()
+    {
+        try
+        {
+            BadgeEligibilityResult result = await _badgeService.CheckBreakSessionBadgeEligibility();
+
+            if (result is { IsEligible: true, EarnedBadge: not null })
+            {
+                _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+        }
     }
 
     /// <summary>
