@@ -13,7 +13,7 @@ namespace FocusCore.Models
         public string PetName { get; set; }
         public byte[] PetsProfilePicture { get; set; }
 
-        // Bool to determine whether to display accept/reject or cancel button
+        // Bool to determine whether to display checkmark
         public bool isSelected { get; set; }
     }
 }
