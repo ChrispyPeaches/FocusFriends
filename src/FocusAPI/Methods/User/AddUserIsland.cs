@@ -21,8 +21,8 @@ public class AddUserIsland
         {
             try
             {
-                FocusAPI.Models.User user = await _apiContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
-                FocusAPI.Models.Island island = await _apiContext.Islands.FirstOrDefaultAsync(s => s.Id == command.IslandId);
+                Models.User user = await _apiContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId);
+                Island island = await _apiContext.Islands.FirstOrDefaultAsync(s => s.Id == command.IslandId);
 
                 user.Islands.Add(new UserIsland
                 {
@@ -36,7 +36,7 @@ public class AddUserIsland
             }
             catch (Exception ex) 
             {
-                _logger.Log(LogLevel.Error, "Error adding UserIsland to database. Exception: " + ex.Message);
+                _logger.LogError(ex, "Error adding UserIsland to database.");
             }
 
             return Unit.Value;

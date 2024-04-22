@@ -18,7 +18,7 @@ namespace FocusCore.Models
     public enum ShopItemType
     {
         Pets,
-        Sounds,
+        Islands,
         Decor
     }
 }
