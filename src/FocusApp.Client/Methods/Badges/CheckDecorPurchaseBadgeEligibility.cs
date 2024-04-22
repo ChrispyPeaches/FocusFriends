@@ -50,7 +50,7 @@ namespace FocusApp.Client.Methods.Badges
                     result.IsEligible = true;
 
                     Badge decorDynastyBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Decor Dynasty", cancellationToken);
-                    user.Badges?.Add(new UserBadge { Badge = decorDynastyBadge });
+                    user.Badges?.Add(new UserBadge { Badge = decorDynastyBadge, DateAcquired = DateTime.UtcNow });
                     result.EarnedBadge = decorDynastyBadge;
                 }
 
