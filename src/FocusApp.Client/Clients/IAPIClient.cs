@@ -109,11 +109,6 @@ public interface IAPIClient
         [Body] SyncItemsQuery query,
         CancellationToken cancellationToken = default);
 
-    [Post("/Sync/Badges")]
-    Task<SyncBadgesResponse> SyncBadges(
-        [Body] SyncBadgesQuery query,
-        CancellationToken cancellationToken);
-
     [Post("/Sync/InitialData")]
     Task<SyncInitialDataResponse> SyncInitialData(
         [Body] SyncInitialDataQuery query,

@@ -159,6 +159,7 @@ internal class UserBadgesPage : BasePage
             {
                 var ownedBadge = new ImageButton
                 {
+                    BindingContext = badge,
                     Source = ImageSource.FromStream(() => new MemoryStream(badge.Image)),
                     Aspect = Aspect.AspectFit,
                     WidthRequest = 150,
@@ -171,6 +172,7 @@ internal class UserBadgesPage : BasePage
             {
                 var unownedBadge = new ImageButton
                 {
+                    BindingContext = badge,
                     Source = ImageSource.FromStream(() => new MemoryStream(badge.Image)),
                     Aspect = Aspect.AspectFit,
                     WidthRequest = 150,

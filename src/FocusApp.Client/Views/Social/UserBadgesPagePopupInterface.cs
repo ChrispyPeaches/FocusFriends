@@ -5,11 +5,8 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
-using FocusCore.Commands.User;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
-
 namespace FocusApp.Client.Views.Social;
 
 internal class UserBadgesPagePopupInterface : BasePopup
@@ -109,27 +106,71 @@ internal class UserBadgesPagePopupInterface : BasePopup
         //badgeDescription.BindingContext = badge;
 
         // Exit Popup Button
-        Button exitButton = new Button
+        Button selectButton = new Button
         {
+            BindingContext = badge,
             WidthRequest = 125,
             HeightRequest = 50,
-            Text = "Close",
-            HorizontalOptions = LayoutOptions.Center
+            Text = "Select",
+            HorizontalOptions = LayoutOptions.End
         }
-        .Margins(top: 50)
-        .Invoke(button => button.Released += (s, e) => ExitItemPopup(s, e));
+        .Margins(right: 35, top: 50)
+        .Invoke(button => button.Released += (s, e) => SelectBadgeButton(s, e));
+
+        if (_authenticationService.CurrentUser?.SelectedBadge == badge)
+        {
+            selectButton.Text = "Selected";
+            selectButton.Opacity = 0.5;
+            selectButton.IsEnabled = false;
+        }
+        else if (_authenticationService.CurrentUser?.SelectedBadge != badge)
+        {
+            selectButton.Text = "Select";
+            selectButton.Opacity = 1;
+            selectButton.IsEnabled = true;
+        }
+
+        //Grid for both buttons
+        Grid popupButtons = new Grid
+        {
+            Children =
+                {
+                    new Button
+                    {
+                        WidthRequest = 125,
+                        HeightRequest = 50,
+                        Text = "Close",
+                        HorizontalOptions = LayoutOptions.Start,
+                    }
+                    .Margins(left: 35, top: 50)
+                    .Invoke(button => button.Pressed += (s,e) => ExitItemPopup(s,e)),
+                    selectButton
+                }
+        };
 
         _popupContentStack.Add(badgeName);
         _popupContentStack.Add(divider);
         _popupContentStack.Add(badgeImage);
         _popupContentStack.Add(badgeDescription);
         _popupContentStack.Add(dateAcquired);
-        _popupContentStack.Add(exitButton);
+        _popupContentStack.Add(popupButtons);
     }
 
     // User doesn't want to purchase the item, hide popup
     private async void ExitItemPopup(object sender, EventArgs e)
     {
         _popupService.HidePopup();
+    }
+
+    private async void SelectBadgeButton(object sender, EventArgs e)
+    {
+        var newBadge = sender as Button;
+        var badge = (Badge)newBadge.BindingContext;
+
+        _authenticationService.CurrentUser.SelectedBadge = badge;
+
+        _popupService.HidePopup();
+
+        Console.WriteLine(_authenticationService.CurrentUser.SelectedBadge);
     }
 }
