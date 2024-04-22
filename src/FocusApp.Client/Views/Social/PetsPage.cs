@@ -59,6 +59,9 @@ internal sealed class PetsPage : BasePage
         // Using grids
         Content = new Grid
         {
+            // Background Color
+            BackgroundColor = AppStyles.Palette.LightPeriwinkle,
+
             // Define rows and columns
             RowDefinitions = Rows.Define(80, 5, Star, 28, 80),
             ColumnDefinitions = Columns.Define(Star, Star),
@@ -187,7 +190,7 @@ internal sealed class PetsPage : BasePage
             // Pet Background
             var background = new Border
             {
-                Stroke = Colors.DarkGray,
+                Stroke = Colors.Black,
                 StrokeThickness = 4,
                 StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
                 BackgroundColor = Colors.Transparent,
