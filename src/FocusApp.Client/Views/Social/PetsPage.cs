@@ -29,6 +29,7 @@ internal sealed class PetsPage : BasePage
 
     FlexLayout _petsContainer;
     Image _selectedCheckmark;
+    Label _responseMessage;
 
     public PetsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator)
 	{
@@ -46,13 +47,19 @@ internal sealed class PetsPage : BasePage
             JustifyContent = FlexJustify.SpaceAround
         };
 
+        _responseMessage = new Label
+        {
+            FontSize = 18,
+            TextColor = Colors.Black
+        };
+
         // Using grids
         Content = new Grid
         {
             // Define the length of the rows & columns
             // Rows: 80 for the top, 20 to act as padding, Stars for even spacing, and 140 for bottom padding
             // Columns: Two even columns should be enough
-            RowDefinitions = Rows.Define(80, 10, Star, 80),
+            RowDefinitions = Rows.Define(80, 5, Star, 25, 80),
             ColumnDefinitions = Columns.Define(Star, Star),
             Children = {
 
@@ -109,7 +116,14 @@ internal sealed class PetsPage : BasePage
                 .Column(0)
                 .ColumnSpan(2)
                 .Top()
-                .Paddings(bottom: 10)
+                .Paddings(bottom: 10),
+
+                // Label for response message
+                _responseMessage
+                .Row(3)
+                .Column(0)
+                .ColumnSpan(2)
+                .Center()
             }
 		};
 	}
@@ -126,6 +140,9 @@ internal sealed class PetsPage : BasePage
             return;
         }
 
+        // Clear message label
+        _responseMessage.Text = "";
+
         // Fetch pets from the local database and display them
         var userPets = await FetchPetsFromLocalDb();
         DisplayPets(userPets);
@@ -134,8 +151,6 @@ internal sealed class PetsPage : BasePage
     private async Task<List<PetItem>> FetchPetsFromLocalDb()
     {
         List<PetItem> userPets = new List<PetItem>();
-
-        //userPets = SeedPetItems();
 
         try
         {
@@ -157,26 +172,6 @@ internal sealed class PetsPage : BasePage
         return userPets;
     }
 
-    private List<PetItem> SeedPetItems()
-    {
-        byte[]? image = _localContext.Pets.Where(p => p.Name == "Kyle").FirstOrDefault().Image;
-        List<PetItem> petItems = new List<PetItem>();
-
-        for (int i = 0; i < 5; i++)
-        {
-            petItems.Add(new PetItem
-            {
-                PetId = Guid.Empty,
-                PetName = "TestPet " + i.ToString(),
-                PetsProfilePicture = image
-            });
-        }
-
-        petItems[0].isSelected = true;
-
-        return petItems;
-    }
-
     private void DisplayPets(List<PetItem> userPets)
     {
         var petsContainer = _petsContainer;
@@ -191,17 +186,17 @@ internal sealed class PetsPage : BasePage
             var background = new BoxView
             {
                 Color = Colors.DarkGray,
-                WidthRequest = 160,
-                HeightRequest = 160,
+                WidthRequest = 170,
+                HeightRequest = 170,
                 CornerRadius = 30
             };
 
             // Pet Foreground
             var foreground = new BoxView
             {
-                Color = Colors.LightGrey,
-                WidthRequest = 140,
-                HeightRequest = 140,
+                Color = Colors.LightGray,
+                WidthRequest = 155,
+                HeightRequest = 155,
                 CornerRadius = 30
             };
 
@@ -220,7 +215,7 @@ internal sealed class PetsPage : BasePage
                 _selectedCheckmark = checkmark;
             }
 
-            // Pet
+            // Pet Image
             var userPet = new ImageButton
             {
                 Source = ImageSource.FromStream(() => new MemoryStream(pet.PetsProfilePicture)),
@@ -231,11 +226,17 @@ internal sealed class PetsPage : BasePage
             }
             .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
 
+            // Pet Name
+            var petName = new Label
+            {
+                Text = pet.PetName,
+                FontSize = 14
+            };
 
             // Create frame with pet inside
             var grid = new Grid
             {
-                RowDefinitions = Rows.Define(160),
+                RowDefinitions = Rows.Define(160,25),
                 ColumnDefinitions = Columns.Define(160),
                 BindingContext = pet.PetId,
                 Children = 
@@ -260,8 +261,13 @@ internal sealed class PetsPage : BasePage
                     .Row(0)
                     .ZIndex(3)
                     .Top()
-                    .Right()
-                }
+                    .Right(),
+
+                    petName
+                    .Column(0)
+                    .Row(1)
+                    .Center()
+        }
             }
             .Paddings(top: 5, bottom: 5);
 
@@ -277,6 +283,13 @@ internal sealed class PetsPage : BasePage
         var grid = itemButton.Parent as Grid;
         var petId = (Guid)grid.BindingContext;
 
+        // Check if pet already selected
+        if (_authenticationService.SelectedPet.Id == petId)
+        {
+            _responseMessage.Text = "Already selected";
+            return;
+        }
+
         // Get checkmark from image button bind
         var checkmark = (Image)itemButton.BindingContext;
 
@@ -289,11 +302,20 @@ internal sealed class PetsPage : BasePage
         // Call method to update the user data when the user fields have changed
         MediatrResult result = await _mediator.Send(command, default);
 
+        // On success, hide previous checkmark and show new one
         if (result.Success)
         {
             _selectedCheckmark.Opacity = 0.0;
             _selectedCheckmark = checkmark;
             _selectedCheckmark.Opacity = 1.0;
+
+            // Display change message
+            _responseMessage.Text = "Selected pet changed to " + _authenticationService.SelectedPet.Name;
+        }
+        else
+        {
+            // Display error message
+            _responseMessage.Text = "Server error";
         }
     }
 
