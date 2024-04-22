@@ -198,15 +198,6 @@ internal sealed class PetsPage : BasePage
                 HeightRequest = 170
             };
 
-            // Pet Foreground
-            var foreground = new BoxView
-            {
-                Color = Colors.White,
-                WidthRequest = 155,
-                HeightRequest = 155,
-                CornerRadius = 30
-            };
-
             // Checkmark for selected pet
             var checkmark = new Image
             {
@@ -253,11 +244,6 @@ internal sealed class PetsPage : BasePage
                     .Column(0)
                     .Row(0)
                     .ZIndex(0),
-
-                    /*foreground
-                    .Column(0)
-                    .Row(0)
-                    .ZIndex(1),*/
 
                     userPet
                     .Column(0)
