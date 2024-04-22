@@ -49,7 +49,7 @@ namespace FocusApp.Client.Methods.Badges
                 else if (user.Pets?.Count == await _localContext.Pets.CountAsync(cancellationToken))
                 {
                     Badge petParadiseBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Pet Paradise", cancellationToken);
-                    user.Badges?.Add(new UserBadge { Badge = petParadiseBadge });
+                    user.Badges?.Add(new UserBadge { Badge = petParadiseBadge, DateAcquired = DateTime.UtcNow });
 
                     result.IsEligible = true;
                     result.EarnedBadge = petParadiseBadge;

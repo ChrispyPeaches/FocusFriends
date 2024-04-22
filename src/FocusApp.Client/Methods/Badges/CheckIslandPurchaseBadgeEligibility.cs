@@ -51,7 +51,7 @@ namespace FocusApp.Client.Methods.Badges
                     result.IsEligible = true;
 
                     Badge globalIconBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Global Icon", cancellationToken);
-                    user.Badges?.Add(new UserBadge { Badge = globalIconBadge });
+                    user.Badges?.Add(new UserBadge { Badge = globalIconBadge, DateAcquired = DateTime.UtcNow });
                     result.EarnedBadge = globalIconBadge;
                 }
 
