@@ -28,6 +28,7 @@ internal sealed class PetsPage : BasePage
     private readonly IMediator _mediator;
 
     FlexLayout _petsContainer;
+    Image _selectedCheckmark;
 
     public PetsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator)
 	{
@@ -51,7 +52,7 @@ internal sealed class PetsPage : BasePage
             // Define the length of the rows & columns
             // Rows: 80 for the top, 20 to act as padding, Stars for even spacing, and 140 for bottom padding
             // Columns: Two even columns should be enough
-            RowDefinitions = Rows.Define(80, Star),
+            RowDefinitions = Rows.Define(80, 10, Star, 80),
             ColumnDefinitions = Columns.Define(Star, Star),
             Children = {
 
@@ -102,13 +103,13 @@ internal sealed class PetsPage : BasePage
 				// FlexLayout - Container for Pets
                 new ScrollView
                 {
-                    Content = _petsContainer,
-                    MaximumHeightRequest = 400
+                    Content = _petsContainer
                 }
-                .Row(1)
+                .Row(2)
                 .Column(0)
                 .ColumnSpan(2)
-                .Center()
+                .Top()
+                .Paddings(bottom: 10)
             }
 		};
 	}
@@ -171,6 +172,8 @@ internal sealed class PetsPage : BasePage
             });
         }
 
+        petItems[0].isSelected = true;
+
         return petItems;
     }
 
@@ -178,26 +181,104 @@ internal sealed class PetsPage : BasePage
     {
         var petsContainer = _petsContainer;
 
+        // Clear container
+        _petsContainer.Children.Clear();
+
         // Add pets to FlexLayout
         foreach (var pet in userPets)
         {
+            // Pet Background
+            var background = new BoxView
+            {
+                Color = Colors.DarkGray,
+                WidthRequest = 160,
+                HeightRequest = 160,
+                CornerRadius = 30
+            };
+
+            // Pet Foreground
+            var foreground = new BoxView
+            {
+                Color = Colors.LightGrey,
+                WidthRequest = 140,
+                HeightRequest = 140,
+                CornerRadius = 30
+            };
+
+            // Checkmark for selected pet
+            var checkmark = new Image
+            {
+                Source = "pet_selected.png",
+                WidthRequest = 60,
+                HeightRequest = 60,
+                Opacity = pet.isSelected ? 1.0 : 0.0
+            };
+
+            // Assign currently selected checkmark
+            if (pet.isSelected)
+            {
+                _selectedCheckmark = checkmark;
+            }
+
+            // Pet
             var userPet = new ImageButton
             {
                 Source = ImageSource.FromStream(() => new MemoryStream(pet.PetsProfilePicture)),
                 Aspect = Aspect.AspectFit,
                 WidthRequest = 150,
                 HeightRequest = 150,
-                BindingContext = pet.PetId
+                BindingContext = checkmark
             }
             .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
-            petsContainer.Children.Add(userPet);
+
+
+            // Create frame with pet inside
+            var grid = new Grid
+            {
+                RowDefinitions = Rows.Define(160),
+                ColumnDefinitions = Columns.Define(160),
+                BindingContext = pet.PetId,
+                Children = 
+                {
+                    background
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(0),
+
+                    foreground
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(1),
+
+                    userPet
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(2),
+
+                    checkmark
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(3)
+                    .Top()
+                    .Right()
+                }
+            }
+            .Paddings(top: 5, bottom: 5);
+
+            petsContainer.Children.Add(grid);
         }
     }
 
     private async void OnImageButtonClicked(object sender, EventArgs eventArgs)
     {
         var itemButton = sender as ImageButton;
-        var petId = (Guid)itemButton.BindingContext;
+
+        // Get PetId from grid binding context
+        var grid = itemButton.Parent as Grid;
+        var petId = (Guid)grid.BindingContext;
+
+        // Get checkmark from image button bind
+        var checkmark = (Image)itemButton.BindingContext;
 
         EditUserSelectedPetCommand command = new EditUserSelectedPetCommand
         {
@@ -208,7 +289,12 @@ internal sealed class PetsPage : BasePage
         // Call method to update the user data when the user fields have changed
         MediatrResult result = await _mediator.Send(command, default);
 
-
+        if (result.Success)
+        {
+            _selectedCheckmark.Opacity = 0.0;
+            _selectedCheckmark = checkmark;
+            _selectedCheckmark.Opacity = 1.0;
+        }
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
