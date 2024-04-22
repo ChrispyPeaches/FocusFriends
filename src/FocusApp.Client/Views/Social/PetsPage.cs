@@ -16,6 +16,8 @@ using MediatR;
 using FocusCore.Commands.User;
 using FocusCore.Responses;
 using FocusApp.Methods.User;
+using FocusApp.Client.Resources;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -47,6 +49,7 @@ internal sealed class PetsPage : BasePage
             JustifyContent = FlexJustify.SpaceAround
         };
 
+        // Create label for displaying system responses
         _responseMessage = new Label
         {
             FontSize = 18,
@@ -56,11 +59,10 @@ internal sealed class PetsPage : BasePage
         // Using grids
         Content = new Grid
         {
-            // Define the length of the rows & columns
-            // Rows: 80 for the top, 20 to act as padding, Stars for even spacing, and 140 for bottom padding
-            // Columns: Two even columns should be enough
-            RowDefinitions = Rows.Define(80, 5, Star, 25, 80),
+            // Define rows and columns
+            RowDefinitions = Rows.Define(80, 5, Star, 28, 80),
             ColumnDefinitions = Columns.Define(Star, Star),
+
             Children = {
 
 				// Header
@@ -183,18 +185,20 @@ internal sealed class PetsPage : BasePage
         foreach (var pet in userPets)
         {
             // Pet Background
-            var background = new BoxView
+            var background = new Border
             {
-                Color = Colors.DarkGray,
+                Stroke = Colors.DarkGray,
+                StrokeThickness = 4,
+                StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
+                BackgroundColor = Colors.Transparent,
                 WidthRequest = 170,
-                HeightRequest = 170,
-                CornerRadius = 30
+                HeightRequest = 170
             };
 
             // Pet Foreground
             var foreground = new BoxView
             {
-                Color = Colors.LightGray,
+                Color = Colors.White,
                 WidthRequest = 155,
                 HeightRequest = 155,
                 CornerRadius = 30
@@ -220,8 +224,8 @@ internal sealed class PetsPage : BasePage
             {
                 Source = ImageSource.FromStream(() => new MemoryStream(pet.PetsProfilePicture)),
                 Aspect = Aspect.AspectFit,
-                WidthRequest = 150,
-                HeightRequest = 150,
+                WidthRequest = 130,
+                HeightRequest = 130,
                 BindingContext = checkmark
             }
             .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
@@ -230,6 +234,7 @@ internal sealed class PetsPage : BasePage
             var petName = new Label
             {
                 Text = pet.PetName,
+                TextColor = Colors.Black,
                 FontSize = 14
             };
 
@@ -246,10 +251,10 @@ internal sealed class PetsPage : BasePage
                     .Row(0)
                     .ZIndex(0),
 
-                    foreground
+                    /*foreground
                     .Column(0)
                     .Row(0)
-                    .ZIndex(1),
+                    .ZIndex(1),*/
 
                     userPet
                     .Column(0)
