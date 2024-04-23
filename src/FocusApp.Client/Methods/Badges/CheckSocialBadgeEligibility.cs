@@ -66,7 +66,6 @@ namespace FocusApp.Client.Methods.Badges
                     }
                 }
 
-                var a = await _localContext.UserBadges.ToListAsync(cancellationToken);
                 return result;
             }
 

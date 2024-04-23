@@ -39,6 +39,8 @@ namespace FocusApp.Client.Views.Social
             _client = client;
             _popupService = popupService;
             _authenticationService = authenticationService;
+            _badgeService = badgeService;
+            _logger = logger;
 
             Closed += AddFriendPopupInterface_Closed;
 
