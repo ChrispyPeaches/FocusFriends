@@ -27,20 +27,8 @@ internal class SocialPage : BasePage
     IAuthenticationService _authenticationService;
     private IAPIClient _client;
     private IBadgeService _badgeService;
-
-    public ListView _friendsListView;
-
-    public SocialPage(
-        IAPIClient client,
-        Helpers.PopupService popupService,
-        IAuthenticationService authenticationService,
-        ILogger<SocialPage> logger,
-        IBadgeService badgeService)
-
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IMediator _mediator;
+    IMediator _mediator;
     private readonly ListView _friendsListView;
-    private readonly IAPIClient _client;
     private readonly AvatarView _profilePictureNavMenuButton;
 
 	public SocialPage(
@@ -48,7 +36,8 @@ internal class SocialPage : BasePage
         Helpers.PopupService popupService,
         IAuthenticationService authenticationService,
         IMediator mediator,
-        ILogger<SocialPage> logger
+        ILogger<SocialPage> logger,
+        IBadgeService badgeService
         )
 	{
         _popupService = popupService;
