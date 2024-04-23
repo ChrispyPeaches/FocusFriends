@@ -13,20 +13,20 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 namespace FocusApp.Client.Views.Social;
 
-internal class UserBadgesPagePopupInterface : BasePopup
+internal class BadgesPagePopupInterface : BasePopup
 {
     PopupService _popupService;
     StackLayout _popupContentStack;
     IAuthenticationService _authenticationService;
     IFocusAppContext _localContext;
     IAPIClient _client;
-    ILogger<UserBadgesPagePopupInterface> _logger;
+    ILogger<BadgesPagePopupInterface> _logger;
     DateTimeOffset badgeDateAcquired;
     private readonly IMediator _mediator;
     Badge _currentBadge { get; set; }
-    public UserBadgesPage UserBadgesPage { get; set; }
+    public BadgesPage UserBadgesPage { get; set; }
 
-    public UserBadgesPagePopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<UserBadgesPagePopupInterface> logger, IMediator mediator)
+    public BadgesPagePopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<BadgesPagePopupInterface> logger, IMediator mediator)
     {
         _popupService = popupService;
         _authenticationService = authenticationService;

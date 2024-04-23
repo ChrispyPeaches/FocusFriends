@@ -109,9 +109,9 @@ public class AppShell : SimpleShell
 
                 new ShellContent()
                 {
-                    Title = "UserBadgesPage",
-                    ContentTemplate = new DataTemplate (typeof(UserBadgesPage)),
-                    Route = "UserBadgesPage"
+                    Title = "BadgesPage",
+                    ContentTemplate = new DataTemplate (typeof(BadgesPage)),
+                    Route = "BadgesPage"
                 }
             }
         };

@@ -15,7 +15,7 @@ using System.Collections.Generic;
 
 namespace FocusApp.Client.Views.Social;
 
-internal class UserBadgesPage : BasePage
+internal class BadgesPage : BasePage
 {
     private readonly IAPIClient _client;
     private readonly IAuthenticationService _authenticationService;
@@ -29,7 +29,7 @@ internal class UserBadgesPage : BasePage
     public FlexLayout _flexLayout;
     public Dictionary<Badge, Image> BadgeDict { get; set; }
 
-    public UserBadgesPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
+    public BadgesPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
     {
         _client = client;
         _authenticationService = authenticationService;
@@ -221,7 +221,7 @@ internal class UserBadgesPage : BasePage
         var itemButton = sender as ImageButton;
         var badge = (Badge)itemButton.BindingContext;
 
-        var itemPopup = (UserBadgesPagePopupInterface)_popupService.ShowAndGetPopup<UserBadgesPagePopupInterface>();
+        var itemPopup = (BadgesPagePopupInterface)_popupService.ShowAndGetPopup<BadgesPagePopupInterface>();
         itemPopup.UserBadgesPage = this;
         itemPopup.PopulatePopup(badge);
     }
