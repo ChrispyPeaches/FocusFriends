@@ -61,7 +61,12 @@ public interface IAPIClient
     Task EditUserProfile(
         EditUserProfileCommand command,
         CancellationToken cancellationToken = default);
-     
+
+    [Put("/User/EditUserSelectedPet")]
+    Task EditUserSelectedPet(
+        EditUserSelectedPetCommand command,
+        CancellationToken cancellationToken = default);
+
     #endregion
 
     #region Social
