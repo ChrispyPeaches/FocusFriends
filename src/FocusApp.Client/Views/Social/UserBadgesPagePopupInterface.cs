@@ -88,9 +88,7 @@ internal class UserBadgesPagePopupInterface : BasePopup
         // Badge Description
         Label badgeDescription = new Label
         {
-            BindingContext = badge,
-            Text = "This is a brief description on how the badge is unlocked",
-            FontSize = 10,
+            FontSize = 15,
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center
         };
@@ -125,7 +123,7 @@ internal class UserBadgesPagePopupInterface : BasePopup
 
             if (_authenticationService.SelectedBadge == badge)
             {
-                dateAcquired.Text = badgeDateAcquired.ToString("d");
+                dateAcquired.Text = $"Date Unlocked: {badgeDateAcquired.ToString("d")}";
 
                 selectButton.Text = "Selected";
                 selectButton.Opacity = 0.5;
@@ -133,7 +131,7 @@ internal class UserBadgesPagePopupInterface : BasePopup
             }
             else if (_authenticationService.SelectedBadge != badge)
             {
-                dateAcquired.Text = badgeDateAcquired.ToString("d");
+                dateAcquired.Text = $"Date Unlocked: {badgeDateAcquired.ToString("d")}";
 
                 selectButton.Text = "Select";
                 selectButton.Opacity = 1;
@@ -194,6 +192,7 @@ internal class UserBadgesPagePopupInterface : BasePopup
         UserBadgesPage._selectedCheckmark = UserBadgesPage.BadgeDict[badge];
         UserBadgesPage._selectedCheckmark.Opacity = 1;
         
+        await _localContext.SaveChangesAsync();
 
         _popupService.HidePopup();
     }
