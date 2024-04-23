@@ -359,6 +359,8 @@ internal class ProfilePage : BasePage
     // Refresh bindings on page load in case of profile edit / navigation to settings page
     protected override async void OnAppearing()
     {
+        await AppShell.Current.SetTabBarIsVisible(false);
+
         ByteArrayToImageSourceConverter byteArrayConverter = new ByteArrayToImageSourceConverter();
 
         // Set user details bindings
@@ -377,6 +379,7 @@ internal class ProfilePage : BasePage
         if (_authenticationService.SelectedBadge != null)
             _selectedBadge.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedBadge?.Image);
     }
+
 
     private void CreateUserDataElements()
     {

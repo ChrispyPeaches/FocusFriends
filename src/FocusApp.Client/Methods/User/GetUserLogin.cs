@@ -84,7 +84,7 @@ namespace FocusApp.Client.Methods.User
                                     break;
                                 case HttpStatusCode.InternalServerError:
                                 default:
-                                    throw new Exception("Error fetching user from server.");
+                                    throw new Exception("Error fetching user from server.", response.Error);
                             }
 
                             return new Result
@@ -245,7 +245,14 @@ namespace FocusApp.Client.Methods.User
                     try
                     {
                         // Sync local user data with server user data
-                        await _mediator.Send(new SyncUserData.Query { ServerUser = user }, default);
+                        await _mediator.Send(new SyncUserData.Query
+                        {
+                            ServerUser = user,
+                            UserIslandIds = getUserResponse.UserIslandIds,
+                            UserPetIds = getUserResponse.UserPetIds,
+                            UserDecorIds = getUserResponse.UserDecorIds,
+                            UserBadgeIds = getUserResponse.UserBadgeIds
+                        }, cancellationToken);
                     }
                     catch (Exception ex)
                     {

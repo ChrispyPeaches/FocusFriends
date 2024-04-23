@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusAPI.Migrations
 {
     [DbContext(typeof(FocusAPIContext))]
-    partial class FocusContextModelSnapshot : ModelSnapshot
+    partial class FocusAPIContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
