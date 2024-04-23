@@ -261,7 +261,7 @@ internal sealed class DecorPage : BasePage
                     .Column(0)
                     .Row(1)
                     .Center()
-        }
+                }
             }
             .Paddings(top: 5, bottom: 5);
 
