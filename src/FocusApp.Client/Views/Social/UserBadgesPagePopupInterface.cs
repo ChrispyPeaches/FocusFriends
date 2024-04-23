@@ -5,6 +5,9 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
+using FocusCore.Commands.User;
+using FocusCore.Responses;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
@@ -19,16 +22,18 @@ internal class UserBadgesPagePopupInterface : BasePopup
     IAPIClient _client;
     ILogger<UserBadgesPagePopupInterface> _logger;
     DateTimeOffset badgeDateAcquired;
+    private readonly IMediator _mediator;
     Badge _currentBadge { get; set; }
     public UserBadgesPage UserBadgesPage { get; set; }
 
-    public UserBadgesPagePopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<UserBadgesPagePopupInterface> logger)
+    public UserBadgesPagePopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, IAPIClient client, ILogger<UserBadgesPagePopupInterface> logger, IMediator mediator)
     {
         _popupService = popupService;
         _authenticationService = authenticationService;
         _localContext = localContext;
         _client = client;
         _logger = logger;
+        _mediator = mediator;
 
         // Set popup location
         HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -187,12 +192,18 @@ internal class UserBadgesPagePopupInterface : BasePopup
         if (checkmark != null)
             UserBadgesPage._selectedCheckmark.Opacity = 0;
 
-        _authenticationService.SelectedBadge = badge;
-
         UserBadgesPage._selectedCheckmark = UserBadgesPage.BadgeDict[badge];
         UserBadgesPage._selectedCheckmark.Opacity = 1;
-        
-        await _localContext.SaveChangesAsync();
+
+        EditUserSelectedBadgeCommand command = new EditUserSelectedBadgeCommand
+        {
+            UserId = _authenticationService.CurrentUser?.Id,
+            BadgeId = badge.Id
+        };
+
+        MediatrResult result = await _mediator.Send(command, default);
+
+        _authenticationService.SelectedBadge = badge;
 
         _popupService.HidePopup();
     }
