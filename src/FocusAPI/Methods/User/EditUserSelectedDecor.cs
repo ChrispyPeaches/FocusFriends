@@ -39,11 +39,21 @@ public class EditUserSelectedDecor
 
             try
             {
-                Decor decor = await _context.Decor.Where(d => command.DecorId == d.Id).FirstOrDefaultAsync(cancellationToken);
+                // Check if DecorId is null
+                if (command.DecorId != null)
+                {
+                    Decor decor = await _context.Decor.Where(d => command.DecorId == d.Id).FirstOrDefaultAsync(cancellationToken);
 
-                // Update the user's selected decor
-                user.SelectedDecor = decor;
-                user.SelectedDecorId = decor.Id;
+                    // Update the user's selected decor
+                    user.SelectedDecor = decor;
+                    user.SelectedDecorId = decor.Id;
+                }
+                else
+                {
+                    // Update the user's selected decor to null
+                    user.SelectedDecor = null;
+                    user.SelectedDecorId = null;
+                }
 
                 await _context.SaveChangesAsync();
 

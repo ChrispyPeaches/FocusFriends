@@ -41,15 +41,27 @@ public class EditUserSelectedDecor
                 // Update the local database to reflect the changes made to the user
                 Shared.Models.User? user = await _localContext.Users.FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
 
-                // Fetch decor from local db
-                Decor? decor = await _localContext.Decor.Where(d => command.DecorId == d.Id).FirstOrDefaultAsync(cancellationToken);
+                // Fetch decor from local db if not null
+                if (command.DecorId != null)
+                {
+                    Decor? decor = await _localContext.Decor.Where(d => command.DecorId == d.Id).FirstOrDefaultAsync(cancellationToken);
 
-                // Update the user's selected decor
-                user.SelectedDecor = decor;
-                user.SelectedDecorId = decor.Id;
+                    // Update the user's selected decor
+                    user.SelectedDecor = decor;
+                    user.SelectedDecorId = decor.Id;
 
-                // Update the authentication service to reflect the new selected decor
-                _authenticationService.SelectedDecor = decor;
+                    // Update the authentication service to reflect the new selected decor
+                    _authenticationService.SelectedDecor = decor;
+                }
+                else
+                {
+                    // Update the user's selected decor to null
+                    user.SelectedDecor = null;
+                    user.SelectedDecorId = null;
+
+                    // Update the authentication service to reflect the null decor
+                    _authenticationService.SelectedDecor = null;
+                }
 
                 await _localContext.SaveChangesAsync(cancellationToken);
             }

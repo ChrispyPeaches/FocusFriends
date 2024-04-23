@@ -179,10 +179,12 @@ internal sealed class DecorPage : BasePage
 
     private void DisplayDecor(List<DecorItem> userDecorItems)
     {
-        var decorContainer = _decorContainer;
-
         // Clear container
         _decorContainer.Children.Clear();
+
+        // Add none item
+        var noneItem = CreateNoneItem();
+        _decorContainer.Children.Add(noneItem);
 
         // Add decor to FlexLayout
         foreach (var decor in userDecorItems)
@@ -265,20 +267,106 @@ internal sealed class DecorPage : BasePage
             }
             .Paddings(top: 5, bottom: 5);
 
-            decorContainer.Children.Add(grid);
+            _decorContainer.Children.Add(grid);
         }
     }
 
-    private async void OnImageButtonClicked(object sender, EventArgs eventArgs)
+    private Grid CreateNoneItem()
     {
-        var itemButton = sender as ImageButton;
+        // Decor Background
+        var background = new Border
+        {
+            Stroke = Colors.Black,
+            StrokeThickness = 4,
+            StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
+            BackgroundColor = Colors.Transparent,
+            WidthRequest = 170,
+            HeightRequest = 170
+        };
+
+        // Checkmark for no decor selected
+        var checkmark = new Image
+        {
+            Source = "pet_selected.png",
+            WidthRequest = 60,
+            HeightRequest = 60,
+            Opacity = _authenticationService.SelectedDecor == null ? 1.0 : 0.0
+        };
+
+        // Assign currently selected checkmark
+        if (_authenticationService.SelectedDecor == null)
+        {
+            _selectedCheckmark = checkmark;
+        }
+
+        // Button
+        var userDecor = new Button
+        {
+            WidthRequest = 130,
+            HeightRequest = 130,
+            BackgroundColor = Colors.Transparent,
+            BindingContext = checkmark,
+            FontFamily = nameof(SolidIcons),
+            TextColor = Colors.Black,
+            Text = SolidIcons.Xmark,
+            FontSize = 30
+        }
+        .Invoke(button => button.Released += (s, e) => OnButtonClicked(s, e));
+
+        // None label
+        var decorName = new Label
+        {
+            Text = "None",
+            TextColor = Colors.Black,
+            FontSize = 14
+        };
+
+        // Create frame with none item inside
+        var grid = new Grid
+        {
+            RowDefinitions = Rows.Define(160, 25),
+            ColumnDefinitions = Columns.Define(160),
+            BindingContext = null,
+            Children =
+                {
+                    background
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(0),
+
+                    userDecor
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(2),
+
+                    checkmark
+                    .Column(0)
+                    .Row(0)
+                    .ZIndex(3)
+                    .Top()
+                    .Right(),
+
+                    decorName
+                    .Column(0)
+                    .Row(1)
+                    .Center()
+                }
+        }
+        .Paddings(top: 5, bottom: 5);
+
+        return grid;
+    }
+
+    private void OnButtonClicked(object sender, EventArgs eventArgs)
+    {
+        var itemButton = sender as Button;
 
         // Get DecorId from grid binding context
         var grid = itemButton.Parent as Grid;
-        var decorId = (Guid)grid.BindingContext;
+        var decorId = (Guid?)grid.BindingContext;
 
-        // Check if decor is already selected
-        if ((_authenticationService.SelectedDecor != null) && (_authenticationService.SelectedDecor.Id == decorId))
+        // Check if null decor is already selected
+        if (_authenticationService.SelectedDecor == null && decorId == null)
         {
             _responseMessage.Text = "Already selected";
             return;
@@ -287,6 +375,32 @@ internal sealed class DecorPage : BasePage
         // Get checkmark from image button bind
         var checkmark = (Image)itemButton.BindingContext;
 
+        SendSelectCommand(decorId, checkmark);
+    }
+
+    private void OnImageButtonClicked(object sender, EventArgs eventArgs)
+    {
+        var itemButton = sender as ImageButton;
+
+        // Get DecorId from grid binding context
+        var grid = itemButton.Parent as Grid;
+        var decorId = (Guid?)grid.BindingContext;
+
+        // Check if decor is already selected
+        if (_authenticationService.SelectedDecor != null && decorId != null && _authenticationService.SelectedDecor.Id == decorId.Value)
+        {
+            _responseMessage.Text = "Already selected";
+            return;
+        }
+
+        // Get checkmark from image button bind
+        var checkmark = (Image)itemButton.BindingContext;
+
+        SendSelectCommand(decorId, checkmark);
+    }
+
+    private async void SendSelectCommand(Guid? decorId, Image checkmark)
+    {
         EditUserSelectedDecorCommand command = new EditUserSelectedDecorCommand
         {
             UserId = _authenticationService.CurrentUser?.Id,
@@ -304,7 +418,14 @@ internal sealed class DecorPage : BasePage
             _selectedCheckmark.Opacity = 1.0;
 
             // Display change message
-            _responseMessage.Text = "Selected decor changed to " + _authenticationService.SelectedDecor.Name;
+            if (_authenticationService.SelectedDecor != null)
+            {
+                _responseMessage.Text = "Selected decor changed to " + _authenticationService.SelectedDecor.Name;
+            }
+            else
+            {
+                _responseMessage.Text = "Selected decor changed to none";
+            }
         }
         else
         {
