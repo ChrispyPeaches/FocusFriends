@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FocusApp.Shared.Data;
+﻿using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,14 +8,18 @@ public class SyncUserData
 {
     public class Query : IRequest<Unit> 
     {
-        public Shared.Models.User ServerUser { get; set; }
+        public Shared.Models.User? ServerUser { get; set; }
+        public List<Guid>? UserIslandIds { get; set; }
+        public List<Guid>? UserPetIds { get; set; }
+        public List<Guid>? UserDecorIds { get; set; }
+        public List<Guid>? UserBadgeIds { get; set; }
     }
 
     public class Handler : IRequestHandler<Query, Unit>
     {
         FocusAppContext _localContext;
-        Shared.Models.User _serverUser;
-        Shared.Models.User _localUser;
+        Shared.Models.User? _serverUser;
+        Shared.Models.User? _localUser;
         public Handler(FocusAppContext localContext) 
         {
             _localContext = localContext;
@@ -38,20 +37,20 @@ public class SyncUserData
                 .Include(u => u.Islands)
                 .FirstOrDefaultAsync(u => u.Id == _serverUser.Id, cancellationToken);
 
-            await SyncUserPets(cancellationToken);
-            await SyncUserIslands(cancellationToken);
-            await SyncUserDecor(cancellationToken);
-            await SyncUserBadges(cancellationToken);
+            await SyncUserPets(query, cancellationToken);
+            await SyncUserIslands(query, cancellationToken);
+            await SyncUserDecor(query, cancellationToken);
+            await SyncUserBadges(query, cancellationToken);
 
             await _localContext.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }
 
-        async Task SyncUserPets(CancellationToken cancellationToken)
+        async Task SyncUserPets(Query query, CancellationToken cancellationToken)
         {
-            List<Guid>? serverPetIds = _serverUser.Pets?.Select(up => up.PetId).ToList();
-            List<Guid>? localPetIds = _localUser.Pets?.Select(up => up.PetId).ToList();
+            List<Guid>? serverPetIds = query.UserPetIds;
+            List<Guid>? localPetIds = _localUser?.Pets?.Select(up => up.PetId).ToList();
             List<Guid>? outOfSyncPetIds = serverPetIds?.Except(localPetIds).ToList();
 
             if (outOfSyncPetIds != null && outOfSyncPetIds?.Count != 0)
@@ -63,9 +62,9 @@ public class SyncUserData
             }
         }
 
-        async Task SyncUserIslands(CancellationToken cancellationToken)
+        async Task SyncUserIslands(Query query, CancellationToken cancellationToken)
         {
-            List<Guid>? serverIslandIds = _serverUser.Islands?.Select(ui => ui.IslandId).ToList();
+            List<Guid>? serverIslandIds = query.UserIslandIds;
             List<Guid>? localIslandIds = _localUser.Islands?.Select(ui => ui.IslandId).ToList();
             List<Guid>? outOfSyncIslandIds = serverIslandIds?.Except(localIslandIds).ToList();
 
@@ -78,9 +77,9 @@ public class SyncUserData
             }
         }
 
-        async Task SyncUserDecor(CancellationToken cancellationToken)
+        async Task SyncUserDecor(Query query, CancellationToken cancellationToken)
         {
-            List<Guid>? serverDecorIds = _serverUser.Decor?.Select(ud => ud.DecorId).ToList();
+            List<Guid>? serverDecorIds = query.UserDecorIds;
             List<Guid>? localDecorIds = _localUser.Decor?.Select(ud => ud.DecorId).ToList();
             List<Guid>? outOfSyncDecorIds = serverDecorIds?.Except(localDecorIds).ToList();
 
@@ -93,9 +92,9 @@ public class SyncUserData
             }
         }
 
-        async Task SyncUserBadges(CancellationToken cancellationToken)
+        async Task SyncUserBadges(Query query, CancellationToken cancellationToken)
         {
-            List<Guid>? serverBadgeIds = _serverUser.Badges?.Select(ub => ub.BadgeId).ToList();
+            List<Guid>? serverBadgeIds = query.UserBadgeIds;
             List<Guid>? localBadgeIds = _localUser.Badges?.Select(ub => ub.BadgeId).ToList();
             List<Guid>? outOfSyncBadgeIds = serverBadgeIds?.Except(localBadgeIds).ToList();
 

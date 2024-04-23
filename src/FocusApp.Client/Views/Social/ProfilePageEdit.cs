@@ -219,7 +219,7 @@ internal class ProfilePageEdit : BasePage
                 {
                     Source = new FileImageSource
                     {
-                        File = "logo.png"
+                        File = "logo_with_border.png"
                     },
                     HeightRequest = 75,
                     WidthRequest = 75,
@@ -271,9 +271,10 @@ internal class ProfilePageEdit : BasePage
 
     protected override async void OnAppearing()
     {
+        await AppShell.Current.SetTabBarIsVisible(false);
+
         // Refresh profile picture on page load in case it was wiped via navigating to settings
         _profilePicture.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
-        base.OnAppearing();
     }
 
     #endregion

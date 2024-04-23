@@ -5,8 +5,6 @@ internal static class PreferencesHelper
     /// <summary> A collection of default values for the preferences stored and used by the FocusApp </summary>
     private static readonly Dictionary<string, dynamic?> DefaultValues = new()
     {
-        { nameof(PreferenceNames.ambiance_volume), 50.00 },
-        { nameof(PreferenceNames.notifications_enabled), false },
         { nameof(PreferenceNames.startup_tips_enabled), true },
         { nameof(PreferenceNames.session_rating_enabled), true },
         { nameof(PreferenceNames.last_sync_time), null as DateTimeOffset? }
@@ -15,8 +13,6 @@ internal static class PreferencesHelper
     /// <summary> A collection of the names for preferences stored and used by the FocusApp. </summary>
     public enum PreferenceNames
     {
-        ambiance_volume,
-        notifications_enabled,
         startup_tips_enabled,
         session_rating_enabled,
         last_sync_time

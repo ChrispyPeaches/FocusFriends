@@ -98,6 +98,7 @@ namespace FocusApp.Client
             // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
             services.AddSingleton<Helpers.PopupService>();
+            services.AddScoped<ISyncService, SyncService>();
 
             // Singleton User Data
             services.AddSingleton<IAuthenticationService, AuthenticationService>();

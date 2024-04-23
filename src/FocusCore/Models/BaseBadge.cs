@@ -9,7 +9,7 @@ public class BaseBadge  : ISyncEntity
     [Key]
     public Guid Id { get; set; }
 
-    public required string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
     public required byte[] Image { get; set; } = null!;
 }

@@ -10,53 +10,52 @@ using Microsoft.Maui.Controls.Shapes;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace FocusApp.Client.Views.Mindfulness
+namespace FocusApp.Client.Views.Mindfulness;
+
+internal class MindfulnessTipPopupInterface : BasePopup, INotifyPropertyChanged
 {
+    private Helpers.PopupService _popupService;
+    Grid _popupContent;
+    private readonly IMediator _mediator;
 
-    internal class MindfulnessTipPopupInterface : BasePopup, INotifyPropertyChanged
+    private HtmlWebViewSource _tipHtmlSource;
+    public HtmlWebViewSource TipHtmlSource
     {
-        private Helpers.PopupService _popupService;
-        Grid _popupContent;
-        private readonly IMediator _mediator;
+        get => _tipHtmlSource;
+        private set => SetProperty(ref _tipHtmlSource, value);
+    }
 
-        private HtmlWebViewSource _tipHtmlSource;
-        public HtmlWebViewSource TipHtmlSource
-        {
-            get => _tipHtmlSource;
-            private set => SetProperty(ref _tipHtmlSource, value);
-        }
+    /// <summary>
+    /// Determines whether to show the loading spinner or not.
+    /// </summary>
+    private bool isBusy;
+    public bool IsBusy
+    {
+        get => isBusy;
+        private set => SetProperty(ref isBusy, value);
+    }
 
-        /// <summary>
-        /// Determines whether to show the loading spinner or not.
-        /// </summary>
-        private bool isBusy;
-        public bool IsBusy
-        {
-            get => isBusy;
-            private set => SetProperty(ref isBusy, value);
-        }
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+    enum Row { TopBar, TipDisplay}
 
-        enum Row { TopBar, TipDisplay}
+    public MindfulnessTipPopupInterface(Helpers.PopupService popupService, IMediator mediator)
+    {
+        _popupService = popupService;
+        _mediator = mediator;
 
-        public MindfulnessTipPopupInterface(Helpers.PopupService popupService, IMediator mediator)
-        {
-            _popupService = popupService;
-            _mediator = mediator;
+        // Set popup location
+        HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
+        VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
 
-            // Set popup location
-            HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
-            VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
+        Color = Colors.Transparent;
 
-            Color = Colors.Transparent;
+        TipHtmlSource = new HtmlWebViewSource() { Html = "" };
+        IsBusy = true;
 
-            TipHtmlSource = new HtmlWebViewSource() { Html = "" };
-            IsBusy = true;
+        CanBeDismissedByTappingOutsideOfPopup = false;
 
-            CanBeDismissedByTappingOutsideOfPopup = false;
-
-            Content = new Border
+        Content = new Border
             {
                 StrokeThickness = 1,
                 StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
@@ -105,61 +104,60 @@ namespace FocusApp.Client.Views.Mindfulness
                 }
             }
             .Padding(horizontalSize: 10, verticalSize: 0);
-        }
+    }
 
-        public async Task PopulatePopup(
-            MindfulnessTipExtensions.FocusSessionRating sessionRating,
-            CancellationToken cancellationToken)
+    public async Task PopulatePopup(
+        MindfulnessTipExtensions.FocusSessionRating sessionRating,
+        CancellationToken cancellationToken)
+    {
+        // Get tip
+        MindfulnessTip? tip = null;
+        try
         {
-            // Get tip
-            MindfulnessTip? tip = null;
-            try
-            {
-                tip = await _mediator.Send(
-                    new GetMindfulnessTipByRatingLevel.Query() { RatingLevel = sessionRating },
-                    cancellationToken);
-            }
-            catch (Exception e)
-            {
-                // Handle exception
-            }
-            
-            // Display tip and hide loading spinner or close popup if tip retrieval failed
-            if (tip != null)
-            {
-                IsBusy = false;
-                TipHtmlSource = new HtmlWebViewSource() { Html = tip.Content };
-            }
-            else
-            {
-                _popupService.HidePopup();
-            }
+            tip = await _mediator.Send(
+                new GetMindfulnessTipByRatingLevel.Query() { RatingLevel = sessionRating },
+                cancellationToken);
         }
-
-        // Navigate to page according to button
-        private async void OnDismissPopup(object? sender, EventArgs e)
+        catch (Exception e)
+        {
+            // Handle exception
+        }
+            
+        // Display tip and hide loading spinner or close popup if tip retrieval failed
+        if (tip != null)
+        {
+            IsBusy = false;
+            TipHtmlSource = new HtmlWebViewSource() { Html = tip.Content };
+        }
+        else
         {
             _popupService.HidePopup();
         }
+    }
 
-        #region Property Changed Notification Logic
+    // Navigate to page according to button
+    private async void OnDismissPopup(object? sender, EventArgs e)
+    {
+        _popupService.HidePopup();
+    }
 
-        private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
+    #region Property Changed Notification Logic
+
+    private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
+    {
+        if (EqualityComparer<T>.Default.Equals(backingStore, value))
         {
-            if (EqualityComparer<T>.Default.Equals(backingStore, value))
-            {
-                return;
-            }
-
-            backingStore = value;
-
-            OnPropertyChanged(propertyname);
+            return;
         }
 
-        void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        backingStore = value;
 
-        #endregion
-
+        OnPropertyChanged(propertyname);
     }
+
+    void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    #endregion
+
 }
