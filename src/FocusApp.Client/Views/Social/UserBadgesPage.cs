@@ -11,6 +11,7 @@ using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using SimpleToolkit.SimpleShell.Extensions;
+using System.Collections.Generic;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -21,9 +22,12 @@ internal class UserBadgesPage : BasePage
     private readonly PopupService _popupService;
     private readonly FocusAppContext _localContext;
 
+    public Image _selectedCheckmark;
+
     public Guid SelectedBadgeId { get; set; }
 
     public FlexLayout _flexLayout;
+    public Dictionary<Badge, Image> BadgeDict { get; set; }
 
     public UserBadgesPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
     {
@@ -150,13 +154,31 @@ internal class UserBadgesPage : BasePage
     {
         var flexLayout = _flexLayout;
 
+        _flexLayout.Children.Clear();
+        BadgeDict = new Dictionary<Badge, Image>();
         // Add badges to FlexLayout
         foreach (var badge in localBadges)
         {
             var isOwned = userBadgeIds.Any(userBadgeId => userBadgeId == badge.Id);
 
+            var checkmark = new Image 
+            {
+                Source = "pet_selected.png",
+                WidthRequest = 60,
+                HeightRequest = 60,
+                Opacity = 0,
+                BindingContext = badge
+            };
+
             if (isOwned)
             {
+                BadgeDict.Add(badge, checkmark);
+                if (_authenticationService.SelectedBadge?.Id == badge.Id)
+                {
+                    _selectedCheckmark = checkmark;
+                    _selectedCheckmark.Opacity = 1;
+                }
+
                 var ownedBadge = new ImageButton
                 {
                     BindingContext = badge,
@@ -166,7 +188,16 @@ internal class UserBadgesPage : BasePage
                     HeightRequest = 150
                 }
                 .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
-                flexLayout.Children.Add(ownedBadge);
+
+                var grid = new Grid
+                {
+                    ownedBadge
+                    .ZIndex(0),
+
+                    checkmark
+                    .ZIndex(1)
+                };
+                flexLayout.Children.Add(grid);
             }
             else
             {

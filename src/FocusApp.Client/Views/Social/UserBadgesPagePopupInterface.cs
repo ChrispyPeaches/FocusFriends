@@ -5,6 +5,7 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Shapes;
 namespace FocusApp.Client.Views.Social;
@@ -17,6 +18,7 @@ internal class UserBadgesPagePopupInterface : BasePopup
     IFocusAppContext _localContext;
     IAPIClient _client;
     ILogger<UserBadgesPagePopupInterface> _logger;
+    DateTimeOffset badgeDateAcquired;
     Badge _currentBadge { get; set; }
     public UserBadgesPage UserBadgesPage { get; set; }
 
@@ -48,7 +50,7 @@ internal class UserBadgesPagePopupInterface : BasePopup
         };
     }
 
-    public void PopulatePopup(Badge badge)
+    public async Task PopulatePopup(Badge badge)
     {
         _currentBadge = badge;
 
@@ -86,24 +88,24 @@ internal class UserBadgesPagePopupInterface : BasePopup
         // Badge Description
         Label badgeDescription = new Label
         {
+            BindingContext = badge,
             Text = "This is a brief description on how the badge is unlocked",
             FontSize = 10,
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center
         };
-        //badgeDescription.SetBinding(Label.TextProperty, "Description");
-        //badgeDescription.BindingContext = badge;
+        badgeDescription.SetBinding(Label.TextProperty, "Description");
+        badgeDescription.BindingContext = badge;
 
         // Date Acquired
         Label dateAcquired = new Label
         {
-            Text = "00/00/00",
+            BindingContext = badge,
+            Text = "",
             FontSize= 15,
             HorizontalOptions = LayoutOptions.Center,
             VerticalOptions = LayoutOptions.Center
         };
-        //badgeDescription.SetBinding(Label.TextProperty, "DateAcquired");
-        //badgeDescription.BindingContext = badge;
 
         // Exit Popup Button
         Button selectButton = new Button
@@ -117,18 +119,34 @@ internal class UserBadgesPagePopupInterface : BasePopup
         .Margins(right: 35, top: 50)
         .Invoke(button => button.Released += (s, e) => SelectBadgeButton(s, e));
 
-        if (_authenticationService.CurrentUser?.SelectedBadge == badge)
+        if (await UserOwnsItem())
         {
-            selectButton.Text = "Selected";
+            badgeDateAcquired = await GetBadgeDate();
+
+            if (_authenticationService.SelectedBadge == badge)
+            {
+                dateAcquired.Text = badgeDateAcquired.ToString("d");
+
+                selectButton.Text = "Selected";
+                selectButton.Opacity = 0.5;
+                selectButton.IsEnabled = false;
+            }
+            else if (_authenticationService.SelectedBadge != badge)
+            {
+                dateAcquired.Text = badgeDateAcquired.ToString("d");
+
+                selectButton.Text = "Select";
+                selectButton.Opacity = 1;
+                selectButton.IsEnabled = true;
+            }
+        }
+        else
+        {
+            selectButton.Text = "Locked";
             selectButton.Opacity = 0.5;
             selectButton.IsEnabled = false;
         }
-        else if (_authenticationService.CurrentUser?.SelectedBadge != badge)
-        {
-            selectButton.Text = "Select";
-            selectButton.Opacity = 1;
-            selectButton.IsEnabled = true;
-        }
+
 
         //Grid for both buttons
         Grid popupButtons = new Grid
@@ -167,10 +185,30 @@ internal class UserBadgesPagePopupInterface : BasePopup
         var newBadge = sender as Button;
         var badge = (Badge)newBadge.BindingContext;
 
-        _authenticationService.CurrentUser.SelectedBadge = badge;
+        Image checkmark = UserBadgesPage._selectedCheckmark;
+        if (checkmark != null)
+            UserBadgesPage._selectedCheckmark.Opacity = 0;
+
+        _authenticationService.SelectedBadge = badge;
+
+        UserBadgesPage._selectedCheckmark = UserBadgesPage.BadgeDict[badge];
+        UserBadgesPage._selectedCheckmark.Opacity = 1;
+        
 
         _popupService.HidePopup();
+    }
 
-        Console.WriteLine(_authenticationService.CurrentUser.SelectedBadge);
+    private async Task<bool> UserOwnsItem()
+    {
+        return await _localContext.UserBadges.AnyAsync(b =>
+        b.BadgeId == _currentBadge.Id
+        && b.UserId == _authenticationService.CurrentUser.Id);
+    }
+
+    private async Task<DateTimeOffset> GetBadgeDate()
+    { 
+        return (await _localContext.UserBadges.FirstAsync(ub => 
+        ub.UserId == _authenticationService.CurrentUser.Id &&
+        ub.BadgeId == _currentBadge.Id)).DateAcquired;
     }
 }

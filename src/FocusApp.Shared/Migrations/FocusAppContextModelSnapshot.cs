@@ -23,6 +23,10 @@ namespace FocusApp.Shared.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<byte[]>("Image")
                         .IsRequired()
                         .HasColumnType("BLOB");
