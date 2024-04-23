@@ -219,7 +219,7 @@ internal class ProfilePageEdit : BasePage
                 {
                     Source = new FileImageSource
                     {
-                        File = "logo.png"
+                        File = "logo_with_border.png"
                     },
                     HeightRequest = 75,
                     WidthRequest = 75,

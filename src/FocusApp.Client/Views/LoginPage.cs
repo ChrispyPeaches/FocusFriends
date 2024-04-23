@@ -84,7 +84,7 @@ internal class LoginPage : BasePage
                 // Logo 
                 new Image
                 {
-                    Source = "logo.png",
+                    Source = "logo_with_border.png",
                     WidthRequest = 75,
                     HeightRequest = 75,
                 }
