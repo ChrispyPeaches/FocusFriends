@@ -238,7 +238,8 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
 
     public async void ShowSessionRatingPopup()
     {
-        _popupService.ShowPopup<SessionRatingPopupInterface>();
+        if (PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled))
+            _popupService.ShowPopup<SessionRatingPopupInterface>();
     }
 
     /// <summary>

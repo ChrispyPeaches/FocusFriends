@@ -30,7 +30,8 @@ public class GetAllFriends
             {
                 FriendUserName = f.Friend.UserName,
                 FriendEmail = f.Friend.Email,
-                FriendProfilePicture = f.Friend.ProfilePicture
+                FriendProfilePicture = f.Friend.ProfilePicture,
+                FriendAuth0Id = f.Friend.Auth0Id
             })
             .ToList();
 
@@ -39,7 +40,8 @@ public class GetAllFriends
             {
                 FriendUserName = f.User.UserName,
                 FriendEmail = f.User.Email,
-                FriendProfilePicture = f.User.ProfilePicture
+                FriendProfilePicture = f.User.ProfilePicture,
+                FriendAuth0Id = f.User.Auth0Id
             })
             .ToList();
 
