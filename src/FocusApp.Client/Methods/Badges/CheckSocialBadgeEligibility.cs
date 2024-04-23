@@ -69,7 +69,7 @@ namespace FocusApp.Client.Methods.Badges
                 return result;
             }
 
-            public async Task AddBadgeToUser(
+            private async Task AddBadgeToUser(
                 BadgeEligibilityResult result,
                 string badgeName,
                 CancellationToken cancellationToken)
