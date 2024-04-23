@@ -210,6 +210,7 @@ namespace FocusApp.Client.Views.Shop
 
                 if (result.IsEligible && result.EarnedBadge != null)
                 {
+                    Thread.Sleep(1000);
                     _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
                 }
             }

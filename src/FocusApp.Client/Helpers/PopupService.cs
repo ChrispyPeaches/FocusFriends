@@ -55,7 +55,6 @@ namespace FocusApp.Client.Helpers
 
         public void TriggerBadgeEvent<T>(Badge badge) where T : BasePopup
         {
-            Thread.Sleep(1000);
             BasePopup popup = (T)ShowAndGetPopup<T>();
             popup.PopulatePopup(badge);
         }
