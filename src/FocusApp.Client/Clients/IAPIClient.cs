@@ -62,6 +62,11 @@ public interface IAPIClient
         EditUserProfileCommand command,
         CancellationToken cancellationToken = default);
 
+    [Put("/User/EditUserSelectedPet")]
+    Task EditUserSelectedPet(
+        EditUserSelectedPetCommand command,
+        CancellationToken cancellationToken = default);
+
     [Put("/User/EditUserSelectedBadge")]
     Task EditUserSelectedBadge(
         EditUserSelectedBadgeCommand command,
