@@ -2,21 +2,27 @@ using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Clients;
 using Microsoft.Maui.Controls.Shapes;
+using SimpleToolkit.SimpleShell.Extensions;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using CommunityToolkit.Maui.Converters;
+using CommunityToolkit.Maui.Views;
 using FocusCore.Queries.Social;
 using Microsoft.Extensions.Logging;
 using FocusCore.Models;
+using MediatR;
+using CommunityToolkit.Mvvm.Input;
+using FocusApp.Shared.Models;
+using Microsoft.Maui;
 
 namespace FocusApp.Client.Views.Social;
 
 internal class SocialPage : BasePage
 {
-    private Helpers.PopupService _popupService;
+    private readonly Helpers.PopupService _popupService;
     private readonly ILogger<SocialPage> _logger;
     IAuthenticationService _authenticationService;
     private IAPIClient _client;
@@ -30,21 +36,40 @@ internal class SocialPage : BasePage
         IAuthenticationService authenticationService,
         ILogger<SocialPage> logger,
         IBadgeService badgeService)
+
+    private readonly IAuthenticationService _authenticationService;
+    private readonly IMediator _mediator;
+    private readonly ListView _friendsListView;
+    private readonly IAPIClient _client;
+    private readonly AvatarView _profilePictureNavMenuButton;
+
+	public SocialPage(
+        IAPIClient client,
+        Helpers.PopupService popupService,
+        IAuthenticationService authenticationService,
+        IMediator mediator,
+        ILogger<SocialPage> logger
+        )
 	{
         _popupService = popupService;
         _client = client;
         _authenticationService = authenticationService;
+        _mediator = mediator;
         _logger = logger;
         _badgeService = badgeService;
 
         _friendsListView = BuildFriendsListView();
+        _profilePictureNavMenuButton = new AvatarView()
+        {
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+        };
 
         Appearing += CheckForSocialBadgeEarned;
 
         Content = new Grid
         {
             // Define rows and columns (Star means that row/column will take up the remaining space)
-            RowDefinitions = Rows.Define(80, Star),
+            RowDefinitions = Rows.Define(80, Star, Consts.TabBarHeight),
             ColumnDefinitions = Columns.Define(Star, Star),
             BackgroundColor = AppStyles.Palette.Celeste,
             Opacity = 0.9,
@@ -74,7 +99,7 @@ internal class SocialPage : BasePage
                 .Column(1)
                 .Left()
                 .Padding(15, 15)
-                .Invoke(b => b.Clicked += (s,e) => OnClickShowAddFriendsPopup(s,e)),
+                .Invoke(b => b.Clicked += OnClickShowAddFriendsPopup),
 
                 // Horizontal Divider
                 new BoxView
@@ -89,30 +114,37 @@ internal class SocialPage : BasePage
                 .ColumnSpan(2),
 
                 // Profile Picture
-                new ImageButton
-                {
-                    Source = new FileImageSource
-                    {
-                        // Add logic that gets profile picture from user data
-                        File = "dotnet_bot.png"
-                    },
-                    WidthRequest = 90,
-                    HeightRequest = 90
-                }
-                .Top()
+                _profilePictureNavMenuButton
+                .Aspect(Aspect.AspectFit)
                 .Right()
+                .FillVertical()
+                .Margin(1)
                 .Column(1)
-                .Clip(new EllipseGeometry { Center = new Point(43, 45), RadiusX = 27, RadiusY = 27 })
-                .Invoke(b => b.Clicked += (s,e) => OnClickShowProfileInterfacePopup(s,e)),
+                // Set the corner radius to be half of the height to make it a circle
+                .Bind(
+                    AvatarView.CornerRadiusProperty,
+                    path: nameof(AvatarView.HeightRequest),
+                    convert: (double hr) => hr / 2,
+                    source: RelativeBindingSource.Self)
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapProfilePictureShowNavigationCommand),
+                    parameterPath: nameof(FriendListModel.FriendAuth0Id)),
 
                 // Friends List
                 _friendsListView
                 .Row(1)
                 .Column(0)
-                .ColumnSpan(2)
+                .ColumnSpan(2),
             }
         };
     }
+
+    private AvatarView GetProfilePictureNavMenuButton() =>
+         new AvatarView()
+        {
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+        };
 
     private ListView BuildFriendsListView()
     {
@@ -121,32 +153,58 @@ internal class SocialPage : BasePage
         listView.ItemTemplate = new DataTemplate(() =>
         {
             ViewCell cell = new ViewCell();
+
             Grid grid = new Grid();
 
             grid.RowDefinitions = Rows.Define(Star);
             grid.ColumnDefinitions = Columns.Define(80, Star);
 
             // Friend profile picture
-            Image friendImage = new Image
-            {
-            };
-            friendImage.SetBinding(
-                Image.SourceProperty, "FriendProfilePicture",
-                converter: new ByteArrayToImageSourceConverter());
-            friendImage.VerticalOptions = LayoutOptions.Center;
-            friendImage.Column(0);
+            AvatarView friendImage = new AvatarView
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                }
+                .Aspect(Aspect.AspectFit)
+                .Column(0)
+                .Bind(
+                    AvatarView.ImageSourceProperty,
+                    nameof(FriendListModel.FriendProfilePicture),
+                    converter: new ByteArrayToImageSourceConverter())
+                // Set the height of the image to be slightly smaller than the cell height
+                // because padding wasn't working properly
+                .Bind(
+                    AvatarView.HeightRequestProperty,
+                    getter: cell => cell.RenderHeight,
+                    convert: (double height) => height - 1,
+                    source: cell)
+                // Set the width to update when the height updates and set them to the same value
+                .Bind(
+                    AvatarView.WidthRequestProperty,
+                    path: nameof(AvatarView.HeightRequest),
+                    convert: (double hr) => hr,
+                    source: RelativeBindingSource.Self)
+                // Set the corner radius to be half of the height to make it a circle
+                .Bind(
+                    AvatarView.CornerRadiusProperty,
+                    path: nameof(AvatarView.HeightRequest),
+                    convert: (double hr) => hr / 2,
+                    source: RelativeBindingSource.Self);
 
             // Friend username
             Label friendUsername = new Label
             {
                 FontSize = 20
             };
-            friendUsername.SetBinding(Label.TextProperty, "FriendUserName");
+            friendUsername.SetBinding(Label.TextProperty, nameof(FriendListModel.FriendUserName));
             friendUsername.VerticalOptions = LayoutOptions.Center;
             friendUsername.Column(1);
 
             grid.Children.Add(friendImage);
             grid.Children.Add(friendUsername);
+            grid.BindTapGesture(
+                commandSource: this,
+                commandPath: MiscHelper.NameOf(() => TapFriendItemCommand),
+                parameterPath: nameof(FriendListModel.FriendAuth0Id));
             cell.View = grid;
 
             return cell;
@@ -157,6 +215,10 @@ internal class SocialPage : BasePage
 
     protected override async void OnAppearing()
     {
+        base.OnAppearing();
+
+        _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.CurrentUser?.ProfilePicture);
+        
         // If not logged in display popup, otherwise populate friends list
         if (string.IsNullOrEmpty(_authenticationService.AuthToken))
         {
@@ -167,8 +229,6 @@ internal class SocialPage : BasePage
         {
             Task.Run(PopulateFriendsList);
         }
-
-        base.OnAppearing();
     }
 
     private async void CheckForSocialBadgeEarned(object? sender, EventArgs eventArgs)
@@ -219,16 +279,32 @@ internal class SocialPage : BasePage
         });
     }
 
+    public RelayCommand TapProfilePictureShowNavigationCommand => new(OnClickShowProfileInterfacePopup);
+
     // Display navigation popup on hit
-    private void OnClickShowProfileInterfacePopup(object sender, EventArgs e)
+    private void OnClickShowProfileInterfacePopup()
     {
         _popupService.ShowPopup<ProfilePopupInterface>();
     }
 
     // Display new friend popup on hit
-    private void OnClickShowAddFriendsPopup(object sender, EventArgs e)
+    private void OnClickShowAddFriendsPopup(object? sender, EventArgs e)
     {
         var addFriendPopup = (AddFriendPopupInterface)_popupService.ShowAndGetPopup<AddFriendPopupInterface>();
         addFriendPopup.SocialPage = this;
     }
+
+    public AsyncRelayCommand<string> TapFriendItemCommand => new(OnFriendClickShowFriendProfilePage);
+
+    /// <summary>
+    /// Send the user to the friend's profile page,
+    /// passing the friend's Auth0Id as a parameter
+    /// </summary>
+    private async Task OnFriendClickShowFriendProfilePage(string? auth0Id)
+        {
+            Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
+            await Shell.Current.GoToAsync(
+                $"///{nameof(SocialPage)}/{nameof(FriendProfilePage)}",
+                FriendProfilePage.BuildParamterArgs(auth0Id));
+        }
 }

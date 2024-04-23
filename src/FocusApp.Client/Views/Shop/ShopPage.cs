@@ -190,6 +190,8 @@ namespace FocusApp.Client.Views.Shop
 
         protected override async void OnAppearing()
         {
+            base.OnAppearing();
+
             if (string.IsNullOrEmpty(_authenticationService.AuthToken))
             {
                 var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
@@ -204,8 +206,6 @@ namespace FocusApp.Client.Views.Shop
             _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
             _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
             _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
-
-            base.OnAppearing();
         }
 
         async Task OnImageButtonClicked(object sender, EventArgs eventArgs)

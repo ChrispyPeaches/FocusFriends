@@ -26,7 +26,7 @@ internal class LoginPage : BasePage
 
         Content = new Grid
         {
-            RowDefinitions = Rows.Define(200, 100, 100, 80, 80, Star, 50),
+            RowDefinitions = Rows.Define(200, 80, Star, 80, 80, GridRowsColumns.Stars(2)),
             ColumnDefinitions = Columns.Define(Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
@@ -177,7 +177,7 @@ internal class LoginPage : BasePage
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
+        await AppShell.Current.SetTabBarIsVisible(false);
     }
 }
 

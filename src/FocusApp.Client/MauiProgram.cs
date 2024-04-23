@@ -98,6 +98,7 @@ namespace FocusApp.Client
             // Registered as a singleton so the timer is not reset by page navigation
             services.AddSingleton<ITimerService, TimerService>();
             services.AddSingleton<Helpers.PopupService>();
+            services.AddScoped<ISyncService, SyncService>();
 
             // Registered as scoped so multiple instances can be made for parallel DB operations
             services.AddScoped<IBadgeService, BadgeService>();
