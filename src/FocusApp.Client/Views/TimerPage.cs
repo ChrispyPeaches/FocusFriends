@@ -279,7 +279,8 @@ internal class TimerPage : BasePage
         _authenticationService.AuthToken = "";
 
         // Empty the secure storage of all persistent login tokens
-        SecureStorage.Default.RemoveAll();
+        SecureStorage.Default.Remove("id_token");
+        SecureStorage.Default.Remove("access_token");
 
         await Shell.Current.GoToAsync($"///" + nameof(LoginPage));
     }

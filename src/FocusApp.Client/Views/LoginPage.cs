@@ -18,17 +18,19 @@ internal class LoginPage : BasePage
     IAuthenticationService _authenticationService;
     ILogger<LoginPage> _logger;
     IMediator _mediator;
-    Auth0Client _auth0Client;
+    PopupService _popupService;
 
     public LoginPage(
         IAuthenticationService authenticationService,
         ILogger<LoginPage> logger,
-        IMediator mediator
+        IMediator mediator,
+        PopupService popupService
         )
     {
         _authenticationService = authenticationService;
         _logger = logger;
         _mediator = mediator;
+        _popupService = popupService;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
@@ -192,7 +194,9 @@ internal class LoginPage : BasePage
 
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
+        _popupService.ShowPopup<GenericLoadingPopupInterface>();
         await MainThread.InvokeOnMainThreadAsync(TryLoginFromStoredToken);
+        _popupService.HidePopup();
     }
 
     private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
