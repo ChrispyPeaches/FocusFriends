@@ -204,7 +204,7 @@ namespace FocusApp.Client.Views.Shop
         {
             base.OnAppearing();
 
-            if (string.IsNullOrEmpty(_authenticationService.AuthToken))
+            if (string.IsNullOrEmpty(_authenticationService.Auth0Id))
             {
                 var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
                 loginPopup.OriginPage = nameof(ShopPage);

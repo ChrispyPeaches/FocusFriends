@@ -16,6 +16,7 @@ using FluentValidation;
 using FocusApp.Client.Configuration.PipelineBehaviors;
 using FocusApp.Client.Methods.Sync;
 using static FocusApp.Client.Helpers.PreferencesHelper;
+using Microsoft.IdentityModel.Logging;
 
 namespace FocusApp.Client
 {
@@ -42,25 +43,37 @@ namespace FocusApp.Client
                 .RegisterServices()
                 .RegisterPages()
                 .RegisterPopups()
-                .RegisterMediatR();
+                .RegisterMediatR()
+                .RegisterAuthenticationServices();
 
 #if DEBUG
             builder.Logging.AddDebug();
+            IdentityModelEventSource.ShowPII = true;
 #endif
-
-            builder.Services.AddSingleton(new Auth0Client(new()
-            {
-                Domain = "dev-7c8vyxbx5myhzmji.us.auth0.com",
-                ClientId = "PR3eHq0ehapDGtpYyLl5XFhd1mOQX9uD",
-                RedirectUri = "myapp://callback",
-                PostLogoutRedirectUri = "myapp://callback",
-                Scope = "openid profile email"
-            }));
             
             Task.Run(() => RunStartupLogic(builder.Services));
 
 
             return builder.Build();
+        }
+
+        public static IServiceCollection RegisterAuthenticationServices(this IServiceCollection services)
+        {
+            const string domain = "dev-7c8vyxbx5myhzmji.us.auth0.com";
+            const string clientId = "PR3eHq0ehapDGtpYyLl5XFhd1mOQX9uD";
+
+            services.AddSingleton(new Auth0Client(new()
+            {
+                Domain = domain,
+                ClientId = clientId,
+                RedirectUri = "myapp://callback",
+                PostLogoutRedirectUri = "myapp://callback",
+                Scope = "openid profile email",
+            }));
+
+            services.AddSingleton(new UserManager(domain, clientId));
+
+            return services;
         }
 
         /// <summary>Registers all the handlers, validators, and behaviors.</summary>

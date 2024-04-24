@@ -7,6 +7,10 @@ using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
 
+using Auth0.OidcClient;
+using FocusApp.Client.Clients;
+using IdentityModel.OidcClient;
+
 namespace FocusApp.Client.Views;
 
 internal class LoginPage : BasePage
@@ -14,8 +18,13 @@ internal class LoginPage : BasePage
     IAuthenticationService _authenticationService;
     ILogger<LoginPage> _logger;
     IMediator _mediator;
+    Auth0Client _auth0Client;
 
-    public LoginPage(IAuthenticationService authenticationService, ILogger<LoginPage> logger, IMediator mediator)
+    public LoginPage(
+        IAuthenticationService authenticationService,
+        ILogger<LoginPage> logger,
+        IMediator mediator
+        )
     {
         _authenticationService = authenticationService;
         _logger = logger;
@@ -23,6 +32,8 @@ internal class LoginPage : BasePage
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
+
+        Loaded += LoginPage_Loaded;
 
         Content = new Grid
         {
@@ -116,10 +127,9 @@ internal class LoginPage : BasePage
     {
         try
         {
+
             // Handle login process on non-UI thread
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
-
-            // Todo: If user exists, sync user data with server including islands, pets, etc.
 
             if (loginResult.IsSuccessful)
             {
@@ -178,6 +188,39 @@ internal class LoginPage : BasePage
     protected override async void OnAppearing()
     {
         await AppShell.Current.SetTabBarIsVisible(false);
+    }
+
+    private async void LoginPage_Loaded(object sender, EventArgs e)
+    {
+        await MainThread.InvokeOnMainThreadAsync(TryLoginFromStoredToken);
+    }
+
+    private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
+    {
+        try
+        {
+            var result = await _mediator.Send(new GetPersistentUserLogin.Query(), default);
+
+            if (result.IsSuccessful)
+            {
+                await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+                return result;
+            }
+            else
+            {
+                _logger.LogInformation(result.Message);
+                return result;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
+        }
+
+        return new GetPersistentUserLogin.Result
+        {
+            IsSuccessful = false
+        };
     }
 }
 

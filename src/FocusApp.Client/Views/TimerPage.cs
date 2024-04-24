@@ -278,6 +278,9 @@ internal class TimerPage : BasePage
         var logoutResult = await _auth0Client.LogoutAsync();
         _authenticationService.AuthToken = "";
 
+        // Empty the secure storage of all persistent login tokens
+        SecureStorage.Default.RemoveAll();
+
         await Shell.Current.GoToAsync($"///" + nameof(LoginPage));
     }
 
@@ -285,7 +288,7 @@ internal class TimerPage : BasePage
     {
         base.OnAppearing();
 
-        _loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
+        _loggedIn = !string.IsNullOrEmpty(_authenticationService.Auth0Id);
         _selectedText = _loggedIn ? "Logout" : "Login";
         _logButton.Text = _selectedText;
     }
