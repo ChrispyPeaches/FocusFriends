@@ -12,6 +12,7 @@ using FocusApp.Client.Resources.FontAwesomeIcons;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using SimpleToolkit.SimpleShell.Extensions;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -21,6 +22,7 @@ internal class BadgesPage : BasePage
     private readonly IAuthenticationService _authenticationService;
     private readonly PopupService _popupService;
     private readonly FocusAppContext _localContext;
+    private readonly ILogger<BadgesPage> _logger;
 
     public Image _selectedCheckmark;
 
@@ -29,12 +31,13 @@ internal class BadgesPage : BasePage
     public FlexLayout _flexLayout;
     public Dictionary<Badge, Image> BadgeDict { get; set; }
 
-    public BadgesPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext)
+    public BadgesPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, ILogger<BadgesPage> logger)
     {
         _client = client;
         _authenticationService = authenticationService;
         _popupService = popupService;
         _localContext = localContext;
+        _logger = logger;
 
         // FlexLayout for the Badges
         _flexLayout = new FlexLayout
@@ -111,7 +114,7 @@ internal class BadgesPage : BasePage
         base.OnAppearing();
 
         // Check if the user is logged in
-        if (_authenticationService.CurrentUser == null)
+        if (string.IsNullOrEmpty(_authenticationService.AuthToken))
         {
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(ShopPage);
@@ -120,34 +123,39 @@ internal class BadgesPage : BasePage
 
         // Fetch badges from the local database and display them
         var localBadges = await FetchBadgesFromLocalDb();
-        var userBadges = await FetchBadgesFromAPI();
+        var userBadges = await FetchUserBadgesFromLocalDb();
         DisplayBadges(localBadges, userBadges);
     }
 
+    // Becuse all of our badges are synced on start, we fetch them to diplay all
     private async Task<List<Badge>> FetchBadgesFromLocalDb()
     {
+        var badges = new List<Badge>();
         try
         {
             // Fetch badges from the local database
-            return await _localContext.Badges.ToListAsync();
+            badges = await _localContext.Badges.ToListAsync();
         }
         catch (Exception ex)
-        {
-            throw new Exception("Error when fetching badges from local DB.", ex);
+        { 
+            _logger.LogError(ex, "Error when fetching badges from local DB.");
         }
+        return badges;
     }
 
-
-    private async Task<List<Guid>> FetchBadgesFromAPI()
+    // User badges are fetched to be compared with the badges on local to differenciate owned and unowned
+    private async Task<List<Guid>> FetchUserBadgesFromLocalDb()
     {
+        var userBadgeIds = new List<Guid>();
         try
         {
-            return await _localContext.UserBadges?.Select(ub => ub.BadgeId).ToListAsync();
+            userBadgeIds =  await _localContext.UserBadges?.Select(ub => ub.BadgeId).ToListAsync();
         }
         catch (Exception ex)
         {
-            throw new Exception("Error when fetching badges from API.", ex);
+            _logger.LogError(ex, "Error when fetching user badges from local DB.");
         }
+        return userBadgeIds;
     }
 
     private void DisplayBadges(List<Badge> localBadges, List<Guid> userBadgeIds)

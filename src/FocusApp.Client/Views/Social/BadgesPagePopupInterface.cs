@@ -210,9 +210,19 @@ internal class BadgesPagePopupInterface : BasePopup
 
     private async Task<bool> UserOwnsItem()
     {
-        return await _localContext.UserBadges.AnyAsync(b =>
-        b.BadgeId == _currentBadge.Id
-        && b.UserId == _authenticationService.CurrentUser.Id);
+        // default to false value
+        var itemOwned = false;
+        try
+        {
+            itemOwned = await _localContext.UserBadges.AnyAsync(b =>
+            b.BadgeId == _currentBadge.Id
+            && b.UserId == _authenticationService.CurrentUser.Id);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Error while verifying user owns items (fetch user badges and current user))");
+        }
+        return itemOwned;
     }
 
     private async Task<DateTimeOffset> GetBadgeDate()
