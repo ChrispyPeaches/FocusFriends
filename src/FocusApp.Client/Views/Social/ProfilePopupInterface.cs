@@ -155,9 +155,12 @@ namespace FocusApp.Client.Views.Social
                                 Padding = 0,
                                 FontSize = 30,
                                 TextColor = Colors.White,
-                                Text = "My Badges"
-                                //BindingContext = nameof(BadgesPage)
+                                Text = "My Badges",
+                                BindingContext = nameof(BadgesPage)
                             }
+                            .Invoke(button => button.Released += (sender, eventArgs) =>
+                                    PageButtonClicked(sender, eventArgs))
+
                         },
 
                         new Frame()
