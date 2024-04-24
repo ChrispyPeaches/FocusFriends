@@ -172,9 +172,19 @@ namespace FocusApp.Client.Methods.User
 
                 user.SelectedIsland = await GetInitialIslandQuery()
                     .FirstOrDefaultAsync(cancellationToken);
+                user.Islands?.Add(new UserIsland()
+                {
+                    DateAcquired = DateTime.UtcNow,
+                    Island = user.SelectedIsland
+                });
 
                 user.SelectedPet = await GetInitialPetQuery()
                     .FirstOrDefaultAsync(cancellationToken);
+                user.Pets?.Add(new UserPet()
+                {
+                    DateAcquired = DateTime.UtcNow,
+                    Pet = user.SelectedPet
+                });
 
                 return user;
             }
