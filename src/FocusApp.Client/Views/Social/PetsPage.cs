@@ -299,7 +299,12 @@ internal sealed class PetsPage : BasePage
         // On success, hide previous checkmark and show new one
         if (result.Success)
         {
-            _selectedCheckmark.Opacity = 0.0;
+            // In case selected checkmark is null
+            if (_selectedCheckmark != null)
+            {
+                _selectedCheckmark.Opacity = 0.0;
+            }
+
             _selectedCheckmark = checkmark;
             _selectedCheckmark.Opacity = 1.0;
 
