@@ -48,11 +48,13 @@ namespace FocusApp.Client.Views.Social
         IAPIClient _client { get; set; }
         IAuthenticationService _authenticationService { get; set; }
         ILogger<LeaderboardsPage> _logger { get; set; }
-        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService, ILogger<LeaderboardsPage> logger)
+        PopupService _popupService { get; set; }
+        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService, ILogger<LeaderboardsPage> logger, PopupService popupService)
         {
             _client = client;
             _authenticationService = authenticationService;
             _logger = logger;
+            _popupService = popupService;
 
             Grid topThreeFriendsGrid = GetTopThreeFriendsGrid();
             ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
@@ -409,6 +411,7 @@ namespace FocusApp.Client.Views.Social
         {
             try
             {
+                _popupService.ShowPopup<GenericLoadingPopupInterface>();
                 LeaderboardResponse leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
                 PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
 
@@ -420,12 +423,14 @@ namespace FocusApp.Client.Views.Social
             {
                 _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards. Message: " + ex.Message);
             }
+            _popupService.HidePopup();
         }
 
         async void GetWeeklyLeaderboards(object sender, EventArgs e)
         {
             try
             {
+                _popupService.ShowPopup<GenericLoadingPopupInterface>();
                 LeaderboardResponse leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
                 PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
 
@@ -437,6 +442,7 @@ namespace FocusApp.Client.Views.Social
             {
                 _logger.Log(LogLevel.Error, "Error retreiving weekly leaderboards. Message: " + ex.Message);
             }
+            _popupService.HidePopup();
         }
 
         void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
