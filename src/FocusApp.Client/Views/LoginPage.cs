@@ -194,27 +194,26 @@ internal class LoginPage : BasePage
 
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
-        _popupService.ShowPopup<GenericLoadingPopupInterface>();
-        // Prioritize persistent login on main thread
-        await MainThread.InvokeOnMainThreadAsync(TryLoginFromStoredToken);
-        _popupService.HidePopup();
+        Task.Run(TryLoginFromStoredToken);
     }
 
     private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
     {
+        _popupService.ShowPopup<GenericLoadingPopupInterface>();
         try
         {
             var result = await _mediator.Send(new GetPersistentUserLogin.Query(), default);
 
             if (result.IsSuccessful)
             {
-                await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
+                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
             }
             else
             {
                 _logger.LogInformation(result.Message);
             }
 
+            _popupService.HidePopup();
             return result;
         }
         catch (Exception ex)
@@ -222,6 +221,7 @@ internal class LoginPage : BasePage
             _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
         }
 
+        _popupService.HidePopup();
         return new GetPersistentUserLogin.Result
         {
             IsSuccessful = false
