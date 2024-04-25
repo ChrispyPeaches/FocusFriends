@@ -12,4 +12,6 @@ public class BaseBadge  : ISyncEntity
     public required string Name { get; set; }
 
     public required byte[] Image { get; set; } = null!;
+
+    public required string Description { get; set; } = null!;
 }

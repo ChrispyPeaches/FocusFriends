@@ -4,7 +4,6 @@ using MediatR;
 using FocusAPI.Data;
 using FocusAPI.Helpers;
 using FocusAPI.Models;
-using FocusCore.Models;
 using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
 using FocusCore.Responses;
@@ -129,13 +128,21 @@ public class CreateUser
 
             if (initialPet != null)
             {
-                user.Pets?.Add(new UserPet() { Pet = initialPet });
+                user.Pets?.Add(new UserPet()
+                {
+                    DateAcquired = DateTimeOffset.UtcNow,
+                    Pet = initialPet
+                });
                 user.SelectedPet = initialPet;
             }
 
             if (initialIsland != null)
             {
-                user.Islands?.Add(new UserIsland() { Island = initialIsland });
+                user.Islands?.Add(new UserIsland()
+                {
+                    DateAcquired = DateTimeOffset.UtcNow,
+                    Island = initialIsland
+                });
                 user.SelectedIsland = initialIsland;
             }
 
