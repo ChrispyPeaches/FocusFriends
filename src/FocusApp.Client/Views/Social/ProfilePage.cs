@@ -416,6 +416,24 @@ internal class ProfilePage : BasePage
 
     private void CreateSelectedItemElements()
     {
+        // Selected item labels
+        _selectedPetLabel = new Label
+        {
+            Text = $"{(_authenticationService.CurrentUser?.SelectedPet?.Name == null
+                                ? "Select a pet!"
+                                : _authenticationService.CurrentUser?.SelectedPet?.Name)}",
+            FontSize = 15
+        };
+
+        _selectedIslandLabel = new Label
+        {
+            Text = $"{(_authenticationService.CurrentUser?.SelectedIsland?.Name == null
+                                ? "Select an island!"
+                                : _authenticationService.CurrentUser?.SelectedIsland?.Name)}",
+            FontSize = 15
+        };
+
+        // Selected item image buttons
         _selectedPet = new ImageButton
         {
             HeightRequest = 110,
