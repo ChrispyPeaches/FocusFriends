@@ -100,6 +100,9 @@ namespace FocusApp.Client
             services.AddSingleton<Helpers.PopupService>();
             services.AddScoped<ISyncService, SyncService>();
 
+            // Registered as scoped so multiple instances can be made for parallel DB operations
+            services.AddScoped<IBadgeService, BadgeService>();
+
             // Singleton User Data
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
 

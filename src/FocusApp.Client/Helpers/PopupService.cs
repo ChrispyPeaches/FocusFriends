@@ -1,17 +1,18 @@
 ﻿using CommunityToolkit.Maui.Views;
-using FocusApp.Client.Views.Shop;
+using FocusApp.Client.Views;
+using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Helpers
 {
-    public interface IPopupService
+    internal interface IPopupService
     {
         void ShowPopup<T>() where T : Popup;
         Popup ShowAndGetPopup<T>() where T : Popup;
-        void HidePopup();
+        void HidePopup(bool wasDismissedByTappingOutsideOfPopup);
         void HideAllPopups();
     }
 
-    public class PopupService : IPopupService
+    internal class PopupService : IPopupService
     {
         private readonly IServiceProvider _services;
         private Stack<Popup> _popups;
@@ -52,11 +53,23 @@ namespace FocusApp.Client.Helpers
             return popup;
         }
 
-        public void HidePopup()
+        public void TriggerBadgeEvent<T>(Badge badge) where T : BasePopup
+        {
+            BasePopup popup = (T)ShowAndGetPopup<T>();
+            popup.PopulatePopup(badge);
+        }
+
+        public void HidePopup(bool wasDismissedByTappingOutsideOfPopup = false)
         {
             if (_popups.Count > 0)
             {
-                MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
+                // Quick patch for popups closed via tapping outside of the popup
+                if (wasDismissedByTappingOutsideOfPopup)
+                    // Remove the popup from the stack, but do not close it, as it has already
+                    // been closed/disposed via tapping outside of popup
+                    _popups.Pop();
+                else
+                    MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
             }
         }
 

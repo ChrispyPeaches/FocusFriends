@@ -149,7 +149,9 @@ internal class BadgesPage : BasePage
         var userBadgeIds = new List<Guid>();
         try
         {
-            userBadgeIds =  await _localContext.UserBadges?.Select(ub => ub.BadgeId).ToListAsync();
+            userBadgeIds =  await _localContext.UserBadges?
+                .Where(ub => ub.UserId == _authenticationService.CurrentUser.Id)
+                .Select(ub => ub.BadgeId).ToListAsync();
         }
         catch (Exception ex)
         {
