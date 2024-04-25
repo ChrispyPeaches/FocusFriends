@@ -41,7 +41,7 @@ namespace FocusApp.Client.Methods.Badges
                 if (user.Pets?.Count == 2)
                 {
                     Badge companionCollectorBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Companion Collector", cancellationToken);
-                    user.Badges?.Add(new UserBadge { Badge = companionCollectorBadge });
+                    user.Badges?.Add(new UserBadge { Badge = companionCollectorBadge, DateAcquired = DateTime.UtcNow });
 
                     result.IsEligible = true;
                     result.EarnedBadge = companionCollectorBadge;

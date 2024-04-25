@@ -43,7 +43,7 @@ namespace FocusApp.Client.Methods.Badges
                     result.IsEligible = true;
 
                     Badge islandVoyagerBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Island Voyager", cancellationToken);
-                    user.Badges?.Add(new UserBadge { Badge = islandVoyagerBadge });
+                    user.Badges?.Add(new UserBadge { Badge = islandVoyagerBadge, DateAcquired = DateTime.UtcNow });
                     result.EarnedBadge = islandVoyagerBadge;
                 }
                 else if (user.Islands?.Count == await _localContext.Islands.CountAsync(cancellationToken))

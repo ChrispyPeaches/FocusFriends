@@ -42,7 +42,7 @@ namespace FocusApp.Client.Methods.Badges
                     result.IsEligible = true;
 
                     Badge interiorDesignerBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Interior Designer", cancellationToken);
-                    user.Badges?.Add(new UserBadge { Badge = interiorDesignerBadge });
+                    user.Badges?.Add(new UserBadge { Badge = interiorDesignerBadge, DateAcquired = DateTime.UtcNow });
                     result.EarnedBadge = interiorDesignerBadge;
                 }
                 else if (user.Decor?.Count == await _localContext.Decor.CountAsync(cancellationToken))
