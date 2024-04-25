@@ -37,7 +37,7 @@ namespace FocusApp.Client.Methods.Badges
 
                 BadgeEligibilityResult result = new();
 
-                // Count = 2 here because user starts owning one island (Cool Cat)
+                // Count = 2 here because user starts owning one pet (Cool Cat)
                 if (user.Pets?.Count == 2)
                 {
                     Badge companionCollectorBadge = await _localContext.Badges.SingleAsync(u => u.Name == "Companion Collector", cancellationToken);
