@@ -21,7 +21,7 @@ internal class ProfilePage : BasePage
     FocusAppContext _localContext;
 
     // Row / Column structure for entire page
-    enum PageRow { UserProfilePictureHeader, SelectedItems, UserDataFooter, MembershipDate, TabBarSpace }
+    enum PageRow { UserProfilePictureHeader, SelectedItems, UserDataFooter, MembershipDate }
     enum PageColumn { Left, Right }
 
     // Row / Column structure for user data header
@@ -60,11 +60,10 @@ internal class ProfilePage : BasePage
         Content = new Grid
         {
             RowDefinitions = Rows.Define(
-                (PageRow.UserProfilePictureHeader, Stars(0.75)),
+                (PageRow.UserProfilePictureHeader, Stars(0.8)),
                 (PageRow.SelectedItems, Stars(2)),
                 (PageRow.UserDataFooter, Stars(0.75)),
-                (PageRow.MembershipDate, Stars(0.35)),
-                (PageRow.TabBarSpace, Stars(0.5))
+                (PageRow.MembershipDate, Stars(0.35))
                 ),
             ColumnDefinitions = Columns.Define(
                 (PageColumn.Left, Stars(1)),
@@ -510,13 +509,13 @@ internal class ProfilePage : BasePage
     private async void SelectedDecorClicked(object sender, EventArgs eventArgs)
     {
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(DecorPage)}");
     }
 
     private async void SelectedBadgeClicked(object sender, EventArgs eventArgs)
     {
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(BadgesPage)}");
     }
 
     private async void BackButtonClicked(object sender, EventArgs e)
