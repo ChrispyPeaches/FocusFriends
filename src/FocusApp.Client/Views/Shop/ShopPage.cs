@@ -58,7 +58,7 @@ namespace FocusApp.Client.Views.Shop
                             { 
                                 Source = new FileImageSource
                                 { 
-                                    File = "logo.png"
+                                    File = "coin.png"
                                 },
                                 HeightRequest = 25,
                                 WidthRequest = 25,

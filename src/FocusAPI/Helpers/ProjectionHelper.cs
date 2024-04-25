@@ -114,7 +114,8 @@ public static class ProjectionHelper
         {
             Id = badge.Id,
             Name = badge.Name,
-            Image = badge.Image
+            Image = badge.Image,
+            Description = badge.Description
         };
 
     public static Badge ProjectFromBaseBadge(BaseBadge badge) =>
@@ -122,7 +123,8 @@ public static class ProjectionHelper
         {
             Id = badge.Id,
             Name = badge.Name,
-            Image = badge.Image
+            Image = badge.Image,
+            Description = badge.Description
         };
 
     public static BaseDecor ProjectToBaseDecor(Decor decor) =>

@@ -185,7 +185,7 @@ internal sealed class SettingsPage : BasePage
 
                 new Image()
                 {
-                    Source = "logo.png",
+                    Source = "logo_with_border.png",
                 }
                 .FillVertical()
                 .Aspect(Aspect.AspectFit)
