@@ -39,14 +39,12 @@ namespace FocusApp.Client.Views.Social
             Content = new Border
             {
                 StrokeThickness = 1,
-                StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20,20,20,20)},
+                StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
                 BackgroundColor = AppStyles.Palette.LightMauve,
                 WidthRequest = borderWidth,
-                HeightRequest = 336,
                 Content = new VerticalStackLayout
                 {
                     WidthRequest = borderWidth,
-                    HeightRequest = 336,
                     BackgroundColor = AppStyles.Palette.DarkMauve,
                     Children =
                     {
@@ -64,18 +62,16 @@ namespace FocusApp.Client.Views.Social
                                     Radius = 5,
                                     Opacity = 0.6f
                                 },
-                                WidthRequest = rowWidth,
-                                HeightRequest = 55,
+                                WidthRequest= borderWidth,
+                                HeightRequest = 30,
                                 FontSize = 20,
                                 TextColor = Colors.White,
-                                HorizontalTextAlignment = TextAlignment.Center,
-                                VerticalTextAlignment = TextAlignment.Center,
-                                HorizontalOptions = LayoutOptions.Center,
-                                VerticalOptions = LayoutOptions.Center,
 
                                 // Fetch username
                                 Text = username
                             }
+                            .TextCenterHorizontal()
+                            .TextCenterVertical()
                         },
 
                         new Frame()
@@ -129,6 +125,34 @@ namespace FocusApp.Client.Views.Social
                                 TextColor = Colors.White,
                                 Text = "My Pets",
                                 BindingContext = nameof(PetsPage)
+                            }
+                            .Invoke(button => button.Released += (sender, eventArgs) =>
+                                    PageButtonClicked(sender, eventArgs))
+                        },
+
+                        new Frame()
+                        {
+                            WidthRequest = rowWidth,
+                            HeightRequest = 55,
+                            BackgroundColor = AppStyles.Palette.DarkMauve,
+                            Content = new Button()
+                            {
+                                Shadow = new Shadow
+                                {
+                                    Brush = Brush.Black,
+                                    Radius = 5,
+                                    Opacity = 0.5f
+                                },
+                                WidthRequest = rowWidth,
+                                HeightRequest = 55,
+                                BorderWidth = 0.5,
+                                BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
+                                BackgroundColor = Colors.Transparent,
+                                Padding = 0,
+                                FontSize = 30,
+                                TextColor = Colors.White,
+                                Text = "My Decor",
+                                BindingContext = nameof(DecorPage)
                             }
                             .Invoke(button => button.Released += (sender, eventArgs) =>
                                     PageButtonClicked(sender, eventArgs))
