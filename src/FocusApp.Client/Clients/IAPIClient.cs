@@ -67,6 +67,16 @@ public interface IAPIClient
         EditUserSelectedPetCommand command,
         CancellationToken cancellationToken = default);
 
+    [Put("/User/EditUserSelectedDecor")]
+    Task EditUserSelectedDecor(
+        EditUserSelectedDecorCommand command,
+        CancellationToken cancellationToken = default);
+
+    [Put("/User/EditUserSelectedBadge")]
+    Task EditUserSelectedBadge(
+        EditUserSelectedBadgeCommand command,
+        CancellationToken cancellationToken = default);
+     
     #endregion
 
     #region Social
