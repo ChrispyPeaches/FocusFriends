@@ -21,7 +21,7 @@ using Microsoft.Maui.Controls.Shapes;
 
 namespace FocusApp.Client.Views.Social;
 
-internal sealed class IslandPage : BasePage
+internal sealed class IslandsPage : BasePage
 {
     private readonly IAPIClient _client;
     private readonly IAuthenticationService _authenticationService;
@@ -33,7 +33,7 @@ internal sealed class IslandPage : BasePage
     Image _selectedCheckmark;
     Label _responseMessage;
 
-    public IslandPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator)
+    public IslandsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator)
 	{
         _client = client;
         _authenticationService = authenticationService;
@@ -299,7 +299,12 @@ internal sealed class IslandPage : BasePage
         // On success, hide previous checkmark and show new one
         if (result.Success)
         {
-            _selectedCheckmark.Opacity = 0.0;
+            // In case selected checkmark is null
+            if (_selectedCheckmark != null)
+            {
+                _selectedCheckmark.Opacity = 0.0;
+            }
+
             _selectedCheckmark = checkmark;
             _selectedCheckmark.Opacity = 1.0;
 

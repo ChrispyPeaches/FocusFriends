@@ -179,6 +179,34 @@ namespace FocusApp.Client.Views.Social
                                 Padding = 0,
                                 FontSize = 30,
                                 TextColor = Colors.White,
+                                Text = "My Islands",
+                                BindingContext = nameof(IslandsPage)
+                            }
+                            .Invoke(button => button.Released += (sender, eventArgs) =>
+                                    PageButtonClicked(sender, eventArgs))
+                        },
+
+                        new Frame()
+                        {
+                            WidthRequest = rowWidth,
+                            HeightRequest = 55,
+                            BackgroundColor = AppStyles.Palette.DarkMauve,
+                            Content = new Button()
+                            {
+                                Shadow = new Shadow
+                                {
+                                    Brush = Brush.Black,
+                                    Radius = 5,
+                                    Opacity = 0.5f
+                                },
+                                WidthRequest = rowWidth,
+                                HeightRequest = 55,
+                                BorderWidth = 0.5,
+                                BorderColor = AppStyles.Palette.DarkMauve.AddLuminosity(-.05f),
+                                BackgroundColor = Colors.Transparent,
+                                Padding = 0,
+                                FontSize = 30,
+                                TextColor = Colors.White,
                                 Text = "My Badges",
                                 BindingContext = nameof(BadgesPage)
                             }

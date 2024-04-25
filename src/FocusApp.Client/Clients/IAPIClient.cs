@@ -72,6 +72,11 @@ public interface IAPIClient
         EditUserSelectedDecorCommand command,
         CancellationToken cancellationToken = default);
 
+    [Put("/User/EditUserSelectedIsland")]
+    Task EditUserSelectedIsland(
+        EditUserSelectedIslandCommand command,
+        CancellationToken cancellationToken = default);
+
     [Put("/User/EditUserSelectedBadge")]
     Task EditUserSelectedBadge(
         EditUserSelectedBadgeCommand command,
