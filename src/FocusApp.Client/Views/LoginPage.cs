@@ -195,6 +195,7 @@ internal class LoginPage : BasePage
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
         _popupService.ShowPopup<GenericLoadingPopupInterface>();
+        // Prioritize persistent login on main thread
         await MainThread.InvokeOnMainThreadAsync(TryLoginFromStoredToken);
         _popupService.HidePopup();
     }
@@ -208,13 +209,13 @@ internal class LoginPage : BasePage
             if (result.IsSuccessful)
             {
                 await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
-                return result;
             }
             else
             {
                 _logger.LogInformation(result.Message);
-                return result;
             }
+
+            return result;
         }
         catch (Exception ex)
         {
