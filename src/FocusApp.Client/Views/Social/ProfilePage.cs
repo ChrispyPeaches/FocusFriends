@@ -472,8 +472,8 @@ internal class ProfilePage : BasePage
 
         _selectedBadge = new ImageButton
         {
-            HeightRequest = 110,
-            WidthRequest = 110
+            HeightRequest = 100,
+            WidthRequest = 100
         }
         .Bind(ImageButton.SourceProperty, "Image", converter: new ByteArrayToImageSourceConverter())
         .Invoke(button => button.Released += (sender, eventArgs) =>
