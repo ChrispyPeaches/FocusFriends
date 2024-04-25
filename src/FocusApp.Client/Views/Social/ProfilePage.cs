@@ -38,6 +38,10 @@ internal class ProfilePage : BasePage
     Label _email { get; set; }
 
     // Selected user item references
+    Label _selectedPetLabel { get; set; }
+    Label _selectedIslandLabel { get; set; }
+    Label _selectedDecorLabel { get; set; }
+    Label _selectedBadgeLabel { get; set; }
     ImageButton _selectedPet { get; set; }
     ImageButton _selectedIsland { get; set; }
     ImageButton _selectedDecor { get; set; }
@@ -139,14 +143,7 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Left)
                         .Center(),
 
-                        new Label
-                        {
-                            Text = $"{
-                                (_authenticationService.CurrentUser?.SelectedPet?.Name == null
-                                ? "Select a pet!"
-                                : _authenticationService.CurrentUser?.SelectedPet?.Name)}",
-                            FontSize = 15
-                        }
+                        _selectedPetLabel
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Left)
                         .Top()
@@ -172,14 +169,7 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Right)
                         .Center(),
 
-                        new Label
-                        {
-                            Text = $"{
-                                (_authenticationService.CurrentUser?.SelectedIsland?.Name == null
-                                ? "Select an island!"
-                                : _authenticationService.CurrentUser?.SelectedIsland?.Name)}",
-                            FontSize = 15
-                        }
+                        _selectedIslandLabel
                         .Row(SelectedItemRow.Top)
                         .Column(PageColumn.Right)
                         .Top()
@@ -205,14 +195,7 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Left)
                         .Center(),
 
-                        new Label
-                        {
-                            Text = $"{
-                                (_authenticationService.CurrentUser?.SelectedDecor?.Name == null
-                                ? "Select decor!"
-                                : _authenticationService.CurrentUser?.SelectedDecor?.Name)}",
-                            FontSize = 15
-                        }
+                        _selectedDecorLabel
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Left)
                         .Top()
@@ -237,14 +220,7 @@ internal class ProfilePage : BasePage
                         .Column(PageColumn.Right)
                         .Center(),
 
-                        new Label
-                        {
-                            Text = $"{
-                                (_authenticationService.CurrentUser?.SelectedBadge?.Name == null
-                                ? "Select a badge!"
-                                : _authenticationService.CurrentUser?.SelectedBadge?.Name)}",
-                            FontSize = 15
-                        }
+                        _selectedBadgeLabel
                         .Row(SelectedItemRow.Bottom)
                         .Column(PageColumn.Right)
                         .Top()
@@ -371,13 +347,31 @@ internal class ProfilePage : BasePage
 
         // Set user selected items bindings
         _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedPet?.Image);
+        _selectedPetLabel.Text = $"{(_authenticationService.SelectedPet?.Name == null
+                                        ? "Select a pet!"
+                                        : _authenticationService.SelectedPet?.Name)}";
+
         _selectedIsland.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedIsland?.Image);
+        _selectedIslandLabel.Text = $"{(_authenticationService.SelectedIsland?.Name == null
+                                        ? "Select an island!"
+                                        : _authenticationService.SelectedIsland?.Name)}";
 
         if (_authenticationService.SelectedDecor != null)
+        {
             _selectedDecor.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedDecor?.Image);
+            _selectedDecorLabel.Text = $"{(_authenticationService.SelectedDecor?.Name == null
+                                            ? "Select decor!"
+                                            : _authenticationService.SelectedDecor?.Name)}";
+        }
+
 
         if (_authenticationService.SelectedBadge != null)
+        {
             _selectedBadge.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedBadge?.Image);
+            _selectedBadgeLabel.Text = $"{(_authenticationService.SelectedBadge?.Name == null
+                                            ? "Select a badge!"
+                                            : _authenticationService.SelectedBadge?.Name)}";
+        }
     }
 
 
@@ -430,6 +424,22 @@ internal class ProfilePage : BasePage
             Text = $"{(_authenticationService.CurrentUser?.SelectedIsland?.Name == null
                                 ? "Select an island!"
                                 : _authenticationService.CurrentUser?.SelectedIsland?.Name)}",
+            FontSize = 15
+        };
+
+        _selectedDecorLabel = new Label
+        {
+            Text = $"{(_authenticationService.CurrentUser?.SelectedDecor?.Name == null
+                                ? "Select decor!"
+                                : _authenticationService.CurrentUser?.SelectedDecor?.Name)}",
+            FontSize = 15
+        };
+
+        _selectedBadgeLabel = new Label
+        {
+            Text = $"{(_authenticationService.CurrentUser?.SelectedBadge?.Name == null
+                                ? "Select a badge!"
+                                : _authenticationService.CurrentUser?.SelectedBadge?.Name)}",
             FontSize = 15
         };
 
