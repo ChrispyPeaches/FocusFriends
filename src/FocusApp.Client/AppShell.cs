@@ -1,25 +1,32 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using CommunityToolkit.Maui.Markup;
 using FocusApp.Client.Views;
-using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Resources;
-using Microsoft.Maui.Controls;
 using SimpleToolkit.SimpleShell;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
-using FocusApp.Shared.Data;
-using Microsoft.EntityFrameworkCore;
 using SimpleToolkit.SimpleShell.Extensions;
+using Microsoft.Maui;
 
 namespace FocusApp.Client;
 
 public class AppShell : SimpleShell
 {
     public List<Button> tabButtons { get; set; }
+
+    private Grid _tabBarGrid;
+
+    public new static AppShell Current => Shell.Current as AppShell;
+
+    enum Row { PageContent, TabBar }
+    enum Column { ShopTab, TimerTab, SocialTab }
+
     public AppShell()
     {
+
         // Register routes to any side pages
         Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
 
@@ -75,10 +82,51 @@ public class AppShell : SimpleShell
 
                 new ShellContent()
                 {
-                     Title = "LeaderboardsPage",
-                     ContentTemplate = new DataTemplate(typeof(LeaderboardsPage)),
-                     Route = "LeaderboardsPage"
+                     Title = "DecorPage",
+                     ContentTemplate = new DataTemplate(typeof(DecorPage)),
+                     Route = "DecorPage"
                 },
+
+                new ShellContent()
+                {
+                     Title = "IslandsPage",
+                     ContentTemplate = new DataTemplate(typeof(IslandsPage)),
+                     Route = "IslandsPage"
+                },
+
+                new ShellContent
+                {
+                    Title = "FriendProfilePage",
+                    ContentTemplate = new DataTemplate(typeof(FriendProfilePage)),
+                    Route = "FriendProfilePage"
+                },
+                new ShellContent()
+                {
+                    Title = "ProfilePage",
+                    ContentTemplate = new DataTemplate (typeof(ProfilePage)),
+                    Route = "ProfilePage"
+                },
+
+                new ShellContent() 
+                {
+                    Title = "ProfilePageEdit",
+                    ContentTemplate = new DataTemplate(typeof(ProfilePageEdit)),
+                    Route = "ProfilePageEdit"
+                },
+                
+                new ShellContent()
+                {
+                    Title = "LeaderboardsPage",
+                    ContentTemplate = new DataTemplate(typeof(LeaderboardsPage)),
+                    Route = "LeaderboardsPage"
+                },
+
+                new ShellContent()
+                {
+                    Title = "BadgesPage",
+                    ContentTemplate = new DataTemplate (typeof(BadgesPage)),
+                    Route = "BadgesPage"
+                }
             }
         };
         var loginTab = new Tab()
@@ -155,6 +203,25 @@ public class AppShell : SimpleShell
 
         tabButtons = new List<Button> { shopButton, timerButton, socialButton };
 
+        _tabBarGrid = new Grid
+            {
+                ZIndex = 1,
+                BackgroundColor = Colors.Transparent,
+
+                // Define the rows
+                ColumnDefinitions = Columns.Define(
+                    (Column.ShopTab, Star),
+                    (Column.TimerTab, Stars(2)),
+                    (Column.SocialTab, Star)),
+
+                Children =
+                {
+                    tabButtons[0],
+                    tabButtons[1],
+                    tabButtons[2]
+                }
+            };
+
         // This container holds all the view data
         RootPageContainer = new Grid()
         {
@@ -162,7 +229,9 @@ public class AppShell : SimpleShell
             BackgroundColor = Colors.Transparent,
 
             // Define the rows
-            RowDefinitions = Rows.Define(Stars(9), Star),
+            RowDefinitions = Rows.Define(
+                (Row.PageContent, GridRowsColumns.Stars(9)),
+                (Row.TabBar, Consts.TabBarHeight)),
 
             Children =
             {
@@ -174,22 +243,8 @@ public class AppShell : SimpleShell
                 .RowSpan(2),
 
                 // This grid contains the tab buttons
-                new Grid
-                {
-                    ZIndex = 1,
-                    BackgroundColor = Colors.Transparent,
-
-                    // Define the rows
-                    ColumnDefinitions = Columns.Define(Star, Stars(2), Star),
-
-                    Children =
-                    {
-                        tabButtons[0],
-                        tabButtons[1],
-                        tabButtons[2]
-                    }
-                }
-                .Row(1)
+                _tabBarGrid
+                .Row(Row.TabBar)
                 .Margin(20, 5)
             }
         };
@@ -249,6 +304,24 @@ public class AppShell : SimpleShell
             }
 
             await GoToAsync($"///{shellItem.Route}", true);
+        }
+    }
+
+    /// <summary>
+    /// Show or hide the tab bar
+    /// </summary>
+    public async Task SetTabBarIsVisible(bool newIsVisible)
+    {
+        
+        if (newIsVisible && !_tabBarGrid.IsVisible)
+        {
+            _tabBarGrid.IsVisible = true;
+            await _tabBarGrid.TranslateTo(x: 0, y: 0, easing: Easing.CubicInOut);
+        }
+        else if (!newIsVisible && _tabBarGrid.IsVisible)
+        {
+            await _tabBarGrid.TranslateTo(x: 0, y: Consts.TabBarHeight, easing: Easing.CubicInOut);
+            _tabBarGrid.IsVisible = false;
         }
     }
 }

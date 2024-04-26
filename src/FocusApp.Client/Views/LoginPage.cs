@@ -1,14 +1,15 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources;
-using FocusApp.Client.Clients;
-using Auth0.OidcClient;
 using FocusApp.Client.Helpers;
-using FocusApp.Shared.Data;
 using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
+
+using Auth0.OidcClient;
+using FocusApp.Client.Clients;
+using IdentityModel.OidcClient;
 
 namespace FocusApp.Client.Views;
 
@@ -17,19 +18,28 @@ internal class LoginPage : BasePage
     IAuthenticationService _authenticationService;
     ILogger<LoginPage> _logger;
     IMediator _mediator;
+    PopupService _popupService;
 
-    public LoginPage(IAuthenticationService authenticationService, ILogger<LoginPage> logger, IMediator mediator)
+    public LoginPage(
+        IAuthenticationService authenticationService,
+        ILogger<LoginPage> logger,
+        IMediator mediator,
+        PopupService popupService
+        )
     {
         _authenticationService = authenticationService;
         _logger = logger;
         _mediator = mediator;
+        _popupService = popupService;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
 
+        Loaded += LoginPage_Loaded;
+
         Content = new Grid
         {
-            RowDefinitions = Rows.Define(200, 100, 100, 80, 80, Star, 50),
+            RowDefinitions = Rows.Define(200, 80, Star, 80, 80, GridRowsColumns.Stars(2)),
             ColumnDefinitions = Columns.Define(Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
@@ -87,7 +97,7 @@ internal class LoginPage : BasePage
                 // Logo 
                 new Image
                 {
-                    Source = "logo.png",
+                    Source = "logo_with_border.png",
                     WidthRequest = 75,
                     HeightRequest = 75,
                 }
@@ -119,10 +129,9 @@ internal class LoginPage : BasePage
     {
         try
         {
+
             // Handle login process on non-UI thread
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
-
-            // Todo: If user exists, sync user data with server including islands, pets, etc.
 
             if (loginResult.IsSuccessful)
             {
@@ -131,7 +140,7 @@ internal class LoginPage : BasePage
                 _authenticationService.CurrentUser = loginResult.CurrentUser;
 
                 _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
-                _authenticationService.SelectedFurniture = loginResult.CurrentUser?.SelectedFurniture;
+                _authenticationService.SelectedDecor = loginResult.CurrentUser?.SelectedDecor;
                 _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
                 _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
             }
@@ -174,13 +183,49 @@ internal class LoginPage : BasePage
 
             _authenticationService.SelectedIsland ??= result.Island;
             _authenticationService.SelectedPet ??= result.Pet;
-            _authenticationService.SelectedFurniture ??= result.Decor;
+            _authenticationService.SelectedDecor ??= result.Decor;
         }
     }
 
     protected override async void OnAppearing()
     {
-        base.OnAppearing();
+        await AppShell.Current.SetTabBarIsVisible(false);
+    }
+
+    private async void LoginPage_Loaded(object sender, EventArgs e)
+    {
+        Task.Run(TryLoginFromStoredToken);
+    }
+
+    private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
+    {
+        _popupService.ShowPopup<GenericLoadingPopupInterface>();
+        try
+        {
+            var result = await _mediator.Send(new GetPersistentUserLogin.Query(), default);
+
+            if (result.IsSuccessful)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
+            }
+            else
+            {
+                _logger.LogInformation(result.Message);
+            }
+
+            _popupService.HidePopup();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
+        }
+
+        _popupService.HidePopup();
+        return new GetPersistentUserLogin.Result
+        {
+            IsSuccessful = false
+        };
     }
 }
 

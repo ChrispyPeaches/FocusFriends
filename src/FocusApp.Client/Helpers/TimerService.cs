@@ -14,6 +14,7 @@ using FocusApp.Client.Views.Mindfulness;
 using FocusCore.Commands.User;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace FocusApp.Client.Helpers;
 
@@ -72,9 +73,11 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
     private int _lastFocusTimerDuration;
     private int _lastBreakTimerDuration;
     private DateTimeOffset? _currentSessionStartTime;
+
     private Helpers.PopupService _popupService;
     private readonly IMediator _mediator;
-
+    private readonly IBadgeService _badgeService;
+    private readonly ILogger<TimerService> _logger;
     #endregion
 
     #region Properties
@@ -140,10 +143,14 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
 
     public TimerService(
         Helpers.PopupService popupService,
-        IMediator mediator)
+        IMediator mediator,
+        IBadgeService badgeService,
+        ILogger<TimerService> logger)
     {
         _popupService = popupService;
         _mediator = mediator;
+        _badgeService = badgeService;
+        _logger = logger;
 
         _timerDisplay = new TimerDto();
         _lastFocusTimerDuration = (int)TimeSpan.FromMinutes(5).TotalSeconds;
@@ -226,19 +233,42 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
 
         DateTimeOffset? endTime = (_currentSessionStartTime + TimeSpan.FromSeconds(_lastFocusTimerDuration)).Value.ToUniversalTime();
 
-        await _mediator.Send(new AddSessionToUser.Query()
+        try
         {
-            SessionStartTime = _currentSessionStartTime.Value.ToUniversalTime(),
-            SessionEndTime = endTime.Value.ToUniversalTime()
-        }, 
-        default);
+
+            await _mediator.Send(new AddSessionToUser.Query()
+                {
+                    SessionStartTime = _currentSessionStartTime.Value.ToUniversalTime(),
+                    SessionEndTime = endTime.Value.ToUniversalTime()
+                },
+                default);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while tracking focus session.");
+        }
 
         _currentSessionStartTime = null;
+
+        try
+        {
+            BadgeEligibilityResult result = await _badgeService.CheckFocusSessionBadgeEligibility();
+
+            if (result is { IsEligible: true, EarnedBadge: not null })
+            {
+                _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+        }
     }
 
-    public async void ShowSessionRatingPopup()
+    private void ShowSessionRatingPopup()
     {
-        _popupService.ShowPopup<SessionRatingPopupInterface>();
+        if (PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled))
+            _popupService.ShowPopup<SessionRatingPopupInterface>();
     }
 
     /// <summary>
@@ -269,10 +299,30 @@ internal class TimerService : ITimerService, INotifyPropertyChanged
             TimeLeft--;
             if (TimeLeft <= 0)
             {
+                if (_state == TimerState.BreakCountdown)
+                    Task.Run(CheckUserSessionBadge);
+
                 TransitionToNextState();
             }
         };
         _timer.Start();
+    }
+
+    private async Task CheckUserSessionBadge()
+    {
+        try
+        {
+            BadgeEligibilityResult result = await _badgeService.CheckBreakSessionBadgeEligibility();
+
+            if (result is { IsEligible: true, EarnedBadge: not null })
+            {
+                _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+        }
     }
 
     /// <summary>

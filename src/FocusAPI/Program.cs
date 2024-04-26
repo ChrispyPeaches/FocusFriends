@@ -3,8 +3,12 @@ using FluentValidation;
 using FocusAPI.Configuration.PipelineBehaviors;
 using FocusAPI.Data;
 using FocusAPI.Helpers;
+using FocusAPI.Models;
+using FocusCore.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MediatR.Registration;
+using static FocusAPI.Methods.Sync.SyncItems;
 
 namespace FocusAPI;
 
@@ -21,10 +25,10 @@ internal class Program
         builder.Services.AddSwaggerGen();
 
         // Configure MediatR
-        RegisterMediatR(builder.Services);
+        RegisterMediatR(builder);
 
         // Register DbContext
-        builder.Services.AddDbContext<FocusContext>(options =>
+        builder.Services.AddDbContext<FocusAPIContext>(options =>
         {
             options.UseSqlServer(builder.Configuration["DefaultConnectionString"]);
         });
@@ -52,11 +56,31 @@ internal class Program
         app.Run();
     }
 
-    public static void RegisterMediatR(IServiceCollection services)
+    public static void RegisterMediatR(WebApplicationBuilder builder)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        builder.Services.AddMediatR(cfg => cfg
+            .RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        // Create types for generic SyncItems MediatR query
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<MindfulnessTip>, Response<MindfulnessTip>>),
+            typeof(Handler<MindfulnessTip>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Badge>, Response<Badge>>),
+            typeof(Handler<Badge>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Pet>, Response<Pet>>),
+            typeof(Handler<Pet>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Decor>, Response<Decor>>),
+            typeof(Handler<Decor>));
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<Query<Island>, Response<Island>>),
+            typeof(Handler<Island>));
+
     }
 
     /// <summary>

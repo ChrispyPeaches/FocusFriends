@@ -14,12 +14,11 @@ public interface IFocusAppContext
     public DbSet<UserPet> UserPets { get; set; }
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
-    public DbSet<Furniture> Furniture { get; set; }
-    public DbSet<Sound> Sounds { get; set; }
-    public DbSet<UserFurniture> UserFurniture { get; set; }
-    public DbSet<UserSound> UserSounds { get; set; }
+    public DbSet<Decor> Decor { get; set; }
+    public DbSet<UserDecor> UserDecor { get; set; }
     public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
-
+    public DbSet<Island> Islands { get; set; }
+    public DbSet<UserIsland> UserIslands { get; set; }
 
     #endregion
 
@@ -37,10 +36,8 @@ public class FocusAppContext : DbContext, IFocusAppContext
     public DbSet<UserPet> UserPets { get; set; }
     public DbSet<UserSession> UserSessionHistory { get; set; }
     public DbSet<Friendship> Friends { get; set; }
-    public DbSet<Furniture> Furniture { get; set; }
-    public DbSet<Sound> Sounds { get; set; }
-    public DbSet<UserFurniture> UserFurniture { get; set; }
-    public DbSet<UserSound> UserSounds { get; set; }
+    public DbSet<Decor> Decor { get; set; }
+    public DbSet<UserDecor> UserDecor { get; set; }
     public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
     public DbSet<Island> Islands { get; set; }
     public DbSet<UserIsland> UserIslands { get; set; }

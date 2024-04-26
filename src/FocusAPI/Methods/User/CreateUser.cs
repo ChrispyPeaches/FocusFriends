@@ -4,7 +4,6 @@ using MediatR;
 using FocusAPI.Data;
 using FocusAPI.Helpers;
 using FocusAPI.Models;
-using FocusCore.Models;
 using FocusCore.Responses.User;
 using Microsoft.EntityFrameworkCore;
 using FocusCore.Responses;
@@ -14,14 +13,14 @@ public class CreateUser
 {
     public class Handler : IRequestHandler<CreateUserCommand, MediatrResultWrapper<CreateUserResponse>>
     {
-        private readonly FocusContext _context;
+        private readonly FocusAPIContext _apiContext;
         private readonly ISyncService _syncService;
 
         public Handler(
-            FocusContext context,
+            FocusAPIContext apiContext,
             ISyncService syncService)
         {
-            _context = context;
+            _apiContext = apiContext;
             _syncService = syncService;
         }
 
@@ -51,7 +50,8 @@ public class CreateUser
                             SelectedIslandId = newUser.SelectedIslandId,
                             SelectedPetId = newUser.SelectedPetId,
                             UserIslandIds = newUser.Islands.Select(userIsland => userIsland.IslandId).ToList(),
-                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList()
+                            UserPetIds = newUser.Pets.Select(userPet => userPet.PetId).ToList(),
+                            DateCreated = newUser.DateCreated
                         }
                     }
                 };
@@ -72,7 +72,7 @@ public class CreateUser
         {
             try
             {
-                return await _context.Users
+                return await _apiContext.Users
                     .Where(u => u.Auth0Id == command.Auth0Id)
                     .FirstOrDefaultAsync(cancellationToken);
             }
@@ -128,21 +128,29 @@ public class CreateUser
 
             if (initialPet != null)
             {
-                user.Pets?.Add(new UserPet() { Pet = initialPet });
+                user.Pets?.Add(new UserPet()
+                {
+                    DateAcquired = DateTimeOffset.UtcNow,
+                    Pet = initialPet
+                });
                 user.SelectedPet = initialPet;
             }
 
             if (initialIsland != null)
             {
-                user.Islands?.Add(new UserIsland() { Island = initialIsland });
+                user.Islands?.Add(new UserIsland()
+                {
+                    DateAcquired = DateTimeOffset.UtcNow,
+                    Island = initialIsland
+                });
                 user.SelectedIsland = initialIsland;
             }
 
-            _context.Users.Add(user);
+            _apiContext.Users.Add(user);
 
             try
             {
-                await _context.SaveChangesAsync(cancellationToken);
+                await _apiContext.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

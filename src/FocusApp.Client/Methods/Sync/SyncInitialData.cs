@@ -42,7 +42,7 @@ namespace FocusApp.Client.Methods.Sync
                 {
                     int islandCount = await GetCount(_context.Islands, cancellationToken);
                     int petCount = await GetCount(_context.Pets, cancellationToken);
-                    int decorCount = await GetCount(_context.Furniture, cancellationToken);
+                    int decorCount = await GetCount(_context.Decor, cancellationToken);
 
                     if (islandCount == 0 || petCount == 0 || decorCount == 0)
                     {
@@ -73,8 +73,8 @@ namespace FocusApp.Client.Methods.Sync
                         if (response.Decor is not null)
                         {
                             await AddItemToMobileDb(
-                                _context.Furniture,
-                                ProjectionHelper.ProjectionFromBaseDecor(response.Decor),
+                                _context.Decor,
+                                ProjectionHelper.ProjectFromBaseDecor(response.Decor),
                                 cancellationToken);
                         }
 

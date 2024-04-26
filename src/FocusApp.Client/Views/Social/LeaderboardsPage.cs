@@ -17,7 +17,7 @@ namespace FocusApp.Client.Views.Social
     internal class LeaderboardsPage : BasePage
     {
         // Row / Column structure for entire page
-        enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, BottomWhiteSpace }
+        enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, TabBarSpacer }
         enum PageColumn { DailyLeadboardButton, WeeklyLeaderboardButton }
 
         // Row / Column structure for top three friends grid
@@ -48,11 +48,13 @@ namespace FocusApp.Client.Views.Social
         IAPIClient _client { get; set; }
         IAuthenticationService _authenticationService { get; set; }
         ILogger<LeaderboardsPage> _logger { get; set; }
-        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService, ILogger<LeaderboardsPage> logger)
+        PopupService _popupService { get; set; }
+        public LeaderboardsPage(IAPIClient client, IAuthenticationService authenticationService, ILogger<LeaderboardsPage> logger, PopupService popupService)
         {
             _client = client;
             _authenticationService = authenticationService;
             _logger = logger;
+            _popupService = popupService;
 
             Grid topThreeFriendsGrid = GetTopThreeFriendsGrid();
             ScrollView remainingFriendsScrollView = GetRemainingFriendsScrollView();
@@ -89,7 +91,7 @@ namespace FocusApp.Client.Views.Social
                     (PageRow.LeaderboardSelectors, GridRowsColumns.Stars(1)),
                     (PageRow.TopThreeFriendsDisplay, GridRowsColumns.Stars(4.5)),
                     (PageRow.RemainingFriendsDisplay, GridRowsColumns.Stars(3.5)),
-                    (PageRow.BottomWhiteSpace, GridRowsColumns.Stars(1.25))
+                    (PageRow.TabBarSpacer, Consts.TabBarHeight)
                     ),
                 ColumnDefinitions = GridRowsColumns.Columns.Define(
                     (PageColumn.DailyLeadboardButton, GridRowsColumns.Stars(1)),
@@ -409,6 +411,7 @@ namespace FocusApp.Client.Views.Social
         {
             try
             {
+                _popupService.ShowPopup<GenericLoadingPopupInterface>();
                 LeaderboardResponse leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
                 PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
 
@@ -420,12 +423,14 @@ namespace FocusApp.Client.Views.Social
             {
                 _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards. Message: " + ex.Message);
             }
+            _popupService.HidePopup();
         }
 
         async void GetWeeklyLeaderboards(object sender, EventArgs e)
         {
             try
             {
+                _popupService.ShowPopup<GenericLoadingPopupInterface>();
                 LeaderboardResponse leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
                 PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
 
@@ -437,6 +442,7 @@ namespace FocusApp.Client.Views.Social
             {
                 _logger.Log(LogLevel.Error, "Error retreiving weekly leaderboards. Message: " + ex.Message);
             }
+            _popupService.HidePopup();
         }
 
         void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
@@ -502,6 +508,8 @@ namespace FocusApp.Client.Views.Social
 
         protected override async void OnAppearing()
         {
+            base.OnAppearing();
+
             // On page load, fetch daily leaderboards
             try
             {
@@ -512,7 +520,6 @@ namespace FocusApp.Client.Views.Social
             {
                 _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards on page load. Message: " + ex.Message);
             }
-            base.OnAppearing();
         }
 
         // Clear leaderboard and reset daily/weekly buttons upon leaving page

@@ -27,7 +27,7 @@ internal class TimerPage : BasePage
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
 
-    enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, BottomWhiteSpace }
+    enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, TabBarSpacer }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     private enum TimerButton { Up, Down }
 
@@ -45,8 +45,8 @@ internal class TimerPage : BasePage
         _popupService = popupService;
         _logger = logger;
 
-        _showMindfulnessTipPopupOnStartSettingPlaceholder = true;
-        Appearing += ShowMindfulnessTipPopup;
+        if (PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled))
+            Appearing += ShowMindfulnessTipPopup;
 
         // Login/Logout Button
         // This is placed here and not in the grid so the text
@@ -87,7 +87,7 @@ internal class TimerPage : BasePage
                 (Row.TimerDisplay, GridRowsColumns.Stars(1)),
                 (Row.IslandView, GridRowsColumns.Stars(4)),
                 (Row.TimerButtons, GridRowsColumns.Stars(1)),
-                (Row.BottomWhiteSpace, GridRowsColumns.Stars(1))
+                (Row.TabBarSpacer, Consts.TabBarHeight)
                 ),
             ColumnDefinitions = GridRowsColumns.Columns.Define(
                 (Column.LeftTimerButton, GridRowsColumns.Stars(1)),
@@ -218,7 +218,7 @@ internal class TimerPage : BasePage
                 source: _authenticationService)
             .Bind(
                 IslandDisplayView.DisplayDecorProperty,
-                getter: static (IAuthenticationService authService) => authService.SelectedFurniture,
+                getter: static (IAuthenticationService authService) => authService.SelectedDecor,
                 source: _authenticationService);
     }
 
@@ -278,19 +278,24 @@ internal class TimerPage : BasePage
         var logoutResult = await _auth0Client.LogoutAsync();
         _authenticationService.AuthToken = "";
 
+        // Empty the secure storage of all persistent login tokens
+        SecureStorage.Default.Remove("id_token");
+        SecureStorage.Default.Remove("access_token");
+
         await Shell.Current.GoToAsync($"///" + nameof(LoginPage));
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        _loggedIn = !string.IsNullOrEmpty(_authenticationService.AuthToken);
+
+        _loggedIn = !string.IsNullOrEmpty(_authenticationService.Auth0Id);
         _selectedText = _loggedIn ? "Logout" : "Login";
         _logButton.Text = _selectedText;
     }
 
     /// <summary>
-    /// Remove subscription to the this.Appearing event so that the popup is only shown once on app startup,
+    /// Remove subscription to the this. Appearing event so that the popup is only shown once on app startup,
     /// then show and populate the mindfulness tip popup.
     /// </summary>
     private async void ShowMindfulnessTipPopup(object? sender, EventArgs eventArgs)

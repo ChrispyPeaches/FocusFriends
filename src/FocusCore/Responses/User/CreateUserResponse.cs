@@ -13,4 +13,6 @@ public class UserDto
     public List<Guid>? UserPetIds { get; set; }
     public Guid? SelectedIslandId { get; set; }
     public Guid? SelectedPetId { get; set; }
+    // Note: This offset is UTC
+    public DateTimeOffset DateCreated { get; set; }
 }

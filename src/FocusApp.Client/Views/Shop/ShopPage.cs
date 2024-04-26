@@ -1,40 +1,36 @@
-﻿using System.Diagnostics;
-using CommunityToolkit.Maui.Converters;
+﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
+using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
 using FocusApp.Shared.Data;
-using FocusApp.Shared.Models;
-using FocusCore.Queries.Shop;
+using FocusCore.Models;
+using MediatR;
 
 namespace FocusApp.Client.Views.Shop
 {
     internal class ShopPage : BasePage
     {
-        IAPIClient _client;
         IAuthenticationService _authenticationService;
-        FocusAppContext _localContext;
-        Helpers.PopupService _popupService;
+        PopupService _popupService;
+        IMediator _mediator;
         CarouselView _petsCarouselView { get; set; }
-        CarouselView _soundsCarouselView { get; set; }
-        CarouselView _furnitureCarouselView { get; set; }
+        CarouselView _islandsCarouselView { get; set; }
+        CarouselView _decorCarouselView { get; set; }
 
         public Label _balanceLabel { get; set; }
 
         #region Frontend
 
-        public ShopPage(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService, FocusAppContext localContext)
+        public ShopPage(IAuthenticationService authenticationService, PopupService popupService, IMediator mediator)
         {
-            _client = client;
             _popupService = popupService;
             _authenticationService = authenticationService;
-            _localContext = localContext;
+            _mediator = mediator;
 
             _petsCarouselView = BuildBaseCarouselView();
-            _soundsCarouselView = BuildBaseCarouselView();
-            _furnitureCarouselView = BuildBaseCarouselView();
-
+            _islandsCarouselView = BuildBaseCarouselView();
+            _decorCarouselView = BuildBaseCarouselView();
 
             // Currency text
             _balanceLabel = new Label
@@ -45,7 +41,6 @@ namespace FocusApp.Client.Views.Shop
                 VerticalOptions = LayoutOptions.Center,
             }
             .Margins(left: 10, right: 10);
-
 
             Content = new StackLayout
             {
@@ -63,7 +58,7 @@ namespace FocusApp.Client.Views.Shop
                             { 
                                 Source = new FileImageSource
                                 { 
-                                    File = "logo.png"
+                                    File = "coin.png"
                                 },
                                 HeightRequest = 25,
                                 WidthRequest = 25,
@@ -104,25 +99,26 @@ namespace FocusApp.Client.Views.Shop
                     },
                     // Pets Carousel
                     _petsCarouselView,
-                    // Sounds Carousel Label
+                    // Islands Carousel Label
                     new Label
                     {
-                        Text = "Sounds",
+                        Text = "Islands",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
-                    _soundsCarouselView,
-                    // Furniture Carousel Label
+                    // Islands Carousel
+                    _islandsCarouselView,
+                    // Decor Carousel Label
                     new Label
                     { 
-                        Text = "Furniture",
+                        Text = "Decor",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
                     },
-                    // Furniture Carousel
-                    _furnitureCarouselView
+                    // Decor Carousel
+                    _decorCarouselView
                 }
             };
         }
@@ -152,9 +148,9 @@ namespace FocusApp.Client.Views.Shop
                     ImageButton.SourceProperty, "ImageSource",
                     converter: new ByteArrayToImageSourceConverter());
 
-                itemImage.Clicked += (s,e) =>
+                itemImage.Clicked += async (s,e) =>
                 {
-                    OnImageButtonClicked(s, e);
+                    await OnImageButtonClicked(s, e);
                 };
 
                 // Shop item price
@@ -188,24 +184,15 @@ namespace FocusApp.Client.Views.Shop
             return carouselView;
         }
 
-        void OnImageButtonClicked(object sender, EventArgs eventArgs)
-        {
-            var itemButton = sender as ImageButton;
-            var shopItem = (ShopItem)itemButton.BindingContext;
-
-            var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
-            // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
-            itemPopup.ShopPage = this;
-            itemPopup.PopulatePopup(shopItem);
-        }
-
         #endregion
 
         #region Backend
 
         protected override async void OnAppearing()
         {
-            if (string.IsNullOrEmpty(_authenticationService.AuthToken))
+            base.OnAppearing();
+
+            if (string.IsNullOrEmpty(_authenticationService.Auth0Id))
             {
                 var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
                 loginPopup.OriginPage = nameof(ShopPage);
@@ -214,70 +201,22 @@ namespace FocusApp.Client.Views.Shop
             // Update user balance upon showing shop page
             _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
 
-            // Note: This is temporary - will be made obsolete by shop item sync update
-            List<ShopItem> shopItems;
-            if (ShopItemsFetched())
-            {
-                shopItems = GetLocalShopItems();
-            }
-            else
-            {
-                shopItems = await _client.GetAllShopItems(new GetAllShopItemsQuery(), default);
-            }
-            
-            // TODO: Replace above logic with fetch from local database
-            //List<ShopItem> shopItems = GetAllShopItems();
-
-            shopItems = shopItems.OrderBy(p => p.Price).ToList();
+            List<ShopItem> shopItems = await _mediator.Send(new GetLocalShopItems.Query(), default);
 
             _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
-            _soundsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Sounds);
-            _furnitureCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Furniture);
-
-            base.OnAppearing();
-        }
-       
-
-        // Note: This is temporary - will be made obsolete by shop item sync update
-        private bool ShopItemsFetched()
-        {
-            return 
-                   _localContext.Pets.Count() == 7
-                && _localContext.Furniture.Count() == 6
-                && _localContext.Sounds.Count() == 6;
+            _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
+            _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
         }
 
-        // Gather shop items from local database, and convert to ShopItem objects
-        private List<ShopItem> GetLocalShopItems()
+        async Task OnImageButtonClicked(object sender, EventArgs eventArgs)
         {
-            List<ShopItem> pets = _localContext.Pets.Where(p => p.Price > 0).Select(p => new ShopItem
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Price = p.Price,
-                ImageSource = p.Image,
-                Type = ShopItemType.Pets,
-            }).ToList();
+            var itemButton = sender as ImageButton;
+            var shopItem = (ShopItem)itemButton.BindingContext;
 
-            List<ShopItem> furniture = _localContext.Furniture.Select(f => new ShopItem
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Price = f.Price,
-                ImageSource = f.Image,
-                Type = ShopItemType.Furniture
-            }).ToList();
-
-            List<ShopItem> sounds = _localContext.Sounds.Select(s => new ShopItem
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Price = s.Price,
-                ImageSource = s.Image,
-                Type = ShopItemType.Sounds
-            }).ToList();
-
-            return pets.Concat(furniture).Concat(sounds).ToList();
+            var itemPopup = (ShopItemPopupInterface)_popupService.ShowAndGetPopup<ShopItemPopupInterface>();
+            // Give the popup a reference to the shop page so that the displayed user balance can be updated if necessary
+            itemPopup.ShopPage = this;
+            await itemPopup.PopulatePopup(shopItem);
         }
 
         #endregion
