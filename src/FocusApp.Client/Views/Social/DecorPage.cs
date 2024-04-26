@@ -18,6 +18,7 @@ using FocusCore.Responses;
 using FocusApp.Methods.User;
 using FocusApp.Client.Resources;
 using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views.Social;
 
@@ -28,18 +29,20 @@ internal sealed class DecorPage : BasePage
     private readonly PopupService _popupService;
     private readonly FocusAppContext _localContext;
     private readonly IMediator _mediator;
+    private readonly ILogger<DecorPage> _logger;
 
     FlexLayout _decorContainer;
     Image _selectedCheckmark;
     Label _responseMessage;
 
-    public DecorPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator)
+    public DecorPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator, ILogger<DecorPage> logger)
 	{
         _client = client;
         _authenticationService = authenticationService;
         _popupService = popupService;
         _localContext = localContext;
         _mediator = mediator;
+        _logger = logger;
 
         // Instantiate container for decor
         _decorContainer = new FlexLayout
@@ -171,7 +174,7 @@ internal sealed class DecorPage : BasePage
         }
         catch (Exception ex)
         {
-            throw new Exception("Error when fetching decor from local DB.", ex);
+            _logger.LogError(ex, "Error occurred when fetching decor from local DB.");
         }
 
         return userDecor;
