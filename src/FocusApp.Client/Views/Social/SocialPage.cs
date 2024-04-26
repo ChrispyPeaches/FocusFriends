@@ -24,10 +24,11 @@ internal class SocialPage : BasePage
 {
     private readonly Helpers.PopupService _popupService;
     private readonly ILogger<SocialPage> _logger;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IMediator _mediator;
+    IAuthenticationService _authenticationService;
+    private IAPIClient _client;
+    private IBadgeService _badgeService;
+    IMediator _mediator;
     private readonly ListView _friendsListView;
-    private readonly IAPIClient _client;
     private readonly AvatarView _profilePictureNavMenuButton;
 
 	public SocialPage(
@@ -35,7 +36,8 @@ internal class SocialPage : BasePage
         Helpers.PopupService popupService,
         IAuthenticationService authenticationService,
         IMediator mediator,
-        ILogger<SocialPage> logger
+        ILogger<SocialPage> logger,
+        IBadgeService badgeService
         )
 	{
         _popupService = popupService;
@@ -43,12 +45,15 @@ internal class SocialPage : BasePage
         _authenticationService = authenticationService;
         _mediator = mediator;
         _logger = logger;
+        _badgeService = badgeService;
 
         _friendsListView = BuildFriendsListView();
         _profilePictureNavMenuButton = new AvatarView()
         {
             ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
         };
+
+        Appearing += CheckForSocialBadgeEarned;
 
         Content = new Grid
         {
@@ -211,12 +216,34 @@ internal class SocialPage : BasePage
         }
         else
         {
-            PopulateFriendsList();
+            Task.Run(PopulateFriendsList);
         }
     }
 
+    private async void CheckForSocialBadgeEarned(object? sender, EventArgs eventArgs)
+    {
+        Appearing -= CheckForSocialBadgeEarned;
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+                if (result is { IsEligible: true, EarnedBadge: not null })
+                {
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+            }
+        });
+
+    }
+
     // We call this function to populate FriendsList and from friends popup to refresh list
-    public async void PopulateFriendsList()
+    public async Task PopulateFriendsList()
     {
         // Retrieve Friends from API
         List<FriendListModel> friendsList = new List<FriendListModel>();
@@ -235,7 +262,10 @@ internal class SocialPage : BasePage
             _logger.LogError(ex, "An error occured while fetching friends");
         }
 
-        _friendsListView.ItemsSource = friendsList;
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            _friendsListView.ItemsSource = friendsList;
+        });
     }
 
     public RelayCommand TapProfilePictureShowNavigationCommand => new(OnClickShowProfileInterfacePopup);

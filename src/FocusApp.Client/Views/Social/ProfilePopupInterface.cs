@@ -1,17 +1,9 @@
 ﻿using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Graphics.Text;
 using SimpleToolkit.SimpleShell.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -32,6 +24,8 @@ namespace FocusApp.Client.Views.Social
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;
             VerticalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Start;
             Color = Colors.Transparent;
+
+            Closed += ProfilePopupInterface_Closed;
 
             var borderWidth = 250;
             var rowWidth = 260;
@@ -247,6 +241,11 @@ namespace FocusApp.Client.Views.Social
                 .Top()
                 .Right()
             };
+        }
+
+        private void ProfilePopupInterface_Closed(object? sender, CommunityToolkit.Maui.Core.PopupClosedEventArgs e)
+        {
+            _popupService.HidePopup(wasDismissedByTappingOutsideOfPopup: true);
         }
 
         // Navigate to page according to button

@@ -1,4 +1,5 @@
-﻿namespace FocusCore.Models;
+
+namespace FocusCore.Models;
 
 public class FriendListModel
 {
