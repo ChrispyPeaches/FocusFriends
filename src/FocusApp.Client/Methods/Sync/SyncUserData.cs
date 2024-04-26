@@ -35,6 +35,7 @@ public class SyncUserData
                 .Include(u => u.Pets)
                 .Include(u => u.Decor)
                 .Include(u => u.Islands)
+                .Include(u => u.Badges)
                 .FirstOrDefaultAsync(u => u.Id == _serverUser.Id, cancellationToken);
 
             await SyncUserPets(query, cancellationToken);

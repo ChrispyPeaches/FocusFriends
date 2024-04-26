@@ -7,6 +7,10 @@ using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
 
+using Auth0.OidcClient;
+using FocusApp.Client.Clients;
+using IdentityModel.OidcClient;
+
 namespace FocusApp.Client.Views;
 
 internal class LoginPage : BasePage
@@ -14,15 +18,24 @@ internal class LoginPage : BasePage
     IAuthenticationService _authenticationService;
     ILogger<LoginPage> _logger;
     IMediator _mediator;
+    PopupService _popupService;
 
-    public LoginPage(IAuthenticationService authenticationService, ILogger<LoginPage> logger, IMediator mediator)
+    public LoginPage(
+        IAuthenticationService authenticationService,
+        ILogger<LoginPage> logger,
+        IMediator mediator,
+        PopupService popupService
+        )
     {
         _authenticationService = authenticationService;
         _logger = logger;
         _mediator = mediator;
+        _popupService = popupService;
 
         var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
         var rnd = new Random();
+
+        Loaded += LoginPage_Loaded;
 
         Content = new Grid
         {
@@ -116,10 +129,9 @@ internal class LoginPage : BasePage
     {
         try
         {
+
             // Handle login process on non-UI thread
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
-
-            // Todo: If user exists, sync user data with server including islands, pets, etc.
 
             if (loginResult.IsSuccessful)
             {
@@ -178,6 +190,42 @@ internal class LoginPage : BasePage
     protected override async void OnAppearing()
     {
         await AppShell.Current.SetTabBarIsVisible(false);
+    }
+
+    private async void LoginPage_Loaded(object sender, EventArgs e)
+    {
+        Task.Run(TryLoginFromStoredToken);
+    }
+
+    private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
+    {
+        _popupService.ShowPopup<GenericLoadingPopupInterface>();
+        try
+        {
+            var result = await _mediator.Send(new GetPersistentUserLogin.Query(), default);
+
+            if (result.IsSuccessful)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
+            }
+            else
+            {
+                _logger.LogInformation(result.Message);
+            }
+
+            _popupService.HidePopup();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
+        }
+
+        _popupService.HidePopup();
+        return new GetPersistentUserLogin.Result
+        {
+            IsSuccessful = false
+        };
     }
 }
 
