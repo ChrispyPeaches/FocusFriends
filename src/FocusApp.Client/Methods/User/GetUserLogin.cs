@@ -36,7 +36,12 @@ namespace FocusApp.Client.Methods.User
             FocusAppContext _localContext;
             ILogger<Handler> _logger;
             IMediator _mediator;
-            public Handler(Auth0Client auth0Client, IAPIClient client, FocusAppContext localContext, ILogger<Handler> logger, IMediator mediator)
+            public Handler(
+                Auth0Client auth0Client,
+                IAPIClient client,
+                FocusAppContext localContext,
+                ILogger<Handler> logger,
+                IMediator mediator)
             {
                 _auth0Client = auth0Client;
                 _client = client;
@@ -86,6 +91,9 @@ namespace FocusApp.Client.Methods.User
                                 default:
                                     throw new Exception("Error fetching user from server.", response.Error);
                             }
+
+                            await SecureStorage.Default.SetAsync("access_token", loginResult.AccessToken);
+                            await SecureStorage.Default.SetAsync("id_token", loginResult.IdentityToken);
 
                             return new Result
                             {

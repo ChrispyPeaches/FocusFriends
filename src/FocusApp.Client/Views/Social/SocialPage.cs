@@ -209,7 +209,7 @@ internal class SocialPage : BasePage
         _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.CurrentUser?.ProfilePicture);
         
         // If not logged in display popup, otherwise populate friends list
-        if (string.IsNullOrEmpty(_authenticationService.AuthToken))
+        if (string.IsNullOrEmpty(_authenticationService.Auth0Id))
         {
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(SocialPage);
