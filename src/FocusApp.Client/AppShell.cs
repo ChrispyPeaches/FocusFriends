@@ -87,6 +87,13 @@ public class AppShell : SimpleShell
                      Route = "DecorPage"
                 },
 
+                new ShellContent()
+                {
+                     Title = "IslandsPage",
+                     ContentTemplate = new DataTemplate(typeof(IslandsPage)),
+                     Route = "IslandsPage"
+                },
+
                 new ShellContent
                 {
                     Title = "FriendProfilePage",

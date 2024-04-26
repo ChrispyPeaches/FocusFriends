@@ -22,20 +22,20 @@ using Microsoft.Extensions.Logging;
 
 namespace FocusApp.Client.Views.Social;
 
-internal sealed class DecorPage : BasePage
+internal sealed class IslandsPage : BasePage
 {
     private readonly IAPIClient _client;
     private readonly IAuthenticationService _authenticationService;
     private readonly PopupService _popupService;
     private readonly FocusAppContext _localContext;
     private readonly IMediator _mediator;
-    private readonly ILogger<DecorPage> _logger;
+    private readonly ILogger<IslandsPage> _logger;
 
-    FlexLayout _decorContainer;
+    FlexLayout _islandsContainer;
     Image _selectedCheckmark;
     Label _responseMessage;
 
-    public DecorPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator, ILogger<DecorPage> logger)
+    public IslandsPage(IAPIClient client, IAuthenticationService authenticationService, PopupService popupService, FocusAppContext localContext, IMediator mediator, ILogger<IslandsPage> logger)
 	{
         _client = client;
         _authenticationService = authenticationService;
@@ -44,8 +44,8 @@ internal sealed class DecorPage : BasePage
         _mediator = mediator;
         _logger = logger;
 
-        // Instantiate container for decor
-        _decorContainer = new FlexLayout
+        // Instantiate container for islands
+        _islandsContainer = new FlexLayout
         {
             Direction = FlexDirection.Row,
             Wrap = FlexWrap.Wrap,
@@ -74,7 +74,7 @@ internal sealed class DecorPage : BasePage
 				// Header
 				new Label
                 {
-                    Text = "Decor",
+                    Text = "Islands",
                     TextColor = Colors.Black,
                     FontSize = 40
                 }
@@ -115,10 +115,10 @@ internal sealed class DecorPage : BasePage
                 .ColumnSpan(int.MaxValue),
                 //////////////////////////////////////////////////////////
 
-				// FlexLayout - Container for Decor
+				// FlexLayout - Container for Islands
                 new ScrollView
                 {
-                    Content = _decorContainer
+                    Content = _islandsContainer
                 }
                 .Row(2)
                 .Column(0)
@@ -151,48 +151,46 @@ internal sealed class DecorPage : BasePage
         // Clear message label
         _responseMessage.Text = "";
 
-        // Fetch decor from the local database and display them
-        var userDecor = await FetchDecorFromLocalDb();
-        DisplayDecor(userDecor);
+        // Fetch islands from the local database and display them
+        var userIslands = await FetchIslandsFromLocalDb();
+        DisplayIslands(userIslands);
     }
 
-    private async Task<List<DecorItem>> FetchDecorFromLocalDb()
+    private async Task<List<IslandItem>> FetchIslandsFromLocalDb()
     {
-        List<DecorItem> userDecor = new List<DecorItem>();
+        List<IslandItem> userIslands = new List<IslandItem>();
 
         try
         {
-            // Fetch decor from the local database using Mediatr feature
-            GetUserDecor.Result result = await _mediator.Send(new GetUserDecor.Query()
+            // Fetch islands from the local database using Mediatr feature
+            GetUserIslands.Result result = await _mediator.Send(new GetUserIslands.Query()
             {
                 UserId = _authenticationService.CurrentUser.Id,
-                selectedDecorId = _authenticationService.SelectedDecor != null ? _authenticationService.SelectedDecor.Id : null
+                selectedIslandId = _authenticationService.SelectedIsland != null ? _authenticationService.SelectedIsland.Id : null
             },
             default);
 
-            userDecor = result.Decor;
+            userIslands = result.Islands;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred when fetching decor from local DB.");
+            _logger.LogError(ex, "Error occurred when fetching islands from local DB.");
         }
 
-        return userDecor;
+        return userIslands;
     }
 
-    private void DisplayDecor(List<DecorItem> userDecorItems)
+    private void DisplayIslands(List<IslandItem> userIslands)
     {
+        var islandsContainer = _islandsContainer;
+
         // Clear container
-        _decorContainer.Children.Clear();
+        _islandsContainer.Children.Clear();
 
-        // Add none item
-        var noneItem = CreateNoneItem();
-        _decorContainer.Children.Add(noneItem);
-
-        // Add decor to FlexLayout
-        foreach (var decor in userDecorItems)
+        // Add islands to FlexLayout
+        foreach (var island in userIslands)
         {
-            // Decor Background
+            // Island Background
             var background = new Border
             {
                 Stroke = Colors.Black,
@@ -203,25 +201,25 @@ internal sealed class DecorPage : BasePage
                 HeightRequest = 170
             };
 
-            // Checkmark for selected decor
+            // Checkmark for selected island
             var checkmark = new Image
             {
                 Source = "pet_selected.png",
                 WidthRequest = 60,
                 HeightRequest = 60,
-                Opacity = decor.isSelected ? 1.0 : 0.0
+                Opacity = island.isSelected ? 1.0 : 0.0
             };
 
             // Assign currently selected checkmark
-            if (decor.isSelected)
+            if (island.isSelected)
             {
                 _selectedCheckmark = checkmark;
             }
 
-            // Decor Image
-            var userDecor = new ImageButton
+            // Island Image
+            var userIsland = new ImageButton
             {
-                Source = ImageSource.FromStream(() => new MemoryStream(decor.DecorPicture)),
+                Source = ImageSource.FromStream(() => new MemoryStream(island.IslandPicture)),
                 Aspect = Aspect.AspectFit,
                 WidthRequest = 130,
                 HeightRequest = 130,
@@ -229,20 +227,20 @@ internal sealed class DecorPage : BasePage
             }
             .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
 
-            // Decor Name
-            var decorName = new Label
+            // Island Name
+            var islandName = new Label
             {
-                Text = decor.DecorName,
+                Text = island.IslandName,
                 TextColor = Colors.Black,
                 FontSize = 14
             };
 
-            // Create frame with decor inside
+            // Create frame with island inside
             var grid = new Grid
             {
                 RowDefinitions = Rows.Define(160,25),
                 ColumnDefinitions = Columns.Define(160),
-                BindingContext = decor.DecorId,
+                BindingContext = island.IslandId,
                 Children = 
                 {
                     background
@@ -250,7 +248,7 @@ internal sealed class DecorPage : BasePage
                     .Row(0)
                     .ZIndex(0),
 
-                    userDecor
+                    userIsland
                     .Column(0)
                     .Row(0)
                     .ZIndex(2),
@@ -262,7 +260,7 @@ internal sealed class DecorPage : BasePage
                     .Top()
                     .Right(),
 
-                    decorName
+                    islandName
                     .Column(0)
                     .Row(1)
                     .Center()
@@ -270,127 +268,20 @@ internal sealed class DecorPage : BasePage
             }
             .Paddings(top: 5, bottom: 5);
 
-            _decorContainer.Children.Add(grid);
+            islandsContainer.Children.Add(grid);
         }
     }
 
-    private Grid CreateNoneItem()
-    {
-        // Decor Background
-        var background = new Border
-        {
-            Stroke = Colors.Black,
-            StrokeThickness = 4,
-            StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
-            BackgroundColor = Colors.Transparent,
-            WidthRequest = 170,
-            HeightRequest = 170
-        };
-
-        // Checkmark for no decor selected
-        var checkmark = new Image
-        {
-            Source = "pet_selected.png",
-            WidthRequest = 60,
-            HeightRequest = 60,
-            Opacity = _authenticationService.SelectedDecor == null ? 1.0 : 0.0
-        };
-
-        // Assign currently selected checkmark
-        if (_authenticationService.SelectedDecor == null)
-        {
-            _selectedCheckmark = checkmark;
-        }
-
-        // Button
-        var userDecor = new Button
-        {
-            WidthRequest = 130,
-            HeightRequest = 130,
-            BackgroundColor = Colors.Transparent,
-            BindingContext = checkmark,
-            FontFamily = nameof(SolidIcons),
-            TextColor = Colors.Black,
-            Text = SolidIcons.Xmark,
-            FontSize = 30
-        }
-        .Invoke(button => button.Released += (s, e) => OnButtonClicked(s, e));
-
-        // None label
-        var decorName = new Label
-        {
-            Text = "None",
-            TextColor = Colors.Black,
-            FontSize = 14
-        };
-
-        // Create frame with none item inside
-        var grid = new Grid
-        {
-            RowDefinitions = Rows.Define(160, 25),
-            ColumnDefinitions = Columns.Define(160),
-            BindingContext = null,
-            Children =
-                {
-                    background
-                    .Column(0)
-                    .Row(0)
-                    .ZIndex(0),
-
-                    userDecor
-                    .Column(0)
-                    .Row(0)
-                    .ZIndex(2),
-
-                    checkmark
-                    .Column(0)
-                    .Row(0)
-                    .ZIndex(3)
-                    .Top()
-                    .Right(),
-
-                    decorName
-                    .Column(0)
-                    .Row(1)
-                    .Center()
-                }
-        }
-        .Paddings(top: 5, bottom: 5);
-
-        return grid;
-    }
-
-    private void OnButtonClicked(object sender, EventArgs eventArgs)
-    {
-        var itemButton = sender as Button;
-
-        // Get DecorId from grid binding context
-        var grid = itemButton.Parent as Grid;
-        var decorId = (Guid?)grid.BindingContext;
-
-        // Check if null decor is already selected
-        if (_authenticationService.SelectedDecor == null && decorId == null)
-        {
-            _responseMessage.Text = "Already selected";
-            return;
-        }
-
-        // Get checkmark from image button bind
-        var checkmark = (Image)itemButton.BindingContext;
-
-        SendSelectCommand(decorId, checkmark);
-    }
-
-    private void OnImageButtonClicked(object sender, EventArgs eventArgs)
+    private async void OnImageButtonClicked(object sender, EventArgs eventArgs)
     {
         var itemButton = sender as ImageButton;
 
-        // Get DecorId from grid binding context
+        // Get IslandId from grid binding context
         var grid = itemButton.Parent as Grid;
-        var decorId = (Guid?)grid.BindingContext;
+        var islandId = (Guid)grid.BindingContext;
 
-        // Check if decor is already selected
-        if (_authenticationService.SelectedDecor != null && decorId != null && _authenticationService.SelectedDecor.Id == decorId.Value)
+        // Check if island is already selected
+        if ((_authenticationService.SelectedIsland != null) && (_authenticationService.SelectedIsland.Id == islandId))
         {
             _responseMessage.Text = "Already selected";
             return;
@@ -399,15 +290,10 @@ internal sealed class DecorPage : BasePage
         // Get checkmark from image button bind
         var checkmark = (Image)itemButton.BindingContext;
 
-        SendSelectCommand(decorId, checkmark);
-    }
-
-    private async void SendSelectCommand(Guid? decorId, Image checkmark)
-    {
-        EditUserSelectedDecorCommand command = new EditUserSelectedDecorCommand
+        EditUserSelectedIslandCommand command = new EditUserSelectedIslandCommand
         {
             UserId = _authenticationService.CurrentUser?.Id,
-            DecorId = decorId
+            IslandId = islandId
         };
 
         // Call method to update the user data when the user fields have changed
@@ -416,19 +302,17 @@ internal sealed class DecorPage : BasePage
         // On success, hide previous checkmark and show new one
         if (result.Success)
         {
-            _selectedCheckmark.Opacity = 0.0;
+            // In case selected checkmark is null
+            if (_selectedCheckmark != null)
+            {
+                _selectedCheckmark.Opacity = 0.0;
+            }
+
             _selectedCheckmark = checkmark;
             _selectedCheckmark.Opacity = 1.0;
 
             // Display change message
-            if (_authenticationService.SelectedDecor != null)
-            {
-                _responseMessage.Text = "Selected decor changed to " + _authenticationService.SelectedDecor.Name;
-            }
-            else
-            {
-                _responseMessage.Text = "Selected decor changed to none";
-            }
+            _responseMessage.Text = "Selected island changed to " + _authenticationService.SelectedIsland.Name;
         }
         else
         {
