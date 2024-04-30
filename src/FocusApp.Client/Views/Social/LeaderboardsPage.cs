@@ -88,9 +88,9 @@ namespace FocusApp.Client.Views.Social
             {
                 RowDefinitions = GridRowsColumns.Rows.Define(
                     (PageRow.PageHeader, GridRowsColumns.Stars(1)),
-                    (PageRow.LeaderboardSelectors, GridRowsColumns.Stars(1)),
+                    (PageRow.LeaderboardSelectors, GridRowsColumns.Stars(1.15)),
                     (PageRow.TopThreeFriendsDisplay, GridRowsColumns.Stars(4.5)),
-                    (PageRow.RemainingFriendsDisplay, GridRowsColumns.Stars(3.5)),
+                    (PageRow.RemainingFriendsDisplay, GridRowsColumns.Stars(2)),
                     (PageRow.TabBarSpacer, Consts.TabBarHeight)
                     ),
                 ColumnDefinitions = GridRowsColumns.Columns.Define(
@@ -261,7 +261,7 @@ namespace FocusApp.Client.Views.Social
                 
                 Label friendName = new Label
                 {
-                    FontSize = 24,
+                    FontSize = 20,
                     VerticalOptions = LayoutOptions.Center,
                 }
                 .Column(RemainingFriendsColumn.Name);
