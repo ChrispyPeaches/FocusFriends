@@ -503,7 +503,7 @@ internal class ProfilePage : BasePage
     private async void SelectedIslandClicked(object sender, EventArgs eventArgs)
     {
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
-        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(PetsPage)}");
+        await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{nameof(IslandsPage)}");
     }
 
     private async void SelectedDecorClicked(object sender, EventArgs eventArgs)
