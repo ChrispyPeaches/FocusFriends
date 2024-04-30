@@ -20,16 +20,18 @@ namespace FocusApp.Client.Views.Shop
         IFocusAppContext _localContext;
         ILogger<ShopItemPopupInterface> _logger;
         IMediator _mediator;
+        IBadgeService _badgeService;
         ShopItem _currentItem { get; set; }
         public ShopPage ShopPage { get; set; }
 
-        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator)
+        public ShopItemPopupInterface(PopupService popupService, IAuthenticationService authenticationService, IFocusAppContext localContext, ILogger<ShopItemPopupInterface> logger, IMediator mediator, IBadgeService badgeService)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
             _localContext = localContext;
             _logger = logger;
             _mediator = mediator;
+            _badgeService = badgeService;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.Center;
@@ -159,18 +161,20 @@ namespace FocusApp.Client.Views.Shop
         {
             try
             {
+                // Update user's balance within the CurrentUser model
+                _authenticationService.CurrentUser.Balance -= _currentItem.Price;
+
                 await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
+
+                // After purchasing item, update the user balance display on the shop page
+                ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while purchasing item.");
             }
-            
-            // Update user's balance within the CurrentUser model
-            _authenticationService.CurrentUser.Balance -= _currentItem.Price;
 
-            // After purchasing item, update the user balance display on the shop page
-            ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
+            Task.Run(ShowPurchaseBadgeIfEarned);
 
             _popupService.HidePopup();
         }
@@ -195,6 +199,24 @@ namespace FocusApp.Client.Views.Shop
                 
                 default:
                     return false;
+            }
+        }
+
+        private async Task ShowPurchaseBadgeIfEarned()
+        {
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckPurchaseBadgeEligibility(_currentItem, default);
+
+                if (result.IsEligible && result.EarnedBadge != null)
+                {
+                    Thread.Sleep(1000);
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
             }
         }
     }

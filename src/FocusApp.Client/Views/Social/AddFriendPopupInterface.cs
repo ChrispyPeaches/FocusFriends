@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using CommunityToolkit.Maui.Views;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
@@ -9,37 +8,41 @@ using FocusCore.Commands.Social;
 using FocusCore.Models;
 using FocusCore.Queries.Social;
 using FocusCore.Responses.Social;
-using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Graphics.Text;
 using Refit;
-using SimpleToolkit.SimpleShell.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
 using System.Net;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+using CommunityToolkit.Maui.Core;
 
 namespace FocusApp.Client.Views.Social
 {
     internal class AddFriendPopupInterface : BasePopup
     {
-        IAPIClient _client;
-        IAuthenticationService _authenticationService;
-        Helpers.PopupService _popupService;
-        ListView _friendrequestView { get; set; }
-        Label entryError {  get; set; }
+        private readonly IAPIClient _client;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly Helpers.PopupService _popupService;
+        private readonly IBadgeService _badgeService;
+        private readonly ILogger<AddFriendPopupInterface> _logger;
+
+        private readonly ListView _friendrequestView;
+        private readonly Label entryError;
         public SocialPage SocialPage { get; set; }
 
-        public AddFriendPopupInterface(IAPIClient client, IAuthenticationService authenticationService, Helpers.PopupService popupService)
+        public AddFriendPopupInterface(
+            IAPIClient client,
+            IAuthenticationService authenticationService,
+            Helpers.PopupService popupService,
+            IBadgeService badgeService,
+            ILogger<AddFriendPopupInterface> logger)
         {
             _client = client;
             _popupService = popupService;
             _authenticationService = authenticationService;
+            _badgeService = badgeService;
+            _logger = logger;
+
+            Closed += AddFriendPopupInterface_Closed;
 
             _friendrequestView = BuildFriendRequestListView();
 
@@ -163,6 +166,11 @@ namespace FocusApp.Client.Views.Social
             PopulatePopup();
         }
 
+        private void AddFriendPopupInterface_Closed(object? sender, PopupClosedEventArgs e)
+        {
+            _popupService.HidePopup(wasDismissedByTappingOutsideOfPopup: true);
+        }
+
         private ListView BuildFriendRequestListView()
         {
             ListView listView = new ListView();
@@ -240,7 +248,7 @@ namespace FocusApp.Client.Views.Social
             return listView;
         }
 
-        public async void PopulatePopup()
+        private async void PopulatePopup()
         {
             List<FriendRequest> pendingFriendRequests;
 
@@ -334,9 +342,28 @@ namespace FocusApp.Client.Views.Social
             await _client.AcceptFriendRequest(acceptCommand);
 
             // Refresh friends list
-            SocialPage.PopulateFriendsList();
+            Task.Run(SocialPage.PopulateFriendsList);
+            Task.Run(ShowSocialBadgeIfEarned);
 
             PopulatePopup();
+
+            
+        }
+
+        private async Task ShowSocialBadgeIfEarned()
+        {
+            try
+            {
+                BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+                if (result is { IsEligible: true, EarnedBadge: not null })
+                {
+                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+            }
         }
 
         private async void OnClickRejectFriendRequest(object sender, EventArgs e)

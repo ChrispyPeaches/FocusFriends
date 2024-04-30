@@ -52,6 +52,11 @@ public interface IAPIClient
         AddUserIslandCommand command,
         CancellationToken cancellationToken = default);
 
+    [Post("/User/Badge")]
+    Task AddUserBadge(
+        AddUserBadgeCommand command,
+        CancellationToken cancellationToken = default);
+
     [Post("/User/AddSession")]
     Task CreateSession(
         CreateSessionCommand command,
@@ -70,6 +75,11 @@ public interface IAPIClient
     [Put("/User/EditUserSelectedDecor")]
     Task EditUserSelectedDecor(
         EditUserSelectedDecorCommand command,
+        CancellationToken cancellationToken = default);
+
+    [Put("/User/EditUserSelectedIsland")]
+    Task EditUserSelectedIsland(
+        EditUserSelectedIslandCommand command,
         CancellationToken cancellationToken = default);
 
     [Put("/User/EditUserSelectedBadge")]
