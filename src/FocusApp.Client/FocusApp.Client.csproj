@@ -105,11 +105,6 @@
 	</ItemGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">
-		<AndroidKeyStore>True</AndroidKeyStore>
-		<AndroidSigningKeyStore>ff.keystore</AndroidSigningKeyStore>
-		<AndroidSigningKeyAlias>MyAppkey</AndroidSigningKeyAlias>
-		<AndroidSigningKeyPass>2x4WFl6FUbU3</AndroidSigningKeyPass>
-		<AndroidSigningStorePass>2x4WFl6FUbU3</AndroidSigningStorePass>
 	</PropertyGroup>
 
 </Project>
