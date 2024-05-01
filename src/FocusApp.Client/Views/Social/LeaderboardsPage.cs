@@ -16,6 +16,12 @@ namespace FocusApp.Client.Views.Social
 {
     internal class LeaderboardsPage : BasePage
     {
+
+        public enum LeaderboardType
+        {
+            Daily,
+            Weekly
+        }
         // Row / Column structure for entire page
         enum PageRow { PageHeader, LeaderboardSelectors, TopThreeFriendsDisplay, RemainingFriendsDisplay, TabBarSpacer }
         enum PageColumn { DailyLeadboardButton, WeeklyLeaderboardButton }
@@ -69,8 +75,8 @@ namespace FocusApp.Client.Views.Social
             }
             .Row(PageRow.LeaderboardSelectors)
             .Column(PageColumn.DailyLeadboardButton)
-            .Invoke(button => button.Released += (sender, eventArgs) =>
-                GetDailyLeaderboards(sender, eventArgs));
+            .Invoke(button => button.Released += (_, _) =>
+                _ = FetchAndDisplayLeaderboards(LeaderboardType.Daily));
 
             // Weekly Leaderboard Button
             _weeklyLeaderboardButton = new Button
@@ -81,8 +87,8 @@ namespace FocusApp.Client.Views.Social
             }
             .Row(PageRow.LeaderboardSelectors)
             .Column(PageColumn.WeeklyLeaderboardButton)
-            .Invoke(button => button.Released += (sender, eventArgs) =>
-                GetWeeklyLeaderboards(sender, eventArgs));
+            .Invoke(button => button.Released += (_, _) =>
+                _ = FetchAndDisplayLeaderboards(LeaderboardType.Weekly));
 
             Content = new Grid
             {
@@ -410,44 +416,6 @@ namespace FocusApp.Client.Views.Social
             _firstPlaceUsername.Bind(Label.TextProperty, "UserName");
         }
 
-        async void GetDailyLeaderboards(object sender, EventArgs e)
-        {
-            try
-            {
-                _popupService.ShowPopup<GenericLoadingPopupInterface>();
-                LeaderboardResponse leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-                PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
-
-                // Disable the daily leaderboards button, and enable the weekly leaderboards button
-                _dailyLeaderboardButton.IsEnabled = false;
-                _weeklyLeaderboardButton.IsEnabled = true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards. Message: " + ex.Message);
-            }
-            _popupService.HidePopup();
-        }
-
-        async void GetWeeklyLeaderboards(object sender, EventArgs e)
-        {
-            try
-            {
-                _popupService.ShowPopup<GenericLoadingPopupInterface>();
-                LeaderboardResponse leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-                PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
-
-                // Disable the weekly leaderboards button, and enable the daily leaderboards button
-                _weeklyLeaderboardButton.IsEnabled = false;
-                _dailyLeaderboardButton.IsEnabled = true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(LogLevel.Error, "Error retreiving weekly leaderboards. Message: " + ex.Message);
-            }
-            _popupService.HidePopup();
-        }
-
         void PopulateLeaderboard(List<LeaderboardDto> leaderboard)
         {
             ClearLeaderboard();
@@ -513,15 +481,39 @@ namespace FocusApp.Client.Views.Social
         {
             base.OnAppearing();
 
-            // On page load, fetch daily leaderboards
+            await Task.Run(() => FetchAndDisplayLeaderboards(LeaderboardType.Daily));
+        }
+
+        /// <summary>
+        /// Show loading popup, retrieve leaderboards from API, then populate the UI with leaderboard data
+        /// </summary>
+        private async Task FetchAndDisplayLeaderboards(LeaderboardType leaderboardType)
+        {
             try
             {
-                LeaderboardResponse leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
-                PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
+                await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
+                LeaderboardResponse leaderboardResponse = null; 
+                if (leaderboardType == LeaderboardType.Daily)
+                {
+                    leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                }
+                else
+                {
+                    leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                }
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    PopulateLeaderboard(leaderboardResponse.LeaderboardRecords);
+                    _dailyLeaderboardButton.IsEnabled = leaderboardType != LeaderboardType.Daily;
+                    _weeklyLeaderboardButton.IsEnabled = leaderboardType != LeaderboardType.Weekly;
+                });
+
+                await _popupService.HidePopupAsync();
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, "Error retreiving daily leaderboards on page load. Message: " + ex.Message);
+                _logger.LogError(ex, "Error retrieving {leaderboardType} leaderboards.", leaderboardType);
             }
         }
 
