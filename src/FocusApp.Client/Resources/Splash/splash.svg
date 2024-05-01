@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
-    <g transform="matrix(0.45598,0,0,0.45598,228,228)">
-        <g id="pet_cat_zero.svg" transform="matrix(1,0,0,1,-372.325,-504.851)">
-            <clipPath id="_clip1">
-                <rect x="4.866" y="4.83" width="734.917" height="1000.04"/>
-            </clipPath>
-            <g clip-path="url(#_clip1)">
+    <g transform="matrix(0.321986,0,0,0.321986,108.117,65.445)">
+        <g id="pet_cat_zero.svg">
+            <g>
                 <g transform="matrix(1.30744,0,0,1.30744,-273.698,-67.2343)">
                     <path d="M616.295,110.705C616.295,110.705 711.461,46.939 716,56C740.662,105.235 699.178,210.288 699.178,210.288M500,820C850.191,818.393 823.509,347.806 655.647,153.465C611.947,102.871 558.678,71 500,71C231.425,79.368 20.078,822.203 500,820ZM389,113C389,113 272.124,56.25 265,68C237.271,113.737 305.343,212.582 305.343,212.582" style="fill:rgb(236,148,59);stroke:black;stroke-width:7.44px;"/>
                 </g>
@@ -50,8 +47,6 @@
                     <path d="M361,119C338.917,135.583 321.187,156.52 307,181C307,181 281.211,91.986 293,85C302,79.667 361,119 361,119Z" style="fill:rgb(255,155,206);stroke:black;stroke-width:7.44px;"/>
                 </g>
             </g>
-        </g>
-        <g id="pet_cat_zero.svg1" serif:id="pet_cat_zero.svg">
         </g>
     </g>
 </svg>
