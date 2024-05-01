@@ -86,6 +86,23 @@ namespace FocusApp.Client.Helpers
             }
         }
 
+        public void HidePopup<T>(bool wasDismissedByTappingOutsideOfPopup = false) where T : BasePopup
+        {
+            if (_popups.Count > 0)
+            {
+                if (typeof(T) == _popups.Peek().GetType())
+                {
+                    // Quick patch for popups closed via tapping outside of the popup
+                    if (wasDismissedByTappingOutsideOfPopup)
+                        // Remove the popup from the stack, but do not close it, as it has already
+                        // been closed/disposed via tapping outside of popup
+                        _popups.Pop();
+                    else
+                        MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
+                }
+            }
+        }
+
         public async Task HidePopupAsync(bool wasDismissedByTappingOutsideOfPopup = false)
         {
             if (_popups.Count > 0)
@@ -97,6 +114,23 @@ namespace FocusApp.Client.Helpers
                     _popups.Pop();
                 else
                     await MainThread.InvokeOnMainThreadAsync(() => _popups.Pop().Close());
+            }
+        }
+
+        public async Task HidePopupAsync<T>(bool wasDismissedByTappingOutsideOfPopup = false) where T : BasePopup
+        {
+            if (_popups.Count > 0)
+            {
+                if (typeof(T) == _popups.Peek().GetType())
+                {
+                    // Quick patch for popups closed via tapping outside of the popup
+                    if (wasDismissedByTappingOutsideOfPopup)
+                        // Remove the popup from the stack, but do not close it, as it has already
+                        // been closed/disposed via tapping outside of popup
+                        _popups.Pop();
+                    else
+                        await MainThread.InvokeOnMainThreadAsync(() => _popups.Pop().Close());
+                }
             }
         }
 
