@@ -10,6 +10,10 @@ using FocusApp.Shared.Models;
 using Auth0.OidcClient;
 using FocusApp.Client.Clients;
 using IdentityModel.OidcClient;
+using CommunityToolkit.Mvvm.Input;
+using FocusApp.Client.Views.Social;
+using Microsoft.Maui.Controls;
+using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
 
@@ -77,8 +81,9 @@ internal class LoginPage : BasePage
                 .Row(3)
                 .CenterHorizontal()
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    OnLoginClicked(sender, eventArgs)),
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapLoginSignupCommand)),
 
 				// Skip Login Button
 				new Button
@@ -91,8 +96,9 @@ internal class LoginPage : BasePage
                 .Row(4)
                 .CenterHorizontal()
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    SkipButtonClicked(sender, eventArgs)),
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapSkipCommand)),
 
                 // Logo 
                 new Image
@@ -107,7 +113,12 @@ internal class LoginPage : BasePage
         };
     }
 
-    private async void SkipButtonClicked(object sender, EventArgs e)
+    /// <summary>
+    /// Setup command to disallow concurrent execution
+    /// </summary>
+    public AsyncRelayCommand TapSkipCommand => new(OnTapSkipButton, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapSkipButton()
     {
         // If user skips login, initialize empty user and set selected pet and island to defaults
         try
@@ -125,7 +136,12 @@ internal class LoginPage : BasePage
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
-    private async void OnLoginClicked(object sender, EventArgs e)
+    /// <summary>
+    /// Setup command to disallow concurrent execution
+    /// </summary>
+    public AsyncRelayCommand TapLoginSignupCommand => new(OnTapLoginSignup, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapLoginSignup()
     {
         try
         {
