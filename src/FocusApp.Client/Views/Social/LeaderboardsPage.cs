@@ -340,7 +340,8 @@ namespace FocusApp.Client.Views.Social
 
             _thirdPlaceUsername = new Label
             {
-                Text = "Username"
+                Text = "Username",
+                FontSize = 12
             }
             .CenterHorizontal();
 
@@ -369,7 +370,8 @@ namespace FocusApp.Client.Views.Social
             _secondPlaceUsername = new Label
             {
                 Text = "Username",
-                TextColor = Colors.Black
+                TextColor = Colors.Black,
+                FontSize = 12
             }
             .CenterHorizontal();
 
@@ -398,7 +400,8 @@ namespace FocusApp.Client.Views.Social
             _firstPlaceUsername = new Label
             {
                 Text = "Username",
-                TextColor = Colors.Black
+                TextColor = Colors.Black,
+                FontSize = 12
             }
             .CenterHorizontal();
 
