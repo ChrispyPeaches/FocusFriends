@@ -18,12 +18,20 @@ internal class TimerPage : BasePage
     private IDispatcherTimer? _timeStepperTimer;
     private readonly IAuthenticationService _authenticationService;
     private readonly Helpers.PopupService _popupService;
-    private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
+
+    private string? _balanceAmount;
+    public string? BalanceAmount
+    {
+        get => _balanceAmount ?? "0";
+        set => SetProperty(ref _balanceAmount, value);
+    }
 
     enum Row { TopBar, TimerDisplay, IslandView, TimerButtons, TabBarSpacer }
     enum Column { LeftTimerButton, TimerAmount, RightTimerButton }
     private enum TimerButton { Up, Down }
+
+    #region Frontend
 
     public TimerPage(
         ITimerService timerService,
@@ -58,7 +66,7 @@ internal class TimerPage : BasePage
             {
                 // Setting Button
                 new Button
-                {     
+                {
                     Text = SolidIcons.Gears,
                     TextColor = Colors.Black,
                     FontFamily = nameof(SolidIcons),
@@ -71,7 +79,17 @@ internal class TimerPage : BasePage
                 .Bind(IsVisibleProperty,
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
                 .Invoke(button => button.Released += SettingsButtonClicked),
-                        
+
+                new BalanceDisplay()
+                .Row(Row.TopBar)
+                .Column(Column.TimerAmount)
+                .ColumnSpan(2)
+                .Top()
+                .Margins(top: 15, right: 15)
+                .Bind(
+                    BalanceDisplay.BalanceAmountProperty,
+                    getter: static (authService) => authService.Balance,
+                    source: _authenticationService),
 
                 // Time Left Display
                 new Label
@@ -105,7 +123,7 @@ internal class TimerPage : BasePage
                 .Column(Column.LeftTimerButton)
                 .Bind(IsVisibleProperty,
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService)
-                .Invoke(button => button.Clicked += (sender, eventArgs) => 
+                .Invoke(button => button.Clicked += (sender, eventArgs) =>
                         OnTimeStepperButtonClick(TimerButton.Up))
                 .Invoke(button => button.Pressed += (sender, eventArgs) =>
                         OnTimeStepperButtonPressed(TimerButton.Up))
@@ -143,7 +161,7 @@ internal class TimerPage : BasePage
                 .CenterVertical()
                 .Row(Row.TimerButtons)
                 .Column(Column.RightTimerButton)
-                .Bind(IsVisibleProperty, 
+                .Bind(IsVisibleProperty,
                         getter: (ITimerService th) => th.AreStepperButtonsVisible, source: _timerService )
                 .Invoke(button => button.Clicked += (sender, eventArgs) =>
                         OnTimeStepperButtonClick(TimerButton.Down))
@@ -158,9 +176,9 @@ internal class TimerPage : BasePage
     private IslandDisplayView SetupIslandDisplayView()
     {
         return new IslandDisplayView(parentPage: this)
-            {
-                BindingContext = _authenticationService,
-            }
+        {
+            BindingContext = _authenticationService,
+        }
             .Center()
             .FillHorizontal()
             .Row(Row.IslandView)
@@ -178,6 +196,11 @@ internal class TimerPage : BasePage
                 getter: static (IAuthenticationService authService) => authService.SelectedDecor,
                 source: _authenticationService);
     }
+
+
+    #endregion
+
+    #region  Backend
 
     /// <summary>
     /// Increment or decrement the timer duration.
@@ -246,7 +269,8 @@ internal class TimerPage : BasePage
         {
             _logger.LogError(ex, "Error occured when showing and populating startup mindfulness tip.");
         }
-        
+
     }
 
+    #endregion
 }
