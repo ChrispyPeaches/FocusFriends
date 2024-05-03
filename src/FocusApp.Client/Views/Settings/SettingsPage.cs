@@ -1,17 +1,11 @@
-﻿using System.ComponentModel;
-using Auth0.OidcClient;
+﻿using Auth0.OidcClient;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using CommunityToolkit.Maui.Views;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Resources;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
-using Microsoft.Maui.Layouts;
-using SimpleToolkit.SimpleShell.Extensions;
 using CommunityToolkit.Mvvm.Input;
-using static FocusApp.Client.Helpers.TimerService;
 
 namespace FocusApp.Client.Views.Settings;
 
@@ -30,7 +24,10 @@ internal sealed class SettingsPage : BasePage
 
     private enum Row { Header, StartupMindfulnessTipSetting, ShowSessionRatingSetting, AboutButton, LoginLogoutButton, Whitespace1, Logo, Whitespace2 }
 
-    public SettingsPage(PopupService popupService, IAuthenticationService authService, Auth0Client auth0Client)
+    public SettingsPage(
+        PopupService popupService,
+        IAuthenticationService authService,
+        Auth0Client auth0Client)
     {
         _popupService = popupService;
         _authService = authService;
@@ -51,7 +48,7 @@ internal sealed class SettingsPage : BasePage
                 (Row.AboutButton, 70),
                 (Row.LoginLogoutButton, 70),
                 (Row.Whitespace1, Star),
-                (Row.Logo, Star),
+                (Row.Logo, Stars(2)),
                 (Row.Whitespace2, Star)),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
@@ -106,7 +103,7 @@ internal sealed class SettingsPage : BasePage
                     {
                         Text = "Show Tips on Startup",
                         TextColor = Colors.Black,
-                        FontSize = 30
+                        FontSize = 25
                     }
                     .Row(Row.StartupMindfulnessTipSetting)
                     .Column(0)
@@ -134,7 +131,7 @@ internal sealed class SettingsPage : BasePage
                     {
                         Text = "Show Session Rating",
                         TextColor = Colors.Black,
-                        FontSize = 30
+                        FontSize = 25
                     }
                     .Row(Row.ShowSessionRatingSetting)
                     .Column(0)
@@ -162,7 +159,7 @@ internal sealed class SettingsPage : BasePage
                     Text = "About",
                     TextDecorations = TextDecorations.Underline,
                     TextColor = Colors.Black,
-                    FontSize = 30
+                    FontSize = 25
                 }
                 .Row(Row.AboutButton)
                 .Column(0)
@@ -179,7 +176,7 @@ internal sealed class SettingsPage : BasePage
                         Text = IsLoggedIn ? "Logout" : "Login",
                         TextDecorations = TextDecorations.Underline,
                         TextColor = Colors.Black,
-                        FontSize = 30
+                        FontSize = 25
                     }
                     .Row(Row.LoginLogoutButton)
                     .Column(0)
