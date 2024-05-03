@@ -4,13 +4,11 @@ using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using SimpleToolkit.SimpleShell.Extensions;
-using Auth0.OidcClient;
-using CommunityToolkit.Maui.Converters;
 using FocusApp.Client.Views.Controls;
 using FocusApp.Client.Views.Mindfulness;
-using FocusApp.Shared.Models;
 using FocusCore.Extensions;
 using Microsoft.Extensions.Logging;
+using FocusApp.Client.Views.Settings;
 
 namespace FocusApp.Client.Views;
 
@@ -18,11 +16,7 @@ internal class TimerPage : BasePage
 {
     private readonly ITimerService _timerService;
     private IDispatcherTimer? _timeStepperTimer;
-    private readonly Auth0Client _auth0Client;
     private readonly IAuthenticationService _authenticationService;
-    private bool _loggedIn;
-    private string _selectedText;
-    private readonly Button _logButton;
     private readonly Helpers.PopupService _popupService;
     private bool _showMindfulnessTipPopupOnStartSettingPlaceholder;
     private readonly ILogger<TimerPage> _logger;
@@ -33,52 +27,17 @@ internal class TimerPage : BasePage
 
     public TimerPage(
         ITimerService timerService,
-        Auth0Client authClient,
         IAuthenticationService authenticationService,
         PopupService popupService,
         ILogger<TimerPage> logger)
     {
-        _selectedText = "";
         _authenticationService = authenticationService;
         _timerService = timerService;
-        _auth0Client = authClient;
         _popupService = popupService;
         _logger = logger;
 
         if (PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled))
             Appearing += ShowMindfulnessTipPopup;
-
-        // Login/Logout Button
-        // This is placed here and not in the grid so the text
-        //  can be dynamically updated
-        _logButton = new Button
-        {
-            Text = _selectedText,
-            BackgroundColor = AppStyles.Palette.Celeste,
-            TextColor = Colors.Black,
-            CornerRadius = 20
-        }
-        .Row(Row.TopBar)
-        .Column(Column.RightTimerButton)
-        .Top()
-        .Right()
-        .Font(size: 15).Margins(top: 10, bottom: 10, left: 10, right: 10)
-        .Bind(
-            IsVisibleProperty,
-            getter: (ITimerService th) => th.AreStepperButtonsVisible,
-            source: _timerService)
-        .Invoke(button => button.Released += (sender, eventArgs) =>
-        {
-        if (_loggedIn)
-        {
-            OnLogoutClicked(sender, eventArgs);
-        }
-        else
-        {
-            OnLoginClicked(sender, eventArgs);
-        };
-        });
-
 
         Content = new Grid
         {
@@ -191,9 +150,7 @@ internal class TimerPage : BasePage
                 .Invoke(button => button.Pressed += (sender, eventArgs) =>
                         OnTimeStepperButtonPressed(TimerButton.Down))
                 .Invoke(button => button.Released += (sender, eventArgs) =>
-                        OnTimeStepperButtonReleased()),
-
-                _logButton
+                        OnTimeStepperButtonReleased())
             }
         };
     }
@@ -266,32 +223,6 @@ internal class TimerPage : BasePage
     {
         Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
         await Shell.Current.GoToAsync(nameof(SettingsPage));
-    }
-
-    private async void OnLoginClicked(object sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("///" + nameof(LoginPage));
-    }
-
-    private async void OnLogoutClicked(object sender, EventArgs e)
-    {
-        var logoutResult = await _auth0Client.LogoutAsync();
-        _authenticationService.AuthToken = "";
-
-        // Empty the secure storage of all persistent login tokens
-        SecureStorage.Default.Remove("id_token");
-        SecureStorage.Default.Remove("access_token");
-
-        await Shell.Current.GoToAsync($"///" + nameof(LoginPage));
-    }
-
-    protected override async void OnAppearing()
-    {
-        base.OnAppearing();
-
-        _loggedIn = !string.IsNullOrEmpty(_authenticationService.Auth0Id);
-        _selectedText = _loggedIn ? "Logout" : "Login";
-        _logButton.Text = _selectedText;
     }
 
     /// <summary>

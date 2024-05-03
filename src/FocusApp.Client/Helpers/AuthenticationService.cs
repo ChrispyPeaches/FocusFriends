@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Auth0.OidcClient;
+using FocusApp.Client.Views;
 using FocusApp.Shared.Models;
 
 namespace FocusApp.Client.Helpers;
@@ -16,6 +18,8 @@ internal interface IAuthenticationService
     Decor? SelectedDecor { get; set; }
 
     event PropertyChangedEventHandler? PropertyChanged;
+
+    Task Logout(IAuth0Client auth0Client);
 }
 
 public class AuthenticationService : INotifyPropertyChanged, IAuthenticationService
@@ -58,6 +62,35 @@ public class AuthenticationService : INotifyPropertyChanged, IAuthenticationServ
     {
         get => _selectedDecor;
         set => SetProperty(ref _selectedDecor, value);
+    }
+
+    /// <summary>
+    /// Remove user data from auth service and secure storage,
+    /// navigate to the login page,and
+    /// log the user out using the auth0 client.
+    /// </summary>
+    /// <remarks>
+    /// Note that the auth0Client.LogoutAsync needs to happen after the navigation
+    /// to LoginPage due to an issue with Maui navigation handlers.
+    /// Details here: https://github.com/dotnet/maui/issues/11259
+    /// </remarks>
+    public async Task Logout(IAuth0Client auth0Client)
+    {
+        Auth0Id = string.Empty;
+        Email = string.Empty;
+        AuthToken = string.Empty;
+        CurrentUser = null;
+        SelectedIsland = null;
+        SelectedPet = null;
+        SelectedBadge = null;
+        SelectedDecor = null;
+
+        SecureStorage.Default.Remove("id_token");
+        SecureStorage.Default.Remove("access_token");
+
+        await Shell.Current.GoToAsync("///" + nameof(LoginPage));
+
+        await auth0Client.LogoutAsync();
     }
 
     #region Property Changed Notification Logic

@@ -6,14 +6,7 @@ using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
-
-using Auth0.OidcClient;
-using FocusApp.Client.Clients;
-using IdentityModel.OidcClient;
 using CommunityToolkit.Mvvm.Input;
-using FocusApp.Client.Views.Social;
-using Microsoft.Maui.Controls;
-using SimpleToolkit.SimpleShell.Extensions;
 
 namespace FocusApp.Client.Views;
 

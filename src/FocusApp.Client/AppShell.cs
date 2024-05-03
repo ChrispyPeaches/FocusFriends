@@ -10,6 +10,7 @@ using FocusApp.Client.Views.Shop;
 using FocusApp.Client.Views.Social;
 using SimpleToolkit.SimpleShell.Extensions;
 using Microsoft.Maui;
+using FocusApp.Client.Views.Settings;
 
 namespace FocusApp.Client;
 
