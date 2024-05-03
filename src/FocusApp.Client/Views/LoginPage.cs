@@ -7,6 +7,7 @@ using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
 using CommunityToolkit.Mvvm.Input;
+using IdentityModel.OidcClient;
 
 namespace FocusApp.Client.Views;
 
@@ -117,7 +118,6 @@ internal class LoginPage : BasePage
         try
         {
             await Task.Run(InitializeEmptyUser);
-            _authenticationService.AuthToken = null;
         }
         catch (Exception ex)
         {
@@ -138,20 +138,12 @@ internal class LoginPage : BasePage
     {
         try
         {
-
             // Handle login process on non-UI thread
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
 
-            if (loginResult.IsSuccessful)
+            if (loginResult.IsSuccessful && loginResult.CurrentUser is not null)
             {
-                _authenticationService.Auth0Id = loginResult.CurrentUser?.Auth0Id;
-                _authenticationService.AuthToken = loginResult.AuthToken;
-                _authenticationService.CurrentUser = loginResult.CurrentUser;
-
-                _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
-                _authenticationService.SelectedDecor = loginResult.CurrentUser?.SelectedDecor;
-                _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
-                _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
+                _authenticationService.PopulateWithUserData(loginResult.CurrentUser);
             }
             else
             {
@@ -178,6 +170,8 @@ internal class LoginPage : BasePage
 
     private async Task InitializeEmptyUser()
     {
+        _authenticationService.ClearUser();
+
         _authenticationService.CurrentUser ??= new User()
         {
             Auth0Id = "",

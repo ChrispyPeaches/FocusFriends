@@ -18,11 +18,19 @@ namespace FocusApp.Client.Views.Shop
         CarouselView _islandsCarouselView { get; set; }
         CarouselView _decorCarouselView { get; set; }
 
-        public Label _balanceLabel { get; set; }
+        private string? _balanceAmount;
+        public string? BalanceAmount
+        {
+            get => _balanceAmount ?? "0";
+            set => SetProperty(ref _balanceAmount, value);
+        }
 
         #region Frontend
 
-        public ShopPage(IAuthenticationService authenticationService, PopupService popupService, IMediator mediator)
+        public ShopPage(
+            IAuthenticationService authenticationService,
+            PopupService popupService,
+            IMediator mediator)
         {
             _popupService = popupService;
             _authenticationService = authenticationService;
@@ -32,27 +40,26 @@ namespace FocusApp.Client.Views.Shop
             _islandsCarouselView = BuildBaseCarouselView();
             _decorCarouselView = BuildBaseCarouselView();
 
-            // Currency text
-            _balanceLabel = new Label
-            {
-                Text = _authenticationService.CurrentUser?.Balance.ToString(),
-                FontSize = 20,
-                HorizontalOptions = LayoutOptions.Start,
-                VerticalOptions = LayoutOptions.Center,
-            }
-            .Margins(left: 10, right: 10);
-
             Content = new StackLayout
             {
                 BackgroundColor = Colors.LightYellow,
                 Children =
                 {
-                    new Grid
+                    new Grid()
                     { 
                         Children =
                         { 
                             // Currency text
-                            _balanceLabel,
+                            new Label
+                                {
+                                    Text = BalanceAmount,
+                                    FontSize = 20,
+                                    HorizontalOptions = LayoutOptions.Start,
+                                    VerticalOptions = LayoutOptions.Center,
+                                }
+                                .Bind(Label.TextProperty,
+                                    getter: static (shopPage) => shopPage.BalanceAmount,
+                                    source: this),
                             // Currency icon
                             new Image
                             { 
@@ -199,7 +206,7 @@ namespace FocusApp.Client.Views.Shop
             }
 
             // Update user balance upon showing shop page
-            _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
+            BalanceAmount = _authenticationService.Balance.ToString();
 
             List<ShopItem> shopItems = await _mediator.Send(new GetLocalShopItems.Query(), default);
 
