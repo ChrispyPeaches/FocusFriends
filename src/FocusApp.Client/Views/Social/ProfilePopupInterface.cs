@@ -290,8 +290,8 @@ namespace FocusApp.Client.Views.Social
             Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
 
             // Navigate to page within social (this allows back navigation to work properly)
+            await _popupService.HidePopupAsync<ProfilePopupInterface>();
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{pageName}");
-            _popupService.HidePopup();
         }
     }
 }

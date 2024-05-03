@@ -145,7 +145,7 @@ namespace FocusApp.Client.Methods.User
                 user = await GatherUserDataForCreatedUser(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
 
                 bool userExistsLocally = await _localContext.Users
-                    .AnyAsync(u => u.Auth0Id == auth0UserId, cancellationToken);
+                    .AnyAsync(u => u.Auth0Id == auth0UserId || u.Id == user.Id, cancellationToken);
 
                 // Add user to the local database if the user doesn't exist locally
                 if (!userExistsLocally)
@@ -250,7 +250,7 @@ namespace FocusApp.Client.Methods.User
                             .FirstOrDefaultAsync(cancellationToken);
 
                     bool userExistsLocally = await _localContext.Users
-                        .AnyAsync(u => u.Auth0Id == getUserResponse.User.Auth0Id, cancellationToken);
+                        .AnyAsync(u => u.Auth0Id == getUserResponse.User.Auth0Id || getUserResponse.User.Id == u.Id, cancellationToken);
 
                     // Add user to the local database if the user doesn't exist locally
                     if (!userExistsLocally)

@@ -192,7 +192,6 @@ internal class LoginPage : BasePage
 
             _authenticationService.SelectedIsland ??= result.Island;
             _authenticationService.SelectedPet ??= result.Pet;
-            _authenticationService.SelectedDecor ??= result.Decor;
         }
     }
 
