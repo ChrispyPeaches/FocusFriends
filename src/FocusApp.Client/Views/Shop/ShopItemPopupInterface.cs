@@ -167,7 +167,7 @@ namespace FocusApp.Client.Views.Shop
                 await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
 
                 // After purchasing item, update the user balance display on the shop page
-                ShopPage.BalanceAmount = _authenticationService.Balance.ToString();
+                ShopPage._balanceLabel.Text = _authenticationService.Balance.ToString();
             }
             catch (Exception ex)
             {
