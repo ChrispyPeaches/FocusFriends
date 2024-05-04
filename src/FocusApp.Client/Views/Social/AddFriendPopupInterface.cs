@@ -136,9 +136,8 @@ namespace FocusApp.Client.Views.Social
                                         BackgroundColor = Colors.Transparent
                                     }
                                     .ZIndex(2)
-                                    //.Right()
-                                    //.CenterVertical()
-                                    //.Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                                    .Right()
+                                    .Paddings(top: 10, bottom: 10, right: 25)
                                     .Column(2)
                                     .Row(0)
                                     // When clicked, close the popup
@@ -160,16 +159,28 @@ namespace FocusApp.Client.Views.Social
                                 Spacing = 0,
                                 Children =
                                 {
+                                    new Label
+                                    {
+                                        Text = SolidIcons.Hashtag,
+                                        TextColor = AppStyles.Palette.DarkMauve,
+                                        FontFamily = nameof(SolidIcons),
+                                        FontSize = 20,
+                                        BackgroundColor = Colors.Transparent
+                                    }
+                                    .CenterVertical(),
+
                                     emailEntry,
 
                                     new Button
                                     {
-                                        Text = "Send",
-                                        WidthRequest = 80,
-                                        HeightRequest = 50,
+                                        Text = SolidIcons.CircleArrowRight,
+                                        FontFamily = nameof(SolidIcons),
+                                        WidthRequest = 63,
+                                        HeightRequest = 45,
                                         FontSize = 20,
                                         BindingContext = emailEntry,
-                                        VerticalOptions = LayoutOptions.Start
+                                        VerticalOptions = LayoutOptions.Start,
+                                        BackgroundColor = AppStyles.Palette.DarkMauve
                                     }
                                     .Invoke(b => b.Clicked += (s,e) => OnClickSendFriendRequest(s,e))
                                 }
