@@ -113,14 +113,6 @@ internal class BadgesPage : BasePage
     {
         base.OnAppearing();
 
-        // Check if the user is logged in
-        if (string.IsNullOrEmpty(_authenticationService.AuthToken))
-        {
-            var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
-            loginPopup.OriginPage = nameof(ShopPage);
-            return;
-        }
-
         // Fetch badges from the local database and display them
         var localBadges = await FetchBadgesFromLocalDb();
         var userBadges = await FetchUserBadgesFromLocalDb();

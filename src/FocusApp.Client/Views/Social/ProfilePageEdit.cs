@@ -235,7 +235,7 @@ internal class ProfilePageEdit : BasePage
     {
         _userNameValidationBehavior = new TextValidationBehavior
         {
-            MaximumLength = 20,
+            MaximumLength = 14,
             MinimumLength = 3,
             Flags = ValidationFlags.ValidateOnValueChanged,
             InvalidStyle = new Style<Entry>(Entry.TextColorProperty, Colors.Red),
@@ -357,11 +357,15 @@ internal class ProfilePageEdit : BasePage
 
         if (_pronounsField.Text != _authenticationService.CurrentUser?.Pronouns)
             command.Pronouns = _pronounsField.Text;
+        else if (string.IsNullOrEmpty(_pronounsField.Text) && _pronounsField.Text != _authenticationService.CurrentUser?.Pronouns)
+            command.Pronouns = _pronounsField.Text;
 
         if (_newPhoto != _authenticationService.CurrentUser?.ProfilePicture)
             command.ProfilePicture = _newPhoto;
 
-        if (!string.IsNullOrEmpty(command.Pronouns) || !string.IsNullOrEmpty(command.UserName) || command.ProfilePicture != null)
+        if (command.Pronouns is not null ||
+            !string.IsNullOrEmpty(command.UserName) ||
+            command.ProfilePicture != null)
         {
             // Call method to update the user data when the user fields have changed
             MediatrResult result = await _mediator.Send(command, default);
