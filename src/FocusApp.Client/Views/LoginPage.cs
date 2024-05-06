@@ -168,9 +168,16 @@ internal class LoginPage : BasePage
         await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
     }
 
+    /// <summary>
+    /// Failsafe: Initialize a user with empty data
+    /// </summary>
     private async Task InitializeEmptyUser()
     {
-        _authenticationService.ClearUser();
+        // If a user isn't logged in, clear the user data
+        if (_authenticationService.Auth0Id == null)
+        {
+            _authenticationService.ClearUser();
+        }
 
         _authenticationService.CurrentUser ??= new User()
         {
@@ -180,6 +187,7 @@ internal class LoginPage : BasePage
             Balance = 0
         };
 
+        // Add the initial/default island and pet if they don't exist
         if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
         {
             GetDefaultItems.Result result = await _mediator.Send(new GetDefaultItems.Query());
@@ -194,8 +202,13 @@ internal class LoginPage : BasePage
         await AppShell.Current.SetTabBarIsVisible(false);
     }
 
+    /// <summary>
+    /// Run persistent login when page is created (on app startup), but not after
+    /// </summary>
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
+        Loaded -= LoginPage_Loaded;
+
         Task.Run(TryLoginFromStoredToken);
     }
 
