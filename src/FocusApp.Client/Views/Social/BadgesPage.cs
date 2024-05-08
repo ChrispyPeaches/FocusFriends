@@ -191,7 +191,7 @@ internal class BadgesPage : BasePage
                 }
                 .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
 
-                var grid = new Grid
+                var ownedGrid = new Grid
                 {
                     ownedBadge
                     .ZIndex(0),
@@ -199,7 +199,7 @@ internal class BadgesPage : BasePage
                     checkmark
                     .ZIndex(1)
                 };
-                flexLayout.Children.Add(grid);
+                flexLayout.Children.Add(ownedGrid);
             }
             else
             {
@@ -213,7 +213,14 @@ internal class BadgesPage : BasePage
                     Opacity = .2
                 }
                 .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
-                flexLayout.Children.Add(unownedBadge);
+
+                var unownedGrid = new Grid
+                {
+                    unownedBadge
+                    .ZIndex(0)
+                };
+                flexLayout.Children.Add(unownedGrid);
+
             }
         }
     }

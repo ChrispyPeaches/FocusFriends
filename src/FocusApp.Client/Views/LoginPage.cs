@@ -30,7 +30,7 @@ internal class LoginPage : BasePage
         _mediator = mediator;
         _popupService = popupService;
 
-        var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
+        var pets = new List<string> { "pet_cool_cat.png", "pet_cool_cat.png", "pet_cool_cat.png", "pet_cooler_cat.png",  };
         var rnd = new Random();
 
         Loaded += LoginPage_Loaded;
