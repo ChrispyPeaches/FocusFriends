@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
+using FocusApp.Client.Views.Settings;
 using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
 

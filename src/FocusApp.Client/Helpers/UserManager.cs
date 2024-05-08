@@ -20,6 +20,13 @@ public class UserManager : IUserManager
         _clientId = clientId;
     }
 
+    public async Task<string?> GetIdToken()
+    {
+        return await SecureStorage.Default.GetAsync("id_token");
+    }
+
+
+
     public async Task<ClaimsPrincipal> GetAuthenticatedUser()
     { 
         ClaimsPrincipal user = null;

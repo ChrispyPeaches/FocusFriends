@@ -46,7 +46,7 @@ namespace FocusApp.Client.Methods.Shop
                             });
 
                             // Update the user's balance on the local database
-                            user.Balance = _authenticationService.CurrentUser.Balance;
+                            user.Balance = _authenticationService.Balance;
                         }
                         catch (Exception ex)
                         {
@@ -61,7 +61,7 @@ namespace FocusApp.Client.Methods.Shop
                             {
                                 UserId = _authenticationService.CurrentUser.Id,
                                 PetId = command.Item.Id,
-                                UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                                UpdatedBalance = _authenticationService.Balance,
                             });
                         }
                         catch (Exception ex)
@@ -82,7 +82,7 @@ namespace FocusApp.Client.Methods.Shop
                             });
 
                             // Update the user's balance on the local database
-                            user.Balance = _authenticationService.CurrentUser.Balance;
+                            user.Balance = _authenticationService.Balance;
                         }
                         catch (Exception ex)
                         {
@@ -97,7 +97,7 @@ namespace FocusApp.Client.Methods.Shop
                             {
                                 UserId = _authenticationService.CurrentUser.Id,
                                 DecorId = command.Item.Id,
-                                UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                                UpdatedBalance = _authenticationService.Balance,
                             });
                         }
                         catch (Exception ex)
@@ -117,7 +117,7 @@ namespace FocusApp.Client.Methods.Shop
                             });
 
                             // Update the user's balance on the local database
-                            user.Balance = _authenticationService.CurrentUser.Balance;
+                            user.Balance = _authenticationService.Balance;
                         }
                         catch (Exception ex)
                         {
@@ -131,7 +131,7 @@ namespace FocusApp.Client.Methods.Shop
                             {
                                 UserId = _authenticationService.CurrentUser.Id,
                                 IslandId = command.Item.Id,
-                                UpdatedBalance = _authenticationService.CurrentUser.Balance,
+                                UpdatedBalance = _authenticationService.Balance,
                             });
                         }
                         catch (Exception ex)

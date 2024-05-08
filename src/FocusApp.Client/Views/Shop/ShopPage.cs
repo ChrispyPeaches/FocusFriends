@@ -242,7 +242,7 @@ namespace FocusApp.Client.Views.Shop
             }
 
             // Update user balance upon showing shop page
-            _balanceLabel.Text = _authenticationService.CurrentUser?.Balance.ToString();
+            _balanceLabel.Text = _authenticationService.Balance.ToString();
 
             List<ShopItem> shopItems = await _mediator.Send(new GetLocalShopItems.Query(), default);
 
