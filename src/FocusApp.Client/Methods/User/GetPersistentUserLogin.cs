@@ -53,13 +53,7 @@ namespace FocusApp.Client.Methods.User
                         throw new InvalidOperationException("User not found in the local database.");
 
                     // Set session variables
-                    _authenticationService.Auth0Id = user.Auth0Id;
-                    _authenticationService.CurrentUser = user;
-
-                    _authenticationService.SelectedBadge = user.SelectedBadge;
-                    _authenticationService.SelectedDecor = user.SelectedDecor;
-                    _authenticationService.SelectedIsland = user.SelectedIsland;
-                    _authenticationService.SelectedPet = user.SelectedPet;
+                    _authenticationService.PopulateWithUserData(user);
 
                     return new Result
                     {

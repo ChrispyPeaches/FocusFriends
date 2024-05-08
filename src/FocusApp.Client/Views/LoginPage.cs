@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
-
-using Auth0.OidcClient;
-using FocusApp.Client.Clients;
+using CommunityToolkit.Mvvm.Input;
 using IdentityModel.OidcClient;
 
 namespace FocusApp.Client.Views;
@@ -77,8 +75,9 @@ internal class LoginPage : BasePage
                 .Row(3)
                 .CenterHorizontal()
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    OnLoginClicked(sender, eventArgs)),
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapLoginSignupCommand)),
 
 				// Skip Login Button
 				new Button
@@ -91,8 +90,9 @@ internal class LoginPage : BasePage
                 .Row(4)
                 .CenterHorizontal()
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    SkipButtonClicked(sender, eventArgs)),
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapSkipCommand)),
 
                 // Logo 
                 new Image
@@ -107,13 +107,17 @@ internal class LoginPage : BasePage
         };
     }
 
-    private async void SkipButtonClicked(object sender, EventArgs e)
+    /// <summary>
+    /// Setup command to disallow concurrent execution
+    /// </summary>
+    public AsyncRelayCommand TapSkipCommand => new(OnTapSkipButton, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapSkipButton()
     {
         // If user skips login, initialize empty user and set selected pet and island to defaults
         try
         {
             await Task.Run(InitializeEmptyUser);
-            _authenticationService.AuthToken = null;
         }
         catch (Exception ex)
         {
@@ -125,24 +129,21 @@ internal class LoginPage : BasePage
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
-    private async void OnLoginClicked(object sender, EventArgs e)
+    /// <summary>
+    /// Setup command to disallow concurrent execution
+    /// </summary>
+    public AsyncRelayCommand TapLoginSignupCommand => new(OnTapLoginSignup, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapLoginSignup()
     {
         try
         {
-
             // Handle login process on non-UI thread
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
 
-            if (loginResult.IsSuccessful)
+            if (loginResult.IsSuccessful && loginResult.CurrentUser is not null)
             {
-                _authenticationService.Auth0Id = loginResult.CurrentUser?.Auth0Id;
-                _authenticationService.AuthToken = loginResult.AuthToken;
-                _authenticationService.CurrentUser = loginResult.CurrentUser;
-
-                _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
-                _authenticationService.SelectedDecor = loginResult.CurrentUser?.SelectedDecor;
-                _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
-                _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
+                _authenticationService.PopulateWithUserData(loginResult.CurrentUser);
             }
             else
             {
@@ -167,8 +168,17 @@ internal class LoginPage : BasePage
         await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
     }
 
+    /// <summary>
+    /// Failsafe: Initialize a user with empty data
+    /// </summary>
     private async Task InitializeEmptyUser()
     {
+        // If a user isn't logged in, clear the user data
+        if (_authenticationService.Auth0Id == null)
+        {
+            _authenticationService.ClearUser();
+        }
+
         _authenticationService.CurrentUser ??= new User()
         {
             Auth0Id = "",
@@ -177,6 +187,7 @@ internal class LoginPage : BasePage
             Balance = 0
         };
 
+        // Add the initial/default island and pet if they don't exist
         if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
         {
             GetDefaultItems.Result result = await _mediator.Send(new GetDefaultItems.Query());
@@ -191,8 +202,13 @@ internal class LoginPage : BasePage
         await AppShell.Current.SetTabBarIsVisible(false);
     }
 
+    /// <summary>
+    /// Run persistent login when page is created (on app startup), but not after
+    /// </summary>
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
+        Loaded -= LoginPage_Loaded;
+
         Task.Run(TryLoginFromStoredToken);
     }
 
