@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Maui.Converters;
 using CommunityToolkit.Maui.Markup;
+using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Methods.Shop;
 using FocusApp.Client.Resources;
-using FocusApp.Shared.Data;
 using FocusCore.Models;
 using MediatR;
 
@@ -21,6 +21,10 @@ namespace FocusApp.Client.Views.Shop
         public Label _balanceLabel { get; set; }
 
         #region Frontend
+
+        // Row / Column structure for entire page
+        enum PageRow { PageHeader, PetsLabel, PetsCarousel, IslandsLabel, IslandsCarousel, DecorLabel, DecorCarousel, TabBarSpace }
+        enum PageColumn { Left, Right }
 
         public ShopPage(IAuthenticationService authenticationService, PopupService popupService, IMediator mediator)
         {
@@ -40,85 +44,124 @@ namespace FocusApp.Client.Views.Shop
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center,
             }
-            .Margins(left: 10, right: 10);
+            .Row(PageRow.PageHeader)
+            .Column(PageColumn.Right)
+            .CenterVertical()
+            .Right()
+            .Margins(right: 50);
 
-            Content = new StackLayout
+            Content = new Grid
             {
+                RowDefinitions = GridRowsColumns.Rows.Define(
+                    (PageRow.PageHeader, GridRowsColumns.Stars(0.4)),
+                    (PageRow.PetsLabel, GridRowsColumns.Stars(0.25)),
+                    (PageRow.PetsCarousel, GridRowsColumns.Stars(1)),
+                    (PageRow.IslandsLabel, GridRowsColumns.Stars(0.25)),
+                    (PageRow.IslandsCarousel, GridRowsColumns.Stars(1)),
+                    (PageRow.DecorLabel, GridRowsColumns.Stars(0.25)),
+                    (PageRow.DecorCarousel, GridRowsColumns.Stars(1)),
+                    (PageRow.TabBarSpace, Consts.TabBarHeight)
+                    ),
+                ColumnDefinitions = GridRowsColumns.Columns.Define(
+                    (PageColumn.Left, GridRowsColumns.Stars(1)),
+                    (PageColumn.Right, GridRowsColumns.Stars(1))
+                    ),
                 BackgroundColor = Colors.LightYellow,
-                Children =
+                Children = 
                 {
-                    new Grid
-                    { 
-                        Children =
-                        { 
-                            // Currency text
-                            _balanceLabel,
-                            // Currency icon
-                            new Image
-                            { 
-                                Source = new FileImageSource
-                                { 
-                                    File = "coin.png"
-                                },
-                                HeightRequest = 25,
-                                WidthRequest = 25,
-                                HorizontalOptions = LayoutOptions.Start,
-                                VerticalOptions = LayoutOptions.Center,
-                            }
-                            .Margins(left:60, right:40),
-                            // Header
-                            new Label
-                            {
-                                Text = "Shop",
-                                FontSize = 30,
-                                HorizontalOptions = LayoutOptions.Center,
-                                VerticalOptions = LayoutOptions.Center,
-                                FontAttributes = FontAttributes.Bold
-                            }
-                        }
-                    },
+                    _balanceLabel,
+                                                
+                    // Currency icon
+                    new Image
+                    {
+                        Source = new FileImageSource
+                        {
+                            File = "coin.png"
+                        },
+                        HeightRequest = 25,
+                        WidthRequest = 25,
+                        HorizontalOptions = LayoutOptions.Start,
+                        VerticalOptions = LayoutOptions.Center,
+                    }
+                    .Row(PageRow.PageHeader)
+                    .Column(PageColumn.Right)
+                    .CenterVertical()
+                    .Right()
+                    .Margins(right: 10),
+
+
+                    new Label
+                    {
+                        Text = "Shop",
+                        FontSize = 30,
+                        HorizontalOptions = LayoutOptions.Center,
+                        VerticalOptions = LayoutOptions.Center,
+                        FontAttributes = FontAttributes.Bold
+                    }
+                    .Row(PageRow.PageHeader)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                    .Center(),
+
                     // Horizontal Divider
                     new BoxView
                     {
                         Color = Color.Parse("Black"),
-                        WidthRequest = 400,
                         HeightRequest = 2,
-                        Margin = 20
                     }
-                    .Bottom()
-                    .Row(0)
-                    .Column(0)
-                    .ColumnSpan(2),
-                    // Pets Carousel Label
+                    .Row(PageRow.PageHeader)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length)
+                    .Bottom(),
+
                     new Label
                     {
                         Text = "Pets",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
-                    },
-                    // Pets Carousel
-                    _petsCarouselView,
-                    // Islands Carousel Label
+                    }
+                    .Row(PageRow.PetsLabel)
+                    .Column(PageColumn.Left)
+                    .CenterVertical()
+                    .Left()
+                    .Margins(left: 5),
+
+                    _petsCarouselView
+                    .Row(PageRow.PetsCarousel)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
+
                     new Label
                     {
                         Text = "Islands",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
-                    },
-                    // Islands Carousel
-                    _islandsCarouselView,
-                    // Decor Carousel Label
+                    }
+                    .Row(PageRow.IslandsLabel)
+                    .Column(PageColumn.Left)
+                    .CenterVertical()
+                    .Left()
+                    .Margins(left: 5),
+
+                    _islandsCarouselView
+                    .Row(PageRow.IslandsCarousel)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
+
                     new Label
-                    { 
+                    {
                         Text = "Decor",
                         FontSize = 20,
                         FontAttributes = FontAttributes.Bold,
                         HorizontalOptions = LayoutOptions.Start,
-                    },
-                    // Decor Carousel
+                    }
+                    .Row(PageRow.DecorLabel)
+                    .Column(PageColumn.Left)
+                    .CenterVertical()
+                    .Left()
+                    .Margins(left: 5),
+
                     _decorCarouselView
+                    .Row(PageRow.DecorCarousel)
+                    .ColumnSpan(typeof(PageColumn).GetEnumNames().Length),
                 }
             };
         }
@@ -166,7 +209,7 @@ namespace FocusApp.Client.Views.Shop
                 VerticalStackLayout itemStack = new VerticalStackLayout
                 {
                     BackgroundColor = Color.FromRgba("#E0E4FF00"),
-                    Padding = 10
+                    //Padding = 10
                 };
 
                 itemStack.Add(itemName);
@@ -177,7 +220,7 @@ namespace FocusApp.Client.Views.Shop
             });
 
             // Add space between the carousels - allows room for carousel label
-            carouselView.Margins(0, 5, 0, 10);
+            //carouselView.Margins(0, 5, 0, 10);
 
             carouselView.BackgroundColor = AppStyles.Palette.MintGreen;
 
