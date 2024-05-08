@@ -101,7 +101,7 @@ namespace FocusApp.Client
         {
             services
                 .AddRefitClient<IAPIClient>()
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://test.zenpxl.com:25565"));
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://prod.zenpxl.com:25565"));
 
             return services;
         }
