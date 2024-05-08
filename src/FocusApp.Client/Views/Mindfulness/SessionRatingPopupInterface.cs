@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Resources.FontAwesomeIcons;
+using FocusApp.Client.Views.Settings;
 using MediatR;
 using Microsoft.Maui.Controls.Shapes;
 using static FocusCore.Extensions.MindfulnessTipExtensions;

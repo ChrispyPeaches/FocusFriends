@@ -1,23 +1,37 @@
-﻿using CommunityToolkit.Maui.Markup;
+﻿using Auth0.OidcClient;
+using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui.Markup.LeftToRight;
-using CommunityToolkit.Maui.Views;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using FocusApp.Client.Resources.FontAwesomeIcons;
 using FocusApp.Client.Resources;
-using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
-using Microsoft.Maui.Layouts;
-using SimpleToolkit.SimpleShell.Extensions;
+using CommunityToolkit.Mvvm.Input;
 
-namespace FocusApp.Client.Views;
+namespace FocusApp.Client.Views.Settings;
 
 internal sealed class SettingsPage : BasePage
 {
-    IAPIClient _client { get; set; }
+    private PopupService _popupService;
+    private readonly Auth0Client _auth0Client;
+    private readonly IAuthenticationService _authService;
 
-    public SettingsPage(IAPIClient client)
+    private bool _isLoggedIn;
+    private bool IsLoggedIn
     {
-        _client = client;
+        get => _isLoggedIn;
+        set => SetProperty(ref _isLoggedIn, value);
+    }
+
+    private enum Row { Header, StartupMindfulnessTipSetting, ShowSessionRatingSetting, AboutButton, LoginLogoutButton, Whitespace1, Logo, Whitespace2 }
+
+    public SettingsPage(
+        PopupService popupService,
+        IAuthenticationService authService,
+        Auth0Client auth0Client)
+    {
+        _popupService = popupService;
+        _authService = authService;
+        _auth0Client = auth0Client;
 
         // Default values for preferences
         bool isStartupTipsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled);
@@ -27,7 +41,15 @@ internal sealed class SettingsPage : BasePage
         Content = new Grid
         {
             // Define the length of the rows & columns
-            RowDefinitions = Rows.Define(80, 70, 70, 70, 70, Star, GridRowsColumns.Stars(2), Star),
+            RowDefinitions = Rows.Define(
+                (Row.Header, 80),
+                (Row.StartupMindfulnessTipSetting, 70),
+                (Row.ShowSessionRatingSetting, 70),
+                (Row.AboutButton, 70),
+                (Row.LoginLogoutButton, 70),
+                (Row.Whitespace1, Star),
+                (Row.Logo, Stars(2)),
+                (Row.Whitespace2, Star)),
             ColumnDefinitions = Columns.Define(Star, Star, Star, Star, Star),
             BackgroundColor = AppStyles.Palette.LightPeriwinkle,
 
@@ -40,7 +62,7 @@ internal sealed class SettingsPage : BasePage
                     TextColor = Colors.Black,
                     FontSize = 40
                 }
-                .Row(0)
+                .Row(Row.Header)
                 .Column(1)
                 .ColumnSpan(3)
                 .CenterVertical()
@@ -72,7 +94,7 @@ internal sealed class SettingsPage : BasePage
                     HeightRequest = 2,
                 }
                 .Bottom()
-                .Row(0)
+                .Row(Row.Header)
                 .Column(0)
                 .ColumnSpan(5),
                 
@@ -81,9 +103,9 @@ internal sealed class SettingsPage : BasePage
                     {
                         Text = "Show Tips on Startup",
                         TextColor = Colors.Black,
-                        FontSize = 30
+                        FontSize = 25
                     }
-                    .Row(1)
+                    .Row(Row.StartupMindfulnessTipSetting)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -96,11 +118,12 @@ internal sealed class SettingsPage : BasePage
                         OnColor = Colors.Green,
                         IsToggled = isSessionRatingEnabled
                     }
-                    .Row(1)
+                    .Row(Row.StartupMindfulnessTipSetting)
                     .Column(5)
                     .Left()
                     .CenterVertical()
-                    .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.startup_tips_enabled, e.Value); }),
+                    .Invoke(sw => sw.Toggled += (sender, e) => 
+                        PreferencesHelper.Set(PreferencesHelper.PreferenceNames.startup_tips_enabled, e.Value)),
                 
                 
                 // Show Session Rating
@@ -108,9 +131,9 @@ internal sealed class SettingsPage : BasePage
                     {
                         Text = "Show Session Rating",
                         TextColor = Colors.Black,
-                        FontSize = 30
+                        FontSize = 25
                     }
-                    .Row(2)
+                    .Row(Row.ShowSessionRatingSetting)
                     .Column(0)
                     .CenterVertical()
                     .Paddings(top: 10, bottom: 10, left: 15, right: 15)
@@ -123,82 +146,89 @@ internal sealed class SettingsPage : BasePage
                         OnColor = Colors.Green,
                         IsToggled = isStartupTipsEnabled
                     }
-                    .Row(2)
+                    .Row(Row.ShowSessionRatingSetting)
                     .Column(5)
                     .Left()
                     .CenterVertical()
-                    .Invoke(sw => sw.Toggled += (sender, e) => { PreferencesHelper.Set(PreferencesHelper.PreferenceNames.session_rating_enabled, e.Value); }),
-                
-                
-                // Tutorial
-                new Label
-                    {
-                        Text = "Tutorial", 
-                        TextDecorations = TextDecorations.Underline,
-                        TextColor = Colors.Black,
-                        FontSize = 30
-                    }
-                    .Row(3)
-                    .Column(0)
-                    .CenterVertical()
-                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                    .ColumnSpan(3),
-
-                // Tutorial Button
-                new Button
-                    {
-                        Opacity = 0
-                    }
-                    .Row(3)
-                    .Column(0)
-                    .CenterVertical()
-                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                    .ColumnSpan(2)
-                    .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("Tutorial Button Tapped");}),
-                
+                    .Invoke(sw => sw.Toggled += (sender, e) => 
+                        PreferencesHelper.Set(PreferencesHelper.PreferenceNames.session_rating_enabled, e.Value)),
 
                 // About
                 new Label
                 {
-                    Text = "About", 
+                    Text = "About",
                     TextDecorations = TextDecorations.Underline,
                     TextColor = Colors.Black,
-                    FontSize = 30
+                    FontSize = 25
                 }
-                .Row(4)
+                .Row(Row.AboutButton)
                 .Column(0)
                 .CenterVertical()
                 .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(3),
-                
-                // About Button
-                new Button
-                {
-                    Opacity = 0
-                }
-                .Row(4)
-                .Column(0)
-                .CenterVertical()
-                .Paddings(top: 10, bottom: 10, left: 15, right: 15)
-                .ColumnSpan(2)
-                .Invoke(b => b.Clicked += (sender, e) => {Console.WriteLine("About Button Tapped");}),
+                .ColumnSpan(3)
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapAboutCommand)),
 
+                // Logout
+                new Label
+                    {
+                        Text = IsLoggedIn ? "Logout" : "Login",
+                        TextDecorations = TextDecorations.Underline,
+                        TextColor = Colors.Black,
+                        FontSize = 25
+                    }
+                    .Row(Row.LoginLogoutButton)
+                    .Column(0)
+                    .CenterVertical()
+                    .Paddings(top: 10, bottom: 10, left: 15, right: 15)
+                    .ColumnSpan(3)
+                    .Bind(Label.TextProperty,
+                        getter: static (settingsPage) => settingsPage.IsLoggedIn,
+                        convert: static (bool isLoggedIn) => isLoggedIn ? "Logout" : "Login",
+                        source: this)
+                    .BindTapGesture(
+                        commandSource: this,
+                        commandPath: MiscHelper.NameOf(() => TapLoginLogoutButtonCommand)),
+
+                // Logo
                 new Image()
                 {
                     Source = "logo_with_border.png",
                 }
                 .FillVertical()
                 .Aspect(Aspect.AspectFit)
-                .Row(6)
+                .Row(Row.Logo)
                 .ColumnSpan(5)
             }
         };
     }
 
-    
+    public AsyncRelayCommand TapAboutCommand => new(OnTapAboutButton, AsyncRelayCommandOptions.None);
 
-    protected override async void OnAppearing()
+    private async Task OnTapAboutButton()
+    {
+        _popupService.ShowPopup<SettingsAboutPopupInterface>();
+    }
+
+    public AsyncRelayCommand TapLoginLogoutButtonCommand => new(OnTapLoginLogoutButton, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapLoginLogoutButton()
+    {
+        if (IsLoggedIn)
+        {
+            await _authService.Logout(_auth0Client);
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("///" + nameof(LoginPage));
+        }
+    }
+
+    protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        IsLoggedIn = !string.IsNullOrEmpty(_authService.Auth0Id);
     }
 }
