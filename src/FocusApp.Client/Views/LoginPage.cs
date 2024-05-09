@@ -223,7 +223,7 @@ internal class LoginPage : BasePage
             await _popupService.HidePopupAsync<SyncDataLoadingPopupInterface>();
 
             await TryLoginFromStoredToken();
-            _authenticationService.StartupSyncTask = Task.Run(_syncService.StartupSync);
+            _authenticationService.StartupSyncTask = _syncService.StartupSync();
         });
     }
 
