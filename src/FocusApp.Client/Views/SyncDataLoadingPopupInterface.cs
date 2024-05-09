@@ -25,7 +25,7 @@ internal class SyncDataLoadingPopupInterface : BasePopup
                     new Label()
                     {
                         Text = "Downloading Content",
-                        FontSize = 18,
+                        FontSize = 16,
                         TextColor = Colors.Black
                     }
                     .Center()

@@ -107,7 +107,7 @@ internal class SocialPage : BasePage
                 .Aspect(Aspect.AspectFit)
                 .Right()
                 .FillVertical()
-                .Margin(1)
+                .Margins(1,1,5,1)
                 .Column(1)
                 // Set the corner radius to be half of the height to make it a circle
                 .Bind(
