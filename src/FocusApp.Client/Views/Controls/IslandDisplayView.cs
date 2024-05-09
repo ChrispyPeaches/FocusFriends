@@ -48,20 +48,20 @@ internal class IslandDisplayView : ContentView
     #endregion
 
     /// <summary>When the parent appears, generate the content for this view. </summary>
-    public Action ParentAppearing { get; set; }
+    public Action ParentLoading { get; set; }
 
     enum Column {LeftWhiteSpace, PetAndDecor, RightWhiteSpace }
 
     /// <summary>
-    /// Attach the parent's appearing event to the <see cref="ParentAppearing"/> event,
-    /// Attach the <see cref="ParentAppearing"/> event to the <see cref="GenerateContent"/> method, and
+    /// Attach the parent's appearing event to the <see cref="ParentLoading"/> event,
+    /// Attach the <see cref="ParentLoading"/> event to the <see cref="GenerateContent"/> method, and
     /// generate the initial content.
     /// </summary>
     public IslandDisplayView(ContentPage parentPage)
     {
-        parentPage.Appearing += (_, _) => ParentAppearing.Invoke();
+        parentPage.Loaded += (_, _) => ParentLoading.Invoke();
 
-        ParentAppearing += GenerateContent;
+        ParentLoading += GenerateContent;
         GenerateContent();
     }
 
