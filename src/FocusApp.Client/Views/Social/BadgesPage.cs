@@ -142,7 +142,7 @@ internal class BadgesPage : BasePage
         try
         {
             userBadgeIds =  await _localContext.UserBadges?
-                .Where(ub => ub.UserId == _authenticationService.CurrentUser.Id)
+                .Where(ub => ub.UserId == _authenticationService.Id.Value)
                 .Select(ub => ub.BadgeId).ToListAsync();
         }
         catch (Exception ex)

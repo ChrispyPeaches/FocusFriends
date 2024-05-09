@@ -50,7 +50,7 @@ internal class SocialPage : BasePage
         _friendsListView = BuildFriendsListView();
         _profilePictureNavMenuButton = new AvatarView()
         {
-            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.ProfilePicture)
         };
 
         Appearing += CheckForSocialBadgeEarned;
@@ -132,7 +132,7 @@ internal class SocialPage : BasePage
     private AvatarView GetProfilePictureNavMenuButton() =>
          new AvatarView()
         {
-            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.ProfilePicture)
         };
 
     private ListView BuildFriendsListView()
@@ -206,7 +206,7 @@ internal class SocialPage : BasePage
     {
         base.OnAppearing();
 
-        _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.CurrentUser?.ProfilePicture);
+        _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.ProfilePicture);
         
         // If not logged in display popup, otherwise populate friends list
         if (string.IsNullOrEmpty(_authenticationService.Auth0Id))
@@ -250,7 +250,7 @@ internal class SocialPage : BasePage
 
         var query = new GetAllFriendsQuery
         {
-            UserId = _authenticationService.CurrentUser.Id
+            UserId = _authenticationService.Id.Value
         };
 
         try

@@ -319,7 +319,7 @@ internal class ProfilePage : BasePage
                 // Date Joined
                 new Label
                 {
-                    Text = $"Member Since: {_authenticationService.CurrentUser?.DateCreated.ToLocalTime().ToShortDateString()}",
+                    Text = $"Member Since: {_authenticationService.DateCreated?.ToLocalTime().ToShortDateString()}",
                     TextColor = Colors.Black,
                     FontSize = 20
                 }
@@ -339,10 +339,10 @@ internal class ProfilePage : BasePage
         ByteArrayToImageSourceConverter byteArrayConverter = new ByteArrayToImageSourceConverter();
 
         // Set user details bindings
-        _profilePicture.ImageSource = byteArrayConverter.ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
-        _userName.Text = _authenticationService.CurrentUser?.UserName;
-        _pronouns.Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}";
-        _email.Text = $"Friend Id: #{_authenticationService.CurrentUser?.Email}";
+        _profilePicture.ImageSource = byteArrayConverter.ConvertFrom(_authenticationService.ProfilePicture);
+        _userName.Text = _authenticationService.UserName;
+        _pronouns.Text = $"Pronouns: {_authenticationService.Pronouns}";
+        _email.Text = $"Friend Id: #{_authenticationService.Email}";
 
         // Set user selected items bindings
         _selectedPet.Source = byteArrayConverter.ConvertFrom(_authenticationService.SelectedPet?.Image);
@@ -386,23 +386,23 @@ internal class ProfilePage : BasePage
         .Bind(AvatarView.ImageSourceProperty,
               "ProfilePicture",
               converter: new ByteArrayToImageSourceConverter());
-        _profilePicture.BindingContext = _authenticationService.CurrentUser;
+        _profilePicture.BindingContext = _authenticationService;
 
         _userName = new Label
         {
-            Text = $"{_authenticationService.CurrentUser?.UserName}",
+            Text = $"{_authenticationService.UserName}",
             FontSize = 18
         };
 
         _pronouns = new Label
         {
-            Text = $"Pronouns: {_authenticationService.CurrentUser?.Pronouns}",
+            Text = $"Pronouns: {_authenticationService.Pronouns}",
             FontSize = 15
         };
 
         _email = new Label
         {
-            Text = $"Friend Id: #{_authenticationService.CurrentUser?.Email}",
+            Text = $"Friend Id: #{_authenticationService.Email}",
             FontSize = 15
         };
     }
@@ -412,33 +412,33 @@ internal class ProfilePage : BasePage
         // Selected item labels
         _selectedPetLabel = new Label
         {
-            Text = $"{(_authenticationService.CurrentUser?.SelectedPet?.Name == null
+            Text = $"{(_authenticationService.SelectedPet?.Name == null
                                 ? "Select a pet!"
-                                : _authenticationService.CurrentUser?.SelectedPet?.Name)}",
+                                : _authenticationService.SelectedPet?.Name)}",
             FontSize = 15
         };
 
         _selectedIslandLabel = new Label
         {
-            Text = $"{(_authenticationService.CurrentUser?.SelectedIsland?.Name == null
+            Text = $"{(_authenticationService.SelectedIsland?.Name == null
                                 ? "Select an island!"
-                                : _authenticationService.CurrentUser?.SelectedIsland?.Name)}",
+                                : _authenticationService.SelectedIsland?.Name)}",
             FontSize = 15
         };
 
         _selectedDecorLabel = new Label
         {
-            Text = $"{(_authenticationService.CurrentUser?.SelectedDecor?.Name == null
+            Text = $"{(_authenticationService.SelectedDecor?.Name == null
                                 ? "Select decor!"
-                                : _authenticationService.CurrentUser?.SelectedDecor?.Name)}",
+                                : _authenticationService.SelectedDecor?.Name)}",
             FontSize = 15
         };
 
         _selectedBadgeLabel = new Label
         {
-            Text = $"{(_authenticationService.CurrentUser?.SelectedBadge?.Name == null
+            Text = $"{(_authenticationService.SelectedBadge?.Name == null
                                 ? "Select a badge!"
-                                : _authenticationService.CurrentUser?.SelectedBadge?.Name)}",
+                                : _authenticationService.SelectedBadge?.Name)}",
             FontSize = 15
         };
 
@@ -485,7 +485,7 @@ internal class ProfilePage : BasePage
     #region Backend
     private async void CopyEmailClicked(object sender, EventArgs e)
     {
-        await Clipboard.Default.SetTextAsync(_authenticationService.CurrentUser?.Email);
+        await Clipboard.Default.SetTextAsync(_authenticationService.Email);
     }
 
     private async void EditButtonClicked(object sender, EventArgs eventArgs)

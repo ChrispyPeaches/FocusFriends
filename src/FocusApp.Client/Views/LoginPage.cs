@@ -179,14 +179,6 @@ internal class LoginPage : BasePage
             _authenticationService.ClearUser();
         }
 
-        _authenticationService.CurrentUser ??= new User()
-        {
-            Auth0Id = "",
-            Email = "",
-            UserName = "",
-            Balance = 0
-        };
-
         // Add the initial/default island and pet if they don't exist
         if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
         {

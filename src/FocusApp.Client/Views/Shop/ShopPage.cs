@@ -39,7 +39,7 @@ namespace FocusApp.Client.Views.Shop
             // Currency text
             _balanceLabel = new Label
             {
-                Text = _authenticationService.CurrentUser?.Balance.ToString(),
+                Text = _authenticationService.Balance.ToString(),
                 FontSize = 20,
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center,

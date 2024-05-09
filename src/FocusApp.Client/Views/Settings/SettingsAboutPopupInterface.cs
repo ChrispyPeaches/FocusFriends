@@ -31,7 +31,7 @@ internal class SettingsAboutPopupInterface : BasePopup
             StrokeShape = new RoundRectangle() { CornerRadius = new CornerRadius(20, 20, 20, 20) },
             BackgroundColor = AppStyles.Palette.LightMauve,
             WidthRequest = 360,
-            HeightRequest = 460,
+            HeightRequest = 300,
             Content = new Grid()
             {
                 RowDefinitions = GridRowsColumns.Rows.Define(
@@ -69,10 +69,12 @@ internal class SettingsAboutPopupInterface : BasePopup
                                 {
                                     Text = "Contact us",
                                     FontSize = 20,
+                                    TextColor = Colors.Black
                                 }.Margins(bottom: 2),
                                 new Label()
                                 {
                                     Text = "zenpxldev@gmail.com",
+                                    TextColor = Colors.Black,
                                     FontSize = 17
                                 },
                             }

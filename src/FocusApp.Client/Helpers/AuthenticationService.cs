@@ -8,17 +8,22 @@ namespace FocusApp.Client.Helpers;
 
 internal interface IAuthenticationService
 {
+    bool IsLoggedIn { get; }
+    Guid? Id { get; set; }
     string? Auth0Id { get; set; }
     string? Email { get; set; }
-    User? CurrentUser { get; set; }
+    string? UserName { get; set; }
+    string? Pronouns { get; set; }
+    int Balance { get; set; }
+    DateTime? DateCreated { get; set; }
+    byte[]? ProfilePicture { get; set; }
     Island? SelectedIsland { get; set; }
     Pet? SelectedPet { get; set; }
     Badge? SelectedBadge { get; set; }
     Decor? SelectedDecor { get; set; }
-    int Balance { get; set; }
+    Task? StartupSyncTask { get; set; }
 
     event PropertyChangedEventHandler? PropertyChanged;
-
     void ClearUser();
     Task Logout(IAuth0Client auth0Client);
     void PopulateWithUserData(User user);
@@ -26,16 +31,16 @@ internal interface IAuthenticationService
 
 public class AuthenticationService : INotifyPropertyChanged, IAuthenticationService
 {
+    public bool IsLoggedIn => Auth0Id is not null;
     public event PropertyChangedEventHandler? PropertyChanged;
+    public Guid? Id { get; set; }
     public string? Auth0Id { get; set; } = "";
     public string? Email { get; set; } = "";
-
-    private User? _currentUser;
-    public User? CurrentUser
-    {
-        get => _currentUser;
-        set => SetProperty(ref _currentUser, value);
-    }
+    public string? UserName { get; set; } = "";
+    public string? Pronouns { get; set; } = "";
+    public DateTime? DateCreated { get; set; }
+    public byte[]? ProfilePicture { get; set; }
+    public Task? StartupSyncTask { get; set; }
 
     private int? _balance;
     public int Balance
@@ -99,26 +104,33 @@ public class AuthenticationService : INotifyPropertyChanged, IAuthenticationServ
     /// </summary>
     public void ClearUser()
     {
-        Auth0Id = string.Empty;
-        Email = string.Empty;
+        Id = null;
+        Auth0Id = null;
+        Email = null;
+        UserName = null;
+        Pronouns = null;
         Balance = 0;
-        CurrentUser = null;
+        DateCreated = DateTime.MinValue;
+        ProfilePicture = null;
         SelectedIsland = null;
-        SelectedPet = null;
         SelectedBadge = null;
         SelectedDecor = null;
+        SelectedPet = null;
     }
 
     public void PopulateWithUserData(User user)
     {
-        CurrentUser = user;
-
+        Id = user.Id;
         Auth0Id = user.Auth0Id;
         Email = user.Email;
+        UserName = user.UserName;
+        Pronouns = user.Pronouns;
         Balance = user.Balance;
+        DateCreated = user.DateCreated;
+        ProfilePicture = user.ProfilePicture;
+        SelectedIsland = user.SelectedIsland;
         SelectedBadge = user.SelectedBadge;
         SelectedDecor = user.SelectedDecor;
-        SelectedIsland = user.SelectedIsland;
         SelectedPet = user.SelectedPet;
     }
 

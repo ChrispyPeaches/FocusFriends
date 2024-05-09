@@ -34,13 +34,13 @@ namespace FocusApp.Client.Methods.Badges
                     IsEligible = false
                 };
 
-                if (_authenticationService.CurrentUser is null)
+                if (_authenticationService.IsLoggedIn)
                 {
                     throw new InvalidOperationException("User is not logged in.");
                 }
 
                 int sessionCount = await _localContext.UserSessionHistory
-                    .CountAsync(u => u.UserId == _authenticationService.CurrentUser.Id, cancellationToken);
+                    .CountAsync(u => u.UserId == _authenticationService.Id.Value, cancellationToken);
 
                 string? badgeName = sessionCount switch
                 {
@@ -61,7 +61,7 @@ namespace FocusApp.Client.Methods.Badges
                 {
                     bool hasBadge = await _localContext.UserBadges
                         .Where(userBadge =>
-                            userBadge.UserId == _authenticationService.CurrentUser.Id &&
+                            userBadge.UserId == _authenticationService.Id.Value &&
                             userBadge.Badge.Name == badgeName)
                         .AnyAsync(cancellationToken);
 
@@ -73,7 +73,7 @@ namespace FocusApp.Client.Methods.Badges
                         _localContext.UserBadges.Add(new UserBadge()
                         {
                             BadgeId = result.EarnedBadge.Id,
-                            UserId = _authenticationService.CurrentUser.Id,
+                            UserId = _authenticationService.Id.Value,
                             DateAcquired = DateTime.UtcNow
                         });
 
@@ -83,7 +83,7 @@ namespace FocusApp.Client.Methods.Badges
                         await _client.AddUserBadge(new AddUserBadgeCommand()
                             {
                                 BadgeId = result.EarnedBadge.Id,
-                                UserId = _authenticationService.CurrentUser.Id
+                                UserId = _authenticationService.Id.Value
                             },
                             cancellationToken);
 

@@ -316,7 +316,7 @@ namespace FocusApp.Client.Views.Social
             // Fetch all pending friend requests
             var query = new GetAllFriendRequestsQuery
             {
-                UserId = _authenticationService.CurrentUser.Id
+                UserId = _authenticationService.Id.Value
             };
             pendingFriendRequests = await _client.GetAllFriendRequests(query, default);
 
@@ -395,7 +395,7 @@ namespace FocusApp.Client.Views.Social
 
             var acceptCommand = new AcceptFriendRequestCommand
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 FriendId = friendId 
             };
 
@@ -437,7 +437,7 @@ namespace FocusApp.Client.Views.Social
             var cancelCommand = new CancelFriendRequestCommand
             {
                 UserId = friendId,
-                FriendId = _authenticationService.CurrentUser.Id
+                FriendId = _authenticationService.Id.Value
             };
 
             // Reject Friend Request
@@ -455,7 +455,7 @@ namespace FocusApp.Client.Views.Social
 
             var cancelCommand = new CancelFriendRequestCommand
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 FriendId = friendId
             };
 
