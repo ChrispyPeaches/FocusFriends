@@ -22,6 +22,20 @@ internal sealed class SettingsPage : BasePage
         set => SetProperty(ref _isLoggedIn, value);
     }
 
+    private bool _isStartupTipsEnabled;
+    private bool IsStartupTipsEnabled
+    {
+        get => _isStartupTipsEnabled;
+        set => SetProperty(ref _isStartupTipsEnabled, value);
+    }
+
+    private bool _isSessionRatingEnabled;
+    private bool IsSessionRatingEnabled
+    {
+        get => _isSessionRatingEnabled;
+        set => SetProperty(ref _isSessionRatingEnabled, value);
+    }
+
     private enum Row { Header, StartupMindfulnessTipSetting, ShowSessionRatingSetting, AboutButton, LoginLogoutButton, Whitespace1, Logo, Whitespace2 }
 
     public SettingsPage(
@@ -33,9 +47,7 @@ internal sealed class SettingsPage : BasePage
         _authService = authService;
         _auth0Client = auth0Client;
 
-        // Default values for preferences
-        bool isStartupTipsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled);
-        bool isSessionRatingEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled);
+        GetPreferenceValues();
 
         // Using grids
         Content = new Grid
@@ -116,12 +128,15 @@ internal sealed class SettingsPage : BasePage
                     {
                         ThumbColor = Colors.SlateGrey,
                         OnColor = Colors.Green,
-                        IsToggled = isSessionRatingEnabled
+                        IsToggled = IsStartupTipsEnabled
                     }
                     .Row(Row.StartupMindfulnessTipSetting)
                     .Column(5)
                     .Left()
                     .CenterVertical()
+                    .Bind(Switch.IsToggledProperty,
+                        getter: static (settingsPage) => settingsPage.IsStartupTipsEnabled,
+                        source: this)
                     .Invoke(sw => sw.Toggled += (sender, e) => 
                         PreferencesHelper.Set(PreferencesHelper.PreferenceNames.startup_tips_enabled, e.Value)),
                 
@@ -144,12 +159,15 @@ internal sealed class SettingsPage : BasePage
                     {
                         ThumbColor = Colors.SlateGrey,
                         OnColor = Colors.Green,
-                        IsToggled = isStartupTipsEnabled
+                        IsToggled = IsSessionRatingEnabled
                     }
                     .Row(Row.ShowSessionRatingSetting)
                     .Column(5)
                     .Left()
                     .CenterVertical()
+                    .Bind(Switch.IsToggledProperty,
+                        getter: static (settingsPage) => settingsPage.IsSessionRatingEnabled,
+                        source: this)
                     .Invoke(sw => sw.Toggled += (sender, e) => 
                         PreferencesHelper.Set(PreferencesHelper.PreferenceNames.session_rating_enabled, e.Value)),
 
@@ -225,10 +243,17 @@ internal sealed class SettingsPage : BasePage
         }
     }
 
+    private void GetPreferenceValues()
+    {
+        IsStartupTipsEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.startup_tips_enabled);
+        IsSessionRatingEnabled = PreferencesHelper.Get<bool>(PreferencesHelper.PreferenceNames.session_rating_enabled);
+    }
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
+        GetPreferenceValues();
         IsLoggedIn = !string.IsNullOrEmpty(_authService.Auth0Id);
     }
 }
