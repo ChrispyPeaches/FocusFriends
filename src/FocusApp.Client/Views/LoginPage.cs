@@ -208,7 +208,6 @@ internal class LoginPage : BasePage
         {
             // Only show the content downloading popup for getting the essential data
             await _popupService.ShowPopupAsync<SyncDataLoadingPopupInterface>();
-            Thread.Sleep(3000);
             try
             {
                 await _syncService.GatherEssentialDatabaseData();
@@ -223,8 +222,8 @@ internal class LoginPage : BasePage
 
             await _popupService.HidePopupAsync<SyncDataLoadingPopupInterface>();
 
+            await TryLoginFromStoredToken();
             _authenticationService.StartupSyncTask = Task.Run(_syncService.StartupSync);
-            _ = Task.Run(TryLoginFromStoredToken);
         });
     }
 
@@ -237,20 +236,18 @@ internal class LoginPage : BasePage
             
             if (result.IsSuccessful)
             {
+                await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
                 await MainThread.InvokeOnMainThreadAsync(async () => await Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
+                return;
             }
-            else
-            {
-                _logger.LogInformation(result.Message);
-            }
+            await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
+
+            _logger.LogInformation(result.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
         }
-
-        await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
     }
-
 }
 
