@@ -17,11 +17,13 @@ internal class LoginPage : BasePage
     ILogger<LoginPage> _logger;
     IMediator _mediator;
     PopupService _popupService;
+    private readonly ISyncService _syncService;
 
     public LoginPage(
         IAuthenticationService authenticationService,
         ILogger<LoginPage> logger,
         IMediator mediator,
+        ISyncService syncService,
         PopupService popupService
         )
     {
@@ -29,6 +31,7 @@ internal class LoginPage : BasePage
         _logger = logger;
         _mediator = mediator;
         _popupService = popupService;
+        _syncService = syncService;
 
         var pets = new List<string> { "pet_cool_cat.png", "pet_cool_cat.png", "pet_cool_cat.png", "pet_cooler_cat.png",  };
         var rnd = new Random();
@@ -195,44 +198,59 @@ internal class LoginPage : BasePage
     }
 
     /// <summary>
-    /// Run persistent login when page is created (on app startup), but not after
+    /// Run startup logic on app startup, but not after
     /// </summary>
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
         Loaded -= LoginPage_Loaded;
 
-        Task.Run(TryLoginFromStoredToken);
+        _ = Task.Run(async () =>
+        {
+            // Only show the content downloading popup for getting the essential data
+            await _popupService.ShowPopupAsync<SyncDataLoadingPopupInterface>();
+            Thread.Sleep(3000);
+            try
+            {
+                await _syncService.GatherEssentialDatabaseData();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert(
+                    "Error",
+                    "There was an issue downloading content. Please ensure you have a stable internet connection and restart the app.",
+                    "OK");
+            }
+
+            await _popupService.HidePopupAsync<SyncDataLoadingPopupInterface>();
+
+            _authenticationService.StartupSyncTask = Task.Run(_syncService.StartupSync);
+            _ = Task.Run(TryLoginFromStoredToken);
+        });
     }
 
-    private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
+    private async Task TryLoginFromStoredToken()
     {
-        _popupService.ShowPopup<GenericLoadingPopupInterface>();
+        await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
         try
         {
-            var result = await _mediator.Send(new GetPersistentUserLogin.Query(), default);
-
+            var result = await _mediator.Send(new GetPersistentUserLogin.Query());
+            
             if (result.IsSuccessful)
             {
-                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
+                await MainThread.InvokeOnMainThreadAsync(async () => await Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
             }
             else
             {
                 _logger.LogInformation(result.Message);
             }
-
-            _popupService.HidePopup();
-            return result;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
         }
 
-        _popupService.HidePopup();
-        return new GetPersistentUserLogin.Result
-        {
-            IsSuccessful = false
-        };
+        await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
     }
+
 }
 
