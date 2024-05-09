@@ -53,8 +53,6 @@ internal class SocialPage : BasePage
             ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.ProfilePicture)
         };
 
-        Appearing += CheckForSocialBadgeEarned;
-
         Content = new Grid
         {
             // Define rows and columns (Star means that row/column will take up the remaining space)
@@ -220,26 +218,20 @@ internal class SocialPage : BasePage
         }
     }
 
-    private async void CheckForSocialBadgeEarned(object? sender, EventArgs eventArgs)
+    private async Task CheckForSocialBadgeEarned()
     {
-        Appearing -= CheckForSocialBadgeEarned;
-
-        Task.Run(async () =>
+        try
         {
-            try
+            BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+            if (result is { IsEligible: true, EarnedBadge: not null })
             {
-                BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
-                if (result is { IsEligible: true, EarnedBadge: not null })
-                {
-                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
-                }
+                _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
-            }
-        });
-
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+        }
     }
 
     // We call this function to populate FriendsList and from friends popup to refresh list
@@ -266,6 +258,10 @@ internal class SocialPage : BasePage
         {
             _friendsListView.ItemsSource = friendsList;
         });
+
+
+
+        await CheckForSocialBadgeEarned();
     }
 
     public RelayCommand TapProfilePictureShowNavigationCommand => new(OnClickShowProfileInterfacePopup);
