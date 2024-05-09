@@ -56,9 +56,13 @@ namespace FocusApp.Client
 
         public static IServiceCollection RegisterAuthenticationServices(this IServiceCollection services)
         {
+#if DEBUG
+            const string domain = "zenpxl.us.auth0.com";
+            const string clientId = "tQ6cctnvL3AoyXNEEy7YGe5eYtJIewaC";
+#else
             const string domain = "dev-7c8vyxbx5myhzmji.us.auth0.com";
             const string clientId = "PR3eHq0ehapDGtpYyLl5XFhd1mOQX9uD";
-
+#endif
             services.AddSingleton(new Auth0Client(new()
             {
                 Domain = domain,
@@ -96,9 +100,15 @@ namespace FocusApp.Client
 
         private static IServiceCollection RegisterRefitClient(this IServiceCollection services)
         {
+#if DEBUG
+            string apiDomain = "http://10.0.2.2:5223";
+#else
+            string apiDomain = "http://prod.zenpxl.com:25565";
+#endif
+
             services
                 .AddRefitClient<IAPIClient>()
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("http://prod.zenpxl.com:25565"));
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(apiDomain));
 
             return services;
         }
