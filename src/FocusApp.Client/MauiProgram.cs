@@ -57,11 +57,11 @@ namespace FocusApp.Client
         public static IServiceCollection RegisterAuthenticationServices(this IServiceCollection services)
         {
 #if DEBUG
-            const string domain = "zenpxl.us.auth0.com";
-            const string clientId = "tQ6cctnvL3AoyXNEEy7YGe5eYtJIewaC";
-#else
             const string domain = "dev-7c8vyxbx5myhzmji.us.auth0.com";
             const string clientId = "PR3eHq0ehapDGtpYyLl5XFhd1mOQX9uD";
+#else
+            const string domain = "zenpxl.us.auth0.com";
+            const string clientId = "tQ6cctnvL3AoyXNEEy7YGe5eYtJIewaC";
 #endif
             services.AddSingleton(new Auth0Client(new()
             {
