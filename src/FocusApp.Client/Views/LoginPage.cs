@@ -117,6 +117,8 @@ internal class LoginPage : BasePage
 
     private async Task OnTapSkipButton()
     {
+
+        await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
         // If user skips login, initialize empty user and set selected pet and island to defaults
         try
         {
@@ -127,8 +129,7 @@ internal class LoginPage : BasePage
             _logger.LogError(ex, "Error initializing empty user.");
         }
 
-
-        // Todo: If user skips login, set selected pet and island to defaults
+        await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
@@ -141,7 +142,8 @@ internal class LoginPage : BasePage
     {
         try
         {
-            // Handle login process on non-UI thread
+            await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
+            // Handle login process
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
 
             if (loginResult.IsSuccessful && loginResult.CurrentUser is not null)
@@ -150,6 +152,7 @@ internal class LoginPage : BasePage
             }
             else
             {
+                await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
                 await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
             }
         }
@@ -168,6 +171,7 @@ internal class LoginPage : BasePage
             _logger.LogError(ex, "Error initializing empty user.");
         }
 
+        await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
         await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
     }
 
