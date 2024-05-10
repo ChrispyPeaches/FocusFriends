@@ -119,7 +119,7 @@ namespace FocusApp.Client.Views.Shop
                 buyButton.Opacity = 0.5;
                 buyButton.Text = "You own me!";
             }
-            else if (_authenticationService.CurrentUser?.Balance < item.Price)
+            else if (_authenticationService.Balance < item.Price)
             {
                 buyButton.IsEnabled = false;
                 buyButton.Opacity = 0.5;
@@ -162,12 +162,12 @@ namespace FocusApp.Client.Views.Shop
             try
             {
                 // Update user's balance within the CurrentUser model
-                _authenticationService.CurrentUser.Balance -= _currentItem.Price;
+                _authenticationService.Balance -= _currentItem.Price;
 
                 await _mediator.Send(new PurchaseItem.Command { Item = _currentItem }, default);
 
                 // After purchasing item, update the user balance display on the shop page
-                ShopPage._balanceLabel.Text = _authenticationService.CurrentUser.Balance.ToString();
+                ShopPage._balanceLabel.Text = _authenticationService.Balance.ToString();
             }
             catch (Exception ex)
             {
@@ -176,7 +176,7 @@ namespace FocusApp.Client.Views.Shop
 
             Task.Run(ShowPurchaseBadgeIfEarned);
 
-            _popupService.HidePopup();
+            await _popupService.HidePopupAsync();
         }
 
         private async Task<bool> UserOwnsItem()
@@ -186,16 +186,16 @@ namespace FocusApp.Client.Views.Shop
                 case ShopItemType.Pets:
                     return await _localContext.UserPets.AnyAsync(p =>
                            p.PetId == _currentItem.Id
-                        && p.UserId == _authenticationService.CurrentUser.Id);
+                        && p.UserId == _authenticationService.Id.Value);
                 case ShopItemType.Decor:
                     return await _localContext.UserDecor.AnyAsync(d => 
                            d.DecorId == _currentItem.Id
-                        && d.UserId == _authenticationService.CurrentUser.Id);
+                        && d.UserId == _authenticationService.Id.Value);
                 
                 case ShopItemType.Islands:
                     return await _localContext.UserIslands.AnyAsync(i => 
                            i.IslandId == _currentItem.Id 
-                        && i.UserId == _authenticationService.CurrentUser.Id);
+                        && i.UserId == _authenticationService.Id.Value);
                 
                 default:
                     return false;

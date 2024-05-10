@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Markup.LeftToRight;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Resources;
+using FocusApp.Client.Views.Settings;
 using Microsoft.Maui.Controls.Shapes;
 using SimpleToolkit.SimpleShell.Extensions;
 
@@ -18,7 +19,7 @@ namespace FocusApp.Client.Views.Social
             _popupService = popupService;
 
             // Fetch current user's username
-            string username = _authenticationService.CurrentUser.UserName;
+            string username = _authenticationService.UserName;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;
@@ -289,8 +290,8 @@ namespace FocusApp.Client.Views.Social
             Shell.Current.SetTransition(Transitions.RightToLeftPlatformTransition);
 
             // Navigate to page within social (this allows back navigation to work properly)
+            await _popupService.HidePopupAsync<ProfilePopupInterface>();
             await Shell.Current.GoToAsync($"///{nameof(SocialPage)}/{pageName}");
-            _popupService.HidePopup();
         }
     }
 }

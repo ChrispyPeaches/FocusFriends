@@ -197,7 +197,7 @@ internal class BadgesPagePopupInterface : BasePopup
 
         EditUserSelectedBadgeCommand command = new EditUserSelectedBadgeCommand
         {
-            UserId = _authenticationService.CurrentUser?.Id,
+            UserId = _authenticationService.Id.Value,
             BadgeId = badge.Id
         };
 
@@ -216,7 +216,7 @@ internal class BadgesPagePopupInterface : BasePopup
         {
             itemOwned = await _localContext.UserBadges.AnyAsync(b =>
             b.BadgeId == _currentBadge.Id
-            && b.UserId == _authenticationService.CurrentUser.Id);
+            && b.UserId == _authenticationService.Id.Value);
         }
         catch(Exception ex)
         {
@@ -228,7 +228,7 @@ internal class BadgesPagePopupInterface : BasePopup
     private async Task<DateTimeOffset> GetBadgeDate()
     { 
         return (await _localContext.UserBadges.FirstAsync(ub => 
-        ub.UserId == _authenticationService.CurrentUser.Id &&
+        ub.UserId == _authenticationService.Id.Value &&
         ub.BadgeId == _currentBadge.Id)).DateAcquired;
     }
 }

@@ -113,14 +113,6 @@ internal class BadgesPage : BasePage
     {
         base.OnAppearing();
 
-        // Check if the user is logged in
-        if (string.IsNullOrEmpty(_authenticationService.AuthToken))
-        {
-            var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
-            loginPopup.OriginPage = nameof(ShopPage);
-            return;
-        }
-
         // Fetch badges from the local database and display them
         var localBadges = await FetchBadgesFromLocalDb();
         var userBadges = await FetchUserBadgesFromLocalDb();
@@ -150,7 +142,7 @@ internal class BadgesPage : BasePage
         try
         {
             userBadgeIds =  await _localContext.UserBadges?
-                .Where(ub => ub.UserId == _authenticationService.CurrentUser.Id)
+                .Where(ub => ub.UserId == _authenticationService.Id.Value)
                 .Select(ub => ub.BadgeId).ToListAsync();
         }
         catch (Exception ex)
@@ -199,7 +191,7 @@ internal class BadgesPage : BasePage
                 }
                 .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
 
-                var grid = new Grid
+                var ownedGrid = new Grid
                 {
                     ownedBadge
                     .ZIndex(0),
@@ -207,7 +199,7 @@ internal class BadgesPage : BasePage
                     checkmark
                     .ZIndex(1)
                 };
-                flexLayout.Children.Add(grid);
+                flexLayout.Children.Add(ownedGrid);
             }
             else
             {
@@ -221,7 +213,14 @@ internal class BadgesPage : BasePage
                     Opacity = .2
                 }
                 .Invoke(button => button.Released += (s, e) => OnImageButtonClicked(s, e));
-                flexLayout.Children.Add(unownedBadge);
+
+                var unownedGrid = new Grid
+                {
+                    unownedBadge
+                    .ZIndex(0)
+                };
+                flexLayout.Children.Add(unownedGrid);
+
             }
         }
     }

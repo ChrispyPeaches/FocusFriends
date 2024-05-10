@@ -14,6 +14,7 @@ using System.Net;
 using Microsoft.Extensions.Logging;
 using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 using CommunityToolkit.Maui.Core;
+using FocusApp.Client.Resources.FontAwesomeIcons;
 
 namespace FocusApp.Client.Views.Social
 {
@@ -48,6 +49,8 @@ namespace FocusApp.Client.Views.Social
 
             Color = Colors.Transparent;
 
+            CanBeDismissedByTappingOutsideOfPopup = false;
+
             Entry emailEntry = new Entry
             {
                 Placeholder = "Enter friend's email",
@@ -74,8 +77,12 @@ namespace FocusApp.Client.Views.Social
                 BackgroundColor = AppStyles.Palette.LightMauve,
                 WidthRequest = 350,
                 HeightRequest = 450,
-                Content = new VerticalStackLayout
+                Content = new Grid
                 {
+                    // Define rows and columns
+                    RowDefinitions = Rows.Define(55, 60, Auto, Auto, Star),
+                    ColumnDefinitions = Columns.Define(Star),
+
                     WidthRequest = 350,
                     HeightRequest = 450,
                     BackgroundColor = Colors.White,
@@ -86,26 +93,60 @@ namespace FocusApp.Client.Views.Social
                             WidthRequest = 360,
                             HeightRequest = 55,
                             BackgroundColor = AppStyles.Palette.DarkMauve,
-                            Content = new Label()
+                            Content = new Grid()
                             {
-                                Shadow = new Shadow
-                                {
-                                    Brush = Brush.Black,
-                                    Radius = 5,
-                                    Opacity = 0.6f
-                                },
-                                WidthRequest = 210,
+                                WidthRequest = 360,
                                 HeightRequest = 55,
-                                FontSize = 30,
-                                TextColor = Colors.White,
-                                HorizontalTextAlignment = TextAlignment.Center,
-                                VerticalTextAlignment = TextAlignment.Center,
-                                HorizontalOptions = LayoutOptions.Center,
-                                VerticalOptions = LayoutOptions.Center,
 
-                                Text = "Add Friend"
+                                // Define rows and columns
+                                RowDefinitions = Rows.Define(Star),
+                                ColumnDefinitions = Columns.Define(Star, Star, Star),
+
+                                Children =
+                                {
+                                    new Label()
+                                    {
+                                        Shadow = new Shadow
+                                        {
+                                            Brush = Brush.Black,
+                                            Radius = 5,
+                                            Opacity = 0.6f
+                                        },
+                                        WidthRequest = 210,
+                                        HeightRequest = 55,
+                                        FontSize = 30,
+                                        TextColor = Colors.White,
+                                        HorizontalTextAlignment = TextAlignment.Center,
+                                        VerticalTextAlignment = TextAlignment.Center,
+                                        HorizontalOptions = LayoutOptions.Center,
+                                        VerticalOptions = LayoutOptions.Center,
+
+                                        Text = "Add Friend"
+                                    }
+                                    .Row(0)
+                                    .Column(1),
+
+                                    // Dismiss Popup Button
+                                    new Button
+                                    {
+                                        Text = SolidIcons.x,
+                                        TextColor = Colors.White,
+                                        FontFamily = nameof(SolidIcons),
+                                        FontSize = 20,
+                                        BackgroundColor = Colors.Transparent
+                                    }
+                                    .ZIndex(2)
+                                    .Right()
+                                    .Paddings(top: 10, bottom: 10, right: 25)
+                                    .Column(2)
+                                    .Row(0)
+                                    // When clicked, close the popup
+                                    .Invoke(button => button.Released += OnDismissPopup),
+                                }
                             }
-                        },
+                        }
+                        .Column(0)
+                        .Row(0),
 
                         new Frame()
                         {
@@ -118,27 +159,43 @@ namespace FocusApp.Client.Views.Social
                                 Spacing = 0,
                                 Children =
                                 {
+                                    new Label
+                                    {
+                                        Text = SolidIcons.Hashtag,
+                                        TextColor = AppStyles.Palette.DarkMauve,
+                                        FontFamily = nameof(SolidIcons),
+                                        FontSize = 20,
+                                        BackgroundColor = Colors.Transparent
+                                    }
+                                    .CenterVertical(),
+
                                     emailEntry,
 
                                     new Button
                                     {
-                                        Text = "Send",
-                                        WidthRequest = 80,
-                                        HeightRequest = 50,
+                                        Text = SolidIcons.CircleArrowRight,
+                                        FontFamily = nameof(SolidIcons),
+                                        WidthRequest = 63,
+                                        HeightRequest = 45,
                                         FontSize = 20,
                                         BindingContext = emailEntry,
-                                        VerticalOptions = LayoutOptions.Start
+                                        VerticalOptions = LayoutOptions.Start,
+                                        BackgroundColor = AppStyles.Palette.DarkMauve
                                     }
                                     .Invoke(b => b.Clicked += (s,e) => OnClickSendFriendRequest(s,e))
                                 }
                             }
                             .Margins(top: -15)
-                        },
+                        }
+                        .Column(0)
+                        .Row(1),
 
                         // Error label for friend request errors
                         entryError
                         .Top()
-                        .Paddings(left: 15, bottom: 5),
+                        .Paddings(left: 15, bottom: 5)
+                        .Column(0)
+                        .Row(2),
 
                         // Horizontal Divider
                         new BoxView
@@ -147,7 +204,9 @@ namespace FocusApp.Client.Views.Social
                             WidthRequest = 360,
                             HeightRequest = 2
                         }
-                        .Top(),
+                        .Top()
+                        .Column(0)
+                        .Row(3),
 
                         new Frame()
                         {
@@ -155,7 +214,9 @@ namespace FocusApp.Client.Views.Social
                             HeightRequest = 350,
                             BackgroundColor = Colors.Transparent,
                             Content = _friendrequestView
-                        },
+                        }
+                        .Column(0)
+                        .Row(4),
                     }
                 }
                 .Top()
@@ -163,7 +224,7 @@ namespace FocusApp.Client.Views.Social
             };
 
             // Populate PendingFriends upon popup open
-            PopulatePopup();
+            Task.Run(PopulatePopup);
         }
 
         private void AddFriendPopupInterface_Closed(object? sender, PopupClosedEventArgs e)
@@ -176,6 +237,8 @@ namespace FocusApp.Client.Views.Social
             ListView listView = new ListView();
             listView.Header = "Pending Friend Requests";
 
+            listView.IsPullToRefreshEnabled = true;
+            listView.Invoke(l => l.Refreshing += RefreshFriendRequestList);
 
             listView.ItemTemplate = new DataTemplate(() =>
             {
@@ -248,18 +311,29 @@ namespace FocusApp.Client.Views.Social
             return listView;
         }
 
-        private async void PopulatePopup()
+        private async Task PopulatePopup()
         {
-            List<FriendRequest> pendingFriendRequests;
+            List<FriendRequest> pendingFriendRequests = new List<FriendRequest>();
 
             // Fetch all pending friend requests
             var query = new GetAllFriendRequestsQuery
             {
-                UserId = _authenticationService.CurrentUser.Id
+                UserId = _authenticationService.Id.Value
             };
-            pendingFriendRequests = await _client.GetAllFriendRequests(query, default);
 
-            _friendrequestView.ItemsSource = pendingFriendRequests;
+            try
+            {
+                pendingFriendRequests = await _client.GetAllFriendRequests(query, default);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while fetching friend requests");
+            }
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _friendrequestView.ItemsSource = pendingFriendRequests;
+            });
         }
 
         // Populate entry error label with corresponding message
@@ -300,7 +374,7 @@ namespace FocusApp.Client.Views.Social
             }
 
             // Return if user enters their own email
-            if (friendEmail == _authenticationService.CurrentUser.Email)
+            if (friendEmail == _authenticationService.Email)
             {
                 entryError.Text = "Please don't enter your own email";
                 return;
@@ -308,7 +382,7 @@ namespace FocusApp.Client.Views.Social
 
             var friendRequest = new CreateFriendRequestCommand
             {
-                UserEmail = _authenticationService.CurrentUser.Email,
+                UserEmail = _authenticationService.Email,
                 FriendEmail = friendEmail
             };
 
@@ -322,7 +396,7 @@ namespace FocusApp.Client.Views.Social
                 PopulateErrorLabel((HttpStatusCode)httpCode);
             }
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
         }
 
         private async void OnClickAcceptFriendRequest(object sender, EventArgs e)
@@ -334,7 +408,7 @@ namespace FocusApp.Client.Views.Social
 
             var acceptCommand = new AcceptFriendRequestCommand
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 FriendId = friendId 
             };
 
@@ -345,9 +419,9 @@ namespace FocusApp.Client.Views.Social
             Task.Run(SocialPage.PopulateFriendsList);
             Task.Run(ShowSocialBadgeIfEarned);
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
 
-            
+
         }
 
         private async Task ShowSocialBadgeIfEarned()
@@ -376,13 +450,13 @@ namespace FocusApp.Client.Views.Social
             var cancelCommand = new CancelFriendRequestCommand
             {
                 UserId = friendId,
-                FriendId = _authenticationService.CurrentUser.Id
+                FriendId = _authenticationService.Id.Value
             };
 
             // Reject Friend Request
             await _client.CancelFriendRequest(cancelCommand);
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
         }
 
         private async void OnClickCancelFriendRequest(object sender, EventArgs e)
@@ -394,14 +468,26 @@ namespace FocusApp.Client.Views.Social
 
             var cancelCommand = new CancelFriendRequestCommand
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 FriendId = friendId
             };
 
             // Cancel Friend Request
             await _client.CancelFriendRequest(cancelCommand);
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
+        }
+
+        private async void RefreshFriendRequestList(object? sender, EventArgs e)
+        {
+            Task.Run(PopulatePopup);
+            _friendrequestView.EndRefresh();
+        }
+
+        // Navigate to page according to button
+        private async void OnDismissPopup(object? sender, EventArgs e)
+        {
+            _popupService.HidePopup();
         }
     }
 }

@@ -50,10 +50,8 @@ internal class SocialPage : BasePage
         _friendsListView = BuildFriendsListView();
         _profilePictureNavMenuButton = new AvatarView()
         {
-            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.ProfilePicture)
         };
-
-        Appearing += CheckForSocialBadgeEarned;
 
         Content = new Grid
         {
@@ -107,7 +105,7 @@ internal class SocialPage : BasePage
                 .Aspect(Aspect.AspectFit)
                 .Right()
                 .FillVertical()
-                .Margin(1)
+                .Margins(1,1,5,1)
                 .Column(1)
                 // Set the corner radius to be half of the height to make it a circle
                 .Bind(
@@ -132,12 +130,14 @@ internal class SocialPage : BasePage
     private AvatarView GetProfilePictureNavMenuButton() =>
          new AvatarView()
         {
-            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture)
+            ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.ProfilePicture)
         };
 
     private ListView BuildFriendsListView()
     {
         ListView listView = new ListView();
+        listView.IsPullToRefreshEnabled = true;
+        listView.Invoke(l => l.Refreshing += RefreshFriendsList);
 
         listView.ItemTemplate = new DataTemplate(() =>
         {
@@ -206,7 +206,7 @@ internal class SocialPage : BasePage
     {
         base.OnAppearing();
 
-        _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.CurrentUser?.ProfilePicture);
+        _profilePictureNavMenuButton.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService?.ProfilePicture);
         
         // If not logged in display popup, otherwise populate friends list
         if (string.IsNullOrEmpty(_authenticationService.Auth0Id))
@@ -220,26 +220,20 @@ internal class SocialPage : BasePage
         }
     }
 
-    private async void CheckForSocialBadgeEarned(object? sender, EventArgs eventArgs)
+    private async Task CheckForSocialBadgeEarned()
     {
-        Appearing -= CheckForSocialBadgeEarned;
-
-        Task.Run(async () =>
+        try
         {
-            try
+            BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
+            if (result is { IsEligible: true, EarnedBadge: not null })
             {
-                BadgeEligibilityResult result = await _badgeService.CheckSocialBadgeEligibility();
-                if (result is { IsEligible: true, EarnedBadge: not null })
-                {
-                    _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
-                }
+                _popupService.TriggerBadgeEvent<EarnedBadgePopupInterface>(result.EarnedBadge);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
-            }
-        });
-
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while checking for badge eligibility.");
+        }
     }
 
     // We call this function to populate FriendsList and from friends popup to refresh list
@@ -250,7 +244,7 @@ internal class SocialPage : BasePage
 
         var query = new GetAllFriendsQuery
         {
-            UserId = _authenticationService.CurrentUser.Id
+            UserId = _authenticationService.Id.Value
         };
 
         try
@@ -266,6 +260,10 @@ internal class SocialPage : BasePage
         {
             _friendsListView.ItemsSource = friendsList;
         });
+
+
+
+        await CheckForSocialBadgeEarned();
     }
 
     public RelayCommand TapProfilePictureShowNavigationCommand => new(OnClickShowProfileInterfacePopup);
@@ -281,6 +279,12 @@ internal class SocialPage : BasePage
     {
         var addFriendPopup = (AddFriendPopupInterface)_popupService.ShowAndGetPopup<AddFriendPopupInterface>();
         addFriendPopup.SocialPage = this;
+    }
+
+    private async void RefreshFriendsList(object? sender, EventArgs e)
+    {
+        Task.Run(PopulateFriendsList);
+        _friendsListView.EndRefresh();
     }
 
     public AsyncRelayCommand<string> TapFriendItemCommand => new(OnFriendClickShowFriendProfilePage);

@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 using MediatR;
 using FocusApp.Client.Methods.User;
 using FocusApp.Shared.Models;
-
-using Auth0.OidcClient;
-using FocusApp.Client.Clients;
+using CommunityToolkit.Mvvm.Input;
 using IdentityModel.OidcClient;
 
 namespace FocusApp.Client.Views;
@@ -19,11 +17,13 @@ internal class LoginPage : BasePage
     ILogger<LoginPage> _logger;
     IMediator _mediator;
     PopupService _popupService;
+    private readonly ISyncService _syncService;
 
     public LoginPage(
         IAuthenticationService authenticationService,
         ILogger<LoginPage> logger,
         IMediator mediator,
+        ISyncService syncService,
         PopupService popupService
         )
     {
@@ -31,8 +31,9 @@ internal class LoginPage : BasePage
         _logger = logger;
         _mediator = mediator;
         _popupService = popupService;
+        _syncService = syncService;
 
-        var pets = new List<string> { "pet_beans.png", "pet_bob.png", "pet_danole.png", "pet_franklin.png", "pet_greg.png", "pet_wurmy.png" };
+        var pets = new List<string> { "pet_cool_cat.png", "pet_cool_cat.png", "pet_cool_cat.png", "pet_cooler_cat.png",  };
         var rnd = new Random();
 
         Loaded += LoginPage_Loaded;
@@ -77,8 +78,9 @@ internal class LoginPage : BasePage
                 .Row(3)
                 .CenterHorizontal()
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    OnLoginClicked(sender, eventArgs)),
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapLoginSignupCommand)),
 
 				// Skip Login Button
 				new Button
@@ -91,8 +93,9 @@ internal class LoginPage : BasePage
                 .Row(4)
                 .CenterHorizontal()
                 .Font(size: 25).Margins(top: 10, bottom: 10, left: 10, right: 10)
-                .Invoke(button => button.Released += (sender, eventArgs) =>
-                    SkipButtonClicked(sender, eventArgs)),
+                .BindTapGesture(
+                    commandSource: this,
+                    commandPath: MiscHelper.NameOf(() => TapSkipCommand)),
 
                 // Logo 
                 new Image
@@ -107,45 +110,49 @@ internal class LoginPage : BasePage
         };
     }
 
-    private async void SkipButtonClicked(object sender, EventArgs e)
+    /// <summary>
+    /// Setup command to disallow concurrent execution
+    /// </summary>
+    public AsyncRelayCommand TapSkipCommand => new(OnTapSkipButton, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapSkipButton()
     {
+
+        await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
         // If user skips login, initialize empty user and set selected pet and island to defaults
         try
         {
             await Task.Run(InitializeEmptyUser);
-            _authenticationService.AuthToken = null;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error initializing empty user.");
         }
 
-
-        // Todo: If user skips login, set selected pet and island to defaults
+        await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
         await Shell.Current.GoToAsync("///" + nameof(TimerPage));
     }
 
-    private async void OnLoginClicked(object sender, EventArgs e)
+    /// <summary>
+    /// Setup command to disallow concurrent execution
+    /// </summary>
+    public AsyncRelayCommand TapLoginSignupCommand => new(OnTapLoginSignup, AsyncRelayCommandOptions.None);
+
+    private async Task OnTapLoginSignup()
     {
         try
         {
-
-            // Handle login process on non-UI thread
+            await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
+            // Handle login process
             GetUserLogin.Result loginResult = await Task.Run(() => _mediator.Send(new GetUserLogin.Query()));
 
-            if (loginResult.IsSuccessful)
+            if (loginResult.IsSuccessful && loginResult.CurrentUser is not null)
             {
-                _authenticationService.Auth0Id = loginResult.CurrentUser?.Auth0Id;
-                _authenticationService.AuthToken = loginResult.AuthToken;
-                _authenticationService.CurrentUser = loginResult.CurrentUser;
-
-                _authenticationService.SelectedBadge = loginResult.CurrentUser?.SelectedBadge;
-                _authenticationService.SelectedDecor = loginResult.CurrentUser?.SelectedDecor;
-                _authenticationService.SelectedIsland = loginResult.CurrentUser?.SelectedIsland;
-                _authenticationService.SelectedPet = loginResult.CurrentUser?.SelectedPet;
+                _authenticationService.PopulateWithUserData(loginResult.CurrentUser);
             }
             else
             {
+                await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
                 await DisplayAlert("Error", loginResult.ErrorDescription, "OK");
             }
         }
@@ -164,26 +171,28 @@ internal class LoginPage : BasePage
             _logger.LogError(ex, "Error initializing empty user.");
         }
 
+        await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
         await Shell.Current.GoToAsync($"///" + nameof(TimerPage));
     }
 
+    /// <summary>
+    /// Failsafe: Initialize a user with empty data
+    /// </summary>
     private async Task InitializeEmptyUser()
     {
-        _authenticationService.CurrentUser ??= new User()
+        // If a user isn't logged in, clear the user data
+        if (_authenticationService.Auth0Id == null)
         {
-            Auth0Id = "",
-            Email = "",
-            UserName = "",
-            Balance = 0
-        };
+            _authenticationService.ClearUser();
+        }
 
+        // Add the initial/default island and pet if they don't exist
         if (_authenticationService.SelectedIsland is null || _authenticationService.SelectedPet is null)
         {
             GetDefaultItems.Result result = await _mediator.Send(new GetDefaultItems.Query());
 
             _authenticationService.SelectedIsland ??= result.Island;
             _authenticationService.SelectedPet ??= result.Pet;
-            _authenticationService.SelectedDecor ??= result.Decor;
         }
     }
 
@@ -192,40 +201,57 @@ internal class LoginPage : BasePage
         await AppShell.Current.SetTabBarIsVisible(false);
     }
 
+    /// <summary>
+    /// Run startup logic on app startup, but not after
+    /// </summary>
     private async void LoginPage_Loaded(object sender, EventArgs e)
     {
-        Task.Run(TryLoginFromStoredToken);
+        Loaded -= LoginPage_Loaded;
+
+        _ = Task.Run(async () =>
+        {
+            // Only show the content downloading popup for getting the essential data
+            await _popupService.ShowPopupAsync<SyncDataLoadingPopupInterface>();
+            try
+            {
+                await _syncService.GatherEssentialDatabaseData();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert(
+                    "Error",
+                    "There was an issue downloading content. Please ensure you have a stable internet connection and restart the app.",
+                    "OK");
+            }
+
+            await _popupService.HidePopupAsync<SyncDataLoadingPopupInterface>();
+
+            await TryLoginFromStoredToken();
+            _authenticationService.StartupSyncTask = _syncService.StartupSync();
+        });
     }
 
-    private async Task<GetPersistentUserLogin.Result> TryLoginFromStoredToken()
+    private async Task TryLoginFromStoredToken()
     {
-        _popupService.ShowPopup<GenericLoadingPopupInterface>();
+        await _popupService.ShowPopupAsync<GenericLoadingPopupInterface>();
         try
         {
-            var result = await _mediator.Send(new GetPersistentUserLogin.Query(), default);
-
+            var result = await _mediator.Send(new GetPersistentUserLogin.Query());
+            
             if (result.IsSuccessful)
             {
-                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
+                await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
+                await MainThread.InvokeOnMainThreadAsync(async () => await Shell.Current.GoToAsync($"///" + nameof(TimerPage)));
+                return;
             }
-            else
-            {
-                _logger.LogInformation(result.Message);
-            }
+            await _popupService.HidePopupAsync<GenericLoadingPopupInterface>();
 
-            _popupService.HidePopup();
-            return result;
+            _logger.LogInformation(result.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "User was not found in database, or the user had no identity token in secure storage. Please manually log in as the user.");
         }
-
-        _popupService.HidePopup();
-        return new GetPersistentUserLogin.Result
-        {
-            IsSuccessful = false
-        };
     }
 }
 

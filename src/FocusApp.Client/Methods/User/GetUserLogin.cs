@@ -4,6 +4,7 @@ using Auth0.OidcClient;
 using FocusApp.Client.Clients;
 using FocusApp.Client.Helpers;
 using FocusApp.Client.Methods.Sync;
+using FocusApp.Client.Views;
 using FocusApp.Shared.Data;
 using FocusApp.Shared.Models;
 using FocusCore.Commands.User;
@@ -17,7 +18,7 @@ using Refit;
 
 namespace FocusApp.Client.Methods.User
 {
-    public class GetUserLogin
+    internal class GetUserLogin
     {
         public class Query : IRequest<Result> { }
 
@@ -36,18 +37,25 @@ namespace FocusApp.Client.Methods.User
             FocusAppContext _localContext;
             ILogger<Handler> _logger;
             IMediator _mediator;
+            private readonly IAuthenticationService _authService;
+            private readonly PopupService _popupService;
+
             public Handler(
                 Auth0Client auth0Client,
                 IAPIClient client,
                 FocusAppContext localContext,
                 ILogger<Handler> logger,
-                IMediator mediator)
+                IMediator mediator,
+                IAuthenticationService authService,
+                PopupService popupService)
             {
                 _auth0Client = auth0Client;
                 _client = client;
                 _localContext = localContext;
                 _logger = logger;
                 _mediator = mediator;
+                _authService = authService;
+                _popupService = popupService;
             }
 
             public async Task<Result> Handle(
@@ -145,7 +153,7 @@ namespace FocusApp.Client.Methods.User
                 user = await GatherUserDataForCreatedUser(createUserResponse, auth0UserId, userEmail, userName, cancellationToken);
 
                 bool userExistsLocally = await _localContext.Users
-                    .AnyAsync(u => u.Auth0Id == auth0UserId, cancellationToken);
+                    .AnyAsync(u => u.Auth0Id == auth0UserId || u.Id == user.Id, cancellationToken);
 
                 // Add user to the local database if the user doesn't exist locally
                 if (!userExistsLocally)
@@ -167,6 +175,11 @@ namespace FocusApp.Client.Methods.User
                 string userName,
                 CancellationToken cancellationToken = default)
             {
+                if (createUserResponse.User == null)
+                {
+                    return null;
+                }
+
                 Shared.Models.User user = new()
                 {
                     Id = createUserResponse.User.Id,
@@ -222,6 +235,21 @@ namespace FocusApp.Client.Methods.User
                 {
                     user = ProjectionHelper.ProjectFromBaseUser(getUserResponse.User);
 
+                    bool userExistsLocally = await _localContext.Users
+                        .AnyAsync(u => u.Auth0Id == getUserResponse.User.Auth0Id || getUserResponse.User.Id == u.Id, cancellationToken);
+                    
+                    // If the user doesn't exist locally and they have content that isnt't in the DB,
+                    // wait for all content to be downloaded to ensure the app has all of their items downloaded
+                    if (!userExistsLocally &&
+                        _authService.StartupSyncTask != null &&
+                        !_authService.StartupSyncTask.IsCompleted &&
+                        await DoesUserHaveUnsyncedData(getUserResponse))
+                    {
+                        await _popupService.ShowPopupAsync<SyncDataLoadingPopupInterface>();
+                        await _authService.StartupSyncTask.WaitAsync(cancellationToken);
+                        await _popupService.HidePopupAsync<SyncDataLoadingPopupInterface>();
+                    }
+
                     // Gather the user's selected island and pet or get the defaults if one isn't selected
                     user.SelectedIsland = user.SelectedIslandId == null ?
                         // If the user does not have a selected island id, default to tropical
@@ -249,9 +277,7 @@ namespace FocusApp.Client.Methods.User
                         await GetSelectedDecorQuery(user.SelectedDecorId.Value)
                             .FirstOrDefaultAsync(cancellationToken);
 
-                    bool userExistsLocally = await _localContext.Users
-                        .AnyAsync(u => u.Auth0Id == getUserResponse.User.Auth0Id, cancellationToken);
-
+                    
                     // Add user to the local database if the user doesn't exist locally
                     if (!userExistsLocally)
                     {
@@ -279,6 +305,31 @@ namespace FocusApp.Client.Methods.User
                 }
 
                 return user;
+            }
+
+            /// <summary>
+            /// Check if the user owns any items that aren't in the mobile DB
+            /// </summary>
+            private async Task<bool> DoesUserHaveUnsyncedData(GetUserResponse response)
+            {
+                var mobileDbHasAllOwnedIslands = (await _localContext.Islands.Where(i => response.UserIslandIds.Contains(i.Id)).CountAsync()) ==
+                                                response.UserIslandIds.Count;
+                if (!mobileDbHasAllOwnedIslands) return true;
+
+                var mobileDbHasAllOwnedPets = (await _localContext.Pets.Where(p => response.UserPetIds.Contains(p.Id)).CountAsync()) ==
+                                                response.UserPetIds.Count;
+                if (!mobileDbHasAllOwnedPets) return true;
+
+                var mobileDbHasAllOwnedDecor = (await _localContext.Decor.Where(d => response.UserDecorIds.Contains(d.Id)).CountAsync()) ==
+                                                response.UserDecorIds.Count;
+                if (!mobileDbHasAllOwnedDecor) return true;
+
+
+                var mobileDbHasAllOwnedBadges = (await _localContext.Badges.Where(b => response.UserBadgeIds.Contains(b.Id)).CountAsync()) ==
+                                                response.UserBadgeIds.Count;
+                if (!mobileDbHasAllOwnedBadges) return true;
+
+                return false;
             }
 
             private IQueryable<Island> GetInitialIslandQuery()

@@ -38,6 +38,19 @@ namespace FocusApp.Client.Helpers
         }
 
         /// <summary>
+        /// Show popup.
+        /// </summary>
+        /// <typeparam name="T">Popup</typeparam>
+        /// <exception cref="MissingMethodException"></exception>
+        public async Task ShowPopupAsync<T>() where T : Popup
+        {
+            var mainPage = App.Current?.MainPage ?? throw new MissingMethodException("Main page is null");
+            var popup = _services.GetRequiredService<T>();
+            await MainThread.InvokeOnMainThreadAsync(() => mainPage.ShowPopup<T>(popup));
+            _popups.Push(popup);
+        }
+
+        /// <summary>
         /// Show popup and return the object for populating with shop data
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -70,6 +83,54 @@ namespace FocusApp.Client.Helpers
                     _popups.Pop();
                 else
                     MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
+            }
+        }
+
+        public void HidePopup<T>(bool wasDismissedByTappingOutsideOfPopup = false) where T : BasePopup
+        {
+            if (_popups.Count > 0)
+            {
+                if (typeof(T) == _popups.Peek().GetType())
+                {
+                    // Quick patch for popups closed via tapping outside of the popup
+                    if (wasDismissedByTappingOutsideOfPopup)
+                        // Remove the popup from the stack, but do not close it, as it has already
+                        // been closed/disposed via tapping outside of popup
+                        _popups.Pop();
+                    else
+                        MainThread.BeginInvokeOnMainThread(() => _popups.Pop().Close());
+                }
+            }
+        }
+
+        public async Task HidePopupAsync(bool wasDismissedByTappingOutsideOfPopup = false)
+        {
+            if (_popups.Count > 0)
+            {
+                // Quick patch for popups closed via tapping outside of the popup
+                if (wasDismissedByTappingOutsideOfPopup)
+                    // Remove the popup from the stack, but do not close it, as it has already
+                    // been closed/disposed via tapping outside of popup
+                    _popups.Pop();
+                else
+                    await MainThread.InvokeOnMainThreadAsync(() => _popups.Pop().Close());
+            }
+        }
+
+        public async Task HidePopupAsync<T>(bool wasDismissedByTappingOutsideOfPopup = false) where T : BasePopup
+        {
+            if (_popups.Count > 0)
+            {
+                if (typeof(T) == _popups.Peek().GetType())
+                {
+                    // Quick patch for popups closed via tapping outside of the popup
+                    if (wasDismissedByTappingOutsideOfPopup)
+                        // Remove the popup from the stack, but do not close it, as it has already
+                        // been closed/disposed via tapping outside of popup
+                        _popups.Pop();
+                    else
+                        await MainThread.InvokeOnMainThreadAsync(() => _popups.Pop().Close());
+                }
             }
         }
 

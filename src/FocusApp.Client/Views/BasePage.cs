@@ -33,7 +33,7 @@ internal class BasePage : ContentPage, INotifyPropertyChanged
 
     #region Property Changed Notification Logic
 
-    private void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
+    protected void SetProperty<T>(ref T backingStore, in T value, [CallerMemberName] in string propertyname = "")
     {
         if (EqualityComparer<T>.Default.Equals(backingStore, value))
         {
