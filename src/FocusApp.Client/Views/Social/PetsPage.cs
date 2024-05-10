@@ -141,7 +141,7 @@ internal sealed class PetsPage : BasePage
         base.OnAppearing();
 
         // Check if the user is logged in
-        if (_authenticationService.CurrentUser == null)
+        if (!_authenticationService.IsLoggedIn)
         {
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(ShopPage);
@@ -165,7 +165,7 @@ internal sealed class PetsPage : BasePage
             // Fetch pets from the local database using Mediatr feature
             GetUserPets.Result result = await _mediator.Send(new GetUserPets.Query()
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 selectedPetId = _authenticationService.SelectedPet.Id
             },
             default);
@@ -292,7 +292,7 @@ internal sealed class PetsPage : BasePage
 
         EditUserSelectedPetCommand command = new EditUserSelectedPetCommand
         {
-            UserId = _authenticationService.CurrentUser?.Id,
+            UserId = _authenticationService.Id.Value,
             PetId = petId
         };
 

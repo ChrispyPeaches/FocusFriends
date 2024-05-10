@@ -33,7 +33,7 @@ namespace FocusApp.Client.Methods.Badges
                 var friendResult = await _client
                         .GetAllFriends(new GetAllFriendsQuery()
                         {
-                            UserId = _authenticationService.CurrentUser.Id
+                            UserId = _authenticationService.Id.Value
                         },
                         cancellationToken);
 
@@ -54,7 +54,7 @@ namespace FocusApp.Client.Methods.Badges
                 {
                     bool hasBadge = await _localContext.UserBadges
                         .Where(userBadge =>
-                            userBadge.UserId == _authenticationService.CurrentUser.Id &&
+                            userBadge.UserId == _authenticationService.Id.Value &&
                             userBadge.Badge.Name == badgeName)
                         .AnyAsync(cancellationToken);
 
@@ -80,7 +80,7 @@ namespace FocusApp.Client.Methods.Badges
                 _localContext.UserBadges.Add(new UserBadge()
                 {
                     BadgeId = result.EarnedBadge.Id,
-                    UserId = _authenticationService.CurrentUser.Id,
+                    UserId = _authenticationService.Id.Value,
                     DateAcquired = DateTime.UtcNow
                 });
 
@@ -90,7 +90,7 @@ namespace FocusApp.Client.Methods.Badges
                 await _client.AddUserBadge(new AddUserBadgeCommand()
                     {
                         BadgeId = result.EarnedBadge.Id,
-                        UserId = _authenticationService.CurrentUser.Id
+                        UserId = _authenticationService.Id.Value
                     },
                     cancellationToken);
             }

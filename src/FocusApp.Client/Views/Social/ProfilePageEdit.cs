@@ -62,7 +62,7 @@ internal class ProfilePageEdit : BasePage
             WidthRequest = 126
         }
         .Bind(AvatarView.ImageSourceProperty, "ProfilePicture", converter: new ByteArrayToImageSourceConverter());
-        _profilePicture.BindingContext = _authenticationService.CurrentUser;
+        _profilePicture.BindingContext = _authenticationService;
 
         Content = new Grid
         {
@@ -256,13 +256,13 @@ internal class ProfilePageEdit : BasePage
         _userNameField = new Entry
         {
             Placeholder = "Enter username here",
-            Text = _authenticationService.CurrentUser?.UserName
+            Text = _authenticationService.UserName
         };
 
         _pronounsField = new Entry
         {
             Placeholder = "Enter pronouns here",
-            Text = _authenticationService.CurrentUser?.Pronouns
+            Text = _authenticationService.Pronouns
         };
 
         _userNameField.Behaviors.Add(_userNameValidationBehavior);
@@ -274,7 +274,7 @@ internal class ProfilePageEdit : BasePage
         await AppShell.Current.SetTabBarIsVisible(false);
 
         // Refresh profile picture on page load in case it was wiped via navigating to settings
-        _profilePicture.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.CurrentUser?.ProfilePicture);
+        _profilePicture.ImageSource = new ByteArrayToImageSourceConverter().ConvertFrom(_authenticationService.ProfilePicture);
     }
 
     #endregion
@@ -349,18 +349,18 @@ internal class ProfilePageEdit : BasePage
     {
         EditUserProfileCommand command = new EditUserProfileCommand
         {
-            UserId = _authenticationService.CurrentUser?.Id,
+            UserId = _authenticationService.Id.Value,
         };
 
-        if (_userNameField.Text != _authenticationService.CurrentUser?.UserName)
+        if (_userNameField.Text != _authenticationService.UserName)
             command.UserName = _userNameField.Text;
 
-        if (_pronounsField.Text != _authenticationService.CurrentUser?.Pronouns)
+        if (_pronounsField.Text != _authenticationService.Pronouns)
             command.Pronouns = _pronounsField.Text;
-        else if (string.IsNullOrEmpty(_pronounsField.Text) && _pronounsField.Text != _authenticationService.CurrentUser?.Pronouns)
+        else if (string.IsNullOrEmpty(_pronounsField.Text) && _pronounsField.Text != _authenticationService.Pronouns)
             command.Pronouns = _pronounsField.Text;
 
-        if (_newPhoto != _authenticationService.CurrentUser?.ProfilePicture)
+        if (_newPhoto != _authenticationService.ProfilePicture)
             command.ProfilePicture = _newPhoto;
 
         if (command.Pronouns is not null ||

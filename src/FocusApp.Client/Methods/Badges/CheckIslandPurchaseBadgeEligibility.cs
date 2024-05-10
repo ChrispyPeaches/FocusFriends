@@ -30,7 +30,7 @@ namespace FocusApp.Client.Methods.Badges
             {
                 Shared.Models.User? user = await _localContext.Users
                     .Include(u => u.Islands)
-                    .SingleOrDefaultAsync(u => u.Id == _authenticationService.CurrentUser.Id, cancellationToken);
+                    .SingleOrDefaultAsync(u => u.Id == _authenticationService.Id.Value, cancellationToken);
 
                 if (user == null)
                     throw new InvalidOperationException("User not found in local database.");
@@ -63,7 +63,7 @@ namespace FocusApp.Client.Methods.Badges
                     // Save new user badge to server database
                     try
                     {
-                        await _client.AddUserBadge(new AddUserBadgeCommand { UserId = _authenticationService.CurrentUser.Id, BadgeId = result.EarnedBadge.Id });
+                        await _client.AddUserBadge(new AddUserBadgeCommand { UserId = _authenticationService.Id.Value, BadgeId = result.EarnedBadge.Id });
                     }
                     catch (Exception ex)
                     {

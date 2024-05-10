@@ -39,7 +39,7 @@ namespace FocusApp.Client.Views.Shop
             // Currency text
             _balanceLabel = new Label
             {
-                Text = _authenticationService.CurrentUser?.Balance.ToString(),
+                Text = _authenticationService.Balance.ToString(),
                 FontSize = 20,
                 HorizontalOptions = LayoutOptions.Start,
                 VerticalOptions = LayoutOptions.Center,
@@ -244,11 +244,34 @@ namespace FocusApp.Client.Views.Shop
             // Update user balance upon showing shop page
             _balanceLabel.Text = _authenticationService.Balance.ToString();
 
-            List<ShopItem> shopItems = await _mediator.Send(new GetLocalShopItems.Query(), default);
+            // If the startup sync task is not completed, show the loading popup and wait for it to complete
+            if (_authenticationService.StartupSyncTask != null && !_authenticationService.StartupSyncTask.IsCompleted)
+            {
+                await _popupService.ShowPopupAsync<SyncDataLoadingPopupInterface>();
 
-            _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
-            _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
-            _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
+                _authenticationService.StartupSyncTask.ContinueWith(async (_) =>
+                {
+                    await Task.Run(PopulateShopCarousels);
+
+                    await _popupService.HidePopupAsync<SyncDataLoadingPopupInterface>();
+                });
+            }
+            else
+            {
+                Task.Run(PopulateShopCarousels);
+            }
+        }
+
+        private async Task PopulateShopCarousels()
+        {
+            List<ShopItem> shopItems = await _mediator.Send(new GetLocalShopItems.Query());
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                _petsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Pets);
+                _islandsCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Islands);
+                _decorCarouselView.ItemsSource = shopItems.Where(p => p.Type == ShopItemType.Decor);
+            });
         }
 
         async Task OnImageButtonClicked(object sender, EventArgs eventArgs)

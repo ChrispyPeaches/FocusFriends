@@ -141,7 +141,7 @@ internal sealed class DecorPage : BasePage
         base.OnAppearing();
 
         // Check if the user is logged in
-        if (_authenticationService.CurrentUser == null)
+        if (!_authenticationService.IsLoggedIn)
         {
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(ShopPage);
@@ -165,7 +165,7 @@ internal sealed class DecorPage : BasePage
             // Fetch decor from the local database using Mediatr feature
             GetUserDecor.Result result = await _mediator.Send(new GetUserDecor.Query()
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 selectedDecorId = _authenticationService.SelectedDecor != null ? _authenticationService.SelectedDecor.Id : null
             },
             default);
@@ -406,7 +406,7 @@ internal sealed class DecorPage : BasePage
     {
         EditUserSelectedDecorCommand command = new EditUserSelectedDecorCommand
         {
-            UserId = _authenticationService.CurrentUser?.Id,
+            UserId = _authenticationService.Id.Value,
             DecorId = decorId
         };
 

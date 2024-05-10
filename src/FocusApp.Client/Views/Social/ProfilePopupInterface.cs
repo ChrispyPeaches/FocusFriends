@@ -19,7 +19,7 @@ namespace FocusApp.Client.Views.Social
             _popupService = popupService;
 
             // Fetch current user's username
-            string username = _authenticationService.CurrentUser.UserName;
+            string username = _authenticationService.UserName;
 
             // Set popup location
             HorizontalOptions = Microsoft.Maui.Primitives.LayoutAlignment.End;

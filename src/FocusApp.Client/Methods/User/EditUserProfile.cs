@@ -46,9 +46,9 @@ public class EditUserProfile
                 user.ProfilePicture = command.ProfilePicture == null ? user.ProfilePicture : command.ProfilePicture;
 
                 // Update the authentication service to reflect the new changes in the current session
-                _authenticationService.CurrentUser.UserName = user.UserName;
-                _authenticationService.CurrentUser.Pronouns = user.Pronouns;
-                _authenticationService.CurrentUser.ProfilePicture = user.ProfilePicture;
+                _authenticationService.UserName = user.UserName;
+                _authenticationService.Pronouns = user.Pronouns;
+                _authenticationService.ProfilePicture = user.ProfilePicture;
 
                 await _localContext.SaveChangesAsync(cancellationToken);
             }

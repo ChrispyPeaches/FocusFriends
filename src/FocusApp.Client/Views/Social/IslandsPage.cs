@@ -141,7 +141,7 @@ internal sealed class IslandsPage : BasePage
         base.OnAppearing();
 
         // Check if the user is logged in
-        if (_authenticationService.CurrentUser == null)
+        if (!_authenticationService.IsLoggedIn)
         {
             var loginPopup = (EnsureLoginPopupInterface)_popupService.ShowAndGetPopup<EnsureLoginPopupInterface>();
             loginPopup.OriginPage = nameof(ShopPage);
@@ -165,7 +165,7 @@ internal sealed class IslandsPage : BasePage
             // Fetch islands from the local database using Mediatr feature
             GetUserIslands.Result result = await _mediator.Send(new GetUserIslands.Query()
             {
-                UserId = _authenticationService.CurrentUser.Id,
+                UserId = _authenticationService.Id.Value,
                 selectedIslandId = _authenticationService.SelectedIsland != null ? _authenticationService.SelectedIsland.Id : null
             },
             default);
@@ -292,7 +292,7 @@ internal sealed class IslandsPage : BasePage
 
         EditUserSelectedIslandCommand command = new EditUserSelectedIslandCommand
         {
-            UserId = _authenticationService.CurrentUser?.Id,
+            UserId = _authenticationService.Id.Value,
             IslandId = islandId
         };
 

@@ -186,16 +186,16 @@ namespace FocusApp.Client.Views.Shop
                 case ShopItemType.Pets:
                     return await _localContext.UserPets.AnyAsync(p =>
                            p.PetId == _currentItem.Id
-                        && p.UserId == _authenticationService.CurrentUser.Id);
+                        && p.UserId == _authenticationService.Id.Value);
                 case ShopItemType.Decor:
                     return await _localContext.UserDecor.AnyAsync(d => 
                            d.DecorId == _currentItem.Id
-                        && d.UserId == _authenticationService.CurrentUser.Id);
+                        && d.UserId == _authenticationService.Id.Value);
                 
                 case ShopItemType.Islands:
                     return await _localContext.UserIslands.AnyAsync(i => 
                            i.IslandId == _currentItem.Id 
-                        && i.UserId == _authenticationService.CurrentUser.Id);
+                        && i.UserId == _authenticationService.Id.Value);
                 
                 default:
                     return false;

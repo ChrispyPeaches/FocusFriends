@@ -495,11 +495,11 @@ namespace FocusApp.Client.Views.Social
                 LeaderboardResponse leaderboardResponse = null; 
                 if (leaderboardType == LeaderboardType.Daily)
                 {
-                    leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                    leaderboardResponse = await _client.GetDailyLeaderboard(new GetDailyLeaderboardQuery { UserId = _authenticationService.Id.Value }, default);
                 }
                 else
                 {
-                    leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.CurrentUser.Id }, default);
+                    leaderboardResponse = await _client.GetWeeklyLeaderboard(new GetWeeklyLeaderboardQuery { UserId = _authenticationService.Id.Value }, default);
                 }
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
