@@ -138,6 +138,8 @@ internal class SocialPage : BasePage
     private ListView BuildFriendsListView()
     {
         ListView listView = new ListView();
+        listView.IsPullToRefreshEnabled = true;
+        listView.Invoke(l => l.Refreshing += RefreshFriendsList);
 
         listView.ItemTemplate = new DataTemplate(() =>
         {
@@ -281,6 +283,12 @@ internal class SocialPage : BasePage
     {
         var addFriendPopup = (AddFriendPopupInterface)_popupService.ShowAndGetPopup<AddFriendPopupInterface>();
         addFriendPopup.SocialPage = this;
+    }
+
+    private async void RefreshFriendsList(object? sender, EventArgs e)
+    {
+        Task.Run(PopulateFriendsList);
+        _friendsListView.EndRefresh();
     }
 
     public AsyncRelayCommand<string> TapFriendItemCommand => new(OnFriendClickShowFriendProfilePage);
