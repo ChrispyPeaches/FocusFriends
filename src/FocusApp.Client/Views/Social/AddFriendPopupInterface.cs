@@ -224,7 +224,7 @@ namespace FocusApp.Client.Views.Social
             };
 
             // Populate PendingFriends upon popup open
-            PopulatePopup();
+            Task.Run(PopulatePopup);
         }
 
         private void AddFriendPopupInterface_Closed(object? sender, PopupClosedEventArgs e)
@@ -237,6 +237,8 @@ namespace FocusApp.Client.Views.Social
             ListView listView = new ListView();
             listView.Header = "Pending Friend Requests";
 
+            listView.IsPullToRefreshEnabled = true;
+            listView.Invoke(l => l.Refreshing += RefreshFriendRequestList);
 
             listView.ItemTemplate = new DataTemplate(() =>
             {
@@ -309,18 +311,29 @@ namespace FocusApp.Client.Views.Social
             return listView;
         }
 
-        private async void PopulatePopup()
+        private async Task PopulatePopup()
         {
-            List<FriendRequest> pendingFriendRequests;
+            List<FriendRequest> pendingFriendRequests = new List<FriendRequest>();
 
             // Fetch all pending friend requests
             var query = new GetAllFriendRequestsQuery
             {
                 UserId = _authenticationService.Id.Value
             };
-            pendingFriendRequests = await _client.GetAllFriendRequests(query, default);
 
-            _friendrequestView.ItemsSource = pendingFriendRequests;
+            try
+            {
+                pendingFriendRequests = await _client.GetAllFriendRequests(query, default);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while fetching friend requests");
+            }
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                _friendrequestView.ItemsSource = pendingFriendRequests;
+            });
         }
 
         // Populate entry error label with corresponding message
@@ -383,7 +396,7 @@ namespace FocusApp.Client.Views.Social
                 PopulateErrorLabel((HttpStatusCode)httpCode);
             }
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
         }
 
         private async void OnClickAcceptFriendRequest(object sender, EventArgs e)
@@ -406,9 +419,9 @@ namespace FocusApp.Client.Views.Social
             Task.Run(SocialPage.PopulateFriendsList);
             Task.Run(ShowSocialBadgeIfEarned);
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
 
-            
+
         }
 
         private async Task ShowSocialBadgeIfEarned()
@@ -443,7 +456,7 @@ namespace FocusApp.Client.Views.Social
             // Reject Friend Request
             await _client.CancelFriendRequest(cancelCommand);
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
         }
 
         private async void OnClickCancelFriendRequest(object sender, EventArgs e)
@@ -462,7 +475,13 @@ namespace FocusApp.Client.Views.Social
             // Cancel Friend Request
             await _client.CancelFriendRequest(cancelCommand);
 
-            PopulatePopup();
+            Task.Run(PopulatePopup);
+        }
+
+        private async void RefreshFriendRequestList(object? sender, EventArgs e)
+        {
+            Task.Run(PopulatePopup);
+            _friendrequestView.EndRefresh();
         }
 
         // Navigate to page according to button
