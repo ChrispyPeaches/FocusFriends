@@ -34,7 +34,7 @@ namespace FocusApp.Client.Methods.Badges
                     IsEligible = false
                 };
 
-                if (_authenticationService.IsLoggedIn)
+                if (!_authenticationService.IsLoggedIn)
                 {
                     throw new InvalidOperationException("User is not logged in.");
                 }
