@@ -4,7 +4,7 @@ using FocusAPI.Methods;
 using FocusAPI.Methods.User;
 using FocusAPI.Models;
 using FocusAPI.Tests.Fakers;
-using FocusAPI.Tests.StaticHelpers;
+using FocusAPI.Tests.Helpers;
 using FocusCore.Queries.User;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -28,7 +28,8 @@ public class GetUserTests
 
     void SetupSystemDependencies()
     {
-        _context = new Mock<FocusAPIContext>();
+        DbContextOptionsBuilder<FocusAPIContext> optionsBuilder = new();
+        _context = new Mock<FocusAPIContext>(optionsBuilder.Options);
     }
 
     void SetupMocks(List<User> users)

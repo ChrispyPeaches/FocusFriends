@@ -8,7 +8,7 @@ using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace FocusAPI.Tests.StaticHelpers
+namespace FocusAPI.Tests.Helpers
 {
     internal static class MockSetHelper
     {
@@ -23,7 +23,7 @@ namespace FocusAPI.Tests.StaticHelpers
             dbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(queryable.GetEnumerator);
             dbSet.Setup(d => d.Add(It.IsAny<T>())).Callback<T>(sourceList.Add);
 
-            context.Setup(setupExpression).Returns(dbSet.Object);
+            context.Setup(db => db.Set<T>()).Returns(dbSet.Object);
         }
     }
 }
