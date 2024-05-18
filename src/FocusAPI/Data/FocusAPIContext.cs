@@ -4,8 +4,23 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FocusAPI.Data;
+public interface IFocusAPIContext
+{
+    public DbSet<User> Users { get; set; }
+    public DbSet<Badge> Badges { get; set; }
+    public DbSet<Pet> Pets { get; set; }
+    public DbSet<UserBadge> UserBadges { get; set; }
+    public DbSet<UserPet> UserPets { get; set; }
+    public DbSet<UserSession> UserSessionHistory { get; set; }
+    public DbSet<Friendship> Friends { get; set; }
+    public DbSet<Decor> Decor { get; set; }
+    public DbSet<UserDecor> UserDecor { get; set; }
+    public DbSet<MindfulnessTip> MindfulnessTips { get; set; }
+    public DbSet<Island> Islands { get; set; }
+    public DbSet<UserIsland> UserIslands { get; set; }
+}
 
-public class FocusAPIContext : DbContext
+public class FocusAPIContext : DbContext, IFocusAPIContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Badge> Badges { get; set; }

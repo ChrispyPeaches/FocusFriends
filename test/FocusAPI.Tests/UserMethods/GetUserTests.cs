@@ -13,7 +13,7 @@ using Shouldly;
 namespace FocusAPI.Tests.UserMethods;
 public class GetUserTests
 {
-    Mock<FocusAPIContext> _context;
+    Mock<TestAPIContext> _context;
     UserFaker _userFaker;
     public GetUserTests()
     {
@@ -28,8 +28,8 @@ public class GetUserTests
 
     void SetupSystemDependencies()
     {
-        DbContextOptionsBuilder<FocusAPIContext> optionsBuilder = new();
-        _context = new Mock<FocusAPIContext>(optionsBuilder.Options);
+        DbContextOptionsBuilder<TestAPIContext> optionsBuilder = new();
+        _context = new Mock<TestAPIContext>(optionsBuilder.Options);
     }
 
     void SetupMocks(List<User> users)
@@ -43,14 +43,13 @@ public class GetUserTests
     {
         // ARRANGE
         // Set up test data, test mocks, and system under test
-        User user = _userFaker.Generate();
         SetupMocks([]);
         GetUser.Handler handler = new(_context.Object);
 
         // ACT
         var result = await handler.Handle(new GetUserQuery 
         {
-            Auth0Id = user.Auth0Id
+            Auth0Id = ""
         });
 
         // ASSERT

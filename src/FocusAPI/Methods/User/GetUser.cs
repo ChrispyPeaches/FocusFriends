@@ -13,8 +13,8 @@ public class GetUser
 {
     public class Handler : IRequestHandler<GetUserQuery, MediatrResultWrapper<GetUserResponse>>
     {
-        FocusAPIContext _apiContext;
-        public Handler(FocusAPIContext apiContext) 
+        IFocusAPIContext _apiContext;
+        public Handler(IFocusAPIContext apiContext) 
         {
             _apiContext = apiContext;
         }
@@ -63,6 +63,7 @@ public class GetUser
         {
             try
             {
+                var x = _apiContext.Users;
                 return await _apiContext.Users
                     .Where(u => u.Auth0Id == query.Auth0Id)
                     .Include(user => user.Islands)

@@ -12,7 +12,7 @@ namespace FocusAPI.Tests.Helpers
 {
     internal static class MockSetHelper
     {
-        internal static void SetupEntities<T>(List<T> sourceList, Mock<FocusAPIContext> context, Expression<Func<FocusAPIContext, DbSet<T>>> setupExpression) where T : class
+        internal static void SetupEntities<T>(List<T> sourceList, Mock<TestAPIContext> context, Expression<Func<TestAPIContext, DbSet<T>>> setupExpression) where T : class
         {
             var queryable = sourceList.AsQueryable();
 
@@ -23,7 +23,7 @@ namespace FocusAPI.Tests.Helpers
             dbSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(queryable.GetEnumerator);
             dbSet.Setup(d => d.Add(It.IsAny<T>())).Callback<T>(sourceList.Add);
 
-            context.Setup(db => db.Set<T>()).Returns(dbSet.Object);
+            context.Setup(setupExpression).Returns(dbSet.Object);
         }
     }
 }
