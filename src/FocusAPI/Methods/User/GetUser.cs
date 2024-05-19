@@ -63,7 +63,6 @@ public class GetUser
         {
             try
             {
-                var x = _apiContext.Users;
                 return await _apiContext.Users
                     .Where(u => u.Auth0Id == query.Auth0Id)
                     .Include(user => user.Islands)
