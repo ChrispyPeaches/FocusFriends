@@ -8,11 +8,12 @@ using FocusAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
+/* !! Potentially outdated / useless kek
 namespace FocusAPI.Tests.Helpers
 {
     internal static class MockSetHelper
     {
-        internal static void SetupEntities<T>(List<T> sourceList, Mock<TestAPIContext> context, Expression<Func<TestAPIContext, DbSet<T>>> setupExpression) where T : class
+        internal static void SetupEntities<T>(List<T> sourceList, Mock<FocusAPIContext> context, Expression<Func<FocusAPIContext, DbSet<T>>> setupExpression) where T : class
         {
             var queryable = sourceList.AsQueryable();
 
@@ -27,3 +28,4 @@ namespace FocusAPI.Tests.Helpers
         }
     }
 }
+*/

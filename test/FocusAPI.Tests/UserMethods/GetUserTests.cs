@@ -1,20 +1,19 @@
 using System.Net;
-using FocusAPI.Data;
-using FocusAPI.Methods;
+using System.Linq.Expressions;
 using FocusAPI.Methods.User;
 using FocusAPI.Models;
+using FocusAPI.Repositories;
 using FocusAPI.Tests.Fakers;
-using FocusAPI.Tests.Helpers;
 using FocusCore.Queries.User;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Shouldly;
+using FocusCore.Models;
 
 namespace FocusAPI.Tests.UserMethods;
 public class GetUserTests
 {
-    Mock<TestAPIContext> _context;
-    UserFaker _userFaker;
+    BaseUserFaker _baseUserFaker;
+    Mock<IUserRepository> _userRepository;
     public GetUserTests()
     {
         SetupTestHelpers();
@@ -23,36 +22,114 @@ public class GetUserTests
 
     void SetupTestHelpers()
     {
-        _userFaker = new UserFaker();
+        _baseUserFaker = new BaseUserFaker();
     }
 
     void SetupSystemDependencies()
     {
-        DbContextOptionsBuilder<TestAPIContext> optionsBuilder = new();
-        _context = new Mock<TestAPIContext>(optionsBuilder.Options);
+        _userRepository = new Mock<IUserRepository>();
     }
 
-    void SetupMocks(List<User> users)
+    void SetupMockDataset(List<BaseUser> users)
     {
-        // Set up mock db sets
-        MockSetHelper.SetupEntities(users, _context, db => db.Users);
+        _userRepository.Setup(repo => repo.GetBaseUserWithItemsByAuth0IdAsync(
+            It.IsAny<string?>(),
+            It.IsAny<Expression<Func<User, bool>>[]?>(),
+            It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(users.FirstOrDefault());
+    }
+
+    void SetupMockExceptionCallback(string exceptionMessage)
+    {
+        _userRepository.Setup(repo => repo.GetBaseUserWithItemsByAuth0IdAsync(
+            It.IsAny<string?>(),
+            It.IsAny<Expression<Func<User, bool>>[]?>(),
+            It.IsAny<CancellationToken>()
+            ))
+            .Callback(() => throw new Exception(exceptionMessage));
+    }
+
+    [Fact]
+    public async Task GetUser_ReturnsOKAndItemIds_WhenUserIsNotNull_AndUserHasItems()
+    {
+        // ARRANGE
+        BaseUser user = _baseUserFaker.Generate();
+        SetupMockDataset([user]);
+
+        GetUser.Handler handler = new(_userRepository.Object);
+        GetUserQuery query = new GetUserQuery { Auth0Id = user.Auth0Id };
+
+        // ACT
+        var result = await handler.Handle(query);
+
+        // ASSERT
+        result.HttpStatusCode.ShouldBe(HttpStatusCode.OK);
+        result.Message.ShouldBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.UserBadgeIds.ShouldNotBeEmpty();
+        result.Data.UserDecorIds.ShouldNotBeEmpty();
+        result.Data.UserPetIds.ShouldNotBeEmpty();
+        result.Data.UserIslandIds.ShouldNotBeEmpty();
+    }
+
+    [Fact]
+    public async Task GetUser_ReturnsOKAndNoItemIds_WhenUserIsNotNull_AndUserHasNoItems()
+    {
+        // ARRANGE
+        // Set up base user with no items
+        BaseUser user = _baseUserFaker.Generate();
+        user.Badges = null;
+        user.Decor = null;
+        user.Islands = null;
+        user.Pets = null;
+        SetupMockDataset([user]);
+
+        GetUser.Handler handler = new(_userRepository.Object);
+        GetUserQuery query = new GetUserQuery { Auth0Id = user.Auth0Id };
+
+        // ACT
+        var result = await handler.Handle(query);
+
+        // ASSERT
+        result.HttpStatusCode.ShouldBe(HttpStatusCode.OK);
+        result.Message.ShouldBeNull();
+        result.Data.ShouldNotBeNull();
+        result.Data.UserBadgeIds.ShouldBeEmpty();
+        result.Data.UserDecorIds.ShouldBeEmpty();
+        result.Data.UserPetIds.ShouldBeEmpty();
+        result.Data.UserIslandIds.ShouldBeEmpty();
     }
 
     [Fact]
     public async Task GetUser_ReturnsNotFound_WhenUserIsNull()
     {
         // ARRANGE
-        // Set up test data, test mocks, and system under test
-        SetupMocks([]);
-        GetUser.Handler handler = new(_context.Object);
+        // Set up mock to return no user
+        SetupMockDataset([]);
+        GetUser.Handler handler = new(_userRepository.Object);
+        GetUserQuery query = new GetUserQuery { Auth0Id = "" };
 
         // ACT
-        var result = await handler.Handle(new GetUserQuery 
-        {
-            Auth0Id = ""
-        });
+        var result = await handler.Handle(query);
 
         // ASSERT
         result.HttpStatusCode.ShouldBe(HttpStatusCode.NotFound);
+        result.Message.ShouldBe($"User not found with Auth0Id: {query.Auth0Id}");
+        result.Data.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task GetUser_ThrowsException_WhenErrorEncounteredDuringQuery()
+    {
+        // ARRANGE
+        // Set up mock to throw exception
+        string exceptionMessage = "Test exception message.";
+        SetupMockExceptionCallback(exceptionMessage);
+        GetUser.Handler handler = new(_userRepository.Object);
+        GetUserQuery query = new GetUserQuery { Auth0Id = "" };
+
+        // ACT / ASSERT
+        await Should.ThrowAsync<Exception>(() => handler.Handle(query), $"Error getting user: {exceptionMessage}");
     }
 }
