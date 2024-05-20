@@ -2,7 +2,7 @@
 using FocusAPI.Models;
 using FocusCore.Models;
 
-namespace FocusAPI.Tests.Fakers;
+namespace FocusAPI.Tests.Fakers.BaseModels;
 internal class BaseUserIslandFaker : Faker<BaseUserIsland>
 {
     internal BaseUserIslandFaker(Guid? userId = null)

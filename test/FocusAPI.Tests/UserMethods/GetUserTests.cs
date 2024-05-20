@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 using FocusAPI.Methods.User;
 using FocusAPI.Models;
 using FocusAPI.Repositories;
-using FocusAPI.Tests.Fakers;
 using FocusCore.Queries.User;
 using Moq;
 using Shouldly;
 using FocusCore.Models;
+using FocusAPI.Tests.Fakers.BaseModels;
 
 namespace FocusAPI.Tests.UserMethods;
 public class GetUserTests

@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using FocusCore.Models;
 
-namespace FocusAPI.Tests.Fakers;
+namespace FocusAPI.Tests.Fakers.BaseModels;
 internal class BaseUserDecorFaker : Faker<BaseUserDecor>
 {
     internal BaseUserDecorFaker(Guid? userId = null)

@@ -10,4 +10,6 @@ public interface IUserRepository
         Expression<Func<User, bool>>[]? wherePredicates = null,
         CancellationToken cancellationToken = default
     );
+
+    public Task SaveChangesAsync();
 }

@@ -9,7 +9,6 @@ namespace FocusAPI.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly FocusAPIContext _context;
-
     public UserRepository(FocusAPIContext context)
     {
         _context = context;
@@ -37,4 +36,6 @@ public class UserRepository : IUserRepository
 
         return await query.Select(user => ProjectionHelper.ProjectToBaseUser(user)).FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 }
