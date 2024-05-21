@@ -44,13 +44,13 @@ public static class ProjectionHelper
             Balance = user.Balance,
             Pronouns = user.Pronouns,
             ProfilePicture = user.ProfilePicture,
-            Inviters = user.Inviters.Select(i => i as Friendship).ToList(),
-            Invitees = user.Invitees.Select(i => i as Friendship).ToList(),
+            Inviters = user.Inviters != null ? user.Inviters.Select(ProjectFromBaseFriendship).ToList() : null,
+            Invitees = user.Invitees != null ? user.Invitees.Select(ProjectFromBaseFriendship).ToList() : null,
             Pets = user.Pets != null ? user.Pets.Select(ProjectFromBaseUserPet).ToList() : null,
             Decor = user.Decor != null ? user.Decor.Select(ProjectFromBaseUserDecor).ToList() : null,
             Badges = user.Badges != null ? user.Badges.Select(ProjectFromBaseUserBadge).ToList() : null,
             Islands = user.Islands != null ? user.Islands.Select(ProjectFromBaseUserIsland).ToList() : null,
-            UserSessions = user.UserSessions.Select(userSession => userSession as UserSession).ToList(),
+            UserSessions = user.UserSessions != null ? user.UserSessions.Select(ProjectFromBaseUserSession).ToList() : null,
             SelectedIslandId = user.SelectedIslandId,
             SelectedIsland = user.SelectedIsland != null ? ProjectFromBaseIsland(user.SelectedIsland) : null,
             SelectedPetId = user.SelectedPetId,
@@ -61,6 +61,41 @@ public static class ProjectionHelper
             SelectedBadge = user.SelectedBadge != null ? ProjectFromBaseBadge(user.SelectedBadge) : null
         };
 
+    public static Friendship ProjectFromBaseFriendship(BaseFriendship friendship) =>
+        new()
+        {
+            UserId = friendship.UserId,
+            FriendId = friendship.FriendId,
+            Status = friendship.Status
+        };
+
+    public static BaseFriendship ProjectToBaseFriendship(Friendship friendship) =>
+        new()
+        {
+            UserId = friendship.UserId,
+            FriendId = friendship.FriendId,
+            Status = friendship.Status
+        };
+
+    public static UserSession ProjectFromBaseUserSession(BaseUserSession userSession) =>
+        new()
+        {
+            Id = userSession.Id,
+            UserId = userSession.UserId,
+            SessionStartTime = userSession.SessionStartTime,
+            SessionEndTime = userSession.SessionEndTime,
+            CurrencyEarned = userSession.CurrencyEarned
+        };
+
+    public static BaseUserSession ProjectToBaseUserSession(UserSession userSession) =>
+        new()
+        {
+            Id = userSession.Id,
+            UserId = userSession.UserId,
+            SessionStartTime = userSession.SessionStartTime,
+            SessionEndTime = userSession.SessionEndTime,
+            CurrencyEarned = userSession.CurrencyEarned
+        };
 
     public static BasePet ProjectToBasePet(Pet pet) =>
         new BasePet
