@@ -28,7 +28,6 @@ public class ProjectionHelperTests
     public void ProjectToBaseUser_CorrectlyProjectsAllFields()
     {
         // ARRANGE
-
         // Create fake user model
         User source = _userFaker.Generate();
 
@@ -55,7 +54,6 @@ public class ProjectionHelperTests
     public void ProjectFromBaseUser_CorrectlyProjectsAllFields()
     {
         // ARRANGE
-
         // Create fake base user model
         BaseUser source = _baseUserFaker.Generate();
 
