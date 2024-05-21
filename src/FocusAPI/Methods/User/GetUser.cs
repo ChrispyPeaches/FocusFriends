@@ -2,19 +2,21 @@
 using FocusCore.Queries.User;
 using FocusCore.Models;
 using MediatR;
+using FocusAPI.Helpers;
 using FocusCore.Responses;
 using FocusCore.Responses.User;
-using FocusAPI.Repositories;
+using FocusAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FocusAPI.Methods.User;
 public class GetUser
 {
     public class Handler : IRequestHandler<GetUserQuery, MediatrResultWrapper<GetUserResponse>>
     {
-        IUserRepository _userRepository;
-        public Handler(IUserRepository userRepository) 
+        IFocusAPIContext _context;
+        public Handler(IFocusAPIContext context)//IUserRepository userRepository) 
         {
-            _userRepository = userRepository;
+            _context = context;
         }
 
         public async Task<MediatrResultWrapper<GetUserResponse>> Handle(
@@ -61,10 +63,14 @@ public class GetUser
         {
             try
             {
-                return await _userRepository.GetBaseUserWithItemsByAuth0IdAsync(
-                    auth0Id: query.Auth0Id,
-                    cancellationToken: cancellationToken
-                );
+                return await _context.Users
+                    .Where(u => u.Auth0Id == query.Auth0Id)
+                    .Include(user => user.Islands)
+                    .Include(user => user.Pets)
+                    .Include(user => user.Decor)
+                    .Include(user => user.Badges)
+                    .Select(user => ProjectionHelper.ProjectToBaseUser(user))
+                    .FirstOrDefaultAsync(cancellationToken);
             }
             catch (Exception e)
             {

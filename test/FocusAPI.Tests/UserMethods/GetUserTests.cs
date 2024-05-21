@@ -2,18 +2,19 @@ using System.Net;
 using System.Linq.Expressions;
 using FocusAPI.Methods.User;
 using FocusAPI.Models;
-using FocusAPI.Repositories;
 using FocusCore.Queries.User;
 using Moq;
 using Shouldly;
 using FocusCore.Models;
-using FocusAPI.Tests.Fakers.BaseModels;
+using FocusAPI.Data;
+using Moq.EntityFrameworkCore;
+using FocusAPI.Tests.Fakers.ImplementedModels;
 
 namespace FocusAPI.Tests.UserMethods;
 public class GetUserTests
 {
-    BaseUserFaker _baseUserFaker;
-    Mock<IUserRepository> _userRepository;
+    UserFaker _userFaker;
+    Mock<IFocusAPIContext> _context;
     public GetUserTests()
     {
         SetupTestHelpers();
@@ -22,31 +23,23 @@ public class GetUserTests
 
     void SetupTestHelpers()
     {
-        _baseUserFaker = new BaseUserFaker();
+        _userFaker = new UserFaker();
     }
 
     void SetupSystemDependencies()
     {
-        _userRepository = new Mock<IUserRepository>();
+        _context = new Mock<IFocusAPIContext>();
     }
 
-    void SetupMockDataset(List<BaseUser> users)
+    void SetupMockDataset(IList<User> users)
     {
-        _userRepository.Setup(repo => repo.GetBaseUserWithItemsByAuth0IdAsync(
-            It.IsAny<string?>(),
-            It.IsAny<Expression<Func<User, bool>>[]?>(),
-            It.IsAny<CancellationToken>()
-            ))
-            .ReturnsAsync(users.FirstOrDefault());
+        _context.Setup(x => x.Users)
+            .ReturnsDbSet(users);
     }
 
     void SetupMockExceptionCallback(string exceptionMessage)
     {
-        _userRepository.Setup(repo => repo.GetBaseUserWithItemsByAuth0IdAsync(
-            It.IsAny<string?>(),
-            It.IsAny<Expression<Func<User, bool>>[]?>(),
-            It.IsAny<CancellationToken>()
-            ))
+        _context.Setup(x => x.Users)
             .Callback(() => throw new Exception(exceptionMessage));
     }
 
@@ -54,10 +47,10 @@ public class GetUserTests
     public async Task GetUser_ReturnsOKAndItemIds_WhenUserIsNotNull_AndUserHasItems()
     {
         // ARRANGE
-        BaseUser user = _baseUserFaker.Generate();
+        User user = _userFaker.Generate();
         SetupMockDataset([user]);
 
-        GetUser.Handler handler = new(_userRepository.Object);
+        GetUser.Handler handler = new(_context.Object);
         GetUserQuery query = new GetUserQuery { Auth0Id = user.Auth0Id };
 
         // ACT
@@ -78,14 +71,14 @@ public class GetUserTests
     {
         // ARRANGE
         // Set up base user with no items
-        BaseUser user = _baseUserFaker.Generate();
-        user.Badges = null;
-        user.Decor = null;
-        user.Islands = null;
-        user.Pets = null;
+        User user = _userFaker.Generate();
+        user.Badges = new List<UserBadge>();
+        user.Decor = new List<UserDecor>();
+        user.Islands = new List<UserIsland>();
+        user.Pets = new List<UserPet>();
         SetupMockDataset([user]);
 
-        GetUser.Handler handler = new(_userRepository.Object);
+        GetUser.Handler handler = new(_context.Object);
         GetUserQuery query = new GetUserQuery { Auth0Id = user.Auth0Id };
 
         // ACT
@@ -107,7 +100,7 @@ public class GetUserTests
         // ARRANGE
         // Set up mock to return no user
         SetupMockDataset([]);
-        GetUser.Handler handler = new(_userRepository.Object);
+        GetUser.Handler handler = new(_context.Object);
         GetUserQuery query = new GetUserQuery { Auth0Id = "" };
 
         // ACT
@@ -126,7 +119,7 @@ public class GetUserTests
         // Set up mock to throw exception
         string exceptionMessage = "Test exception message.";
         SetupMockExceptionCallback(exceptionMessage);
-        GetUser.Handler handler = new(_userRepository.Object);
+        GetUser.Handler handler = new(_context.Object);
         GetUserQuery query = new GetUserQuery { Auth0Id = "" };
 
         // ACT / ASSERT
