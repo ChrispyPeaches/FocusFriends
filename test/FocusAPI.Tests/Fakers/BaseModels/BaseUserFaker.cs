@@ -1,5 +1,4 @@
 ﻿using Bogus;
-using FocusAPI.Tests.Fakers.ImplementedModels;
 using FocusCore.Models;
 
 namespace FocusAPI.Tests.Fakers.BaseModels;
@@ -40,5 +39,9 @@ internal class BaseUserFaker : Faker<BaseUser>
         RuleFor(user => user.Badges, f => baseUserBadges);
         RuleFor(user => user.SelectedBadge, f => baseUserBadges.First().Badge);
         RuleFor(user => user.SelectedBadgeId, f => baseUserBadges.First().BadgeId);
+
+        BaseUserSessionFaker baseUserSessionFaker = new(userId);
+        List<BaseUserSession> baseUserSessions = baseUserSessionFaker.Generate(2);
+        RuleFor(user => user.UserSessions, f => baseUserSessions);
     }
 }

@@ -39,5 +39,9 @@ internal class UserFaker : Faker<User>
         RuleFor(user => user.Badges, f => userBadges);
         RuleFor(user => user.SelectedBadge, f => userBadges.First().Badge);
         RuleFor(user => user.SelectedBadgeId, f => userBadges.First().BadgeId);
+
+        UserSessionFaker userSessionFaker = new(userId);
+        List<UserSession> userSessions = userSessionFaker.Generate(2);
+        RuleFor(user => user.UserSessions, f => userSessions);
     }
 }

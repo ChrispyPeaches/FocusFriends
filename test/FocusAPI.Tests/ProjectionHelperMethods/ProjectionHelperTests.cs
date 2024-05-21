@@ -48,6 +48,7 @@ public class ProjectionHelperTests
         VerifyUserBadges_ProjectedCorrectly(source, destination);
         VerifyUserSelectedItems_ProjectedCorrectly(source, destination);
         VerifyUserFriendships_ProjectedCorrectly(source, destination);
+        VerifyUserSessions_ProjectedCorrectly(source, destination);
     }
 
     [Fact]
@@ -74,6 +75,7 @@ public class ProjectionHelperTests
         VerifyBaseUserBadges_ProjectedCorrectly(source, destination);
         VerifyBaseUserSelectedItems_ProjectedCorrectly(source, destination);
         VerifyBaseUserFriendships_ProjectedCorrectly(source, destination);
+        VerifyBaseUserSessions_ProjectedCorrectly(source, destination);
     }
 
     #region User -> BaseUser Projection Assertions
@@ -219,6 +221,22 @@ public class ProjectionHelperTests
         destinationInviterFriendship.Status.ShouldBe(sourceInviterFriendship.Status);
     }
 
+    private void VerifyUserSessions_ProjectedCorrectly(User source, BaseUser destination)
+    {
+        destination.UserSessions.ShouldNotBeNull();
+        destination.UserSessions.Count.ShouldBe(source.UserSessions.Count);
+        for (int i = 0; i < source.UserSessions.Count; i++)
+        {
+            UserSession sourceUserSession = source.UserSessions.ElementAt(i);
+            BaseUserSession destinationUserSession = destination.UserSessions.ElementAt(i);
+            destinationUserSession.Id.ShouldBe(sourceUserSession.Id);
+            destinationUserSession.UserId.ShouldBe(sourceUserSession.UserId);
+            destinationUserSession.CurrencyEarned.ShouldBe(sourceUserSession.CurrencyEarned);
+            destinationUserSession.SessionStartTime.ShouldBe(sourceUserSession.SessionStartTime);
+            destinationUserSession.SessionEndTime.ShouldBe(sourceUserSession.SessionEndTime);
+        }
+    }
+
     #endregion
 
     #region BaseUser -> User Projection Assertions
@@ -361,6 +379,22 @@ public class ProjectionHelperTests
         destinationInviterFriendship.UserId.ShouldBe(sourceInviterFriendship.UserId);
         destinationInviterFriendship.FriendId.ShouldNotBe(Guid.Empty);
         destinationInviterFriendship.Status.ShouldBe(sourceInviterFriendship.Status);
+    }
+
+    private void VerifyBaseUserSessions_ProjectedCorrectly(BaseUser source, User destination)
+    {
+        destination.UserSessions.ShouldNotBeNull();
+        destination.UserSessions.Count.ShouldBe(source.UserSessions.Count);
+        for (int i = 0; i < source.UserSessions.Count; i++)
+        {
+            BaseUserSession sourceUserSession = source.UserSessions.ElementAt(i);
+            UserSession destinationUserSession = destination.UserSessions.ElementAt(i);
+            destinationUserSession.Id.ShouldBe(sourceUserSession.Id);
+            destinationUserSession.UserId.ShouldBe(sourceUserSession.UserId);
+            destinationUserSession.CurrencyEarned.ShouldBe(sourceUserSession.CurrencyEarned);
+            destinationUserSession.SessionStartTime.ShouldBe(sourceUserSession.SessionStartTime);
+            destinationUserSession.SessionEndTime.ShouldBe(sourceUserSession.SessionEndTime);
+        }
     }
 
     #endregion
