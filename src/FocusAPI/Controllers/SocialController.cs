@@ -43,6 +43,22 @@ namespace FocusAPI.Controllers
             return Ok(result);
         }
 
+        [HttpDelete]
+        [Route("Friend")]
+        public async Task<ActionResult> DeleteFriend([FromBody] DeleteFriendCommand command)
+        {
+            try
+            {
+                await _mediator.Send(command);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting friend");
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
+
+            return Ok();
+        }
 
         [HttpGet]
         [Route("AllFriendRequests")]
